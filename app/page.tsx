@@ -1,7 +1,26 @@
+import Buy from './_components/buy/buy';
+import HeroSearch from './_components/filters';
+import Footer from './_components/footer';
+import Header from './_components/header';
+import PersonalRealtorCta from './_components/personal-realtor';
+import Promo from './_components/promo';
+import Services from './_components/services';
+import MeetTheTeam from './_components/team';
+import TopListings from './_components/top-listing/top-listings';
+
 export default function Home() {
   return (
-    <div className="bg-black text-blue-200 text-center md:text-9xl text-3xl flex items-center justify-center h-screen">
-      Aura client
+    <div className="bg-[#f6f7f8]">
+      <Header />
+      <HeroSearch />
+      <Services />
+      <TopListings />
+      <Promo />
+      <TopListings />
+      <PersonalRealtorCta />
+      <Buy />
+      <MeetTheTeam />
+      <Footer />
     </div>
   );
 }
