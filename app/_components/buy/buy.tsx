@@ -189,8 +189,8 @@ const Buy: FC = () => {
         <h2 className="text-4xl font-bold text-[#020617] mb-10">Купить</h2>
 
         <div className="grid grid-cols-4 gap-[14px]">
-          {sampleListings.map((listing, index) => (
-            <BuyCard key={listing.id} listing={listing} isLarge={index === 0} />
+          {sampleListings.map((listing) => (
+            <BuyCard key={listing.id} listing={listing} />
           ))}
         </div>
       </div>

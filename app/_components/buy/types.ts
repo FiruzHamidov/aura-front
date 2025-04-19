@@ -22,4 +22,5 @@ export interface Listing {
   floorInfo: string;
   agent?: Agent;
   date?: string;
+  type?: string;
 }

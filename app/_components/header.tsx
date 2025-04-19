@@ -35,13 +35,15 @@ const Header: FC = () => {
           {/* Right Side: Icons and Buttons */}
           <div className="flex items-center space-x-3 md:space-x-4">
             {/* Icons (Consider making these links or buttons with actions) */}
-            <button className="p-1.5 text-gray-500 hover:text-gray-800 transition-colors">
+            <button className="p-1.5 cursor-pointer text-gray-500 hover:text-gray-800 transition-colors">
               <span className="sr-only">Filters</span>
               <SettingsIcon className="h-6 w-6" />
             </button>
-            <button className="p-1.5 text-gray-500 hover:text-gray-800 transition-colors">
-              <span className="sr-only">Favorites</span>
-              <HeartIcon className="h-6 w-6" />
+            <button className="p-1.5 cursor-pointer text-gray-500 hover:text-gray-800 transition-colors">
+              <Link href="/favorites">
+                <span className="sr-only">Favorites</span>
+                <HeartIcon className="h-6 w-6" />
+              </Link>
             </button>
             <button className="p-1.5 text-gray-500 hover:text-gray-800 transition-colors">
               <span className="sr-only">Saved Items</span>
