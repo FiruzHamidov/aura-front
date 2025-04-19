@@ -19,7 +19,7 @@ const promoData: PromoCardData[] = [
       'Современные новостройки с выгодными условиями - успей купить по специальной цене!',
     bgColor: 'bg-yellow-400',
     textColor: 'text-black',
-    imageUrl: '/placeholder-images/promo-building.png',
+    imageUrl: '/images/promo/1.png',
     imageAlt: 'Современное жилое здание',
   },
   {
@@ -29,7 +29,7 @@ const promoData: PromoCardData[] = [
       'Выгодные условия и комфортное жильё — оформите ипотеку на лучших условиях!',
     bgColor: 'bg-green-500',
     textColor: 'text-white',
-    imageUrl: '/placeholder-images/promo-house.png',
+    imageUrl: '/images/promo/2.png',
     imageAlt: 'Дом',
   },
   {
@@ -39,7 +39,7 @@ const promoData: PromoCardData[] = [
       'Аренда без хлопот – просто, быстро, выгодно в месте с Aura Estate еще не было так просто',
     bgColor: 'bg-sky-500',
     textColor: 'text-white',
-    imageUrl: '/placeholder-images/promo-keys.png',
+    imageUrl: '/images/promo/3.png',
     imageAlt: 'Дом с ключами',
   },
 ];

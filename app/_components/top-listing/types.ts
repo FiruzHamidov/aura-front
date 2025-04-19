@@ -1,14 +1,20 @@
-export interface ListingAgent {
-  avatarUrl?: string;
+export interface Image {
+  url: string;
+  alt?: string;
+}
+
+export interface Agent {
   name: string;
   role: string;
+  avatarUrl?: string;
 }
 
 export interface Listing {
-  id: string | number;
-  imageUrl: string;
+  id: number;
+  imageUrl?: string;
   imageAlt?: string;
-  isTop: boolean;
+  images?: Image[];
+  isTop?: boolean;
   price: number;
   currency: string;
   title: string;
@@ -17,6 +23,7 @@ export interface Listing {
   roomCountLabel: string;
   area: number;
   floorInfo: string;
-  agent?: ListingAgent;
+  agent?: Agent;
   date?: string;
+  type?: "apartment" | "house" | "land" | "commercial";
 }

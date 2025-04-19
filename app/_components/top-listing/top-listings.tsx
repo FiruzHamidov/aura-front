@@ -1,12 +1,23 @@
-import { FC } from 'react';
+'use client';
+
+import { FC, useState } from 'react';
 import { Listing } from './types';
 import ListingCard from './listing-card';
+
+type PropertyType = 'apartment' | 'house' | 'land' | 'commercial';
 
 const sampleListings: Listing[] = [
   {
     id: 1,
-    imageUrl: '/placeholder-images/listing-large.jpg',
-    imageAlt: 'Современная спальня с деревянными панелями',
+    images: [
+      {
+        url: '/images/buy/big.png',
+        alt: 'Современная спальня с деревянными панелями',
+      },
+      { url: '/images/buy/1.png', alt: 'Дополнительное фото 1' },
+      { url: '/images/buy/2.jpeg', alt: 'Дополнительное фото 2' },
+      { url: '/images/buy/3.jpeg', alt: 'Дополнительное фото 3' },
+    ],
     isTop: true,
     price: 432000,
     currency: 'с.',
@@ -21,10 +32,16 @@ const sampleListings: Listing[] = [
       role: 'топ-риелтор',
     },
     date: '22.10.2023',
+    type: 'apartment',
   },
   {
     id: 2,
-    imageUrl: '/placeholder-images/listing-small-1.jpg',
+    images: [
+      { url: '/images/buy/1.png', alt: 'Квартира 2' },
+      { url: '/images/buy/2.jpeg', alt: 'Дополнительное фото 1' },
+      { url: '/images/buy/3.jpeg', alt: 'Дополнительное фото 2' },
+      { url: '/images/buy/4.jpeg', alt: 'Дополнительное фото 3' },
+    ],
     isTop: true,
     price: 333210,
     currency: 'с.',
@@ -34,10 +51,16 @@ const sampleListings: Listing[] = [
     roomCountLabel: '1-ком',
     area: 53,
     floorInfo: '1/12 этаж',
+    type: 'apartment',
   },
   {
     id: 3,
-    imageUrl: '/placeholder-images/listing-small-2.jpg',
+    images: [
+      { url: '/images/buy/2.jpeg', alt: 'Квартира 3' },
+      { url: '/images/buy/3.jpeg', alt: 'Дополнительное фото 1' },
+      { url: '/images/buy/4.jpeg', alt: 'Дополнительное фото 2' },
+      { url: '/images/buy/5.jpeg', alt: 'Дополнительное фото 3' },
+    ],
     isTop: true,
     price: 1000000,
     currency: 'с.',
@@ -47,10 +70,16 @@ const sampleListings: Listing[] = [
     roomCountLabel: '4-ком',
     area: 178,
     floorInfo: '4/16 этаж',
+    type: 'apartment',
   },
   {
     id: 4,
-    imageUrl: '/placeholder-images/listing-small-3.jpg',
+    images: [
+      { url: '/images/buy/3.jpeg', alt: 'Квартира 4' },
+      { url: '/images/buy/4.jpeg', alt: 'Дополнительное фото 1' },
+      { url: '/images/buy/5.jpeg', alt: 'Дополнительное фото 2' },
+      { url: '/images/buy/6.jpeg', alt: 'Дополнительное фото 3' },
+    ],
     isTop: true,
     price: 890000,
     currency: 'с.',
@@ -60,10 +89,16 @@ const sampleListings: Listing[] = [
     roomCountLabel: '3-ком',
     area: 100,
     floorInfo: '6/12 этаж',
+    type: 'apartment',
   },
   {
     id: 5,
-    imageUrl: '/placeholder-images/listing-small-4.jpg',
+    images: [
+      { url: '/images/buy/4.jpeg', alt: 'Квартира 5' },
+      { url: '/images/buy/5.jpeg', alt: 'Дополнительное фото 1' },
+      { url: '/images/buy/6.jpeg', alt: 'Дополнительное фото 2' },
+      { url: '/images/buy/7.jpeg', alt: 'Дополнительное фото 3' },
+    ],
     isTop: true,
     price: 432000,
     currency: 'с.',
@@ -73,25 +108,87 @@ const sampleListings: Listing[] = [
     roomCountLabel: '2-ком',
     area: 78,
     floorInfo: '3/12 этаж',
+    type: 'apartment',
   },
 ];
 
 const TopListings: FC = () => {
+  const [activeType, setActiveType] = useState<PropertyType>('apartment');
+
+  const filteredListings = sampleListings.filter(
+    (listing) => !listing.type || listing.type === activeType
+  );
+
+  // Split listings for the layout
+  const firstListing = filteredListings[0];
+  const smallListings = filteredListings.slice(1, 5); // Get listings 2-5 for the right column
+
   return (
     <section>
-      <div className="container mx-auto">
-        <h2 className="text-3xl font-bold text-gray-900 mb-8">
+      <div className="container mx-auto mt-20">
+        <h2 className="text-4xl font-bold text-[#020617] mb-10">
           Топовые объявления
         </h2>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {sampleListings.map((listing, index) => (
-            <ListingCard
-              key={listing.id}
-              listing={listing}
-              isLarge={index === 0}
-            />
-          ))}
+        {/* Property type filter tabs */}
+        <div className="flex flex-wrap gap-4 mb-8">
+          <button
+            className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${
+              activeType === 'apartment'
+                ? 'bg-blue-700 text-white'
+                : 'bg-white text-[#020617]'
+            }`}
+            onClick={() => setActiveType('apartment')}
+          >
+            Квартира
+          </button>
+          <button
+            className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${
+              activeType === 'house'
+                ? 'bg-blue-700 text-white'
+                : 'bg-white text-[#020617]'
+            }`}
+            onClick={() => setActiveType('house')}
+          >
+            Дом
+          </button>
+          <button
+            className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${
+              activeType === 'land'
+                ? 'bg-blue-700 text-white'
+                : 'bg-white text-[#020617]'
+            }`}
+            onClick={() => setActiveType('land')}
+          >
+            Земельный участок
+          </button>
+          <button
+            className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${
+              activeType === 'commercial'
+                ? 'bg-blue-700 text-white'
+                : 'bg-white text-[#020617]'
+            }`}
+            onClick={() => setActiveType('commercial')}
+          >
+            Коммерческая
+          </button>
+        </div>
+
+        {/* Two-column layout with large card on left and 4 small cards on right */}
+        <div className="grid md:grid-cols-2 gap-5">
+          {/* Left column - large card */}
+          {firstListing && (
+            <div className="md:h-full max-h-[578px]">
+              <ListingCard listing={firstListing} isLarge={true} />
+            </div>
+          )}
+
+          {/* Right column - 2x2 grid of smaller cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-h-[578px]">
+            {smallListings.map((listing) => (
+              <ListingCard key={listing.id} listing={listing} isLarge={false} />
+            ))}
+          </div>
         </div>
       </div>
     </section>
