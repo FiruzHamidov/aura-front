@@ -114,7 +114,7 @@ const HeroSearch: FC = () => {
                   ))}
                 </Select>
                 <ChevronDownIcon
-                  className="group pointer-events-none absolute top-5 right-2.5 size-5 fill-gray-500"
+                  className="group pointer-events-none absolute top-5 right-2.5 w-5 h-5 fill-gray-500"
                   aria-hidden="true"
                 />
               </div>
