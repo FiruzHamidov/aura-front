@@ -60,7 +60,7 @@ const HeroSearch: FC = () => {
 
   return (
     <div className="relative py-16 sm:py-20 md:py-5 bg-gradient-to-b overflow-hidden">
-      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 z-10">
+      <div className="relative mx-auto px-4 sm:px-6 lg:px-8 z-10">
         <div className="bg-white rounded-[22px] shadow-lg px-[70px] py-[93px]">
           <div className="text-center mb-6 md:mb-[60px]">
             <h1 className="text-2xl sm:text-3xl md:text-[52px] font-extrabold text-[#0036A5] mb-1.5 tracking-tight">

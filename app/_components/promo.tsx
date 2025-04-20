@@ -79,26 +79,24 @@ const Promo: FC = () => {
   const activeIndex = 0;
   return (
     <section className="bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="container mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-          {promoData.map((card) => (
-            <PromoCard key={card.id} cardData={card} />
-          ))}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+        {promoData.map((card) => (
+          <PromoCard key={card.id} cardData={card} />
+        ))}
+      </div>
 
-        <div className="flex justify-center items-center space-x-2 mt-8">
-          {promoData.map((_, index) => (
-            <button
-              key={index}
-              className={`w-2.5 h-2.5 rounded-full transition-colors duration-200 ${
-                index === activeIndex
-                  ? 'bg-blue-700'
-                  : 'bg-gray-300 hover:bg-gray-400'
-              }`}
-              aria-label={`Перейти к слайду ${index + 1}`}
-            />
-          ))}
-        </div>
+      <div className="flex justify-center items-center space-x-2 mt-8">
+        {promoData.map((_, index) => (
+          <button
+            key={index}
+            className={`w-2.5 h-2.5 rounded-full transition-colors duration-200 ${
+              index === activeIndex
+                ? 'bg-blue-700'
+                : 'bg-gray-300 hover:bg-gray-400'
+            }`}
+            aria-label={`Перейти к слайду ${index + 1}`}
+          />
+        ))}
       </div>
     </section>
   );

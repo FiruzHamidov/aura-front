@@ -1,0 +1,165 @@
+import Image from 'next/image';
+
+export const AboutUs = () => {
+  return (
+    <div className="pt-12">
+      {/* About Us Section */}
+      <section className="bg-white rounded-[22px] mx-auto px-12 pt-[50px] mb-10">
+        <div className="flex flex-col lg:flex-row gap-10">
+          <div className="lg:w-1/3">
+            <h2 className="text-4xl font-bold mb-6 text-[#020617]">О нас</h2>
+            <div className="relative h-80 w-full">
+              <Image
+                src="/images/about/1.png"
+                alt="3D Buildings"
+                fill
+                className="object-contain w-[670px] h-[670px]"
+              />
+            </div>
+          </div>
+
+          <div className="lg:w-2/3">
+            <p className="text-[#666F8D] mb-4">
+              Aura Estate: Ваш надежный партнер в мире недвижимости
+              Таджикистана!
+            </p>
+
+            <p className="text-[#666F8D] mb-4">
+              В Aura Estate мы стремимся сделать процесс покупки или продажи
+              недвижимости максимально приятным и беззаботным для наших
+              клиентов. Наша команда опытных риэлторов обладает глубокими
+              знаниями рынка недвижимости в Душанбе и готова помочь вам найти
+              идеальный вариант, соответствующий вашим потребностям и ожиданиям.
+            </p>
+
+            <p className="text-[#666F8D] mb-4">
+              Мы понимаем, что каждая сделка — это важный шаг, поэтому
+              обеспечиваем полное юридическое сопровождение на всех этапах. Наша
+              цель — обеспечить вам комфорт и уверенность в каждом решении.
+            </p>
+
+            <p className="text-[#666F8D]">
+              Доверьтесь профессионалам Aura Estate и сделайте вашу сделку с
+              недвижимостью легкой и успешной!
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <div className="flex flex-col lg:flex-row gap-5">
+          <div className="bg-white p-10 rounded-[22px] lg:w-2/3">
+            <h2 className="text-3xl font-bold mb-6 text-[#020617]">
+              Миссия компании {'Aura Estate'}
+            </h2>
+
+            <p className="text-[#666F8D] mb-3">
+              В Aura Estate мы предлагаем людям не просто жильё — мы открываем
+              путь к лучшей жизни.
+            </p>
+
+            <p className="text-[#666F8D] mb-3">
+              Наша миссия — изменить жизнь людей, предоставляя профессиональные,
+              надёжные и прозрачные услуги в сфере недвижимости. Мы в Aura
+              Estate работаем для того, чтобы каждый мог осуществить свою мечту
+              о новом доме — с помощью опытных, неравнодушных, которые работают
+              с ответственностью, честностью и любовью.
+            </p>
+
+            <p className="text-[#666F8D]">
+              Aura Estate — это не просто компания, это семья, которая каждый
+              день трудится ради мечт людей.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-[22px] p-10 lg:w-1/3 flex items-center justify-center">
+            <div className="relative h-60 w-60">
+              <Image
+                src="/images/about/2.png"
+                alt="Target"
+                fill
+                className="object-contain"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <div className="flex flex-col lg:flex-row gap-5">
+          <div className="lg:w-1/3 bg-white rounded-[22px] p-10 flex items-center justify-center">
+            <div className="relative h-80 w-80">
+              <Image
+                src="/images/about/3.png"
+                alt="Blue House"
+                fill
+                className="object-contain"
+              />
+            </div>
+          </div>
+
+          <div className="lg:w-2/3 bg-white rounded-[22px] p-10">
+            <h2 className="text-3xl font-bold mb-8 text-[#020617]">
+              Зачем мы существуем:
+            </h2>
+
+            <ul className="space-y-6">
+              <li className="flex items-start">
+                <span className="text-blue-700 font-bold mr-2">•</span>
+                <p className="text-gray-600">
+                  Чтобы каждый человек, независимо от своего бюджета, мог найти
+                  подходящую и надёжную недвижимость;
+                </p>
+              </li>
+
+              <li className="flex items-start">
+                <span className="text-blue-700 font-bold mr-2">•</span>
+                <p className="text-gray-600">
+                  Чтобы процесс покупки и продажи был прозрачным, безопасным и
+                  простым;
+                </p>
+              </li>
+
+              <li className="flex items-start">
+                <span className="text-blue-700 font-bold mr-2">•</span>
+                <p className="text-gray-600">
+                  Чтобы клиенты чувствовали себя не одинокими, а понятыми и
+                  поддержанными;
+                </p>
+              </li>
+
+              <li className="flex items-start">
+                <span className="text-blue-700 font-bold mr-2">•</span>
+                <p className="text-gray-600">
+                  Чтобы поднять культуру продаж в Таджикистане на новый
+                  профессиональный уровень — с помощью знаний, этики и
+                  преданности делу.
+                </p>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white rounded-[22px] pl-10 pr-20 mx-auto py-16">
+        <h2 className="text-[32px] font-bold mb-[22px] text-[#020617]">
+          Миссия сотрудника Aura Estate
+        </h2>
+
+        <p className="text-[#666F8D] mb-3">
+          Я, как член команды Aura Estate, ощущаю себя ответственным и
+          полноправным участником в реализации мечт людей. <br /> Моя миссия —
+          предоставлять надёжный, ориентированный на человека и профессиональный
+          сервис каждому, кто обращается в нашу компанию.
+        </p>
+
+        <p className="text-[#666F8D]">
+          Моя миссия — не просто продажа, а создание доверия, душевного
+          спокойствия и долгосрочных отношений с каждым клиентом. Я работаю с
+          преданностью, честностью и профессионализмом, потому что представляю
+          компанию, которая ценит людей и создаёт истинную ценность.
+        </p>
+      </section>
+    </div>
+  );
+};
