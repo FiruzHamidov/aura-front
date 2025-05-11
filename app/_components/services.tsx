@@ -45,12 +45,7 @@ const servicesData: ServiceItem[] = [
 const Services: FC = () => {
   return (
     <div className="container mx-auto mt-5">
-      {/* Optional: Add a title for the section if desired */}
-      {/* <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-8 md:mb-12">Наши Услуги</h2> */}
-
-      {/* White container similar to the hero search */}
       <div className="bg-white rounded-xl shadow-lg px-10 py-[55px]">
-        {/* Grid for the service cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
           {servicesData.map((service) => (
             <div
@@ -68,7 +63,6 @@ const Services: FC = () => {
                   height={120}
                   src={service.imageUrl}
                   alt={service.altText}
-                  objectFit="contain"
                   className="justify-self-end"
                 />
               </div>

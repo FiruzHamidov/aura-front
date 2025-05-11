@@ -76,7 +76,7 @@ const HeroSearch: FC = () => {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 sm:px-9 py-3 rounded-lg font-medium cursor-pointer transition-all duration-150 ease-in-out ${
+                className={`px-4 sm:px-9 py-3 rounded-lg  cursor-pointer transition-all duration-150 ease-in-out ${
                   activeTab === tab
                     ? 'bg-[#0036A5] text-white shadow-sm'
                     : 'bg-white text-gray-700 border border-[#CBD5E1] hover:bg-gray-50 hover:border-gray-400'

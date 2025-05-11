@@ -19,7 +19,6 @@ interface ListingCardProps {
 const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
   const formattedPrice = listing.price.toLocaleString('ru-RU');
 
-  // Set up carousel if we have multiple images
   const images = listing.images || [
     { url: listing.imageUrl, alt: listing.imageAlt || `Фото ${listing.title}` },
   ];
@@ -139,7 +138,6 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
           <span>{listing.floorInfo}</span>
         </div>
 
-        {/* Realtor information - shown only for large card if agent info exists */}
         {isLarge && listing.agent && listing.date && (
           <div className="mt-auto pt-3 flex items-center justify-between text-xs border-t border-gray-100">
             <div className="flex items-center">

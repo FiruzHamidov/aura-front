@@ -7,13 +7,12 @@ interface ShareCardProps {
   title?: string;
 }
 
-const ShareCard = ({ url, title }: ShareCardProps) => {
+const ShareCard = ({ url }: ShareCardProps) => {
   const [copied, setCopied] = useState(false);
 
-  // Use current URL if not provided
   const shareUrl =
     url || typeof window !== 'undefined' ? window.location.href : '';
-  const shareTitle = title || 'Aura - Полезная статья';
+  // const shareTitle = title || 'Aura - Полезная статья';
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl);
