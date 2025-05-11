@@ -119,9 +119,8 @@ const TopListings: FC = () => {
     (listing) => !listing.type || listing.type === activeType
   );
 
-  // Split listings for the layout
   const firstListing = filteredListings[0];
-  const smallListings = filteredListings.slice(1, 5); // Get listings 2-5 for the right column
+  const smallListings = filteredListings.slice(1, 5);
 
   return (
     <section>
@@ -130,10 +129,9 @@ const TopListings: FC = () => {
           Топовые объявления
         </h2>
 
-        {/* Property type filter tabs */}
         <div className="flex flex-wrap gap-4 mb-8">
           <button
-            className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${
+            className={`px-6 py-3 rounded-full text-sm  transition-colors ${
               activeType === 'apartment'
                 ? 'bg-blue-700 text-white'
                 : 'bg-white text-[#020617]'
@@ -143,7 +141,7 @@ const TopListings: FC = () => {
             Квартира
           </button>
           <button
-            className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${
+            className={`px-6 py-3 rounded-full text-sm  transition-colors ${
               activeType === 'house'
                 ? 'bg-blue-700 text-white'
                 : 'bg-white text-[#020617]'
@@ -153,7 +151,7 @@ const TopListings: FC = () => {
             Дом
           </button>
           <button
-            className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${
+            className={`px-6 py-3 rounded-full text-sm  transition-colors ${
               activeType === 'land'
                 ? 'bg-blue-700 text-white'
                 : 'bg-white text-[#020617]'
@@ -163,7 +161,7 @@ const TopListings: FC = () => {
             Земельный участок
           </button>
           <button
-            className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${
+            className={`px-6 py-3 rounded-full text-sm  transition-colors ${
               activeType === 'commercial'
                 ? 'bg-blue-700 text-white'
                 : 'bg-white text-[#020617]'
@@ -174,16 +172,13 @@ const TopListings: FC = () => {
           </button>
         </div>
 
-        {/* Two-column layout with large card on left and 4 small cards on right */}
         <div className="grid md:grid-cols-2 gap-5">
-          {/* Left column - large card */}
           {firstListing && (
             <div className="md:h-full max-h-[578px]">
               <ListingCard listing={firstListing} isLarge={true} />
             </div>
           )}
 
-          {/* Right column - 2x2 grid of smaller cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-h-[578px]">
             {smallListings.map((listing) => (
               <ListingCard key={listing.id} listing={listing} isLarge={false} />

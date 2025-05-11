@@ -20,7 +20,6 @@ const PersonalRealtorCta: FC = () => {
           src="/cta-background.jpg"
           alt="Hand holding house keys"
           fill
-          style={{ objectFit: 'cover', objectPosition: 'center right' }}
           className="opacity-50 md:opacity-100"
           quality={85}
           priority

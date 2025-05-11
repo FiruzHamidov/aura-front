@@ -67,7 +67,6 @@ const PromoCard: FC<PromoCardProps> = ({ cardData }) => {
           src={cardData.imageUrl}
           alt={cardData.imageAlt}
           fill
-          style={{ objectFit: 'contain' }}
           sizes="(max-width: 640px) 50vw, (max-width: 768px) 25vw, (max-width: 1024px) 20vw, 15vw"
         />
       </div>

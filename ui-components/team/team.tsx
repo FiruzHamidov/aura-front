@@ -2,6 +2,7 @@
 
 import { FC, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface ExpertProfile {
   id: number | string;
@@ -65,7 +66,6 @@ const ExpertCard: FC<ExpertCardProps> = ({ expert }) => {
           src={expert.imageUrl}
           alt={expert.imageAlt}
           fill
-          style={{ objectFit: 'cover' }}
           className="rounded-full"
           sizes="(max-width: 768px) 100px, 112px"
         />
@@ -97,7 +97,9 @@ const MeetTheTeam: FC = () => {
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {expertData.map((expert) => (
-          <ExpertCard key={expert.id} expert={expert} />
+          <Link key={expert.id} href={`/about/team/${expert.id}`}>
+            <ExpertCard expert={expert} />
+          </Link>
         ))}
       </div>
     </div>

@@ -84,7 +84,7 @@ export default function Favorites() {
           <div className="mt-4 md:mt-0 flex rounded-full bg-gray-100 p-1">
             <button
               onClick={() => setActiveFilter('all')}
-              className={`rounded-full px-8 py-2 text-sm font-medium transition ${
+              className={`rounded-full px-8 py-2 text-sm  transition ${
                 activeFilter === 'all'
                   ? 'bg-[#0036A5] text-white shadow'
                   : 'text-[#020617]'
@@ -94,7 +94,7 @@ export default function Favorites() {
             </button>
             <button
               onClick={() => setActiveFilter('sale')}
-              className={`rounded-full px-8 py-2 text-sm font-medium transition ${
+              className={`rounded-full px-8 py-2 text-sm  transition ${
                 activeFilter === 'sale'
                   ? 'bg-[#0036A5] text-white'
                   : 'text-[#020617]'
@@ -104,7 +104,7 @@ export default function Favorites() {
             </button>
             <button
               onClick={() => setActiveFilter('rent')}
-              className={`rounded-full px-8 py-2 text-sm font-medium transition ${
+              className={`rounded-full px-8 py-2 text-sm  transition ${
                 activeFilter === 'rent'
                   ? 'bg-[#0036A5] text-white'
                   : 'text-[#020617]'
