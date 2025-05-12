@@ -75,21 +75,21 @@ const Header: FC = () => {
           <div className="flex items-center space-x-3 md:space-x-4">
             <button className="p-1.5 cursor-pointer text-gray-500 hover:text-gray-800 transition-colors">
               <span className="sr-only">Filters</span>
-              <SettingsIcon className="h-6 w-6" />
+              <SettingsIcon className="h-6 w-6 cursor-pointer" />
             </button>
             <button className="p-1.5 cursor-pointer text-gray-500 hover:text-gray-800 transition-colors">
               <Link href="/favorites">
                 <span className="sr-only">Favorites</span>
-                <HeartIcon className="h-6 w-6" />
+                <HeartIcon className="h-6 w-6 cursor-pointer" />
               </Link>
             </button>
             <button className="p-1.5 text-gray-500 hover:text-gray-800 transition-colors">
               <span className="sr-only">Saved Items</span>
-              <BoxIcon className="h-6 w-6" />
+              <BoxIcon className="h-6 w-6 cursor-pointer" />
             </button>
 
-            <button className="hidden md:flex items-center space-x-2 bg-sky-100/70 hover:bg-sky-100 px-[27px] py-2 rounded-full text-sm  transition-colors">
-              <PlusIcon className="h-6 w-6" />
+            <button className="hidden md:flex items-center space-x-2 bg-sky-100/70 hover:bg-sky-100 px-[27px] py-2 rounded-full text-sm  transition-colors cursor-pointer">
+              <PlusIcon className="h-6 w-6 cursor-pointer" />
               <span>Добавить объявление</span>
             </button>
 
