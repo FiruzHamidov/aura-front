@@ -3,6 +3,7 @@
 import { FC, useState } from 'react';
 import { Listing } from './types';
 import ListingCard from './listing-card';
+import Link from 'next/link';
 
 type PropertyType = 'apartment' | 'house' | 'land' | 'commercial';
 
@@ -175,13 +176,17 @@ const TopListings: FC = () => {
         <div className="grid md:grid-cols-2 gap-5">
           {firstListing && (
             <div className="md:h-full max-h-[578px]">
-              <ListingCard listing={firstListing} isLarge={true} />
+              <Link href={`/apartment/${firstListing.id}`}>
+                <ListingCard listing={firstListing} isLarge={true} />
+              </Link>
             </div>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-h-[578px]">
             {smallListings.map((listing) => (
-              <ListingCard key={listing.id} listing={listing} isLarge={false} />
+              <Link key={listing.id} href={`/apartment/${listing.id}`}>
+                <ListingCard listing={listing} isLarge={false} />
+              </Link>
             ))}
           </div>
         </div>

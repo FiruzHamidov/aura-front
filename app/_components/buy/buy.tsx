@@ -1,6 +1,7 @@
 import { FC } from 'react';
 import { Listing } from './types';
 import BuyCard from './buy-card';
+import Link from 'next/link';
 
 const sampleListings: Listing[] = [
   {
@@ -190,7 +191,9 @@ const Buy: FC = () => {
 
         <div className="grid grid-cols-4 gap-[14px]">
           {sampleListings.map((listing) => (
-            <BuyCard key={listing.id} listing={listing} />
+            <Link key={listing.id} href={`/apartment/${listing.id}`}>
+              <BuyCard listing={listing} />
+            </Link>
           ))}
         </div>
       </div>
