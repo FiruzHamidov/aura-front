@@ -7,6 +7,14 @@
 
 @theme inline {
   --font-inter: var(--font-inter);
+  --breakpoint-3xl: 1440px;
+  --breakpoint-2xl: 1280px;
+  --breakpoint-xl: 1024px;
+  --breakpoint-lg: 768px;
+  --breakpoint-md: 640px;
+  --breakpoint-sm: 480px;
+  --breakpoint-xs: 375px;
+  --breakpoint-xxs: 320px;
 }
 
 body {

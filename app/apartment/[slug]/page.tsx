@@ -6,6 +6,7 @@ import Link from 'next/link';
 import useEmblaCarousel from 'embla-carousel-react';
 import SettingsIcon from '@/icons/SettingsIcon';
 import HeartIcon from '@/icons/HeartIcon';
+import MortgageCalculator from './_components/MortgageCalculator';
 
 const apartmentData = {
   id: '13568442',
@@ -359,6 +360,7 @@ export default function Apartment() {
           </div>
         </div>
       </div>
+      <MortgageCalculator />
     </div>
   );
 }
