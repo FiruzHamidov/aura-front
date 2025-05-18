@@ -1,10 +1,16 @@
 'use client';
 
+interface Option {
+  id: string | number;
+  name: string;
+  unavailable?: boolean;
+}
+
 interface SelectInputProps {
-  label: string;
+  label?: string;
   value: string;
   onChange: (value: string) => void;
-  options: string[];
+  options: Option[];
   suffix?: string;
 }
 
@@ -17,7 +23,7 @@ export function SelectInput({
 }: SelectInputProps) {
   return (
     <div className="flex flex-col gap-3">
-      <label className="text-[#666F8D] text-lg">{label}</label>
+      {label && <label className="text-[#666F8D] text-lg">{label}</label>}
       <div className="relative">
         <select
           value={value}
@@ -25,8 +31,8 @@ export function SelectInput({
           className="w-full bg-[#F0F2F5] rounded-lg py-5 px-4 text-lg appearance-none"
         >
           {options.map((option) => (
-            <option key={option} value={option}>
-              {option}
+            <option key={option.id} value={option.id}>
+              {option.name}
             </option>
           ))}
         </select>

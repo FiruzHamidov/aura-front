@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { FormInput } from './FormInput';
 import { BankOption } from './BankOption';
-import { DateInput } from './DateInput';
 import { MortgageResults } from './MortgageResults';
-import { SelectInput } from './SelectInput';
+import { DateInput } from '@/ui-components/DateInput';
+import { FormInput } from '@/ui-components/FormInput';
+import { SelectInput } from '@/ui-components/SelectInput';
 
 export default function MortgageCalculator() {
   const [propertyPrice, setPropertyPrice] = useState('450 000');
@@ -49,7 +49,13 @@ export default function MortgageCalculator() {
             value={loanTerm}
             onChange={(value) => setLoanTerm(value)}
             suffix="года"
-            options={['1', '2', '3', '5', '10', '15', '20', '25', '30']}
+            options={[
+              { id: '1', name: '1 год' },
+              { id: '2', name: '2 года' },
+              { id: '3', name: '3 года' },
+              { id: '4', name: '4 года' },
+              { id: '5', name: '5 лет' },
+            ]}
           />
 
           <DateInput
@@ -62,14 +68,32 @@ export default function MortgageCalculator() {
             label="Порядок погашения"
             value={paymentType}
             onChange={(value) => setPaymentType(value)}
-            options={['Аннуитетный', 'Дифференцированный']}
+            options={[
+              {
+                id: 'annuity',
+                name: 'Аннуитетный',
+              },
+              {
+                id: 'differentiated',
+                name: 'Дифференцированный',
+              },
+            ]}
           />
 
           <SelectInput
             label="Периодичность погашения"
             value={paymentFrequency}
             onChange={(value) => setPaymentFrequency(value)}
-            options={['Ежемесячно', 'Еженедельно']}
+            options={[
+              {
+                id: 'monthly',
+                name: 'Ежемесячно',
+              },
+              {
+                id: 'weekly',
+                name: 'Еженедельно',
+              },
+            ]}
           />
         </div>
 
