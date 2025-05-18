@@ -20,5 +20,6 @@
 body {
   font-family: var(--font-inter);
   background: #f7f8fa;
+  color: #020617;
   font-weight: 500;
 }

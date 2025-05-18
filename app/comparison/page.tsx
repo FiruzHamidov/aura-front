@@ -99,7 +99,7 @@ export default function Comparison() {
   );
 
   return (
-    <div className="container py-8 bg-gray-50">
+    <div className="container py-6">
       {/* Header section */}
       <div className="flex justify-between items-center mb-10 bg-white rounded-[22px] p-[30px]">
         <div>

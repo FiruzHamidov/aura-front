@@ -14,6 +14,7 @@ const navItems = [
   { name: 'Главная', href: '/' },
   { name: 'Покупка', href: '/buy' },
   { name: 'Аренда', href: '/rent' },
+  { name: 'Новостройки', href: '/new-buildings' },
   { name: 'Ипотека', href: '/mortgage' },
   { name: 'Сервисы', href: '/services' },
   { name: 'Реклама', href: '/ads' },
