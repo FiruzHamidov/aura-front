@@ -3,11 +3,18 @@
 interface FormInputProps {
   label: string;
   value: string;
+  placeholder?: string;
   onChange: (value: string) => void;
   suffix?: string;
 }
 
-export function FormInput({ label, value, onChange, suffix }: FormInputProps) {
+export function FormInput({
+  label,
+  value,
+  placeholder,
+  onChange,
+  suffix,
+}: FormInputProps) {
   return (
     <div className="flex flex-col gap-3">
       <label className="text-[#666F8D] text-lg">{label}</label>
@@ -15,6 +22,7 @@ export function FormInput({ label, value, onChange, suffix }: FormInputProps) {
         <input
           type="text"
           value={value}
+          placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
           className="w-full bg-[#F0F2F5] rounded-lg py-5 px-4 text-lg"
         />
