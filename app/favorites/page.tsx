@@ -72,7 +72,7 @@ export default function Favorites() {
 
   return (
     <div className="container">
-      <div className="bg-white rounded-full p-[30px] my-10 shadow-sm">
+      <div className="bg-white rounded-[22px] p-[30px] my-10">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center">
           <div>
             <h1 className="text-2xl font-bold text-[#020617] mb-1">
@@ -84,7 +84,7 @@ export default function Favorites() {
           <div className="mt-4 md:mt-0 flex rounded-full bg-gray-100 p-1">
             <button
               onClick={() => setActiveFilter('all')}
-              className={`rounded-full px-8 py-2 text-sm  transition ${
+              className={`rounded-full px-8 py-2 text-sm cursor-pointer transition ${
                 activeFilter === 'all'
                   ? 'bg-[#0036A5] text-white shadow'
                   : 'text-[#020617]'
@@ -94,7 +94,7 @@ export default function Favorites() {
             </button>
             <button
               onClick={() => setActiveFilter('sale')}
-              className={`rounded-full px-8 py-2 text-sm  transition ${
+              className={`rounded-full px-8 py-2 text-sm cursor-pointer transition ${
                 activeFilter === 'sale'
                   ? 'bg-[#0036A5] text-white'
                   : 'text-[#020617]'
@@ -104,7 +104,7 @@ export default function Favorites() {
             </button>
             <button
               onClick={() => setActiveFilter('rent')}
-              className={`rounded-full px-8 py-2 text-sm  transition ${
+              className={`rounded-full px-8 py-2 text-sm cursor-pointer transition ${
                 activeFilter === 'rent'
                   ? 'bg-[#0036A5] text-white'
                   : 'text-[#020617]'

@@ -8,7 +8,7 @@ import TopListings from './_components/top-listing/top-listings';
 
 export default function Home() {
   return (
-    <div className="bg-[#f6f7f8]">
+    <>
       <HeroSearch />
       <Services />
       <TopListings />
@@ -19,6 +19,6 @@ export default function Home() {
       <div className="mb-14 md:mb-[85px] mx-auto md:px-4 sm:px-6 lg:px-8">
         <MeetTheTeam />
       </div>
-    </div>
+    </>
   );
 }

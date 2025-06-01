@@ -60,7 +60,7 @@ const ExpertCard: FC<ExpertCardProps> = ({ expert }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-200 px-9 py-[30px] text-center flex flex-col items-center">
+    <div className="bg-white rounded-[22px] px-9 py-[30px] text-center flex flex-col items-center">
       <div className="relative w-20 h-20 mb-4">
         <Image
           src={expert.imageUrl}
@@ -91,7 +91,7 @@ const ExpertCard: FC<ExpertCardProps> = ({ expert }) => {
 
 const MeetTheTeam: FC = () => {
   return (
-    <div className="container mt-10">
+    <div className="container mt-10 md:mt-20">
       <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-6 md:mb-10">
         Встречайте команду экспертов Aura Estate!
       </h2>

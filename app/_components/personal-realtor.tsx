@@ -15,17 +15,15 @@ const PersonalRealtorCta: FC = () => {
 
   return (
     <section>
-      <div className="container mt-16 md:mt-20 relative bg-blue-800 rounded-3xl overflow-hidden shadow-lg">
+      <div className="container mt-16 md:mt-20 relative bg-blue-800 rounded-3xl overflow-hidden">
         <Image
-          src="/cta-background.jpg"
+          src="/images/personal-cta/img.png"
           alt="Hand holding house keys"
           fill
           className="opacity-50 md:opacity-100"
           quality={85}
           priority
         />
-
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-800 via-blue-800/80 to-blue-800/10 z-[5]"></div>
 
         <div className="relative z-10 pt-4 md:pt-16 pb-12 md:pl-[66px] text-white md:max-w-[710px]">
           <h2 className="text-2xl md:text-4xl font-bold mb-4 leading-tight">

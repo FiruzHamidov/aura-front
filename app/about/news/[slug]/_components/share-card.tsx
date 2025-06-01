@@ -21,7 +21,7 @@ const ShareCard = ({ url }: ShareCardProps) => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-10 bg-white rounded-[22px] py-10 px-7">
+    <div className="flex flex-col items-center gap-10 bg-white rounded-[22px] py-6 md:py-10 px-4 md:px-7">
       <div className="text-2xl text-[#666F8D] font-bold">Поделиться</div>
 
       <div className="flex gap-2">
@@ -136,7 +136,7 @@ const ShareCard = ({ url }: ShareCardProps) => {
 
       <button
         onClick={handleCopyLink}
-        className="w-full border border-[#BAC0CC] rounded-full py-5 px-6 text-[#666F8D] hover:bg-gray-50 transition-colors cursor-pointer font-bold text-lg"
+        className="w-full border border-[#BAC0CC] rounded-full py-5 px-6 text-[#666F8D] hover:bg-gray-50 transition-colors cursor-pointer font-bold md:text-lg"
       >
         {copied ? 'Ссылка скопирована' : 'Скопировать ссылку'}
       </button>

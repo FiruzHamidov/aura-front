@@ -13,7 +13,7 @@ import FilterSearchIcon from '@/icons/FilterSearchIcon';
 import { FormInput } from '@/ui-components/FormInput';
 import { SelectInput } from '@/ui-components/SelectInput';
 
-type ActiveTab = 'buy' | 'rent' | 'sell';
+type ActiveTab = 'buy' | 'rent' | 'sell' | 'map';
 
 interface Option {
   id: string | number;
@@ -119,7 +119,7 @@ const AllFiltersModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
 
       <div className="fixed inset-0 z-10 w-screen overflow-hidden">
         <div className="flex min-h-full items-center justify-center p-2 sm:p-4">
-          <DialogPanel className="relative px-4 sm:px-8 lg:px-[90px] pt-4 sm:pt-8 lg:pt-[70px] pb-4 sm:pb-6 lg:pb-[45px] w-full max-w-[960px] rounded-lg sm:rounded-[22px] bg-white shadow-xl transition-all duration-300 ease-out data-closed:transform-[scale(98%)] data-closed:opacity-0 max-h-[calc(100vh-1rem)] sm:max-h-[calc(100vh-2rem)] flex flex-col">
+          <DialogPanel className="relative px-4 sm:px-8 lg:px-[90px] pt-4 sm:pt-8 lg:pt-[70px] pb-4 sm:pb-6 lg:pb-[45px] w-full max-w-[960px] rounded-[22px] bg-white shadow-xl transition-all duration-300 ease-out data-closed:transform-[scale(98%)] data-closed:opacity-0 max-h-[calc(100vh-1rem)] sm:max-h-[calc(100vh-2rem)] flex flex-col">
             {/* Header - fixed at top */}
             <button
               onClick={onClose}
@@ -337,8 +337,8 @@ const HeroSearch: FC = () => {
   const [isAllFiltersOpen, setIsAllFiltersOpen] = useState(false);
 
   return (
-    <div className="container relative py-8 sm:py-12 md:py-16 lg:py-20 md:pt-[22px] bg-gradient-to-b overflow-hidden">
-      <div className="bg-white rounded-lg sm:rounded-xl lg:rounded-[22px] px-4 sm:px-8 md:px-12 lg:px-[70px] py-6 sm:py-12 md:py-16 lg:py-[89px]">
+    <div className="container relative py-8 md:py-10 md:pt-[22px] bg-gradient-to-b overflow-hidden">
+      <div className="bg-white rounded-[22px] px-4 sm:px-8 md:px-12 lg:px-[70px] py-6 sm:py-12 md:py-16 lg:py-[89px]">
         <div className="text-center mb-6 sm:mb-8 md:mb-12 lg:mb-[60px]">
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-[52px] font-extrabold text-[#0036A5] mb-1.5 tracking-tight">
             НЕДВИЖИМОСТЬ В ТАДЖИКИСТАНЕ
@@ -350,7 +350,7 @@ const HeroSearch: FC = () => {
 
         {/* Tabs */}
         <div className="flex flex-wrap gap-2 mb-6 md:mb-8">
-          {(['buy', 'rent', 'sell'] as const).map((tab) => (
+          {(['buy', 'rent', 'sell', 'map'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -360,7 +360,13 @@ const HeroSearch: FC = () => {
                   : 'bg-white text-gray-700 border border-[#CBD5E1] hover:bg-gray-50 hover:border-gray-400'
               }`}
             >
-              {tab === 'buy' ? 'Купить' : tab === 'rent' ? 'Аренда' : 'Продать'}
+              {tab === 'buy'
+                ? 'Купить'
+                : tab === 'rent'
+                ? 'Аренда'
+                : tab === 'sell'
+                ? 'Продать'
+                : 'На карте'}
             </button>
           ))}
         </div>
@@ -371,6 +377,7 @@ const HeroSearch: FC = () => {
           <div className="sm:col-span-2 lg:col-span-1 lg:w-[373px]">
             <SelectInput
               value={propertyType}
+              placeholder="Тип недвижимости"
               onChange={(value) => setPropertyType(value)}
               options={propertyTypes}
             />
@@ -380,6 +387,7 @@ const HeroSearch: FC = () => {
           <div className="lg:w-[169px]">
             <SelectInput
               value={rooms}
+              placeholder="Комнат"
               onChange={(value) => setRooms(value)}
               options={roomOptions}
             />
@@ -389,6 +397,7 @@ const HeroSearch: FC = () => {
           <div className="lg:w-[141px]">
             <SelectInput
               value={price}
+              placeholder="Цена"
               onChange={(value) => setPrice(value)}
               options={priceOptions}
             />

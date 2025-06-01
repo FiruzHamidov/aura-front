@@ -1,9 +1,9 @@
+import { FC } from 'react';
 import Link from 'next/link';
 import FacebookIcon from '@/icons/FacebookIcon';
 import InstagramIcon from '@/icons/InstagramIcon';
 import WhatsAppIcon from '@/icons/Whatsapp';
 import YouTubeIcon from '@/icons/YoutubeIcon';
-import { FC } from 'react';
 import Logo from '@/icons/Logo';
 
 interface FooterLink {
@@ -77,8 +77,8 @@ const Footer: FC = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-8 md:mb-12">
           <div className="md:col-span-3">
-            <Link href="/" className="inline-block mb-[22px] w-full">
-              <Logo className="h-10 w-full" />
+            <Link href="/" className="inline-block mb-5 w-full">
+              <Logo className="h-12 w-full" />
             </Link>
             <div className="flex space-x-3">
               {socialMedia.map((social) => (

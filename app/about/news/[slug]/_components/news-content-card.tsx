@@ -3,7 +3,7 @@ import ShareCard from './share-card';
 const NewsContentCard = () => {
   return (
     <div className="flex flex-col lg:flex-row gap-5">
-      <div className="lg:w-2/3 bg-white px-10 py-7 rounded-[22px]">
+      <div className="lg:w-2/3 bg-white px-4 md:px-10 py-6 md:py-7 rounded-[22px]">
         <article className="text-[#353E5C] text-lg">
           <div className="mb-4">
             Ремонт — это всегда стресс и неожиданные траты. Но 90% проблем можно
