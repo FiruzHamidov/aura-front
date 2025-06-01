@@ -8,6 +8,7 @@ interface Option {
 
 interface SelectInputProps {
   label?: string;
+  placeholder?: string;
   value: string;
   onChange: (value: string) => void;
   options: Option[];
@@ -16,6 +17,7 @@ interface SelectInputProps {
 
 export function SelectInput({
   label,
+  placeholder,
   value,
   onChange,
   options,
@@ -30,6 +32,11 @@ export function SelectInput({
           onChange={(e) => onChange(e.target.value)}
           className="w-full bg-[#F0F2F5] rounded-lg py-5 px-4 text-lg appearance-none"
         >
+          {placeholder && (
+            <option value="" disabled selected>
+              {placeholder}
+            </option>
+          )}
           {options.map((option) => (
             <option key={option.id} value={option.id}>
               {option.name}

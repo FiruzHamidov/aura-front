@@ -52,7 +52,7 @@ export default function Profile() {
         <nav className="flex flex-col gap-4">
           <Link
             href="/profile"
-            className="flex items-center gap-3 bg-blue-700 text-white p-3 rounded-lg font-medium"
+            className="flex items-center gap-3 bg-[#0036A5] text-white p-3 rounded-lg font-medium"
           >
             <UserIcon className="w-6 h-6 text-white" />
             <span>Профиль</span>

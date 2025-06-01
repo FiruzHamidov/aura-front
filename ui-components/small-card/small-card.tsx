@@ -41,7 +41,7 @@ const SmallCard: FC<SmallCardProps> = ({ listing, isLarge = false }) => {
   }, [emblaApi, onSelect]);
 
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col h-full hover:shadow-lg transition-shadow duration-200 p-4">
+    <div className="bg-white rounded-[22px] overflow-hidden flex flex-col h-full hover:shadow-lg transition-shadow duration-200 p-4">
       <div className="relative mb-3">
         <div className="overflow-hidden rounded-lg" ref={emblaRef}>
           <div className="flex">

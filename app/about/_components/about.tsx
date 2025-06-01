@@ -2,12 +2,12 @@ import Image from 'next/image';
 
 export const AboutUs = () => {
   return (
-    <div className="pt-12">
+    <div className="pt-2 md:pt-12">
       {/* About Us Section */}
-      <section className="bg-white rounded-[22px] mx-auto px-12 pt-[50px] mb-10">
-        <div className="flex flex-col lg:flex-row gap-10">
+      <section className="bg-white rounded-[22px] mx-auto px-4 md:px-12 pt-10 md:pt-[50px] mb-10 md:pb-0 pb-10">
+        <div className="flex flex-col lg:flex-row md:gap-10">
           <div className="lg:w-1/3">
-            <h2 className="text-2xl md:text-4xl font-bold mb-6 text-[#020617]">
+            <h2 className="text-2xl md:text-4xl font-bold md:mb-6 text-[#020617]">
               О нас
             </h2>
             <div className="relative h-80 w-full">
@@ -48,10 +48,10 @@ export const AboutUs = () => {
         </div>
       </section>
 
-      <section className="mb-10">
+      <section className="mb-5 md:mb-10">
         <div className="flex flex-col lg:flex-row gap-5">
-          <div className="bg-white p-10 rounded-[22px] lg:w-2/3">
-            <h2 className="text-3xl font-bold mb-6 text-[#020617]">
+          <div className="bg-white px-4 py-6 md:p-10 rounded-[22px] lg:w-2/3">
+            <h2 className="text-2xl md:text-3xl font-bold mb-6 text-[#020617]">
               Миссия компании {'Aura Estate'}
             </h2>
 
@@ -74,7 +74,7 @@ export const AboutUs = () => {
             </p>
           </div>
 
-          <div className="bg-white rounded-[22px] p-10 lg:w-1/3 flex items-center justify-center">
+          <div className="bg-white rounded-[22px] md:p-10 lg:w-1/3 flex items-center justify-center">
             <div className="relative h-60 w-60">
               <Image
                 src="/images/about/2.png"
@@ -87,7 +87,7 @@ export const AboutUs = () => {
         </div>
       </section>
 
-      <section className="mb-10">
+      <section className="mb-5 md:mb-10">
         <div className="flex flex-col lg:flex-row gap-5">
           <div className="lg:w-1/3 bg-white rounded-[22px] p-10 flex items-center justify-center">
             <div className="relative h-80 w-80">
@@ -100,12 +100,12 @@ export const AboutUs = () => {
             </div>
           </div>
 
-          <div className="lg:w-2/3 bg-white rounded-[22px] p-10">
-            <h2 className="text-3xl font-bold mb-8 text-[#020617]">
+          <div className="lg:w-2/3 bg-white rounded-[22px] px-4 py-6 md:p-10">
+            <h2 className="text-2xl md:text-3xl font-bold mb-5 md:mb-8 text-[#020617]">
               Зачем мы существуем:
             </h2>
 
-            <ul className="space-y-6">
+            <ul className="space-y-4 md:space-y-6">
               <li className="flex items-start">
                 <span className="text-blue-700 font-bold mr-2">•</span>
                 <p className="text-gray-600">
@@ -143,8 +143,8 @@ export const AboutUs = () => {
         </div>
       </section>
 
-      <section className="bg-white rounded-[22px] pl-10 pr-20 mx-auto py-16">
-        <h2 className="text-[32px] font-bold mb-[22px] text-[#020617]">
+      <section className="bg-white rounded-[22px] px-4 py-6 md:pl-10 md:pr-20 mx-auto md:py-16">
+        <h2 className="text-2xl md:text-[32px] font-bold mb-[22px] text-[#020617]">
           Миссия сотрудника Aura Estate
         </h2>
 

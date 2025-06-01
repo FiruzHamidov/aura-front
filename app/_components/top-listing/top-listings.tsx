@@ -125,7 +125,7 @@ const TopListings: FC = () => {
 
   return (
     <section>
-      <div className="container mx-auto mt-10 md:mt-20">
+      <div className="container">
         <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
           Топовые объявления
         </h2>

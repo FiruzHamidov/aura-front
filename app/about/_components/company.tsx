@@ -2,14 +2,14 @@ import Logo2 from '@/icons/Logo2';
 
 export const Company = () => {
   return (
-    <div className="pb-[60px]">
-      <h1 className="text-[56px] font-bold mb-[31px] text-[#020617]">
+    <div className="pb-10 md:pb-[60px]">
+      <h1 className="text-3xl md:text-[56px] font-bold mb-5 md:mb-[31px] text-[#020617]">
         О компании
       </h1>
 
       <div className="flex flex-col md:flex-row items-start justify-between gap-10 mb-11">
         <div className="max-w-2xl">
-          <p className="text-lg text-[#666F8D] leading-relaxed">
+          <p className="md:text-lg text-[#666F8D] leading-relaxed">
             В Aura Estate мы стремимся сделать процесс покупки или продажи
             недвижимости максимально приятным и беззаботным для наших клиентов.
             Наша команда опытных риэлторов обладает глубокими знаниями рынка
@@ -18,27 +18,28 @@ export const Company = () => {
           </p>
         </div>
 
-        <div className="md:max-w-sm xl:max-w-md">
+        <div className="hidden md:block md:max-w-sm xl:max-w-md">
           <Logo2 className="w-[430px] h-[139px]" />
         </div>
       </div>
 
-      <div className="flex gap-5 mb-16">
-        <div className="bg-white py-[18px] px-6 rounded-xl w-max">
+      <div className="flex flex-wrap md:flex-nowrap gap-4 md:gap-5 mb-10 md:mb-16">
+        <div className="bg-white py-[18px] px-6 rounded-xl w-full md:w-max">
           <h2 className="text-[32px] font-bold text-[#0036A5] mb-1">$100M</h2>
           <p className="text-[#666F8D]">Текущий объем листинга</p>
         </div>
 
-        <div className="bg-white py-[18px] px-6 rounded-xl w-max">
+        <div className="bg-white py-[18px] px-6 rounded-xl w-full md:w-max">
           <h2 className="text-[32px] font-bold text-[#0036A5] mb-1">$400M</h2>
           <p className="text-[#666F8D]">Всего продано за 2019-2024 г.</p>
         </div>
 
-        <div className="bg-white py-[18px] px-6 rounded-xl w-max">
+        <div className="bg-white py-[18px] px-6 rounded-xl w-full md:w-max">
           <h2 className="text-[32px] font-bold text-[#0036A5] mb-1">$2B</h2>
           <p className="text-[#666F8D]">Объем продаж за весь срок службы</p>
         </div>
       </div>
+
       <iframe
         width="100%"
         height="420"

@@ -2,9 +2,9 @@ import Logo3 from '@/icons/Logo3';
 
 const NewsBanner = () => {
   return (
-    <div className="bg-blue-700 rounded-[22px] px-[60px] py-10 mb-14 relative overflow-hidden h-[315px]">
+    <div className="bg-[#0036A5] rounded-[22px] px-4 md:px-[60px] py-6 md:py-10 mb-10 md:mb-14 relative overflow-hidden h-[315px]">
       <div className="relative z-10 text-white">
-        <h1 className="text-[56px] font-bold mb-1">Все новости</h1>
+        <h1 className="text-3xl md:text-[56px] font-bold mb-1">Все новости</h1>
         <div className="text-lg">Полезные новости и статьи</div>
       </div>
 

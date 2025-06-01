@@ -12,7 +12,7 @@ import { usePathname, useRouter } from 'next/navigation';
 
 const navItems = [
   { name: 'Главная', href: '/' },
-  { name: 'Покупка', href: '/buy' },
+  { name: 'Снять', href: '/buy' },
   { name: 'Аренда', href: '/rent' },
   { name: 'Новостройки', href: '/new-buildings' },
   { name: 'Ипотека', href: '/mortgage' },
@@ -120,7 +120,7 @@ const Header: FC = () => {
 
             {/* Login button */}
             <Link href="/login">
-              <button className="bg-blue-700 hover:bg-blue-800 text-white px-4 lg:px-6 xl:px-[33.5px] py-2 lg:py-2.5 rounded-full text-sm transition-colors cursor-pointer">
+              <button className="bg-[#0036A5] hover:bg-blue-800 text-white px-4 lg:px-6 xl:px-[33.5px] py-2 lg:py-2.5 rounded-full text-sm transition-colors cursor-pointer">
                 Войти
               </button>
             </Link>
@@ -283,7 +283,7 @@ const Header: FC = () => {
               <div className="space-y-3 mb-6 pb-6 border-b border-gray-200">
                 {/* Login Button */}
                 <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                  <button className="w-full bg-blue-700 hover:bg-blue-800 text-white px-4 py-3 rounded-lg text-sm font-medium transition-colors mb-3 sm:mb-0">
+                  <button className="w-full bg-[#0036A5] hover:bg-blue-800 text-white px-4 py-3 rounded-lg text-sm font-medium transition-colors mb-3 sm:mb-0">
                     Войти
                   </button>
                 </Link>
