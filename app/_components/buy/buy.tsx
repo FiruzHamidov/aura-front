@@ -186,10 +186,12 @@ const sampleListings: Listing[] = [
 const Buy: FC = () => {
   return (
     <section>
-      <div className="container mt-20">
-        <h2 className="text-4xl font-bold text-[#020617] mb-10">Купить</h2>
+      <div className="container mt-16 md:mt-20">
+        <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
+          Купить
+        </h2>
 
-        <div className="grid grid-cols-4 gap-[14px]">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-[14px]">
           {sampleListings.map((listing) => (
             <Link key={listing.id} href={`/apartment/${listing.id}`}>
               <BuyCard listing={listing} />

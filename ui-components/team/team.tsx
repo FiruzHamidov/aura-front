@@ -91,8 +91,8 @@ const ExpertCard: FC<ExpertCardProps> = ({ expert }) => {
 
 const MeetTheTeam: FC = () => {
   return (
-    <div className="mt-10">
-      <h2 className="text-4xl font-bold text-gray-900 mb-10">
+    <div className="container mt-10">
+      <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-6 md:mb-10">
         Встречайте команду экспертов Aura Estate!
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">

@@ -162,7 +162,9 @@ const RealtorPage = () => {
             </div>
 
             <div className="mt-[52px]">
-              <h2 className="text-4xl font-bold mb-10">Отзывы</h2>
+              <h2 className="text-2xl md:text-4xl font-bold mb-6 md:mb-10">
+                Отзывы
+              </h2>
 
               <div className="mb-6">
                 <button className="inline-flex items-center gap-1 p-2.5 rounded-full border border-[#BAC0CC] text-lg">
