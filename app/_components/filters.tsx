@@ -118,17 +118,16 @@ const AllFiltersModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
       />
 
       <div className="fixed inset-0 z-10 w-screen overflow-hidden">
-        <div className="flex min-h-full items-center justify-center">
-          <DialogPanel className="relative px-[90px] pt-[70px] pb-[45px] w-[960px] rounded-[22px] bg-white shadow-xl transition-all duration-300 ease-out data-closed:transform-[scale(98%)] data-closed:opacity-0 max-h-[calc(100vh-2rem)] flex flex-col">
+        <div className="flex min-h-full items-center justify-center p-2 sm:p-4">
+          <DialogPanel className="relative px-4 sm:px-8 lg:px-[90px] pt-4 sm:pt-8 lg:pt-[70px] pb-4 sm:pb-6 lg:pb-[45px] w-full max-w-[960px] rounded-lg sm:rounded-[22px] bg-white shadow-xl transition-all duration-300 ease-out data-closed:transform-[scale(98%)] data-closed:opacity-0 max-h-[calc(100vh-1rem)] sm:max-h-[calc(100vh-2rem)] flex flex-col">
             {/* Header - fixed at top */}
             <button
               onClick={onClose}
-              className="absolute top-[30px] right-[30px] w-[52px] h-[52px] flex items-center justify-center rounded-full bg-[#0036A5] text-white hover:bg-blue-800 transition-colors"
+              className="absolute top-3 sm:top-6 lg:top-[30px] right-3 sm:right-6 lg:right-[30px] w-8 h-8 sm:w-10 sm:h-10 lg:w-[52px] lg:h-[52px] flex items-center justify-center rounded-full bg-[#0036A5] text-white hover:bg-blue-800 transition-colors"
               aria-label="Закрыть"
             >
               <svg
-                width="14"
-                height="14"
+                className="w-3 h-3 sm:w-4 sm:h-4 lg:w-[14px] lg:h-[14px]"
                 viewBox="0 0 14 14"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -142,7 +141,10 @@ const AllFiltersModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
               </svg>
             </button>
 
-            <DialogTitle as="h3" className="text-[40px] mb-10 font-bold">
+            <DialogTitle
+              as="h3"
+              className="text-xl sm:text-2xl lg:text-[40px] mb-4 sm:mb-6 lg:mb-10 font-bold pr-10 sm:pr-12"
+            >
               Все фильтры
             </DialogTitle>
 
@@ -150,9 +152,11 @@ const AllFiltersModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
             <div className="flex-1 overflow-y-auto">
               <form id="filter-form" onSubmit={handleSubmit}>
                 {/* Basic filters section */}
-                <div className="mb-8">
-                  <h3 className="text-2xl font-bold mb-[22px]">Основные</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-[25px] gap-y-[22px]">
+                <div className="mb-6 sm:mb-8">
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-4 sm:mb-6 lg:mb-[22px]">
+                    Основные
+                  </h3>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-x-[25px] lg:gap-y-[22px]">
                     <FormInput
                       label="Тип недвижимости"
                       value={propertyType}
@@ -189,8 +193,8 @@ const AllFiltersModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
                     />
                   </div>
 
-                  <div className="mt-4 flex items-center space-x-8">
-                    <Field>
+                  <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
+                    <Field className="flex items-center">
                       <Switch
                         checked={mortgageOption === 'mortgage'}
                         onChange={(checked) =>
@@ -202,7 +206,7 @@ const AllFiltersModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
                       </Switch>
                       <Label className="ml-3">Ипотека</Label>
                     </Field>
-                    <Field>
+                    <Field className="flex items-center">
                       <Switch
                         checked={mortgageOption === 'developer'}
                         onChange={(checked) =>
@@ -218,9 +222,11 @@ const AllFiltersModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
                 </div>
 
                 {/* Price section */}
-                <div className="mb-8">
-                  <h3 className="text-2xl font-bold mb-[22px]">Стоимость</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="mb-6 sm:mb-8">
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-4 sm:mb-6 lg:mb-[22px]">
+                    Стоимость
+                  </h3>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <FormInput
                       label="Цена от"
                       value={priceFrom}
@@ -237,9 +243,11 @@ const AllFiltersModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
                 </div>
 
                 {/* Area section */}
-                <div className="mb-8">
-                  <h3 className="text-2xl font-bold mb-[22px]">Площадь</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="mb-6 sm:mb-8">
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-4 sm:mb-6 lg:mb-[22px]">
+                    Площадь
+                  </h3>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <FormInput
                       label="Площадь от"
                       value={areaFrom}
@@ -257,9 +265,11 @@ const AllFiltersModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
                 </div>
 
                 {/* Floor section */}
-                <div className="mb-8">
-                  <h3 className="text-2xl font-bold mb-[22px]">Этаж</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="mb-6 sm:mb-8">
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-4 sm:mb-6 lg:mb-[22px]">
+                    Этаж
+                  </h3>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <FormInput
                       label="Этаж от"
                       value={floorFrom}
@@ -276,37 +286,39 @@ const AllFiltersModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
                 </div>
 
                 {/* Additional section */}
-                <div className="mb-8 w-[373px]">
-                  <h3 className="text-2xl font-bold mb-[22px]">
+                <div className="mb-6 sm:mb-8">
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-4 sm:mb-6 lg:mb-[22px]">
                     Дополнительно
                   </h3>
-                  <SelectInput
-                    label="Ремонт"
-                    value={repairType}
-                    onChange={(value) => setRepairType(value)}
-                    options={repairOptions}
-                  />
+                  <div className="w-full lg:w-[373px]">
+                    <SelectInput
+                      label="Ремонт"
+                      value={repairType}
+                      onChange={(value) => setRepairType(value)}
+                      options={repairOptions}
+                    />
+                  </div>
                 </div>
               </form>
             </div>
 
             {/* Footer - fixed at bottom */}
-            <div className="p-6 md:p-8 bg-white">
-              <div className="flex flex-col sm:flex-row gap-4 justify-end">
+            <div className="pt-4 sm:pt-6 lg:pt-8 bg-white border-t border-gray-100">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end">
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="w-[309px] py-5 border border-[#BAC0CC] rounded-lg text-center hover:bg-gray-50 transition-colors"
+                  className="w-full sm:w-auto sm:min-w-[200px] lg:w-[309px] py-3 sm:py-4 lg:py-5 border border-[#BAC0CC] rounded-lg text-center hover:bg-gray-50 transition-colors text-sm sm:text-base"
                 >
                   Сбросить фильтры
                 </button>
                 <button
                   type="submit"
                   form="filter-form"
-                  className="w-[309px] py-[11px] bg-[#0036A5] text-white rounded-lg font-medium hover:bg-blue-800 transition-colors"
+                  className="w-full sm:w-auto sm:min-w-[200px] lg:w-[309px] py-3 sm:py-4 lg:py-[11px] bg-[#0036A5] text-white rounded-lg font-medium hover:bg-blue-800 transition-colors text-sm sm:text-base"
                 >
                   <div>Поиск объектов</div>
-                  <div className="text-sm">Найдено 718</div>
+                  <div className="text-xs sm:text-sm">Найдено 718</div>
                 </button>
               </div>
             </div>
@@ -325,75 +337,76 @@ const HeroSearch: FC = () => {
   const [isAllFiltersOpen, setIsAllFiltersOpen] = useState(false);
 
   return (
-    <div className="relative py-16 sm:py-20 md:pt-[22px] bg-gradient-to-b overflow-hidden">
-      <div>
-        <div className="bg-white container rounded-[22px] px-[70px] py-[89px]">
-          <div className="text-center mb-6 md:mb-[60px]">
-            <h1 className="text-2xl sm:text-3xl md:text-[52px] font-extrabold text-[#0036A5] mb-1.5 tracking-tight">
-              НЕДВИЖИМОСТЬ В ТАДЖИКИСТАНЕ
-            </h1>
-            <p className="sm:text-2xl text-[#353E5C]">
-              ваш надежный партнер в сфере недвижимости в Таджикистане
-            </p>
-          </div>
+    <div className="container relative py-8 sm:py-12 md:py-16 lg:py-20 md:pt-[22px] bg-gradient-to-b overflow-hidden">
+      <div className="bg-white rounded-lg sm:rounded-xl lg:rounded-[22px] px-4 sm:px-8 md:px-12 lg:px-[70px] py-6 sm:py-12 md:py-16 lg:py-[89px]">
+        <div className="text-center mb-6 sm:mb-8 md:mb-12 lg:mb-[60px]">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-[52px] font-extrabold text-[#0036A5] mb-1.5 tracking-tight">
+            НЕДВИЖИМОСТЬ В ТАДЖИКИСТАНЕ
+          </h1>
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-[#353E5C]">
+            ваш надежный партнер в сфере недвижимости в Таджикистане
+          </p>
+        </div>
 
-          <div className="flex space-x-2 mb-6 md:mb-8">
-            {(['buy', 'rent', 'sell'] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 sm:px-9 py-3 rounded-lg  cursor-pointer transition-all duration-150 ease-in-out ${
-                  activeTab === tab
-                    ? 'bg-[#0036A5] text-white shadow-sm'
-                    : 'bg-white text-gray-700 border border-[#CBD5E1] hover:bg-gray-50 hover:border-gray-400'
-                }`}
-              >
-                {tab === 'buy'
-                  ? 'Купить'
-                  : tab === 'rent'
-                  ? 'Аренда'
-                  : 'Продать'}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <div className="w-[373px]">
-              <SelectInput
-                value={propertyType}
-                onChange={(value) => setPropertyType(value)}
-                options={propertyTypes}
-              />
-            </div>
-
-            <div className="w-[169px]">
-              <SelectInput
-                value={rooms}
-                onChange={(value) => setRooms(value)}
-                options={roomOptions}
-              />
-            </div>
-
-            <div className="w-[141px]">
-              <SelectInput
-                value={price}
-                onChange={(value) => setPrice(value)}
-                options={priceOptions}
-              />
-            </div>
-
+        {/* Tabs */}
+        <div className="flex flex-wrap gap-2 mb-6 md:mb-8">
+          {(['buy', 'rent', 'sell'] as const).map((tab) => (
             <button
-              className="w-[197px] bg-[#F0F2F5] hover:bg-sky-100 text-slate-700 px-[25px] py-[21px] rounded-lg text-sm flex items-center justify-center sm:justify-start transition-colors cursor-pointer"
-              onClick={() => setIsAllFiltersOpen(true)}
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-3 sm:px-6 lg:px-9 py-2 sm:py-3 rounded-lg cursor-pointer transition-all duration-150 ease-in-out text-sm sm:text-base ${
+                activeTab === tab
+                  ? 'bg-[#0036A5] text-white shadow-sm'
+                  : 'bg-white text-gray-700 border border-[#CBD5E1] hover:bg-gray-50 hover:border-gray-400'
+              }`}
             >
-              <FilterSearchIcon className="h-6 w-6 mr-2 text-blue-600" />
-              <span>Все фильтры</span>
+              {tab === 'buy' ? 'Купить' : tab === 'rent' ? 'Аренда' : 'Продать'}
             </button>
+          ))}
+        </div>
 
-            <button className="w-[197px] cursor-pointer bg-[#0036A5] hover:bg-blue-800 text-white px-[71px] py-5 rounded-lg font-bold transition-colors justify-center">
-              Найти
-            </button>
+        {/* Filter Controls */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-3">
+          {/* Property Type - Full width on mobile, auto on desktop */}
+          <div className="sm:col-span-2 lg:col-span-1 lg:w-[373px]">
+            <SelectInput
+              value={propertyType}
+              onChange={(value) => setPropertyType(value)}
+              options={propertyTypes}
+            />
           </div>
+
+          {/* Rooms */}
+          <div className="lg:w-[169px]">
+            <SelectInput
+              value={rooms}
+              onChange={(value) => setRooms(value)}
+              options={roomOptions}
+            />
+          </div>
+
+          {/* Price */}
+          <div className="lg:w-[141px]">
+            <SelectInput
+              value={price}
+              onChange={(value) => setPrice(value)}
+              options={priceOptions}
+            />
+          </div>
+
+          {/* All Filters Button */}
+          <button
+            className="sm:col-span-2 lg:col-span-1 lg:w-[197px] bg-[#F0F2F5] hover:bg-sky-100 text-slate-700 px-4 sm:px-6 lg:px-[25px] py-3 sm:py-4 lg:py-[21px] rounded-lg text-sm flex items-center justify-center transition-colors cursor-pointer"
+            onClick={() => setIsAllFiltersOpen(true)}
+          >
+            <FilterSearchIcon className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-blue-600" />
+            <span>Все фильтры</span>
+          </button>
+
+          {/* Search Button */}
+          <button className="sm:col-span-2 lg:col-span-1 lg:w-[197px] cursor-pointer bg-[#0036A5] hover:bg-blue-800 text-white px-4 sm:px-6 lg:px-[71px] py-3 sm:py-4 lg:py-5 rounded-lg font-bold transition-colors flex items-center justify-center">
+            Найти
+          </button>
         </div>
       </div>
 

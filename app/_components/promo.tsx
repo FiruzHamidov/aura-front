@@ -56,7 +56,7 @@ const PromoCard: FC<PromoCardProps> = ({ cardData }) => {
       <div className="relative z-10 max-w-[60%]">
         {' '}
         <h3
-          className="text-lg font-bold mb-2.5"
+          className="text-lg font-bold mb-2.5 leading-6 md:leading-none"
           dangerouslySetInnerHTML={{ __html: cardData.title }}
         />
         <p className="text-xs md:text-sm opacity-90">{cardData.description}</p>
@@ -77,7 +77,7 @@ const PromoCard: FC<PromoCardProps> = ({ cardData }) => {
 const Promo: FC = () => {
   const activeIndex = 0;
   return (
-    <section className="bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
+    <section className="container py-5 md:py-10 px-4 sm:px-6 lg:px-8">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
         {promoData.map((card) => (
           <PromoCard key={card.id} cardData={card} />

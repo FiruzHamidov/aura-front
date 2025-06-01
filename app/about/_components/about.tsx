@@ -7,7 +7,9 @@ export const AboutUs = () => {
       <section className="bg-white rounded-[22px] mx-auto px-12 pt-[50px] mb-10">
         <div className="flex flex-col lg:flex-row gap-10">
           <div className="lg:w-1/3">
-            <h2 className="text-4xl font-bold mb-6 text-[#020617]">О нас</h2>
+            <h2 className="text-2xl md:text-4xl font-bold mb-6 text-[#020617]">
+              О нас
+            </h2>
             <div className="relative h-80 w-full">
               <Image
                 src="/images/about/1.png"

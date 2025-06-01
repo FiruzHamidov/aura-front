@@ -44,9 +44,9 @@ const servicesData: ServiceItem[] = [
 
 const Services: FC = () => {
   return (
-    <div className="container mx-auto mt-5">
-      <div className="bg-white rounded-xl shadow-lg px-10 py-[55px]">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
+    <div className="lg:container mx-auto mt-5">
+      <div className="bg-white rounded-xl md:shadow-lg px-4 md:px-10 py-6 md:py-[55px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8">
           {servicesData.map((service) => (
             <div
               key={service.href}

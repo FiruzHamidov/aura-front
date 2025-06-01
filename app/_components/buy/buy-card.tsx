@@ -59,7 +59,7 @@ const BuyCard: FC<BuyCardProps> = ({ listing, isLarge = false }) => {
           </div>
         </div>
 
-        <div className="absolute top-[22px] right-[22px] flex flex-col space-y-2">
+        <div className="absolute top-2 md:top-[22px] right-2 md:right-[22px] flex flex-col space-y-2">
           <div className="!bg-white/30 cursor-pointer p-2 rounded-full shadow transition w-9 h-9">
             <HeartIcon className="w-[18px] h-[18px] text-white" />
           </div>

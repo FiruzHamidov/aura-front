@@ -45,7 +45,9 @@ export const BuildingInfo: FC<BuildingComponentProps> = ({ apartmentData }) => {
       {/* Header section */}
       <div className="flex justify-between items-start mb-10">
         <div>
-          <h1 className="text-4xl font-bold mb-0.5">{apartmentData.title}</h1>
+          <h1 className="text-2xl md:text-4xl font-bold mb-0.5">
+            {apartmentData.title}
+          </h1>
           <div className="text-[#666F8D] text-lg mb-2">
             {apartmentData.publishedAt}
           </div>

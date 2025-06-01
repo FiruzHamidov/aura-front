@@ -125,16 +125,16 @@ const TopListings: FC = () => {
 
   return (
     <section>
-      <div className="container mx-auto mt-20">
-        <h2 className="text-4xl font-bold text-[#020617] mb-10">
+      <div className="container mx-auto mt-10 md:mt-20">
+        <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
           Топовые объявления
         </h2>
 
-        <div className="flex flex-wrap gap-4 mb-8">
+        <div className="flex flex-wrap gap-3 md:gap-4 mb-5 md:mb-8">
           <button
             className={`px-6 py-3 rounded-full text-sm  transition-colors ${
               activeType === 'apartment'
-                ? 'bg-blue-700 text-white'
+                ? 'bg-[#0036A5] text-white'
                 : 'bg-white text-[#020617]'
             }`}
             onClick={() => setActiveType('apartment')}
@@ -144,7 +144,7 @@ const TopListings: FC = () => {
           <button
             className={`px-6 py-3 rounded-full text-sm  transition-colors ${
               activeType === 'house'
-                ? 'bg-blue-700 text-white'
+                ? 'bg-[#0036A5] text-white'
                 : 'bg-white text-[#020617]'
             }`}
             onClick={() => setActiveType('house')}
@@ -154,7 +154,7 @@ const TopListings: FC = () => {
           <button
             className={`px-6 py-3 rounded-full text-sm  transition-colors ${
               activeType === 'land'
-                ? 'bg-blue-700 text-white'
+                ? 'bg-[#0036A5] text-white'
                 : 'bg-white text-[#020617]'
             }`}
             onClick={() => setActiveType('land')}
@@ -164,7 +164,7 @@ const TopListings: FC = () => {
           <button
             className={`px-6 py-3 rounded-full text-sm  transition-colors ${
               activeType === 'commercial'
-                ? 'bg-blue-700 text-white'
+                ? 'bg-[#0036A5] text-white'
                 : 'bg-white text-[#020617]'
             }`}
             onClick={() => setActiveType('commercial')}
@@ -175,14 +175,14 @@ const TopListings: FC = () => {
 
         <div className="grid md:grid-cols-2 gap-5">
           {firstListing && (
-            <div className="md:h-full max-h-[578px]">
+            <div className="md:h-full md:max-h-[578px]">
               <Link href={`/apartment/${firstListing.id}`}>
                 <ListingCard listing={firstListing} isLarge={true} />
               </Link>
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-h-[578px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:max-h-[578px]">
             {smallListings.map((listing) => (
               <Link key={listing.id} href={`/apartment/${listing.id}`}>
                 <ListingCard listing={listing} isLarge={false} />

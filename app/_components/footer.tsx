@@ -88,7 +88,7 @@ const Footer: FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  className="text-white rounded-full inline-flex items-center justify-center hover:opacity-90 transition-opacity"
+                  className="rounded-full inline-flex items-center justify-center"
                 >
                   <social.Icon className="h-10 w-10" />
                 </a>

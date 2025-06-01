@@ -15,7 +15,7 @@ const PersonalRealtorCta: FC = () => {
 
   return (
     <section>
-      <div className="container mt-20 relative bg-blue-800 rounded-3xl overflow-hidden shadow-lg">
+      <div className="container mt-16 md:mt-20 relative bg-blue-800 rounded-3xl overflow-hidden shadow-lg">
         <Image
           src="/cta-background.jpg"
           alt="Hand holding house keys"
@@ -27,11 +27,11 @@ const PersonalRealtorCta: FC = () => {
 
         <div className="absolute inset-0 bg-gradient-to-r from-blue-800 via-blue-800/80 to-blue-800/10 z-[5]"></div>
 
-        <div className="relative z-10 pt-16 pb-12 pl-[66px] text-white max-w-[710px]">
-          <h2 className="text-4xl font-bold mb-4 leading-tight">
+        <div className="relative z-10 pt-4 md:pt-16 pb-12 md:pl-[66px] text-white md:max-w-[710px]">
+          <h2 className="text-2xl md:text-4xl font-bold mb-4 leading-tight">
             Личный риелтор» – ваш проводник в мире недвижимости!
           </h2>
-          <div className="text-[22px] font-normal mb-[22px] max-w-[500px]">
+          <div className="md:text-[22px] font-normal mb-[22px] md:max-w-[500px]">
             Подберём лучший вариант, проведём сделку и сэкономим ваше время!
           </div>
 
