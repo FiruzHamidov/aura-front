@@ -87,7 +87,6 @@ const AllFiltersModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onClose();
-    console.log('Filters submitted');
   };
 
   const handleReset = () => {
@@ -329,7 +328,7 @@ const AllFiltersModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
   );
 };
 
-const HeroSearch: FC = () => {
+const HeroSearch: FC<{ title: string }> = ({ title }) => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('buy');
   const [propertyType, setPropertyType] = useState('');
   const [rooms, setRooms] = useState('');
@@ -340,8 +339,8 @@ const HeroSearch: FC = () => {
     <div className="container relative py-8 md:py-10 md:pt-[22px] bg-gradient-to-b overflow-hidden">
       <div className="bg-white rounded-[22px] px-4 sm:px-8 md:px-12 lg:px-[70px] py-6 sm:py-12 md:py-16 lg:py-[89px]">
         <div className="text-center mb-6 sm:mb-8 md:mb-12 lg:mb-[60px]">
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-[52px] font-extrabold text-[#0036A5] mb-1.5 tracking-tight">
-            НЕДВИЖИМОСТЬ В ТАДЖИКИСТАНЕ
+          <h1 className="text-xl md:text-[52px] font-extrabold text-[#0036A5] mb-1.5 tracking-tight uppercase">
+            {title}
           </h1>
           <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-[#353E5C]">
             ваш надежный партнер в сфере недвижимости в Таджикистане
@@ -405,7 +404,7 @@ const HeroSearch: FC = () => {
 
           {/* All Filters Button */}
           <button
-            className="sm:col-span-2 lg:col-span-1 lg:w-[197px] bg-[#F0F2F5] hover:bg-sky-100 text-slate-700 px-4 sm:px-6 lg:px-[25px] py-3 sm:py-4 lg:py-[21px] rounded-lg text-sm flex items-center justify-center transition-colors cursor-pointer"
+            className="sm:col-span-2 lg:col-span-1 lg:w-[197px] bg-[#F0F2F5] hover:bg-sky-100 text-slate-700 px-4 sm:px-6 lg:px-[25px] py-3 sm:py-4 lg:py-[21px] rounded-lg text-lg flex items-center justify-center transition-colors cursor-pointer whitespace-nowrap"
             onClick={() => setIsAllFiltersOpen(true)}
           >
             <FilterSearchIcon className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-blue-600" />

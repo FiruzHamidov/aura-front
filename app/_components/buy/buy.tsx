@@ -186,7 +186,7 @@ const sampleListings: Listing[] = [
 const Buy: FC = () => {
   return (
     <section>
-      <div className="container mt-16 md:mt-20">
+      <div className="container">
         <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
           Купить
         </h2>

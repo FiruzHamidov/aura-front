@@ -1,5 +1,7 @@
 'use client';
 
+import clsx from 'clsx';
+
 interface Option {
   id: string | number;
   name: string;
@@ -30,10 +32,15 @@ export function SelectInput({
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full bg-[#F0F2F5] rounded-lg py-5 px-4 text-lg appearance-none"
+          className={clsx(
+            'w-full bg-[#F0F2F5] rounded-lg py-5 px-4 text-lg appearance-none outline-none',
+            {
+              'text-[#666F8D]': !value,
+            }
+          )}
         >
           {placeholder && (
-            <option value="" disabled selected>
+            <option value="" selected>
               {placeholder}
             </option>
           )}
