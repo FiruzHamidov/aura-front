@@ -4,11 +4,11 @@ import { FC, useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { Listing } from './types';
 import HeartIcon from '@/icons/HeartIcon';
-import SettingsIcon from '@/icons/SettingsIcon';
 import LocationIcon from '@/icons/LocationIcon';
 import UserIcon from '@/icons/UserIcon';
 import CalendarIcon from '@/icons/CalendarIcon';
 import useEmblaCarousel from 'embla-carousel-react';
+import WhiteSettingsIcon from '@/icons/WhiteSettingsIcon';
 
 interface BuyCardProps {
   listing: Listing;
@@ -60,11 +60,11 @@ const BuyCard: FC<BuyCardProps> = ({ listing, isLarge = false }) => {
         </div>
 
         <div className="absolute top-2 md:top-[22px] right-2 md:right-[22px] flex flex-col space-y-2">
-          <div className="!bg-white/30 cursor-pointer p-2 rounded-full shadow transition w-9 h-9">
+          <div className="!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-9 h-9">
             <HeartIcon className="w-[18px] h-[18px] text-white" />
           </div>
-          <div className="!bg-white/30 cursor-pointer p-2 rounded-full shadow transition w-9 h-9">
-            <SettingsIcon className="w-[18px] h-[18px] text-white" />
+          <div className="!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-9 h-9">
+            <WhiteSettingsIcon className="w-[18px] h-[18px] text-white" />
           </div>
         </div>
         <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-1.5">

@@ -9,13 +9,17 @@ import TopListings from './_components/top-listing/top-listings';
 export default function Home() {
   return (
     <>
-      <HeroSearch />
-      <Services />
+      <HeroSearch title="Недвижимость в Таджикистане" />
+      <div className="lg:container mx-auto mb-10 md:mb-20">
+        <Services />
+      </div>
       <TopListings />
       <Promo />
       <TopListings />
       <PersonalRealtorCta />
-      <Buy />
+      <div className="mt-16 md:mt-20">
+        <Buy />
+      </div>
       <div className="mb-14 md:mb-[85px] mx-auto md:px-4 sm:px-6 lg:px-8">
         <MeetTheTeam />
       </div>

@@ -44,31 +44,29 @@ const servicesData: ServiceItem[] = [
 
 const Services: FC = () => {
   return (
-    <div className="lg:container mx-auto mb-10 md:mb-20">
-      <div className="bg-white rounded-[22px] px-4 md:px-10 py-6 md:py-[55px]">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8">
-          {servicesData.map((service) => (
-            <div
-              key={service.href}
-              className="h-full flex flex-col bg-[#EFF6FF] rounded-[22px] transition-all duration-300 ease-in-out group-hover:shadow-md group-hover:-translate-y-1"
-            >
-              <div className="flex-grow flex flex-col justify-center p-5 max-w-[130px]">
-                <h3 className="text-[17px] leading-5 font-semibold text-[#020617]">
-                  {service.title}
-                </h3>
-              </div>
-              <div className="flex-shrink-0">
-                <Image
-                  width={120}
-                  height={120}
-                  src={service.imageUrl}
-                  alt={service.altText}
-                  className="justify-self-end"
-                />
-              </div>
+    <div className="bg-white rounded-[22px] px-4 md:px-10 py-6 md:py-[55px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8">
+        {servicesData.map((service) => (
+          <div
+            key={service.href}
+            className="h-full flex flex-col bg-[#EFF6FF] rounded-[22px] transition-all duration-300 ease-in-out group-hover:shadow-md group-hover:-translate-y-1"
+          >
+            <div className="flex-grow flex flex-col justify-center p-5 max-w-[130px]">
+              <h3 className="text-[17px] leading-5 font-semibold text-[#020617]">
+                {service.title}
+              </h3>
             </div>
-          ))}
-        </div>
+            <div className="flex-shrink-0">
+              <Image
+                width={120}
+                height={120}
+                src={service.imageUrl}
+                alt={service.altText}
+                className="justify-self-end"
+              />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -4,7 +4,8 @@
 
 import { useState } from 'react';
 import clsx from 'clsx';
-import SmallCard from '@/ui-components/small-card/small-card';
+import { Tabs } from '@/ui-components/tabs/tabs';
+import BuyCard from '../_components/buy/buy-card';
 
 const properties = [
   {
@@ -84,8 +85,13 @@ const attributeLabels = [
   'Лифт',
 ];
 
+const tabs = [
+  { label: 'Все параметры', key: 'all' },
+  { label: 'Только различия', key: 'differences' },
+] as const;
+
 export default function Comparison() {
-  const [showOnlyDifferences, setShowOnlyDifferences] = useState(false);
+  const [activeType, setActiveType] = useState<string>('all');
 
   const hasDifference = (attribute: string) => {
     return (
@@ -95,7 +101,7 @@ export default function Comparison() {
   };
 
   const filteredAttributes = attributeLabels.filter(
-    (attr) => !showOnlyDifferences || hasDifference(attr)
+    (attr) => !activeType || hasDifference(attr)
   );
 
   return (
@@ -107,57 +113,19 @@ export default function Comparison() {
           <p className="text-[#666F8D]">Найдено 2 объекта</p>
         </div>
 
-        <div className="flex items-center gap-2 bg-[#F0F2F5] rounded-full px-3 py-2.5">
-          <button
-            className={clsx(
-              'py-[11px] px-[19px] rounded-full transition-colors cursor-pointer',
-              !showOnlyDifferences
-                ? 'bg-[#0036A5] text-white'
-                : 'bg-white text-gray-700'
-            )}
-            onClick={() => setShowOnlyDifferences(false)}
-          >
-            Все параметры
-          </button>
-          <button
-            className={clsx(
-              'py-[11px] px-[19px] rounded-full transition-colors cursor-pointer',
-              showOnlyDifferences
-                ? 'bg-[#0036A5] text-white'
-                : 'bg-white text-gray-700'
-            )}
-            onClick={() => setShowOnlyDifferences(true)}
-          >
-            Только различия
-          </button>
-        </div>
+        <Tabs
+          hasBorder={false}
+          tabs={tabs}
+          activeType={activeType}
+          setActiveType={setActiveType}
+        />
       </div>
 
       {/* Property cards - using the custom BuyCard component */}
       <div className="grid grid-cols-4 gap-[14px] mb-[53px]">
         {properties.map((property) => (
           <div key={property.id} className="relative">
-            <SmallCard
-              listing={{
-                id: property.id,
-                images: [
-                  { url: property.images[0].url, alt: property.images[0].alt },
-                ],
-                price: property.price,
-                currency: property.currency,
-                title: property.title,
-                locationName: property.locationName,
-                description: property.description,
-                roomCountLabel: property.roomCountLabel,
-                area: property.area,
-                floorInfo: property.floorInfo,
-                agent: {
-                  name: property.agent.name,
-                  role: property.agent.role,
-                },
-                date: property.date,
-              }}
-            />
+            <BuyCard listing={property} />
           </div>
         ))}
       </div>

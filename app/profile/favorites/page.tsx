@@ -1,11 +1,5 @@
-'use client';
-
-import { useState } from 'react';
-import { Listing } from '../_components/buy/types';
-import { Tabs } from '@/ui-components/tabs/tabs';
-import BuyCard from '../_components/buy/buy-card';
-
-type FilterType = 'all' | 'sale' | 'rent';
+import BuyCard from '@/app/_components/buy/buy-card';
+import { Listing } from '@/app/_components/buy/types';
 
 const favoritesListings: Listing[] = [
   {
@@ -61,47 +55,12 @@ const favoritesListings: Listing[] = [
   },
 ];
 
-export default function Favorites() {
-  const [activeFilter, setActiveFilter] = useState<FilterType>('all');
-
-  const filteredListings =
-    activeFilter === 'all'
-      ? favoritesListings
-      : favoritesListings.filter((listing) => listing.type === activeFilter);
-
-  const objectsCount = filteredListings.length;
-
+export default function ProfileFavorites() {
   return (
-    <div className="container">
-      <div className="bg-white rounded-[22px] p-[30px] my-10">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-[#020617] mb-1">
-              Избранное
-            </h1>
-            <p className="text-[#666F8D]">Найдено {objectsCount} объекта</p>
-          </div>
-
-          <div className="mt-4 md:mt-0">
-            <Tabs
-              hasBorder={false}
-              tabs={[
-                { key: 'all', label: 'Все' },
-                { key: 'sale', label: 'Продажа' },
-                { key: 'rent', label: 'Аренда' },
-              ]}
-              activeType={activeFilter}
-              setActiveType={setActiveFilter}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-4 gap-[14px] mb-10 md:mb-16">
-        {favoritesListings.map((listing, index) => (
-          <BuyCard key={index} listing={listing} />
-        ))}
-      </div>
+    <div className="grid grid-cols-3 gap-[14px] h-max mb-10 md:mb-16">
+      {favoritesListings.map((listing, index) => (
+        <BuyCard key={index} listing={listing} />
+      ))}
     </div>
   );
 }

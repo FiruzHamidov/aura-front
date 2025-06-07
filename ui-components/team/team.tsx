@@ -60,7 +60,7 @@ const ExpertCard: FC<ExpertCardProps> = ({ expert }) => {
   };
 
   return (
-    <div className="bg-white rounded-[22px] px-9 py-[30px] text-center flex flex-col items-center">
+    <div className="bg-white rounded-[22px] px-9 py-[30px] text-center flex flex-col items-center h-full">
       <div className="relative w-20 h-20 mb-4">
         <Image
           src={expert.imageUrl}

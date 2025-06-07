@@ -4,6 +4,7 @@ import { FC, useState } from 'react';
 import { Listing } from './types';
 import ListingCard from './listing-card';
 import Link from 'next/link';
+import { Tabs } from '@/ui-components/tabs/tabs';
 
 type PropertyType = 'apartment' | 'house' | 'land' | 'commercial';
 
@@ -113,7 +114,16 @@ const sampleListings: Listing[] = [
   },
 ];
 
-const TopListings: FC = () => {
+const tabOptions = [
+  { key: 'apartment', label: 'Квартира' },
+  { key: 'house', label: 'Дом' },
+  { key: 'land', label: 'Земельный участок' },
+  { key: 'commercial', label: 'Коммерческая' },
+] as const;
+
+const TopListings: FC<{ title?: string }> = ({
+  title = 'Топовые объявления',
+}) => {
   const [activeType, setActiveType] = useState<PropertyType>('apartment');
 
   const filteredListings = sampleListings.filter(
@@ -127,62 +137,25 @@ const TopListings: FC = () => {
     <section>
       <div className="container">
         <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
-          Топовые объявления
+          {title}
         </h2>
-
-        <div className="flex flex-wrap gap-3 md:gap-4 mb-5 md:mb-8">
-          <button
-            className={`px-6 py-3 rounded-full text-sm  transition-colors ${
-              activeType === 'apartment'
-                ? 'bg-[#0036A5] text-white'
-                : 'bg-white text-[#020617]'
-            }`}
-            onClick={() => setActiveType('apartment')}
-          >
-            Квартира
-          </button>
-          <button
-            className={`px-6 py-3 rounded-full text-sm  transition-colors ${
-              activeType === 'house'
-                ? 'bg-[#0036A5] text-white'
-                : 'bg-white text-[#020617]'
-            }`}
-            onClick={() => setActiveType('house')}
-          >
-            Дом
-          </button>
-          <button
-            className={`px-6 py-3 rounded-full text-sm  transition-colors ${
-              activeType === 'land'
-                ? 'bg-[#0036A5] text-white'
-                : 'bg-white text-[#020617]'
-            }`}
-            onClick={() => setActiveType('land')}
-          >
-            Земельный участок
-          </button>
-          <button
-            className={`px-6 py-3 rounded-full text-sm  transition-colors ${
-              activeType === 'commercial'
-                ? 'bg-[#0036A5] text-white'
-                : 'bg-white text-[#020617]'
-            }`}
-            onClick={() => setActiveType('commercial')}
-          >
-            Коммерческая
-          </button>
+        <div className="mb-5 md:mb-8 overflow-auto">
+          <Tabs
+            tabs={tabOptions}
+            activeType={activeType}
+            setActiveType={setActiveType}
+          />
         </div>
-
         <div className="grid md:grid-cols-2 gap-5">
           {firstListing && (
-            <div className="md:h-full md:max-h-[578px]">
+            <div className="md:h-full md:max-h-[576px]">
               <Link href={`/apartment/${firstListing.id}`}>
                 <ListingCard listing={firstListing} isLarge={true} />
               </Link>
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:max-h-[578px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:max-h-[576px]">
             {smallListings.map((listing) => (
               <Link key={listing.id} href={`/apartment/${listing.id}`}>
                 <ListingCard listing={listing} isLarge={false} />
