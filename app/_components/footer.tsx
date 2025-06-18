@@ -78,7 +78,7 @@ const Footer: FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-8 md:mb-12">
           <div className="md:col-span-3">
             <Link href="/" className="inline-block mb-5 w-full">
-              <Logo className="h-12 w-full" />
+              <Logo className="h-16 w-full" />
             </Link>
             <div className="flex space-x-3">
               {socialMedia.map((social) => (
@@ -115,13 +115,21 @@ const Footer: FC = () => {
 
           <div className="md:col-span-3">
             <div className="mb-[18px]">
+              <p className="text-[#666F8D] text-[18px]">Позвоните нам</p>
               <a
                 href="tel:+992945313131"
                 className="block text-[32px] font-bold text-[#1E3A8A] transition-colors"
               >
                 +992 945 31 31 31
               </a>
-              <p className="text-[#666F8D] text-[18px]">Позвоните нам</p>
+
+              <a
+                  href="tel:+992446403131"
+                  className="block text-[32px] font-bold text-[#1E3A8A] transition-colors"
+              >
+                +992 446 40 31 31
+              </a>
+
             </div>
             <p className="text-[#353E5C]">Душанбе ул. Айни 9</p>
           </div>

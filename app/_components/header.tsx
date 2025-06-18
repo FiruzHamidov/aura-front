@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, useState, useRef, useEffect } from 'react';
+import {FC, useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
 import Logo from '@/icons/Logo';
 import MapIcon from '@/icons/MapIcon';
@@ -8,23 +8,14 @@ import SettingsIcon from '@/icons/SettingsIcon';
 import HeartIcon from '@/icons/HeartIcon';
 import BoxIcon from '@/icons/BoxIcon';
 import PlusIcon from '@/icons/PlusIcon';
-import { usePathname, useRouter } from 'next/navigation';
+import {usePathname, useRouter} from 'next/navigation';
 
 const navItems = [
-  { name: 'Главная', href: '/' },
-  { name: 'Снять', href: '/rent' },
-  { name: 'Новостройки', href: '/new-buildings' },
-  { name: 'Ипотека', href: '/mortgage' },
-  { name: 'Сервисы', href: '/services' },
-  { name: 'Реклама', href: '/ads' },
-  {
-    name: 'О нас',
-    href: '/about',
-    children: [
-      { name: 'Новости', href: '/about/news' },
-      { name: 'Команда', href: '/about/team' },
-    ],
-  },
+  {name: 'Главная', href: '/'},
+  {name: 'Сервисы', href: '/services'},
+  {name: 'Новостройки', href: '/new-buildings'},
+  {name: 'Новости', href: '/about/news'},
+  {name: 'О нас', href: '/about',},
 ];
 
 const Header: FC = () => {
@@ -103,24 +94,26 @@ const Header: FC = () => {
             <button className="p-1.5 cursor-pointer text-[#0036A5] transition-colors">
               <Link href="/favorites">
                 <span className="sr-only">Favorites</span>
-                <HeartIcon className="h-6 w-6 cursor-pointer" />
+                <HeartIcon className="h-6 w-6 cursor-pointer"/>
               </Link>
             </button>
             <Link href="/comparison" onClick={() => setIsMobileMenuOpen(false)}>
               <button className="p-1.5 text-[#0036A5] transition-colors">
                 <span className="sr-only">Saved Items</span>
-                <BoxIcon className="h-6 w-6 cursor-pointer" />
+                <BoxIcon className="h-6 w-6 cursor-pointer"/>
               </button>
             </Link>
 
-            <button className="hidden xl:flex items-center space-x-2 bg-sky-100/70 hover:bg-sky-100 px-6 py-2 rounded-full transition-colors cursor-pointer">
-              <PlusIcon className="h-5 w-5 cursor-pointer" />
+            <button
+                className="hidden xl:flex items-center space-x-2 bg-sky-100/70 hover:bg-sky-100 px-6 py-2 rounded-full transition-colors cursor-pointer pulse-shadow">
+              <PlusIcon className="h-5 w-5 cursor-pointer"/>
               <span>Добавить объявление</span>
             </button>
 
             {/* Login button */}
             <Link href="/login">
-              <button className="bg-[#0036A5] hover:bg-blue-800 text-white px-4 lg:px-6 xl:px-[33.5px] py-2 lg:py-2.5 rounded-full transition-colors cursor-pointer">
+              <button
+                  className="bg-[#0036A5] hover:bg-blue-800 text-white px-4 lg:px-6 xl:px-[33.5px] py-2 lg:py-2.5 rounded-full transition-colors cursor-pointer">
                 Войти
               </button>
             </Link>

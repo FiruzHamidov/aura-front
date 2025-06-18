@@ -26,3 +26,19 @@ body {
   color: #020617;
   font-weight: 500;
 }
+
+@keyframes pulse-shadow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 54, 165, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(56, 189, 248, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+  }
+}
+
+.pulse-shadow {
+  animation: pulse-shadow 1.5s infinite;
+}

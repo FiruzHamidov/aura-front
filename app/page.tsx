@@ -5,6 +5,7 @@ import PersonalRealtorCta from './_components/personal-realtor';
 import Promo from './_components/promo';
 import Services from './_components/services';
 import TopListings from './_components/top-listing/top-listings';
+import VipListings from "@/app/_components/top-listing/vip-listings";
 
 export default function Home() {
   return (
@@ -13,7 +14,7 @@ export default function Home() {
       <div className="lg:container mx-auto mb-10 md:mb-20">
         <Services />
       </div>
-      <TopListings />
+      <VipListings />
       <Promo />
       <TopListings />
       <PersonalRealtorCta />
