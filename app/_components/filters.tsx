@@ -1,18 +1,11 @@
 'use client';
 
 import { FC, useState, useEffect, useRef } from 'react';
-import {
-  Dialog,
-  DialogPanel,
-  DialogTitle,
-  Field,
-  Label,
-  Switch,
-} from '@headlessui/react';
+import { Field, Label, Switch } from '@headlessui/react';
 import FilterSearchIcon from '@/icons/FilterSearchIcon';
 import { FormInput } from '@/ui-components/FormInput';
 import { SelectInput } from '@/ui-components/SelectInput';
-
+import Image from 'next/image';
 
 type ActiveTab = 'buy' | 'rent' | 'sell' | 'map';
 
@@ -68,7 +61,6 @@ const repairOptions: Option[] = [
   { id: 'none', name: 'Без ремонта' },
 ];
 
-
 interface Option {
   id: string | number;
   name: string;
@@ -79,10 +71,10 @@ interface AllFiltersModalProps {
   onClose: () => void;
 }
 
-
-
-
-export const AllFiltersModal: FC<AllFiltersModalProps> = ({ isOpen, onClose }) => {
+export const AllFiltersModal: FC<AllFiltersModalProps> = ({
+  isOpen,
+  onClose,
+}) => {
   const [propertyType, setPropertyType] = useState('Квартиры во вторичке');
   const [apartmentType, setApartmentType] = useState('Студия');
   const [city, setCity] = useState('Душанбе');
@@ -101,7 +93,11 @@ export const AllFiltersModal: FC<AllFiltersModalProps> = ({ isOpen, onClose }) =
   // Обработчик клика вне модалки
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (isOpen && modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      if (
+        isOpen &&
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
         onClose();
       }
     }
@@ -112,81 +108,146 @@ export const AllFiltersModal: FC<AllFiltersModalProps> = ({ isOpen, onClose }) =
   }, [isOpen, onClose]);
 
   return (
-      <div className={`absolute inset-0 z-50 ${isOpen ? '' : 'pointer-events-none'}`}>
-        {/* затемнение фона */}
-        <div className={`absolute inset-0 transition-opacity duration-300 ${isOpen ? 'opacity-40' : 'opacity-0'}`} />
+    <div
+      className={`absolute inset-0 z-50 ${isOpen ? '' : 'pointer-events-none'}`}
+    >
+      {/* затемнение фона */}
+      <div
+        className={`absolute inset-0 transition-opacity duration-300 ${
+          isOpen ? 'opacity-40' : 'opacity-0'
+        }`}
+      />
 
-        {/* сама модалка */}
-        <div
-            ref={modalRef}
-            className={`absolute top-[450px] left-0 right-0 w-[95%] mx-auto bg-white shadow-xl rounded-t-2xl p-6 transition-transform duration-300 ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'}`}>
+      {/* сама модалка */}
+      <div
+        ref={modalRef}
+        className={`absolute top-[450px] left-0 right-0 w-[95%] mx-auto bg-white shadow-xl rounded-t-2xl p-6 transition-transform duration-300 ${
+          isOpen ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'
+        }`}
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-2xl font-bold">Все фильтры</h3>
+          <button
+            onClick={onClose}
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-[#0036A5] text-white hover:bg-blue-800 transition-colors"
+          >
+            ✕
+          </button>
+        </div>
 
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-2xl font-bold">Все фильтры</h3>
-            <button
-                onClick={onClose}
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-[#0036A5] text-white hover:bg-blue-800 transition-colors"
-            >
-              ✕
-            </button>
+        <form id="filter-form" onSubmit={(e) => e.preventDefault()}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <FormInput
+              label="Тип недвижимости"
+              value={propertyType}
+              onChange={(val) => setPropertyType(val)}
+            />
+            <SelectInput
+              label="Тип квартиры"
+              value={apartmentType}
+              onChange={(val) => setApartmentType(val)}
+              options={apartmentTypeOptions}
+            />
+            <SelectInput
+              label="Город"
+              value={city}
+              onChange={(val) => setCity(val)}
+              options={cityOptions}
+            />
+            <SelectInput
+              label="Район"
+              value={district}
+              onChange={(val) => setDistrict(val)}
+              options={districtOptions}
+            />
+            <FormInput
+              label="Цена от"
+              value={priceFrom}
+              onChange={(val) => setPriceFrom(val)}
+              placeholder="0с"
+            />
+            <FormInput
+              label="Цена до"
+              value={priceTo}
+              onChange={(val) => setPriceTo(val)}
+              placeholder="0с"
+            />
+            <FormInput
+              label="Площадь от"
+              value={areaFrom}
+              onChange={(val) => setAreaFrom(val)}
+              placeholder="0м²"
+            />
+            <FormInput
+              label="Площадь до"
+              value={areaTo}
+              onChange={(val) => setAreaTo(val)}
+              placeholder="0м²"
+            />
+            <FormInput
+              label="Этаж от"
+              value={floorFrom}
+              onChange={(val) => setFloorFrom(val)}
+              placeholder="0"
+            />
+            <FormInput
+              label="Этаж до"
+              value={floorTo}
+              onChange={(val) => setFloorTo(val)}
+              placeholder="0"
+            />
+            <SelectInput
+              label="Ремонт"
+              value={repairType}
+              onChange={(val) => setRepairType(val)}
+              options={repairOptions}
+            />
           </div>
 
-          <form id="filter-form" onSubmit={(e) => e.preventDefault()}>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <FormInput label="Тип недвижимости" value={propertyType} onChange={(val) => setPropertyType(val)} />
-              <SelectInput label="Тип квартиры" value={apartmentType} onChange={(val) => setApartmentType(val)} options={apartmentTypeOptions} />
-              <SelectInput label="Город" value={city} onChange={(val) => setCity(val)} options={cityOptions} />
-              <SelectInput label="Район" value={district} onChange={(val) => setDistrict(val)} options={districtOptions} />
-              <FormInput label="Цена от" value={priceFrom} onChange={(val) => setPriceFrom(val)} placeholder="0с" />
-              <FormInput label="Цена до" value={priceTo} onChange={(val) => setPriceTo(val)} placeholder="0с" />
-              <FormInput label="Площадь от" value={areaFrom} onChange={(val) => setAreaFrom(val)} placeholder="0м²" />
-              <FormInput label="Площадь до" value={areaTo} onChange={(val) => setAreaTo(val)} placeholder="0м²" />
-              <FormInput label="Этаж от" value={floorFrom} onChange={(val) => setFloorFrom(val)} placeholder="0" />
-              <FormInput label="Этаж до" value={floorTo} onChange={(val) => setFloorTo(val)} placeholder="0" />
-              <SelectInput label="Ремонт" value={repairType} onChange={(val) => setRepairType(val)} options={repairOptions} />
-            </div>
+          <div className="mt-6">
+            <FormInput label="Ориентир" value="Душанбе" onChange={() => {}} />
+          </div>
 
-            <div className="mt-6">
-              <FormInput label="Ориентир" value="Душанбе" onChange={() => {}} />
-            </div>
-
-            <div className="mt-6 flex gap-8">
-              <Field className="flex items-center">
-                <Switch
-                    checked={mortgageOption === 'mortgage'}
-                    onChange={(checked) => setMortgageOption(checked ? 'mortgage' : 'developer')}
-                    className="group inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition data-checked:bg-blue-600"
-                >
-                  <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-checked:translate-x-6" />
-                </Switch>
-                <Label className="ml-3">Ипотека</Label>
-              </Field>
-              <Field className="flex items-center">
-                <Switch
-                    checked={mortgageOption === 'developer'}
-                    onChange={(checked) => setMortgageOption(checked ? 'developer' : 'mortgage')}
-                    className="group inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition data-checked:bg-blue-600"
-                >
-                  <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-checked:translate-x-6" />
-                </Switch>
-                <Label className="ml-3">От застройщика</Label>
-              </Field>
-            </div>
-
-            <div className="flex justify-end mt-8">
-              <button
-                  type="submit"
-                  className="bg-[#0036A5] text-white py-3 px-6 rounded-lg hover:bg-blue-800"
+          <div className="mt-6 flex gap-8">
+            <Field className="flex items-center">
+              <Switch
+                checked={mortgageOption === 'mortgage'}
+                onChange={(checked) =>
+                  setMortgageOption(checked ? 'mortgage' : 'developer')
+                }
+                className="group inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition data-checked:bg-blue-600"
               >
-                Найти объекты
-              </button>
-            </div>
-          </form>
-        </div>
+                <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-checked:translate-x-6" />
+              </Switch>
+              <Label className="ml-3">Ипотека</Label>
+            </Field>
+            <Field className="flex items-center">
+              <Switch
+                checked={mortgageOption === 'developer'}
+                onChange={(checked) =>
+                  setMortgageOption(checked ? 'developer' : 'mortgage')
+                }
+                className="group inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition data-checked:bg-blue-600"
+              >
+                <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-checked:translate-x-6" />
+              </Switch>
+              <Label className="ml-3">От застройщика</Label>
+            </Field>
+          </div>
+
+          <div className="flex justify-end mt-8">
+            <button
+              type="submit"
+              className="bg-[#0036A5] text-white py-3 px-6 rounded-lg hover:bg-blue-800"
+            >
+              Найти объекты
+            </button>
+          </div>
+        </form>
       </div>
+    </div>
   );
 };
-
 
 const HeroSearch: FC<{ title: string }> = ({ title }) => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('buy');
@@ -196,10 +257,10 @@ const HeroSearch: FC<{ title: string }> = ({ title }) => {
   const [isAllFiltersOpen, setIsAllFiltersOpen] = useState(false);
 
   return (
-    <div className="container relative py-8 md:py-10 md:pt-[22px] bg-gradient-to-b ">
-      <div className="bg-white rounded-[22px] px-4 sm:px-8 md:px-12 lg:px-[70px] py-6 sm:py-12 md:py-16 lg:py-[89px]">
+    <div className="container relative py-8 md:py-10 md:pt-[22px] bg-gradient-to-b overflow-hidden">
+      <div className="bg-white relative overflow-hidden z-0 rounded-[22px] px-4 sm:px-8 md:px-12 lg:px-[70px] py-6 sm:py-12 md:py-16 lg:py-[89px]">
         <div className="text-center mb-6 sm:mb-8 md:mb-12 lg:mb-[60px]">
-          <h1 className="text-xl md:text-[52px] font-extrabold text-[#0036A5] mb-1.5 tracking-tight uppercase">
+          <h1 className="text-xl md:text-[52px] font-extrabold text-[#0036A5] mb-1.5 tracking-tight uppercase transition-all duration-300 hover:scale-105 cursor-default">
             {title}
           </h1>
           <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-[#353E5C]">
@@ -276,6 +337,13 @@ const HeroSearch: FC<{ title: string }> = ({ title }) => {
             Найти
           </button>
         </div>
+        <Image
+          src="/images/banner/building.png"
+          alt="Building"
+          width={695}
+          height={695}
+          className="absolute -right-12 z-0 top-0 opacity-[8%] pointer-events-none max-w-none"
+        />
       </div>
 
       {/* All Filters Modal */}
