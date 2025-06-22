@@ -121,9 +121,7 @@ const tabOptions = [
   { key: 'commercial', label: 'Коммерческая' },
 ] as const;
 
-const VipListings: FC<{ title?: string }> = ({
-  title = 'VIP объявления',
-}) => {
+const VipListings: FC<{ title?: string }> = ({ title = 'VIP объявления' }) => {
   const [activeType, setActiveType] = useState<PropertyType>('apartment');
 
   const filteredListings = sampleListings.filter(
@@ -141,6 +139,7 @@ const VipListings: FC<{ title?: string }> = ({
         </h2>
         <div className="mb-5 md:mb-8 overflow-auto">
           <Tabs
+            hasBorder
             tabs={tabOptions}
             activeType={activeType}
             setActiveType={setActiveType}
@@ -148,7 +147,7 @@ const VipListings: FC<{ title?: string }> = ({
         </div>
         <div className="grid md:grid-cols-2 gap-5">
           {firstListing && (
-            <div className="md:h-full md:max-h-[576px]">
+            <div className="md:h-full min-h-[576px] md:max-h-[576px]">
               <Link href={`/apartment/${firstListing.id}`}>
                 <ListingCard listing={firstListing} isLarge={true} />
               </Link>

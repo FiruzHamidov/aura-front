@@ -96,17 +96,16 @@ const Header: FC = () => {
               </button>
             </Link>
 
-            <button className="hidden xl:flex items-center space-x-2 bg-sky-100/70 hover:bg-sky-100 px-6 py-2 rounded-full transition-colors cursor-pointer pulse-shadow">
-              <PlusIcon className="h-5 w-5 cursor-pointer" />
-              <span>Добавить объявление</span>
-            </button>
-
-            {/* Login button */}
             <Link href="/login">
-              <button className="bg-[#0036A5] hover:bg-blue-800 text-white px-4 lg:px-6 xl:px-[33.5px] py-2 lg:py-2.5 rounded-full transition-colors cursor-pointer">
+              <button className="bg-[#F0F2F5] px-4 lg:px-6 xl:px-[33.5px] py-2 lg:py-2.5 rounded-full transition-colors cursor-pointer">
                 Войти
               </button>
             </Link>
+
+            <button className="hidden xl:flex items-center space-x-2 bg-[#0036A5] hover:bg-blue-800 text-white px-6 py-2 rounded-full transition-colors cursor-pointer">
+              <PlusIcon className="h-5 w-5 cursor-pointer text-white mb-1" />
+              <span>Добавить объявление</span>
+            </button>
           </div>
 
           {/* Mobile: Only Logo and Menu Button */}
