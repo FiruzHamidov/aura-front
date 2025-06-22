@@ -1,14 +1,14 @@
 import MeetTheTeam from '@/ui-components/team/team';
 import Buy from '../_components/buy/buy';
-import HeroSearch from '../_components/filters';
 import Promo from '../_components/promo';
 import TopListings from '../_components/top-listing/top-listings';
 import Services from '../_components/services';
+import { MainBanner } from '../_components/banner';
 
 export default function Rent() {
   return (
     <>
-      <HeroSearch title="Поможем найти и арендовать жилье!" />
+      <MainBanner title="Поможем найти и арендовать жилье!" />
       <div className="mt-10 md:mt-[60px]">
         <TopListings title="Снять недвижимость топовые объявления" />
       </div>

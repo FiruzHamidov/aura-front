@@ -84,7 +84,6 @@ export default function Favorites() {
 
           <div className="mt-4 md:mt-0">
             <Tabs
-              hasBorder={false}
               tabs={[
                 { key: 'all', label: 'Все' },
                 { key: 'sale', label: 'Продажа' },

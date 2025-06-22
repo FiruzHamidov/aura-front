@@ -114,7 +114,6 @@ export default function Comparison() {
         </div>
 
         <Tabs
-          hasBorder={false}
           tabs={tabs}
           activeType={activeType}
           setActiveType={setActiveType}

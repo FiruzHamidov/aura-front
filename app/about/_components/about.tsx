@@ -5,7 +5,7 @@ export const AboutUs = () => {
     <div className="pt-2 md:pt-12">
       {/* About Us Section */}
       <section className="bg-white rounded-[22px] mx-auto px-4 md:px-12 pt-10 md:pt-[50px] mb-10 md:pb-0 pb-10">
-        <div className="flex flex-col lg:flex-row md:gap-10">
+        <div className="flex flex-col lg:flex-row md:gap-10 overflow-hidden">
           <div className="lg:w-1/3">
             <h2 className="text-2xl md:text-4xl font-bold md:mb-6 text-[#020617]">
               О нас
@@ -14,8 +14,9 @@ export const AboutUs = () => {
               <Image
                 src="/images/about/1.png"
                 alt="3D Buildings"
-                fill
-                className="object-contain w-[670px] h-[670px]"
+                width={670}
+                height={670}
+                className="!w-[670px] !h-[670px] absolute opacity-40"
               />
             </div>
           </div>
@@ -74,13 +75,14 @@ export const AboutUs = () => {
             </p>
           </div>
 
-          <div className="bg-white rounded-[22px] md:p-10 lg:w-1/3 flex items-center justify-center">
-            <div className="relative h-60 w-60">
+          <div className="bg-white rounded-[22px] md:p-10 lg:w-1/3 flex items-center justify-center overflow-hidden relative">
+            <div className="h-60 w-60">
               <Image
                 src="/images/about/2.png"
                 alt="Target"
-                fill
-                className="object-contain"
+                width={444}
+                height={444}
+                className="w-[444px] h-[444px] absolute left-16 top-0 -rotate-[90deg]"
               />
             </div>
           </div>
@@ -89,13 +91,14 @@ export const AboutUs = () => {
 
       <section className="mb-5 md:mb-10">
         <div className="flex flex-col lg:flex-row gap-5">
-          <div className="lg:w-1/3 bg-white rounded-[22px] p-10 flex items-center justify-center">
-            <div className="relative h-80 w-80">
+          <div className="lg:w-1/3 relative bg-white rounded-[22px] p-10 flex items-center justify-center overflow-hidden">
+            <div className="h-80 w-80">
               <Image
                 src="/images/about/3.png"
                 alt="Blue House"
-                fill
-                className="object-contain"
+                width={444}
+                height={444}
+                className="w-[444px] h-[444px] right-16 absolute -left-14 -top-3"
               />
             </div>
           </div>
