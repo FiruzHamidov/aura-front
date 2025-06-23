@@ -2,22 +2,40 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "./api";
 import { useRouter } from "next/navigation";
 
-export const useLoginMutation = () => {
+export const useSendSmsMutation = () => {
   return useMutation({
-    mutationFn: authApi.login,
+    mutationFn: authApi.sendSms,
   });
 };
 
-export const useVerifyCodeMutation = () => {
+export const useVerifySmsMutation = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({
-    mutationFn: authApi.verifyCode,
+    mutationFn: authApi.verifySms,
     onSuccess: (data) => {
-      localStorage.setItem("auth_token", data.token);
-      queryClient.setQueryData(["user"], data.user);
-      router.push("/");
+      if (data.token) {
+        localStorage.setItem("auth_token", data.token);
+        queryClient.setQueryData(["user"], data.user);
+        router.push("/");
+      }
+    },
+  });
+};
+
+export const useLoginMutation = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: authApi.login,
+    onSuccess: (data) => {
+      if (data.token) {
+        localStorage.setItem("auth_token", data.token);
+        queryClient.setQueryData(["user"], data.user);
+        router.push("/");
+      }
     },
   });
 };

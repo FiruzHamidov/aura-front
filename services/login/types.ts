@@ -1,6 +1,15 @@
 export interface LoginRequest {
   phone: string;
-  password: string;
+  password?: string;
+}
+
+export interface SmsRequest {
+  phone: string;
+}
+
+export interface SmsVerifyRequest {
+  phone: string;
+  code: string;
 }
 
 export interface LoginResponse {
@@ -8,17 +17,6 @@ export interface LoginResponse {
   user?: User;
   token?: string;
   requires_verification?: boolean;
-}
-
-export interface VerifyCodeRequest {
-  phone: string;
-  code: string;
-}
-
-export interface VerifyCodeResponse {
-  message: string;
-  user: User;
-  token: string;
 }
 
 export interface User {
@@ -32,3 +30,5 @@ export interface User {
   created_at: string;
   updated_at: string;
 }
+
+export type AuthMode = "sms" | "password";

@@ -4,7 +4,6 @@ import { BASE_URL } from "@/constants/base-url";
 
 export const axios: AxiosInstance = Axios.create({
   baseURL: BASE_URL,
-  withCredentials: true,
 });
 
 axios.interceptors.request.use(

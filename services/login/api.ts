@@ -1,23 +1,31 @@
 import { axios } from "@/utils/axios";
 import {
   LoginRequest,
+  SmsRequest,
+  SmsVerifyRequest,
   LoginResponse,
-  VerifyCodeRequest,
-  VerifyCodeResponse,
   User,
 } from "./types";
 
 export const authApi = {
-  login: async (data: LoginRequest): Promise<LoginResponse> => {
-    const { data: response } = await axios.post<LoginResponse>("/login", data);
+  sendSms: async (data: SmsRequest): Promise<{ message: string }> => {
+    const { data: response } = await axios.post<{ message: string }>(
+      "/sms/request",
+      data
+    );
     return response;
   },
 
-  verifyCode: async (data: VerifyCodeRequest): Promise<VerifyCodeResponse> => {
-    const { data: response } = await axios.post<VerifyCodeResponse>(
-      "/verify-code",
+  verifySms: async (data: SmsVerifyRequest): Promise<LoginResponse> => {
+    const { data: response } = await axios.post<LoginResponse>(
+      "/sms/verify",
       data
     );
+    return response;
+  },
+
+  login: async (data: LoginRequest): Promise<LoginResponse> => {
+    const { data: response } = await axios.post<LoginResponse>("/login", data);
     return response;
   },
 
