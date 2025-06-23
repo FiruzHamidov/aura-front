@@ -1,3 +1,5 @@
+'use client';
+
 import MeetTheTeam from '@/ui-components/team/team';
 import Buy from './_components/buy/buy';
 import { MainBanner } from './_components/banner';
@@ -8,6 +10,8 @@ import TopListings from './_components/top-listing/top-listings';
 import VipListings from '@/app/_components/top-listing/vip-listings';
 
 export default function Home() {
+  // const { data: properties, isLoading } = useGetPropertiesQuery();
+
   return (
     <>
       <MainBanner title="Недвижимость в Таджикистане" />

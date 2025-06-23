@@ -1,0 +1,82 @@
+export interface PropertiesResponse {
+  current_page: number;
+  data: Property[];
+  first_page_url: string;
+  from: number;
+  last_page: number;
+  last_page_url: string;
+  links: PaginationLink[];
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number;
+  total: number;
+}
+
+export interface Property {
+  id: number;
+  title: string;
+  description: string;
+  type_id: number;
+  status_id: number;
+  location_id: string | null;
+  price: string;
+  currency: string;
+  total_area: number;
+  living_area: number;
+  floor: number;
+  total_floors: number;
+  year_built: string;
+  condition: string;
+  has_garden: number;
+  has_parking: number;
+  apartment_type: string;
+  repair_type: string;
+  is_mortgage_available: number;
+  is_from_developer: number;
+  moderation_status: string;
+  landmark: string;
+  created_by: number;
+  created_at: string;
+  updated_at: string;
+  type: PropertyType;
+  status: PropertyStatus;
+  location: string | null;
+  photos: unknown[];
+  creator: User;
+}
+
+export interface PropertyType {
+  id: number;
+  name: string;
+  slug: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PropertyStatus {
+  id: number;
+  name: string;
+  slug: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  role_id: number;
+  status: string;
+  auth_method: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PaginationLink {
+  url?: string;
+  label: string;
+  active: boolean;
+}
