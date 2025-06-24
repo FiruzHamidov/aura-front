@@ -18,7 +18,7 @@ export function BankOption({
   return (
     <button
       onClick={onSelect}
-      className={`flex items-center justify-center w-[230px] h-[87px] rounded-full border ${
+      className={`flex items-center justify-center w-full md:w-[230px] h-[87px] rounded-full border ${
         isSelected ? 'border-blue-600' : 'border-[#E3E6EA]'
       } transition-colors hover:border-blue-300`}
     >

@@ -49,7 +49,7 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
     <div
       className={clsx(
         'bg-white rounded-xl overflow-hidden h-full hover:shadow-xs transition-shadow duration-200',
-        isLarge ? 'px-[25px] py-[22px]' : 'px-[14px] py-[15px]'
+        isLarge ? 'md:px-[25px] md:py-[22px] p-4' : 'px-[14px] py-[15px]'
       )}
     >
       <div className="relative">
@@ -84,7 +84,12 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
           </span>
         )}
 
-        <div className="absolute top-[22px] right-[22px] flex flex-col space-y-2">
+        <div
+          className={clsx(
+            'absolute flex flex-col space-y-2',
+            isLarge ? 'top-[22px] right-[22px]' : 'top-3 right-3'
+          )}
+        >
           <div className="!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-[37px] h-[37px]">
             <HeartIcon className="w-[18px] h-[18px] text-white" />
           </div>
@@ -118,14 +123,14 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
           </span>
           <div
             className={clsx(
-              'flex items-center text-[#666F8D] bg-[#EFF6FF] px-2 py-1 rounded-full',
+              'flex items-center text-[#666F8D] bg-[#EFF6FF] px-2 py-0.5 rounded-full',
               isLarge ? 'text-sm' : 'text-xs'
             )}
           >
             <LocationIcon
               className={clsx(
-                'mr-1',
-                isLarge ? 'w-6 h-6' : 'w-[18px] h-[18px]'
+                'mr-0.5',
+                isLarge ? 'w-6 h-6 mt-1' : 'w-[18px] h-[18px]'
               )}
             />
             {listing.locationName}
@@ -140,7 +145,7 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
 
         <div
           className={`flex items-center space-x-3 text-[#666F8D] ${
-            isLarge ? 'text-sm mb-4' : 'text-xs'
+            isLarge ? 'text-sm mb-8' : 'text-xs'
           }`}
         >
           <span>{listing.roomCountLabel}</span>
@@ -149,7 +154,7 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
         </div>
 
         {isLarge && listing.agent && listing.date && (
-          <div className="mt-auto pt-3 flex items-center justify-between text-xs">
+          <div className="mt-auto pt-8 flex items-center justify-between text-xs">
             <div className="flex items-center">
               <div className="rounded-full w-9 h-9 bg-[#F1F5F9] p-1.5 mr-1.5 flex items-center justify-center">
                 <UserIcon className="h-[22px] w-[22px]" />

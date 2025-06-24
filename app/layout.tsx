@@ -1,9 +1,10 @@
-import { ReactNode } from 'react';
+import { ReactNode, Suspense } from 'react';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import Footer from './_components/footer';
 import Header from './_components/header';
+import { QueryProvider } from '@/utils/providers';
 
 const interFont = Inter({
   variable: '--font-inter',
@@ -23,9 +24,13 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className={`${interFont.variable} antialiased`}>
-        <Header />
-        {children}
-        <Footer />
+        <Suspense>
+          <QueryProvider>
+            <Header />
+            {children}
+            <Footer />
+          </QueryProvider>
+        </Suspense>
       </body>
     </html>
   );

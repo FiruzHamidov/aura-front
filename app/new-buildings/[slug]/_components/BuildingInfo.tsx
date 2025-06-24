@@ -41,9 +41,9 @@ export const BuildingInfo: FC<BuildingComponentProps> = ({ apartmentData }) => {
   }, [emblaApi]);
 
   return (
-    <div className="bg-white rounded-[22px] py-10 px-[60px]">
+    <div className="bg-white rounded-[22px] px-4 py-5 md:py-10 md:px-[60px]">
       {/* Header section */}
-      <div className="flex justify-between items-start mb-10">
+      <div className="flex justify-between items-start mb-4 md:mb-10">
         <div>
           <h1 className="text-2xl md:text-4xl font-bold mb-0.5">
             {apartmentData.title}
@@ -55,13 +55,13 @@ export const BuildingInfo: FC<BuildingComponentProps> = ({ apartmentData }) => {
       </div>
 
       {/* Image gallery with Embla */}
-      <div className="relative mb-5">
+      <div className="relative mb-3 md:mb-5">
         <div className="overflow-hidden rounded-xl" ref={emblaRef}>
           <div className="flex">
             {apartmentData.images.map((image, index) => (
               <div
                 key={index}
-                className="relative min-w-full h-[490px]"
+                className="relative min-w-full md:h-[490px] h-[200px]"
                 style={{ flex: '0 0 100%' }}
               >
                 <Image
@@ -134,11 +134,11 @@ export const BuildingInfo: FC<BuildingComponentProps> = ({ apartmentData }) => {
       </div>
 
       {/* Thumbnail gallery */}
-      <div className="flex gap-[18px]">
+      <div className="flex gap-2 md:gap-[18px]">
         {apartmentData.images.map((image, index) => (
           <button
             key={index}
-            className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-colors h-[120px] w-[120px] cursor-pointer ${
+            className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-colors md:h-[120px] w-[120px] cursor-pointer ${
               selectedIndex === index
                 ? 'border-[#0036A5] border-4'
                 : 'border-transparent'
@@ -156,7 +156,7 @@ export const BuildingInfo: FC<BuildingComponentProps> = ({ apartmentData }) => {
       </div>
 
       {/* Property Details */}
-      <div className="mt-11 grid grid-cols-1 md:grid-cols-2 gap-32">
+      <div className="mt-11 grid grid-cols-1 md:grid-cols-2 md:gap-32 gap-0">
         {/* Apartment details */}
         <div>
           <h2 className="text-2xl font-bold mb-6">О ЖК</h2>
@@ -186,7 +186,7 @@ export const BuildingInfo: FC<BuildingComponentProps> = ({ apartmentData }) => {
 
         {/* Building details */}
         <div>
-          <h2 className="text-2xl font-bold mb-6 text-white">
+          <h2 className="md:block hidden text-2xl font-bold mb-6 text-white">
             surpise surpise
           </h2>
           <div className="flex flex-col space-y-4 text-sm mt-6">
@@ -224,7 +224,9 @@ export const BuildingInfo: FC<BuildingComponentProps> = ({ apartmentData }) => {
 
       {/* Amenities and features section */}
       <div className="mt-10">
-        <h2 className="text-2xl font-bold mb-10">Удобства и особенности</h2>
+        <h2 className="text-2xl font-bold mb-6 md:mb-10">
+          Удобства и особенности
+        </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-[22px]">
           <div className="flex items-center">

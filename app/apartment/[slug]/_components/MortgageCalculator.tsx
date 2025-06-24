@@ -26,8 +26,10 @@ export default function MortgageCalculator() {
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 mt-10">
-      <div className="lg:w-3/4 bg-white rounded-[22px] px-[30px] pt-[35px] pb-[55px]">
-        <h2 className="text-[32px] font-bold mb-12">Ипотека от банков</h2>
+      <div className="lg:w-3/4 bg-white rounded-[22px] px-4 py-5 md:px-[30px] md:pt-[35px] md:pb-[55px]">
+        <h2 className="text-2xl md:text-[32px] font-bold mb-6 md:mb-12">
+          Ипотека от банков
+        </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-[25px] gap-y-[22px]">
           <FormInput
@@ -103,7 +105,9 @@ export default function MortgageCalculator() {
         </p>
 
         <div>
-          <h3 className="text-[32px] font-bold mb-[22px]">Выбрать банк</h3>
+          <h3 className="text-2xl md:text-[32px] font-bold mb-[22px]">
+            Выбрать банк
+          </h3>
           <div className="flex flex-wrap gap-5">
             <BankOption
               name="alif"
