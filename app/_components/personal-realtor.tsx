@@ -2,6 +2,7 @@
 
 import { FC, FormEvent } from 'react';
 import Image from 'next/image';
+import { toast } from 'react-toastify';
 
 const PersonalRealtorCta: FC = () => {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -10,12 +11,14 @@ const PersonalRealtorCta: FC = () => {
     const phone = formData.get('phone');
     console.log('Form submitted with phone:', phone);
 
-    alert(`Спасибо! Мы свяжемся с вами по номеру: ${phone}`);
+    toast.success(`Спасибо! Мы свяжемся с вами по номеру: ${phone}`, {
+      position: 'top-center',
+    });
   };
 
   return (
-    <section>
-      <div className="container mt-16 md:mt-20 relative bg-blue-800 rounded-3xl overflow-hidden">
+    <section className="container">
+      <div className="mt-10 md:mt-20 relative bg-blue-800 rounded-3xl overflow-hidden">
         <Image
           src="/images/personal-cta/img.png"
           alt="Hand holding house keys"
@@ -25,7 +28,7 @@ const PersonalRealtorCta: FC = () => {
           priority
         />
 
-        <div className="relative z-10 pt-4 md:pt-16 pb-12 md:pl-[66px] text-white md:max-w-[710px]">
+        <div className="relative z-10 pt-4 md:pt-16 md:pb-12 px-4 py-5 md:pl-[66px] text-white md:max-w-[710px]">
           <h2 className="text-2xl md:text-4xl font-bold mb-4 leading-tight">
             Личный риелтор» – ваш проводник в мире недвижимости!
           </h2>

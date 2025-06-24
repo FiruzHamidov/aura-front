@@ -20,8 +20,8 @@ export const PriceAndBuilder: FC<BuildingComponentProps> = ({
         </div>
       </div>
 
-      <div className="bg-white rounded-[22px] px-8 py-10">
-        <div className="flex items-center gap-4 mb-8">
+      <div className="bg-white rounded-[22px] px-4 py-5 md:px-8 md:py-10">
+        <div className="flex items-center gap-4 mb-6 md:mb-8">
           <div className="relative w-[60px] h-[60px] rounded-full overflow-hidden">
             <Image
               src={apartmentData.agent.image}
@@ -40,7 +40,7 @@ export const PriceAndBuilder: FC<BuildingComponentProps> = ({
         <div className="my-[14px] text-lg">{apartmentData.agent.address}</div>
         <div className="text-[#666F8D]">{apartmentData.agent.description}</div>
 
-        <div className="mt-[14px] text-[#666F8D] text-lg space-y-3">
+        <div className="mt-[14px] text-[#666F8D] text-lg space-y-2 md:space-y-3">
           <div className="flex items-center justify-between">
             <span>Строится</span>
             <span>{apartmentData.agent.building}</span>

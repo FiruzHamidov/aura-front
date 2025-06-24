@@ -57,8 +57,8 @@ const apartmentOffers = [
 
 export const Offers = () => {
   return (
-    <div className="bg-white rounded-[22px] py-10 px-[60px] mt-5">
-      <h2 className="text-2xl font-bold mb-8">Предложения</h2>
+    <div className="bg-white rounded-[22px] px-4 py-5 md:py-10 md:px-[60px] mt-5">
+      <h2 className="text-2xl font-bold mb-6 md:mb-8">Предложения</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* 1-комнатная квартира */}
@@ -76,39 +76,41 @@ export const Offers = () => {
               />
             </div>
 
-            <h3 className="text-xl font-semibold mb-1">{offer.title}</h3>
-            <p className="text-[#667085] mb-3 text-sm">{offer.description}</p>
+            <div className="px-4 pb-4">
+              <h3 className="text-xl font-semibold mb-1">{offer.title}</h3>
+              <p className="text-[#667085] mb-3 text-sm">{offer.description}</p>
 
-            <div className="flex items-center gap-4 mb-3">
-              <div className="flex items-center gap-1 text-[#667085]">
-                <BedIcon className="w-5 h-5 mr-1" />
-                <span>{offer.rooms}</span>
+              <div className="flex items-center gap-4 mb-3">
+                <div className="flex items-center gap-1 text-[#667085]">
+                  <BedIcon className="w-5 h-5 mr-1" />
+                  <span>{offer.rooms}</span>
+                </div>
+
+                <div className="flex items-center gap-1 text-[#667085]">
+                  <ShowerIcon className="w-5 h-5 mr-1" />
+                  <span>{offer.bathrooms}</span>
+                </div>
+
+                <div className="flex items-center gap-1 text-[#667085]">
+                  <PlanIcon className="w-5 h-5 mr-1" />
+
+                  <span>{offer.area} м²</span>
+                </div>
+
+                <div className="flex items-center gap-1 text-[#667085]">
+                  <FloorIcon className="w-5 h-5 mr-1" />
+                  <span>{offer.floor}</span>
+                </div>
               </div>
 
-              <div className="flex items-center gap-1 text-[#667085]">
-                <ShowerIcon className="w-5 h-5 mr-1" />
-                <span>{offer.bathrooms}</span>
+              <div className="flex items-center">
+                <span className="text-[#0036A5] text-2xl font-bold">
+                  {offer.price.toLocaleString()} с.
+                </span>
+                <span className="ml-auto text-sm text-[#667085]">
+                  {offer.pricePerMeter.toLocaleString()} с./м²
+                </span>
               </div>
-
-              <div className="flex items-center gap-1 text-[#667085]">
-                <PlanIcon className="w-5 h-5 mr-1" />
-
-                <span>{offer.area} м²</span>
-              </div>
-
-              <div className="flex items-center gap-1 text-[#667085]">
-                <FloorIcon className="w-5 h-5 mr-1" />
-                <span>{offer.floor}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center">
-              <span className="text-[#0036A5] text-2xl font-bold">
-                {offer.price.toLocaleString()} с.
-              </span>
-              <span className="ml-auto text-sm text-[#667085]">
-                {offer.pricePerMeter.toLocaleString()} с./м²
-              </span>
             </div>
           </div>
         ))}

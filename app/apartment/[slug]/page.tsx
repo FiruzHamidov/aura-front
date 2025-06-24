@@ -95,9 +95,9 @@ export default function Apartment() {
       <div className="flex flex-col lg:flex-row gap-5">
         {/* Main content */}
         <div className="lg:w-3/4">
-          <div className="bg-white rounded-[22px] p-[30px]">
+          <div className="bg-white rounded-[22px] md:p-[30px] p-4">
             {/* Header section */}
-            <div className="flex justify-between items-start mb-4">
+            <div className="md:flex justify-between items-start mb-4">
               <div>
                 <h1 className="text-2xl font-bold mb-2">
                   {apartmentData.title}
@@ -107,7 +107,7 @@ export default function Apartment() {
                   {apartmentData.id}
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 md:mt-0 mt-4">
                 <button className="w-14 h-14 rounded-full border border-[#BAC0CC] flex items-center justify-center hover:bg-gray-50 cursor-pointer">
                   <SettingsIcon className="w-6 h-6 text-[#1E3A8A]" />
                 </button>
@@ -128,7 +128,7 @@ export default function Apartment() {
                   {apartmentData.images.map((image, index) => (
                     <div
                       key={index}
-                      className="relative min-w-full h-[387px]"
+                      className="relative min-w-full md:h-[387px] h-[200px]"
                       style={{ flex: '0 0 100%' }}
                     >
                       <Image
@@ -250,7 +250,7 @@ export default function Apartment() {
             </button>
 
             {/* Property Details */}
-            <div className="mt-11 grid grid-cols-1 md:grid-cols-2 gap-32">
+            <div className="mt-11 grid grid-cols-1 md:grid-cols-2 md:gap-32 gap-10">
               {/* Apartment details */}
               <div>
                 <h2 className="text-2xl font-bold mb-4">О квартире</h2>
@@ -319,7 +319,7 @@ export default function Apartment() {
         {/* Sidebar */}
         <div className="lg:w-1/4">
           {/* Price card */}
-          <div className="bg-white rounded-[22px] py-[30px] px-[22px] mb-6">
+          <div className="bg-white rounded-[22px] md:py-[30px] md:px-[22px] px-4 py-5 mb-6">
             <div className="text-[#666F8D] text-lg mb-1.5">Цена</div>
             <div className="text-[32px] font-bold text-[#0036A5]">
               {apartmentData.price}
@@ -327,7 +327,7 @@ export default function Apartment() {
           </div>
 
           {/* Agent card */}
-          <div className="bg-white rounded-[22px] px-[26px] py-8">
+          <div className="bg-white rounded-[22px] md:px-[26px] px-4 py-5 md:py-8">
             <div className="flex items-center gap-4 mb-8">
               <div className="relative w-[60px] h-[60px] rounded-full overflow-hidden">
                 <Image

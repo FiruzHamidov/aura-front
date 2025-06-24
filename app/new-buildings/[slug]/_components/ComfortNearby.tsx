@@ -11,10 +11,10 @@ import Image from 'next/image';
 
 export const ComfortNearby = () => {
   return (
-    <div className="bg-white rounded-[22px] py-10 px-[60px] mt-5">
-      <h2 className="text-2xl font-bold mb-8">Удобства рядом</h2>
+    <div className="bg-white rounded-[22px] px-4 py-5 md:py-10 md:px-[60px] mt-5">
+      <h2 className="text-2xl font-bold mb-6 md:mb-8">Удобства рядом</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:gap-y-8 gap-6">
         <div className="flex items-center">
           <div className="text-[#0036A5] mr-1">
             <MosqueIcon className="w-8 h-8" />
@@ -108,7 +108,9 @@ export const ComfortNearby = () => {
         </div>
       </div>
 
-      <h2 className="text-2xl font-bold mt-16 mb-10">Расположение на карте</h2>
+      <h2 className="text-2xl font-bold mt-10 md:mt-16 mb-6 md:mb-10">
+        Расположение на карте
+      </h2>
 
       <div className="relative h-[400px] w-full rounded-xl overflow-hidden">
         <Image

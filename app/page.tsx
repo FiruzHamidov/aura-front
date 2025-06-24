@@ -22,7 +22,7 @@ export default function Home() {
       <Promo />
       <TopListings />
       <PersonalRealtorCta />
-      <div className="mt-16 md:mt-20">
+      <div className="mt-10 md:mt-20">
         <Buy />
       </div>
       <div className="mb-14 md:mb-[85px] mx-auto md:px-4 sm:px-6 lg:px-8">
