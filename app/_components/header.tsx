@@ -8,7 +8,9 @@ import SettingsIcon from '@/icons/SettingsIcon';
 import HeartIcon from '@/icons/HeartIcon';
 import BoxIcon from '@/icons/BoxIcon';
 import PlusIcon from '@/icons/PlusIcon';
+import UserIcon from '@/icons/UserIcon';
 import { usePathname } from 'next/navigation';
+import { useMe, useLogoutMutation } from '@/services/login/hooks';
 
 const navItems = [
   { name: 'Главная', href: '/' },
@@ -24,7 +26,21 @@ const Header: FC = () => {
   const pathname = usePathname();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
+
+  const { data: user, isLoading: userLoading } = useMe();
+  const logoutMutation = useLogoutMutation();
+
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+      setIsUserMenuOpen(false);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -35,15 +51,22 @@ const Header: FC = () => {
       ) {
         setActiveDropdown(null);
       }
+
+      if (
+        isUserMenuOpen &&
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsUserMenuOpen(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [activeDropdown]);
+  }, [activeDropdown, isUserMenuOpen]);
 
-  // Close mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isMobileMenuOpen && !(event.target as Element).closest('header')) {
@@ -59,6 +82,116 @@ const Header: FC = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isMobileMenuOpen]);
+
+  const UserMenu = ({ isMobile = false }: { isMobile?: boolean }) => {
+    if (userLoading) {
+      return (
+        <div
+          className={`${
+            isMobile ? 'w-full' : ''
+          } bg-gray-100 animate-pulse rounded-full px-4 py-2`}
+        >
+          <div className="h-4 bg-gray-300 rounded"></div>
+        </div>
+      );
+    }
+
+    if (!user) {
+      return (
+        <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+          <button
+            className={`${
+              isMobile ? 'w-full' : ''
+            } bg-[#F0F2F5] px-4 lg:px-6 xl:px-[33.5px] py-2 lg:py-2.5 rounded-full transition-colors cursor-pointer hover:bg-gray-200`}
+          >
+            Войти
+          </button>
+        </Link>
+      );
+    }
+
+    if (isMobile) {
+      return (
+        <div className="space-y-3">
+          <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+            <div className="w-10 h-10 bg-[#0036A5] rounded-full flex items-center justify-center">
+              <UserIcon className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <div className="font-medium text-gray-900">{user.name}</div>
+              <div className="text-sm text-gray-600">
+                {user.role?.name || 'Пользователь'}
+              </div>
+            </div>
+          </div>
+          <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)}>
+            <button className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors">
+              Профиль
+            </button>
+          </Link>
+          <button
+            onClick={handleLogout}
+            disabled={logoutMutation.isPending}
+            className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+          >
+            {logoutMutation.isPending ? 'Выходим...' : 'Выйти'}
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="relative" ref={userMenuRef}>
+        <button
+          onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+          className="flex items-center space-x-2 bg-[#F0F2F5] hover:bg-gray-200 px-4 lg:px-6 py-2 lg:py-2.5 rounded-full transition-colors cursor-pointer"
+        >
+          <div className="w-6 h-6 bg-[#0036A5] rounded-full flex">
+            <UserIcon className="w-6 h-6 text-white" />
+          </div>
+          <span className="hidden lg:block font-medium">{user.name}</span>
+          <svg
+            className={`w-4 h-4 transition-transform ${
+              isUserMenuOpen ? 'rotate-180' : ''
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </button>
+
+        {isUserMenuOpen && (
+          <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+            <div className="px-4 py-3 border-b border-gray-100">
+              <div className="text-sm text-gray-600">{user.email}</div>
+              <div className="text-xs text-gray-500 mt-1">
+                {user.role?.name || 'Пользователь'}
+              </div>
+            </div>
+            <Link href="/profile" onClick={() => setIsUserMenuOpen(false)}>
+              <button className="cursor-pointer w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors">
+                Профиль
+              </button>
+            </Link>
+            <button
+              onClick={handleLogout}
+              disabled={logoutMutation.isPending}
+              className="cursor-pointer w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+            >
+              {logoutMutation.isPending ? 'Выходим...' : 'Выйти'}
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <header className="bg-white">
@@ -96,11 +229,8 @@ const Header: FC = () => {
               </button>
             </Link>
 
-            <Link href="/login">
-              <button className="bg-[#F0F2F5] px-4 lg:px-6 xl:px-[33.5px] py-2 lg:py-2.5 rounded-full transition-colors cursor-pointer">
-                Войти
-              </button>
-            </Link>
+            {/* User Menu */}
+            <UserMenu />
 
             <button className="hidden xl:flex items-center space-x-2 bg-[#0036A5] hover:bg-blue-800 text-white px-6 py-2 rounded-full transition-colors cursor-pointer">
               <PlusIcon className="h-5 w-5 cursor-pointer text-white mb-1" />
@@ -160,15 +290,6 @@ const Header: FC = () => {
               </div>
             ))}
           </div>
-          {/* remove when integrate login(auth) */}
-          <Link
-            href="/profile"
-            className={`hover:text-blue-600 whitespace-nowrap transition-colors text-sm lg:text-base ${
-              pathname === '/profile' ? 'text-[#0036A5]' : ''
-            }`}
-          >
-            Профиль
-          </Link>
         </div>
       </nav>
 
@@ -207,15 +328,13 @@ const Header: FC = () => {
             </div>
 
             <div className="p-4">
+              {/* Mobile User Menu */}
+              <div className="mb-6 pb-6 border-b border-gray-200">
+                <UserMenu isMobile />
+              </div>
+
               {/* Mobile Action Buttons */}
               <div className="space-y-3 mb-6 pb-6 border-b border-gray-200">
-                {/* Login Button */}
-                <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                  <button className="w-full bg-[#0036A5] hover:bg-blue-800 text-white px-4 py-3 rounded-lg font-medium transition-colors mb-3 sm:mb-0">
-                    Войти
-                  </button>
-                </Link>
-
                 {/* Location Button */}
                 <button className="w-full flex items-center justify-center space-x-2 bg-sky-100/70 hover:bg-sky-100 px-4 py-3 rounded-lg transition-colors">
                   <MapIcon className="h-5 w-5 text-slate-600" />

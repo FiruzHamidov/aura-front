@@ -75,13 +75,13 @@ export default function NewBuildings() {
 
   return (
     <div className="pt-6 pb-[87px] container">
-      <div className="flex justify-between items-center mb-10 bg-white rounded-[22px] p-[30px]">
+      <div className="md:flex justify-between items-center mb-10 bg-white rounded-[22px] p-[30px]">
         <div>
           <h1 className="text-2xl font-bold mb-1.5">Новостройки</h1>
           <p className="text-[#666F8D]">Найдено 750 объектов</p>
         </div>
 
-        <div className="flex items-center gap-2 bg-[#F0F2F5] rounded-full px-3 py-2.5">
+        <div className="md:mt-0 mt-6 flex items-center gap-2 bg-[#F0F2F5] rounded-full px-3 py-2.5">
           <button
             className={clsx(
               'py-[11px] px-[19px] rounded-full transition-colors cursor-pointer',

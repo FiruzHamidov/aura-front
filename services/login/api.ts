@@ -5,6 +5,7 @@ import {
   SmsVerifyRequest,
   LoginResponse,
   User,
+  ProfileUpdateRequest,
 } from "./types";
 
 export const authApi = {
@@ -30,12 +31,24 @@ export const authApi = {
   },
 
   logout: async (): Promise<void> => {
-    await axios.post("/logout");
-    localStorage.removeItem("auth_token");
+    return Promise.resolve();
   },
 
   getMe: async (): Promise<User> => {
     const { data } = await axios.get<User>("/me");
+    return data;
+  },
+
+  getProfile: async (userId: number): Promise<User> => {
+    const { data } = await axios.get<User>(`/user/${userId}`);
+    return data;
+  },
+
+  updateProfile: async (
+    userId: number,
+    profileData: ProfileUpdateRequest
+  ): Promise<User> => {
+    const { data } = await axios.put<User>(`/user/${userId}`, profileData);
     return data;
   },
 };
