@@ -232,10 +232,10 @@ const Header: FC = () => {
             {/* User Menu */}
             <UserMenu />
 
-            <button className="hidden xl:flex items-center space-x-2 bg-[#0036A5] hover:bg-blue-800 text-white px-6 py-2 rounded-full transition-colors cursor-pointer">
+            <Link href="/profile/add-post" className="hidden xl:flex items-center space-x-2 bg-[#0036A5] hover:bg-blue-800 text-white px-6 py-2 rounded-full transition-colors cursor-pointer">
               <PlusIcon className="h-5 w-5 cursor-pointer text-white mb-1" />
               <span>Добавить объявление</span>
-            </button>
+            </Link>
           </div>
 
           {/* Mobile: Only Logo and Menu Button */}

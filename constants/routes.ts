@@ -14,6 +14,7 @@ export const AUTH_REQUIRED_ROUTES = [
   "/profile/favorites",
   "/profile/wallet",
   "/profile/my-listings",
+  "/profile/add-post",
   "/add-listing",
   "/dashboard",
 ];

@@ -8,6 +8,7 @@ import ListingIcon from '@/icons/ListingIcon';
 import LogoutIcon from '@/icons/LogoutIcon';
 import UserIcon from '@/icons/UserIcon';
 import WalletIcon from '@/icons/WalletIcon';
+import PlusIcon from "@/icons/PlusIcon";
 
 export const Sidebar = () => {
   const [activeLink, setActiveLink] = useState('/profile');
@@ -26,7 +27,7 @@ export const Sidebar = () => {
       <nav className="flex flex-col gap-3">
         <Link
           href="/profile"
-          className={`flex items-center gap-3 p-3 rounded-lg font-medium ${
+          className={`flex items-center gap-3 p-3 rounded-3xl font-medium ${
             activeLink === '/profile'
               ? 'bg-[#0036A5] text-white'
               : 'text-gray-700 hover:bg-gray-100'
@@ -38,7 +39,7 @@ export const Sidebar = () => {
         </Link>
         <Link
           href="/profile/favorites"
-          className={`flex items-center gap-3 p-3 rounded-lg font-medium ${
+          className={`flex items-center gap-3 p-3 rounded-3xl font-medium ${
             activeLink === '/profile/favorites'
               ? 'bg-[#0036A5] text-white'
               : 'text-gray-700 hover:bg-gray-100'
@@ -50,7 +51,7 @@ export const Sidebar = () => {
         </Link>
         <Link
           href="/profile/wallet"
-          className={`flex items-center gap-3 p-3 rounded-lg font-medium ${
+          className={`flex items-center gap-3 p-3 rounded-3xl font-medium ${
             activeLink === '/profile/wallet'
               ? 'bg-[#0036A5] text-white'
               : 'text-gray-700 hover:bg-gray-100'
@@ -62,7 +63,7 @@ export const Sidebar = () => {
         </Link>
         <Link
           href="/profile/my-listings"
-          className={`flex items-center gap-3 p-3 rounded-lg font-medium ${
+          className={`flex items-center gap-3 p-3 rounded-3xl font-medium ${
             activeLink === '/profile/my-listings'
               ? 'bg-[#0036A5] text-white'
               : 'text-gray-700 hover:bg-gray-100'
@@ -71,6 +72,19 @@ export const Sidebar = () => {
         >
           <ListingIcon className="w-6 h-6" />
           <span>Мои объявления</span>
+        </Link>
+
+        <Link
+            href="/profile/add-post"
+            className={`flex items-center gap-3 p-3 rounded-3xl font-medium ${
+                activeLink === '/profile/add-post'
+                    ? 'bg-[#0036A5] text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+            }`}
+            onClick={() => setActiveLink('/profile/add-post')}
+        >
+          <PlusIcon className="w-6 h-6" />
+          <span>Добавить объявление</span>
         </Link>
 
         <button
