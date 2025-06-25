@@ -1,10 +1,10 @@
 import Axios from "axios";
 import type { InternalAxiosRequestConfig, AxiosInstance } from "axios";
-import { BASE_URL } from "@/constants/base-url";
+// import { BASE_URL } from "@/constants/base-url";
 import { PUBLIC_API_ROUTES } from "@/constants/routes";
 
 export const axios: AxiosInstance = Axios.create({
-  baseURL: BASE_URL,
+  baseURL: 'https://back.aura.bapew.tj/api',
 });
 
 const getAuthToken = (): string | null => {
