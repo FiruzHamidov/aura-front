@@ -1,19 +1,36 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useProfile, useUpdateProfileMutation } from '@/services/login/hooks';
 
 export default function Profile() {
+  const { data: user, isLoading, error } = useProfile();
+  const updateProfileMutation = useUpdateProfileMutation();
+
   const [profileData, setProfileData] = useState({
-    firstName: 'Шер',
-    lastName: 'Атаев',
+    firstName: '',
+    lastName: '',
     dateOfBirth: '22/10/1999',
-    phone: '90290 66 90',
-    email: 'ataevsher@gmail.com',
+    phone: '',
+    email: '',
   });
 
   // eslint-disable-next-line
   const [profileImage, setProfileImage] = useState('/images/team/1.png');
+
+  useEffect(() => {
+    if (user) {
+      const nameParts = user.name.split(' ');
+      setProfileData({
+        firstName: nameParts[0] || '',
+        lastName: nameParts[1] || '',
+        dateOfBirth: '22/10/1999',
+        phone: user.phone,
+        email: user.email,
+      });
+    }
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -23,9 +40,18 @@ export default function Profile() {
     });
   };
 
-  const handleSave = () => {
-    // Save profile data logic will go here
-    console.log('Saving profile data:', profileData);
+  const handleSave = async () => {
+    if (!user?.id) return;
+
+    try {
+      await updateProfileMutation.mutateAsync({
+        userId: user.id,
+        profileData: profileData,
+      });
+      console.log('Profile updated successfully');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
   };
 
   const handleUpdatePhoto = () => {
@@ -38,9 +64,57 @@ export default function Profile() {
     console.log('Deleting photo');
   };
 
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-lg p-8 w-full">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-gray-500">Загрузка...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white rounded-lg p-8 w-full">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-red-500">Ошибка загрузки профиля</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-lg p-8 w-full">
       <h1 className="text-2xl font-bold mb-8">Профиль</h1>
+
+      {/* User Info Section */}
+      {user && (
+        <div className="mb-8 p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center space-x-4">
+            <div className="w-16 h-16 bg-[#0036A5] rounded-full flex items-center justify-center">
+              <span className="text-white text-xl font-bold">
+                {user.name
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')}
+              </span>
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">
+                {user.name}
+              </h2>
+              <p className="text-gray-600">{user.email}</p>
+              <p className="text-sm text-gray-500">
+                {user.role?.name || 'Пользователь'}
+              </p>
+              <p className="text-xs text-gray-400">
+                ID: {user.id} • Статус: {user.status}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center mb-8 max-w-[390px]">
         <div className="relative">
@@ -134,9 +208,10 @@ export default function Profile() {
         <div className="mt-4">
           <button
             onClick={handleSave}
-            className="w-full py-3 px-4 bg-[#0036A5] text-white rounded-md hover:bg-blue-800 transition"
+            disabled={updateProfileMutation.isPending}
+            className="w-full py-3 px-4 bg-[#0036A5] text-white rounded-md hover:bg-blue-800 transition disabled:opacity-50"
           >
-            Сохранить
+            {updateProfileMutation.isPending ? 'Сохранение...' : 'Сохранить'}
           </button>
         </div>
       </div>

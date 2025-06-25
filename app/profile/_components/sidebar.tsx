@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useLogoutMutation } from '@/services/login/hooks';
 import HeartIcon from '@/icons/HeartIcon';
 import ListingIcon from '@/icons/ListingIcon';
 import LogoutIcon from '@/icons/LogoutIcon';
@@ -10,6 +11,15 @@ import WalletIcon from '@/icons/WalletIcon';
 
 export const Sidebar = () => {
   const [activeLink, setActiveLink] = useState('/profile');
+  const logoutMutation = useLogoutMutation();
+
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   return (
     <div className="min-w-[305px] w-[305px] h-max bg-white rounded-xl p-[18px] pb-8">
@@ -63,12 +73,14 @@ export const Sidebar = () => {
           <span>Мои объявления</span>
         </Link>
 
-        <Link href="/login">
-          <button className="mt-[310px] flex items-center gap-3 text-red-600 p-3 rounded-lg hover:bg-gray-100">
-            <LogoutIcon className="w-6 h-6" />
-            <span>Выйти</span>
-          </button>
-        </Link>
+        <button
+          onClick={handleLogout}
+          disabled={logoutMutation.isPending}
+          className="mt-[310px] flex items-center gap-3 text-red-600 p-3 rounded-lg hover:bg-gray-100 disabled:opacity-50"
+        >
+          <LogoutIcon className="w-6 h-6" />
+          <span>{logoutMutation.isPending ? 'Выходим...' : 'Выйти'}</span>
+        </button>
       </nav>
     </div>
   );

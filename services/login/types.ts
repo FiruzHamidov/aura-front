@@ -19,6 +19,15 @@ export interface LoginResponse {
   requires_verification?: boolean;
 }
 
+export interface Role {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface User {
   id: number;
   name: string;
@@ -29,6 +38,15 @@ export interface User {
   auth_method: string;
   created_at: string;
   updated_at: string;
+  role?: Role;
+}
+
+export interface ProfileUpdateRequest {
+  firstName?: string;
+  lastName?: string;
+  dateOfBirth?: string;
+  phone?: string;
+  email?: string;
 }
 
 export type AuthMode = "sms" | "password";
