@@ -1,44 +1,44 @@
 @import "tailwindcss";
 
 @utility container {
-  margin-inline: auto;
-  padding-inline: 2rem;
-  @media screen and (max-width: 640px) {
-    padding-inline: 1rem;
-  }
+    margin-inline: auto;
+    padding-inline: 2rem;
+    @media screen and (max-width: 640px) {
+        padding-inline: 1rem;
+    }
 }
 
 @theme inline {
-  --font-inter: var(--font-inter);
-  --breakpoint-3xl: 1440px;
-  --breakpoint-2xl: 1280px;
-  --breakpoint-xl: 1024px;
-  --breakpoint-lg: 768px;
-  --breakpoint-md: 640px;
-  --breakpoint-sm: 480px;
-  --breakpoint-xs: 375px;
-  --breakpoint-xxs: 320px;
+    --font-inter: var(--font-inter);
+    --breakpoint-3xl: 1440px;
+    --breakpoint-2xl: 1280px;
+    --breakpoint-xl: 1024px;
+    --breakpoint-lg: 768px;
+    --breakpoint-md: 640px;
+    --breakpoint-sm: 480px;
+    --breakpoint-xs: 375px;
+    --breakpoint-xxs: 320px;
 }
 
 body {
-  font-family: var(--font-inter);
-  background: #f7f8fa;
-  color: #020617;
-  font-weight: 500;
+    font-family: var(--font-inter);
+    background: #f7f8fa;
+    color: #020617;
+    font-weight: 500;
 }
 
 @keyframes pulse-shadow {
-  0% {
-    box-shadow: 0 0 0 0 rgba(0, 54, 165, 0.5);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(56, 189, 248, 0);
-  }kll
-  100% {
-    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
-  }
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 54, 165, 0.5);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(56, 189, 248, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+    }
 }
 
 .pulse-shadow {
-  animation: pulse-shadow 1.5s infinite;
+    animation: pulse-shadow 1.5s infinite;
 }

@@ -77,7 +77,7 @@ export function middleware(request: NextRequest) {
   if (isAuthenticated && user) {
     response.headers.set("x-user-id", user.id.toString());
     response.headers.set("x-user-role", userRole);
-    response.headers.set("x-user-name", user.name);
+    // response.headers.set("x-user-name", user.name);
     response.headers.set("x-user-email", user.email);
     response.headers.set("x-is-authenticated", "true");
   } else {

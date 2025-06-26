@@ -12,8 +12,8 @@ import { AuthMode } from '@/services/login/types';
 
 export default function Login() {
   const [mode, setMode] = useState<AuthMode>('sms');
-  const [phone, setPhone] = useState('93 808 08 88');
-  const [password, setPassword] = useState('password123');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
   const [smsSent, setSmsSent] = useState(false);
   const [error, setError] = useState('');
