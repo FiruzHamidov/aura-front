@@ -17,6 +17,7 @@ interface FormState {
     repair_type_id: string;
     heating_type_id: string;
     parking_type_id: string;
+    owner_phone: string;
     price: string;
     currency: string;
     total_area: string;
@@ -78,6 +79,7 @@ export default function AddPost() {
         longitude: '',
         agent_id: '',
         photos: [],
+        owner_phone: '',
     });
 
     const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
@@ -148,7 +150,7 @@ export default function AddPost() {
         const formData = new FormData();
         const token = getAuthToken();
 
-        formData.append('title', form.title);
+
         formData.append('description', form.description);
         formData.append('type_id', String(selectedPropertyType));
         formData.append('status_id', String(selectedBuildingType));
@@ -172,7 +174,7 @@ export default function AddPost() {
         formData.append('is_mortgage_available', form.is_mortgage_available ? '1' : '0');
         formData.append('is_from_developer', form.is_from_developer ? '1' : '0');
         formData.append('landmark', prepareValue(form.landmark));
-
+        appendIfFilled(formData, 'owner_phone', form.owner_phone);
         appendIfFilled(formData, 'youtube_link', form.youtube_link);
         appendIfFilled(formData, 'latitude', form.latitude);
         appendIfFilled(formData, 'longitude', form.longitude);
@@ -217,12 +219,12 @@ export default function AddPost() {
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                     <h2 className="text-xl font-bold mb-4">Остальные поля</h2>
 
-                    <Input label="Заголовок" name="title" value={form.title} onChange={handleChange} />
+                    {/*<Input label="Заголовок" name="title" value={form.title} onChange={handleChange} />*/}
                     <Select label="Расположение" name="location_id" value={form.location_id} options={locations} labelField="city" onChange={handleChange} />
                     <Select label="Ремонт" name="repair_type_id" value={form.repair_type_id} options={repairTypes} onChange={handleChange} />
                     <Select label="Отопление" name="heating_type_id" value={form.heating_type_id} options={heatingTypes} onChange={handleChange} />
                     <Select label="Парковка" name="parking_type_id" value={form.parking_type_id} options={parkingTypes} onChange={handleChange} />
-
+                    <Input label="Телефон владельца" name="owner_phone" value={form.owner_phone} onChange={handleChange} />
                     <Input label="Цена" name="price" type="number" value={form.price} onChange={handleChange} />
                     <Input label="Площадь (общая)" name="total_area" type="number" value={form.total_area} onChange={handleChange} />
                     <Input label="Площадь (жилая)" name="living_area" type="number" value={form.living_area} onChange={handleChange} />
