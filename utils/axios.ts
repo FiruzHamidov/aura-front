@@ -1,11 +1,22 @@
 import Axios from "axios";
 import type { InternalAxiosRequestConfig, AxiosInstance } from "axios";
-// import { BASE_URL } from "@/constants/base-url";
 import { PUBLIC_API_ROUTES } from "@/constants/routes";
 
 export const axios: AxiosInstance = Axios.create({
-  baseURL: 'https://back.aura.bapew.tj/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://back.aura.bapew.tj/api",
 });
+
+function getCookieConfig() {
+  const isProduction = process.env.NODE_ENV === "production";
+  const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN;
+
+  const domain = cookieDomain || (isProduction ? ".aura.tj" : "localhost");
+
+  return {
+    domain: domain !== "localhost" ? `; domain=${domain}` : "",
+    isProduction,
+  };
+}
 
 const getAuthToken = (): string | null => {
   if (typeof window !== "undefined") {
@@ -47,10 +58,11 @@ axios.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      document.cookie =
-        "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-      document.cookie =
-        "user_data=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+      const config = getCookieConfig();
+      const expiry = "; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+
+      document.cookie = `auth_token=${expiry}; path=/${config.domain}`;
+      document.cookie = `user_data=${expiry}; path=/${config.domain}`;
 
       if (typeof window !== "undefined") {
         window.location.href = "/login";
