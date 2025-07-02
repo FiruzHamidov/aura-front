@@ -48,11 +48,13 @@ function getUserFromCookies(request: NextRequest): {
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const hostname = request.nextUrl.hostname;
 
   const isDev = process.env.NODE_ENV === "development";
+  const debugEnabled = process.env.NEXT_PUBLIC_DEBUG_MIDDLEWARE === "true";
 
-  if (isDev) {
-    console.log(`🔍 [Middleware] Processing: ${pathname}`);
+  if (isDev || debugEnabled) {
+    console.log(`🌐 [Middleware] ${hostname}${pathname}`);
   }
 
   const authToken = request.cookies.get("auth_token")?.value;
@@ -61,7 +63,7 @@ export function middleware(request: NextRequest) {
   const isAuthenticated = !!authToken && !!user;
   const userRole = user?.role?.toLowerCase() || "guest";
 
-  if (isDev) {
+  if (isDev || debugEnabled) {
     console.log(`🔐 [Middleware] Auth token present: ${!!authToken}`);
     console.log(`👤 [Middleware] User data:`, user);
     console.log(`✅ [Middleware] Is authenticated: ${isAuthenticated}`);

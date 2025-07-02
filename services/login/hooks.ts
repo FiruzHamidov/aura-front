@@ -8,11 +8,11 @@ const COOKIE_MAX_AGE = 7 * 24 * 60 * 60;
 
 function getCookieConfig() {
   const isProduction = process.env.NODE_ENV === "production";
-
   const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN;
   const cookieSecure = process.env.NEXT_PUBLIC_COOKIE_SECURE === "true";
 
-  const domain = cookieDomain || (isProduction ? ".aura.tj" : "localhost");
+  // For production, use the domain without leading dot since it's the main domain
+  const domain = cookieDomain || (isProduction ? "aura.tj" : "localhost");
   const secure = cookieSecure !== undefined ? cookieSecure : isProduction;
 
   console.log("🍪 Cookie config:", {
@@ -20,12 +20,14 @@ function getCookieConfig() {
     domain,
     secure,
     env: process.env.NODE_ENV,
+    hostname:
+      typeof window !== "undefined" ? window.location.hostname : "server",
   });
 
   return {
     domain: domain !== "localhost" ? `; domain=${domain}` : "",
     secure: secure ? "; Secure" : "",
-    sameSite: isProduction ? "; SameSite=None" : "; SameSite=strict",
+    sameSite: "; SameSite=Lax",
     path: "; path=/",
     maxAge: `; max-age=${COOKIE_MAX_AGE}`,
   };
@@ -36,25 +38,31 @@ function setAuthCookies(token: string, user: any) {
   if (typeof window !== "undefined") {
     const config = getCookieConfig();
 
-    document.cookie = `auth_token=${token}${config.path}${config.maxAge}${config.sameSite}${config.domain}${config.secure}`;
+    // Log the exact cookie strings being set
+    const authCookieString = `auth_token=${token}${config.path}${config.maxAge}${config.sameSite}${config.domain}${config.secure}`;
+    const userDataString = encodeURIComponent(
+      JSON.stringify({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role?.slug || "user",
+      })
+    );
+    const userCookieString = `user_data=${userDataString}${config.path}${config.maxAge}${config.sameSite}${config.domain}${config.secure}`;
 
-    const userData = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role?.slug || "user",
-    };
+    console.log("🍪 Setting auth cookie:", authCookieString);
+    console.log("🍪 Setting user cookie:", userCookieString);
 
-    const userDataString = encodeURIComponent(JSON.stringify(userData));
-    document.cookie = `user_data=${userDataString}${config.path}${config.maxAge}${config.sameSite}${config.domain}${config.secure}`;
+    document.cookie = authCookieString;
+    document.cookie = userCookieString;
 
-    if (process.env.NEXT_PUBLIC_DEBUG_AUTH === "true") {
-      console.log("🍪 Auth cookies set:", {
-        token: token.substring(0, 20) + "...",
-        userData,
-        config,
-      });
-    }
+    // Verify cookies were set
+    setTimeout(() => {
+      const allCookies = document.cookie;
+      console.log("🍪 All cookies after setting:", allCookies);
+      console.log("🍪 Auth token present:", allCookies.includes("auth_token="));
+      console.log("🍪 User data present:", allCookies.includes("user_data="));
+    }, 100);
   }
 }
 
