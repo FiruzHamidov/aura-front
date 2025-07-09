@@ -11,18 +11,8 @@ function getCookieConfig() {
   const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN;
   const cookieSecure = process.env.NEXT_PUBLIC_COOKIE_SECURE === "true";
 
-  // For production, use the domain without leading dot since it's the main domain
   const domain = cookieDomain || (isProduction ? "aura.tj" : "localhost");
   const secure = cookieSecure !== undefined ? cookieSecure : isProduction;
-
-  console.log("🍪 Cookie config:", {
-    isProduction,
-    domain,
-    secure,
-    env: process.env.NODE_ENV,
-    hostname:
-      typeof window !== "undefined" ? window.location.hostname : "server",
-  });
 
   return {
     domain: domain !== "localhost" ? `; domain=${domain}` : "",
@@ -38,7 +28,6 @@ function setAuthCookies(token: string, user: any) {
   if (typeof window !== "undefined") {
     const config = getCookieConfig();
 
-    // Log the exact cookie strings being set
     const authCookieString = `auth_token=${token}${config.path}${config.maxAge}${config.sameSite}${config.domain}${config.secure}`;
     const userDataString = encodeURIComponent(
       JSON.stringify({
@@ -50,19 +39,8 @@ function setAuthCookies(token: string, user: any) {
     );
     const userCookieString = `user_data=${userDataString}${config.path}${config.maxAge}${config.sameSite}${config.domain}${config.secure}`;
 
-    console.log("🍪 Setting auth cookie:", authCookieString);
-    console.log("🍪 Setting user cookie:", userCookieString);
-
     document.cookie = authCookieString;
     document.cookie = userCookieString;
-
-    // Verify cookies were set
-    setTimeout(() => {
-      const allCookies = document.cookie;
-      console.log("🍪 All cookies after setting:", allCookies);
-      console.log("🍪 Auth token present:", allCookies.includes("auth_token="));
-      console.log("🍪 User data present:", allCookies.includes("user_data="));
-    }, 100);
   }
 }
 

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useProfile, useUpdateProfileMutation } from '@/services/login/hooks';
+import { toast } from 'react-toastify';
 
 export default function Profile() {
   const { data: user, isLoading, error } = useProfile();
@@ -48,9 +49,8 @@ export default function Profile() {
         userId: user.id,
         profileData: profileData,
       });
-      console.log('Profile updated successfully');
     } catch (error) {
-      console.error('Error updating profile:', error);
+      toast.error('Error updating profile: ' + error);
     }
   };
 
