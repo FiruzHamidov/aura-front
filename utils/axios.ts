@@ -32,7 +32,13 @@ const getAuthToken = (): string | null => {
   return null;
 };
 
-const isPublicRoute = (url: string): boolean => {
+const isPublicRoute = (url: string, method: string = "GET"): boolean => {
+  // Special case for /properties - GET is public, POST requires auth
+  if (url.includes("/properties")) {
+    return method.toLowerCase() === "get";
+  }
+
+  // Other routes check against PUBLIC_API_ROUTES
   return PUBLIC_API_ROUTES.some((route) => url.includes(route));
 };
 
@@ -42,7 +48,7 @@ axios.interceptors.request.use(
   ): InternalAxiosRequestConfig<unknown> => {
     const newConfig: InternalAxiosRequestConfig<unknown> = config;
 
-    if (!isPublicRoute(config.url || "")) {
+    if (!isPublicRoute(config.url || "", config.method || "GET")) {
       const localToken: string | null = getAuthToken();
       if (localToken) {
         newConfig.headers = newConfig.headers || {};

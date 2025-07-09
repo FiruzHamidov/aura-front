@@ -9,7 +9,6 @@ const PersonalRealtorCta: FC = () => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const phone = formData.get('phone');
-    console.log('Form submitted with phone:', phone);
 
     toast.success(`Спасибо! Мы свяжемся с вами по номеру: ${phone}`, {
       position: 'top-center',

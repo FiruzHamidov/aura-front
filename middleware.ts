@@ -63,31 +63,13 @@ export function middleware(request: NextRequest) {
   const isAuthenticated = !!authToken && !!user;
   const userRole = user?.role?.toLowerCase() || "guest";
 
-  if (isDev || debugEnabled) {
-    console.log(`🔐 [Middleware] Auth token present: ${!!authToken}`);
-    console.log(`👤 [Middleware] User data:`, user);
-    console.log(`✅ [Middleware] Is authenticated: ${isAuthenticated}`);
-    console.log(`🎭 [Middleware] User role: ${userRole}`);
-    console.log(
-      `🛡️ [Middleware] Route requires auth: ${requiresAuth(pathname)}`
-    );
-  }
-
   if (requiresAuth(pathname) && !isAuthenticated) {
-    if (isDev) {
-      console.log(`🚫 [Middleware] REDIRECTING to login - not authenticated`);
-    }
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
   if (isAuthenticated && pathname === "/login") {
-    if (isDev) {
-      console.log(
-        `🔄 [Middleware] REDIRECTING authenticated user away from login`
-      );
-    }
     const redirectTo = request.nextUrl.searchParams.get("redirect");
     if (redirectTo && redirectTo !== "/login") {
       return NextResponse.redirect(new URL(redirectTo, request.url));
@@ -101,22 +83,12 @@ export function middleware(request: NextRequest) {
       userRole !== "agent" &&
       userRole !== "admin"
     ) {
-      if (isDev) {
-        console.log(`🚫 [Middleware] REDIRECTING - agent role required`);
-      }
       return NextResponse.redirect(new URL("/profile", request.url));
     }
 
     if (isAdminOnlyRoute(pathname) && userRole !== "admin") {
-      if (isDev) {
-        console.log(`🚫 [Middleware] REDIRECTING - admin role required`);
-      }
       return NextResponse.redirect(new URL("/profile", request.url));
     }
-  }
-
-  if (isDev) {
-    console.log(`✅ [Middleware] Request allowed, proceeding...`);
   }
 
   const response = NextResponse.next();
