@@ -1,11 +1,22 @@
 import Axios from "axios";
 import type { InternalAxiosRequestConfig, AxiosInstance } from "axios";
-// import { BASE_URL } from "@/constants/base-url";
 import { PUBLIC_API_ROUTES } from "@/constants/routes";
 
 export const axios: AxiosInstance = Axios.create({
-  baseURL: 'https://back.aura.bapew.tj/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://back.aura.bapew.tj/api",
 });
+
+function getCookieConfig() {
+  const isProduction = process.env.NODE_ENV === "production";
+  const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN;
+
+  const domain = cookieDomain || (isProduction ? "aura.tj" : "localhost");
+
+  return {
+    domain: domain !== "localhost" ? `; domain=${domain}` : "",
+    isProduction,
+  };
+}
 
 const getAuthToken = (): string | null => {
   if (typeof window !== "undefined") {
@@ -21,7 +32,13 @@ const getAuthToken = (): string | null => {
   return null;
 };
 
-const isPublicRoute = (url: string): boolean => {
+const isPublicRoute = (url: string, method: string = "GET"): boolean => {
+  // Special case for /properties - GET is public, POST requires auth
+  if (url.includes("/properties")) {
+    return method.toLowerCase() === "get";
+  }
+
+  // Other routes check against PUBLIC_API_ROUTES
   return PUBLIC_API_ROUTES.some((route) => url.includes(route));
 };
 
@@ -31,7 +48,7 @@ axios.interceptors.request.use(
   ): InternalAxiosRequestConfig<unknown> => {
     const newConfig: InternalAxiosRequestConfig<unknown> = config;
 
-    if (!isPublicRoute(config.url || "")) {
+    if (!isPublicRoute(config.url || "", config.method || "GET")) {
       const localToken: string | null = getAuthToken();
       if (localToken) {
         newConfig.headers = newConfig.headers || {};
@@ -47,10 +64,11 @@ axios.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      document.cookie =
-        "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-      document.cookie =
-        "user_data=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+      const config = getCookieConfig();
+      const expiry = "; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+
+      document.cookie = `auth_token=${expiry}; path=/; ${config.domain}`;
+      document.cookie = `user_data=${expiry}; path=/; ${config.domain}`;
 
       if (typeof window !== "undefined") {
         window.location.href = "/login";

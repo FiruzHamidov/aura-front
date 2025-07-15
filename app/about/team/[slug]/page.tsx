@@ -7,6 +7,7 @@ import PhoneNoBgIcon from '@/icons/PhoneNoBgIcon';
 import WhatsAppNoBgIcon from '@/icons/WhatsappNoBgIcon';
 import ThumbsUpIcon from '@/icons/ThumbsUp';
 import PencilIcon from '@/icons/PencilIcon';
+import { toast } from 'react-toastify';
 
 const Rating = ({ value }: { value: number }) => {
   return (
@@ -103,7 +104,7 @@ const RealtorPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Форма отправлена');
+    toast.info('Форма отправлена');
     setName('');
     setPhone('');
   };

@@ -26,9 +26,20 @@ function getUserFromCookies(request: NextRequest): {
 } | null {
   try {
     const userCookie = request.cookies.get("user_data")?.value;
-    if (!userCookie) return null;
 
-    return JSON.parse(decodeURIComponent(userCookie));
+    if (!userCookie) {
+      return null;
+    }
+
+    const decoded = decodeURIComponent(userCookie);
+    const parsed = JSON.parse(decoded);
+
+    if (!parsed.id || !parsed.role || !parsed.name || !parsed.email) {
+      console.error("Invalid user data structure:", parsed);
+      return null;
+    }
+
+    return parsed;
   } catch (error) {
     console.error("Error parsing user cookie:", error);
     return null;
@@ -37,6 +48,14 @@ function getUserFromCookies(request: NextRequest): {
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const hostname = request.nextUrl.hostname;
+
+  const isDev = process.env.NODE_ENV === "development";
+  const debugEnabled = process.env.NEXT_PUBLIC_DEBUG_MIDDLEWARE === "true";
+
+  if (isDev || debugEnabled) {
+    console.log(`🌐 [Middleware] ${hostname}${pathname}`);
+  }
 
   const authToken = request.cookies.get("auth_token")?.value;
   const user = getUserFromCookies(request);
@@ -77,7 +96,6 @@ export function middleware(request: NextRequest) {
   if (isAuthenticated && user) {
     response.headers.set("x-user-id", user.id.toString());
     response.headers.set("x-user-role", userRole);
-    // response.headers.set("x-user-name", user.name);
     response.headers.set("x-user-email", user.email);
     response.headers.set("x-is-authenticated", "true");
   } else {
@@ -88,16 +106,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - images (public images)
-     * - icons (public icons)
-     */
-    "/((?!api|_next/static|_next/image|favicon.ico|images|icons).*)",
-  ],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|images|icons).*)"],
 };

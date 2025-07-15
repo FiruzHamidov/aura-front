@@ -6,29 +6,55 @@ import { ProfileUpdateRequest } from "./types";
 // Cookie expiration time (7 days in seconds)
 const COOKIE_MAX_AGE = 7 * 24 * 60 * 60;
 
+function getCookieConfig() {
+  const isProduction = process.env.NODE_ENV === "production";
+  const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN;
+  const cookieSecure = process.env.NEXT_PUBLIC_COOKIE_SECURE === "true";
+
+  const domain = cookieDomain || (isProduction ? "aura.tj" : "localhost");
+  const secure = cookieSecure !== undefined ? cookieSecure : isProduction;
+
+  return {
+    domain: domain !== "localhost" ? `; domain=${domain}` : "",
+    secure: secure ? "; Secure" : "",
+    sameSite: "; SameSite=Lax",
+    path: "; path=/",
+    maxAge: `; max-age=${COOKIE_MAX_AGE}`,
+  };
+}
+
 // eslint-disable-next-line
 function setAuthCookies(token: string, user: any) {
   if (typeof window !== "undefined") {
-    document.cookie = `auth_token=${token}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=strict`;
+    const config = getCookieConfig();
 
-    const userData = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role?.slug || "user",
-    };
-    document.cookie = `user_data=${encodeURIComponent(
-      JSON.stringify(userData)
-    )}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=strict`;
+    const authCookieString = `auth_token=${token}${config.path}${config.maxAge}${config.sameSite}${config.domain}${config.secure}`;
+    const userDataString = encodeURIComponent(
+      JSON.stringify({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role?.slug || "user",
+      })
+    );
+    const userCookieString = `user_data=${userDataString}${config.path}${config.maxAge}${config.sameSite}${config.domain}${config.secure}`;
+
+    document.cookie = authCookieString;
+    document.cookie = userCookieString;
   }
 }
 
 function clearAuthCookies() {
   if (typeof window !== "undefined") {
-    document.cookie =
-      "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-    document.cookie =
-      "user_data=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    const config = getCookieConfig();
+    const expiry = "; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+
+    document.cookie = `auth_token=${expiry}${config.path}${config.domain}`;
+    document.cookie = `user_data=${expiry}${config.path}${config.domain}`;
+
+    if (process.env.NEXT_PUBLIC_DEBUG_AUTH === "true") {
+      console.log("🗑️ Auth cookies cleared");
+    }
   }
 }
 
@@ -46,6 +72,8 @@ function getUserFromCookie(): any | null {
         return JSON.parse(decodeURIComponent(userData));
       } catch (error) {
         console.error("Error parsing user cookie:", error);
+        // Clear corrupted cookie
+        clearAuthCookies();
         return null;
       }
     }
@@ -133,15 +161,14 @@ export const useUpdateProfileMutation = () => {
     onSuccess: (data) => {
       queryClient.setQueryData(["user"], data);
       if (data) {
-        const userData = {
-          id: data.id,
-          name: data.name,
-          email: data.email,
-          role: data.role?.slug || "user",
-        };
-        document.cookie = `user_data=${encodeURIComponent(
-          JSON.stringify(userData)
-        )}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=strict`;
+        // Update user cookie with new data
+        setAuthCookies(
+          document.cookie
+            .split(";")
+            .find((c) => c.includes("auth_token"))
+            ?.split("=")[1] || "",
+          data
+        );
       }
     },
   });

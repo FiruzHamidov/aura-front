@@ -109,6 +109,7 @@ export default function Login() {
               <div className="w-full">
                 <div className="mb-5">
                   <input
+                    autoFocus
                     ref={inputRef}
                     type="tel"
                     placeholder="XX XXX XX XX"
@@ -147,6 +148,7 @@ export default function Login() {
 
                 <div className="mb-5">
                   <input
+                    autoFocus
                     type="text"
                     placeholder="Код из SMS"
                     value={code}
