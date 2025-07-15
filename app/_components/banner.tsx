@@ -13,13 +13,13 @@ interface Option {
   unavailable?: boolean;
 }
 
-type ActiveTab = 'buy' | 'rent' | 'sell' | 'map';
+type ActiveTab = 'buy' | 'rent' | 'sell' | 'map' | 'evaluate' | 'fast_buy';
 
 const propertyTypes: Option[] = [
   { id: 'apartment', name: 'Квартира' },
   { id: 'house', name: 'Дом' },
   { id: 'commercial', name: 'Коммерческая' },
-  { id: 'land', name: 'Земля' },
+  { id: 'land', name: 'Земельный участок' },
 ];
 
 const roomOptions: Option[] = [
@@ -58,13 +58,13 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
             {title}
           </h1>
           <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-[#353E5C]">
-            ваш надежный партнер в сфере недвижимости в Таджикистане
+            ваш надежный партнер в сфере недвижимости Таджикистана
           </p>
         </div>
 
         {/* Tabs */}
         <div className="flex flex-wrap gap-2 mb-6 md:mb-8">
-          {(['buy', 'rent', 'sell', 'map'] as const).map((tab) => (
+          {(['buy', 'rent', 'sell', 'map', 'evaluate', 'fast_buy'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -80,7 +80,11 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
                 ? 'Продать'
                 : tab === 'sell'
                 ? 'Аренда'
-                : 'На карте'}
+                : tab === 'map'
+                ? 'На карте'
+                : tab === 'evaluate'
+                ? 'Оценить'
+                : 'Cроч. выкуп'}
             </button>
           ))}
         </div>

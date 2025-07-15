@@ -15,7 +15,7 @@ import { useMe, useLogoutMutation } from '@/services/login/hooks';
 const navItems = [
   { name: 'Главная', href: '/' },
   { name: 'Аренда', href: '/rent' },
-  { name: 'Сервисы', href: '/services' },
+  { name: 'Услуги', href: '/services' },
   { name: 'Новостройки', href: '/new-buildings' },
   { name: 'Новости', href: '/about/news' },
   { name: 'Команда', href: '/about/team' },
