@@ -232,7 +232,7 @@ const Header: FC = () => {
             {/* User Menu */}
             <UserMenu />
 
-            <Link href="/profile/add-post" className="hidden xl:flex items-center space-x-2 bg-[#0036A5] hover:bg-blue-800 text-white px-6 py-2 rounded-full transition-colors cursor-pointer">
+            <Link href="/profile/add-post" className="hidden pulse-shadow xl:flex items-center space-x-2 bg-[#0036A5] hover:bg-blue-800 text-white px-6 py-2 rounded-full transition-colors cursor-pointer">
               <PlusIcon className="h-5 w-5 cursor-pointer text-white mb-1" />
               <span>Добавить объявление</span>
             </Link>
@@ -342,7 +342,7 @@ const Header: FC = () => {
                 </button>
 
                 {/* Add Listing Button */}
-                <button className="w-full flex items-center justify-center space-x-2 bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-lg transition-colors">
+                <button className="w-full flex items-center pulse-shadow justify-center space-x-2 bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-lg transition-colors">
                   <PlusIcon className="h-5 w-5" />
                   <span>Добавить объявление</span>
                 </button>
