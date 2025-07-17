@@ -47,12 +47,20 @@ export const MainBanner: FC<{ title: string }> = ({title}) => {
 
     return (
         <div className="container relative py-8 md:py-10 md:pt-[22px] bg-gradient-to-b overflow-hidden ">
+
             <div
                 className={clsx(
                     'bg-white relative overflow-hidden z-0 rounded-[22px] px-4 sm:px-8 md:px-12 lg:px-[70px] py-6 sm:py-12 md:py-16 lg:py-[89px] bg-gradient-to-br from-[#0036a5] to-[#0058d4]',
                     isAllFiltersOpen && 'rounded-b-none'
                 )}
             >
+                <Image
+                    src="/images/banner/building.png"
+                    alt="Building"
+                    width={695}
+                    height={695}
+                    className="absolute -right-12 z-0 top-0 opacity-[8%] z-[-1] pointer-events-none max-w-none"
+                />
                 <div className="text-center mb-6 sm:mb-8 md:mb-12 lg:mb-[60px]">
                     <h1 className="text-xl md:text-[52px] font-extrabold text-white mb-1.5 tracking-tight uppercase transition-all duration-300 hover:scale-105 cursor-default">
                         {title}
@@ -70,7 +78,7 @@ export const MainBanner: FC<{ title: string }> = ({title}) => {
                             onClick={() => setActiveTab(tab)}
                             className={`px-3 sm:px-6 lg:px-9 py-2 sm:py-3 rounded-lg cursor-pointer transition-all duration-150 ease-in-out text-sm sm:text-base ${
                                 activeTab === tab
-                                    ? 'bg-[#0036A5] text-white shadow-sm'
+                                    ? 'bg-[#FFDE2C] shadow-sm'
                                     : 'bg-white text-gray-700 border border-[#CBD5E1] hover:bg-gray-50 hover:border-gray-400'
                             }`}
                         >
@@ -125,7 +133,7 @@ export const MainBanner: FC<{ title: string }> = ({title}) => {
 
                     {/* All Filters Button */}
                     <button
-                        className="sm:col-span-2 lg:col-span-1 lg:w-[197px] bg-[#F0F2F5] hover:bg-sky-100 text-slate-700 px-4 sm:px-6 lg:px-[25px] py-3 sm:py-4 lg:py-[21px] rounded-lg text-lg flex items-center justify-center transition-colors cursor-pointer whitespace-nowrap"
+                        className="sm:col-span-2 lg:col-span-1 lg:w-[197px] bg-[#F0F2F5] hover:bg-sky-100 text-slate-700 px-4 sm:px-6 lg:px-[25px] py-3 rounded-lg text-lg flex items-center justify-center transition-colors cursor-pointer whitespace-nowrap"
                         onClick={() => setIsAllFiltersOpen((prev) => !prev)}
                     >
                         <FilterSearchIcon className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-blue-600"/>
@@ -134,17 +142,11 @@ export const MainBanner: FC<{ title: string }> = ({title}) => {
 
                     {/* Search Button */}
                     <button
-                        className="sm:col-span-2 lg:col-span-1 lg:w-[197px] cursor-pointer bg-[#0036A5] hover:bg-blue-800 text-white px-4 sm:px-6 lg:px-[71px] py-3 sm:py-4 lg:py-5 rounded-lg font-bold transition-colors flex items-center justify-center">
+                        className="sm:col-span-2 lg:col-span-1 lg:w-[197px] cursor-pointer bg-[#FFDE2C] hover:bg-[#d9b90f] px-4 sm:px-6 lg:px-[71px] py-3 rounded-lg font-bold transition-all flex items-center justify-center">
                         Найти
                     </button>
                 </div>
-                <Image
-                    src="/images/banner/building.png"
-                    alt="Building"
-                    width={695}
-                    height={695}
-                    className="absolute -right-12 z-0 top-0 opacity-[8%] pointer-events-none max-w-none"
-                />
+
             </div>
 
             {/* All Filters Modal */}
