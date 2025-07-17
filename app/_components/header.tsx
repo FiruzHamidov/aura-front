@@ -29,9 +29,14 @@ const Header: FC = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const userMenuRef = useRef<HTMLDivElement | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
   const { data: user, isLoading: userLoading } = useMe();
   const logoutMutation = useLogoutMutation();
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -84,7 +89,7 @@ const Header: FC = () => {
   }, [isMobileMenuOpen]);
 
   const UserMenu = ({ isMobile = false }: { isMobile?: boolean }) => {
-    if (userLoading) {
+    if (!isClient || userLoading) {
       return (
         <div
           className={`${
@@ -232,7 +237,10 @@ const Header: FC = () => {
             {/* User Menu */}
             <UserMenu />
 
-            <Link href="/profile/add-post" className="hidden xl:flex items-center space-x-2 bg-[#0036A5] hover:bg-blue-800 text-white px-6 py-2 rounded-full transition-colors cursor-pointer">
+            <Link
+              href="/profile/add-post"
+              className="hidden xl:flex items-center space-x-2 bg-[#0036A5] hover:bg-blue-800 text-white px-6 py-2 rounded-full transition-colors cursor-pointer"
+            >
               <PlusIcon className="h-5 w-5 cursor-pointer text-white mb-1" />
               <span>Добавить объявление</span>
             </Link>

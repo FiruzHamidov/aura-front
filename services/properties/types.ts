@@ -40,11 +40,32 @@ export interface Property {
   created_by: number;
   created_at: string;
   updated_at: string;
+  rooms: number | null;
+  offer_type: string | null;
   type: PropertyType;
   status: PropertyStatus;
-  location: string | null;
-  photos: unknown[];
+  location: PropertyLocation | null;
+  photos: PropertyPhoto[];
   creator: User;
+}
+
+export interface PropertyLocation {
+  id: number;
+  city: string;
+  district: string | null;
+  latitude: string;
+  longitude: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PropertyPhoto {
+  id: number;
+  property_id: number;
+  file_path: string;
+  type: "photo" | "video";
+  created_at: string;
+  updated_at: string;
 }
 
 export interface PropertyType {
