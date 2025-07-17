@@ -30,6 +30,8 @@ export interface FormState {
   latitude: string;
   longitude: string;
   agent_id: string;
+  district: string;
+  address: string;
   photos: File[];
 }
 
