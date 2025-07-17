@@ -40,6 +40,8 @@ const initialFormState: FormState = {
   agent_id: "",
   photos: [],
   owner_phone: "",
+  district: "",
+  address: "",
 };
 
 export function useAddPostForm() {
