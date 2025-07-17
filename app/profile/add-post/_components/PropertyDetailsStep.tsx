@@ -51,6 +51,24 @@ export function PropertyDetailsStep({
           required
         />
 
+        <Input
+            label="Район"
+            name="district"
+            value={form.district}
+            onChange={onChange}
+            type="tel"
+            placeholder="Сино"
+        />
+
+        <Input
+            label="Адрес"
+            name="address"
+            value={form.address}
+            onChange={onChange}
+            type="tel"
+            placeholder="Айни 51"
+        />
+
         <Select
           label="Ремонт"
           name="repair_type_id"

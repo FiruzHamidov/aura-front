@@ -6,7 +6,6 @@ import Logo from '@/icons/Logo';
 import MapIcon from '@/icons/MapIcon';
 import SettingsIcon from '@/icons/SettingsIcon';
 import HeartIcon from '@/icons/HeartIcon';
-import BoxIcon from '@/icons/BoxIcon';
 import PlusIcon from '@/icons/PlusIcon';
 import UserIcon from '@/icons/UserIcon';
 import { usePathname } from 'next/navigation';
@@ -15,7 +14,7 @@ import { useMe, useLogoutMutation } from '@/services/login/hooks';
 const navItems = [
   { name: 'Главная', href: '/' },
   { name: 'Аренда', href: '/rent' },
-  { name: 'Сервисы', href: '/services' },
+  { name: 'Услуги', href: '/services' },
   { name: 'Новостройки', href: '/new-buildings' },
   { name: 'Новости', href: '/about/news' },
   { name: 'Команда', href: '/about/team' },
@@ -217,29 +216,26 @@ const Header: FC = () => {
           {/* Desktop Action Buttons - Hidden on mobile */}
           <div className="hidden md:flex items-center space-x-3 lg:space-x-4">
             {/* Icon buttons */}
-            <button className="p-1.5 cursor-pointer text-[#0036A5] transition-colors">
-              <span className="sr-only">Filters</span>
-              <SettingsIcon className="h-6 w-6 cursor-pointer" />
-            </button>
+            <Link href="/comparison" onClick={() => setIsMobileMenuOpen(false)}>
+              <button className="p-1.5 cursor-pointer text-[#0036A5] transition-colors">
+                <span className="sr-only">Filters</span>
+                <SettingsIcon className="h-6 w-6 cursor-pointer" />
+              </button>
+            </Link>
+
             <button className="p-1.5 cursor-pointer text-[#0036A5] transition-colors">
               <Link href="/favorites">
                 <span className="sr-only">Favorites</span>
                 <HeartIcon className="h-6 w-6 cursor-pointer" />
               </Link>
             </button>
-            <Link href="/comparison" onClick={() => setIsMobileMenuOpen(false)}>
-              <button className="p-1.5 text-[#0036A5] transition-colors">
-                <span className="sr-only">Saved Items</span>
-                <BoxIcon className="h-6 w-6 cursor-pointer" />
-              </button>
-            </Link>
 
             {/* User Menu */}
             <UserMenu />
 
             <Link
               href="/profile/add-post"
-              className="hidden xl:flex items-center space-x-2 bg-[#0036A5] hover:bg-blue-800 text-white px-6 py-2 rounded-full transition-colors cursor-pointer"
+              className="hidden pulse-shadow xl:flex items-center space-x-2 bg-[#0036A5] hover:bg-blue-800 text-white px-6 py-2 rounded-full transition-colors cursor-pointer"
             >
               <PlusIcon className="h-5 w-5 cursor-pointer text-white mb-1" />
               <span>Добавить объявление</span>
@@ -350,30 +346,27 @@ const Header: FC = () => {
                 </button>
 
                 {/* Add Listing Button */}
-                <button className="w-full flex items-center justify-center space-x-2 bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-lg transition-colors">
+                <button className="w-full flex items-center pulse-shadow justify-center space-x-2 bg-[#0036A5] text-white hover:bg-gray-200 px-4 py-3 rounded-lg transition-colors">
                   <PlusIcon className="h-5 w-5" />
                   <span>Добавить объявление</span>
                 </button>
 
                 {/* Icon Actions */}
                 <div className="flex justify-center space-x-6 pt-2">
-                  <button className="p-3 text-[#0036A5] transition-colors">
-                    <SettingsIcon className="h-6 w-6" />
-                  </button>
+                  <Link
+                    href="/comparison"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <button className="p-3 text-[#0036A5] transition-colors">
+                      <SettingsIcon className="h-6 w-6" />
+                    </button>
+                  </Link>
                   <Link
                     href="/favorites"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <button className="p-3 text-[#0036A5] transition-colors">
                       <HeartIcon className="h-6 w-6" />
-                    </button>
-                  </Link>
-                  <Link
-                    href="/comparison"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <button className="p-3 text-[#0036A5] transition-colors">
-                      <BoxIcon className="h-6 w-6" />
                     </button>
                   </Link>
                 </div>

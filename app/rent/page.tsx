@@ -1,3 +1,5 @@
+'use client';
+
 import MeetTheTeam from '@/ui-components/team/team';
 import Buy from '../_components/buy/buy';
 import Promo from '../_components/promo';
