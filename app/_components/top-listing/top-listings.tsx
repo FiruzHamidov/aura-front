@@ -1,118 +1,24 @@
 'use client';
 
-import { FC, useState } from 'react';
+import { FC, useState, useMemo } from 'react';
 import { Listing } from './types';
 import ListingCard from './listing-card';
 import Link from 'next/link';
 import { Tabs } from '@/ui-components/tabs/tabs';
+import { PropertiesResponse, Property } from '@/services/properties/types';
 
 type PropertyType = 'apartment' | 'house' | 'land' | 'commercial';
 
-const sampleListings: Listing[] = [
-  {
-    id: 1,
-    images: [
-      {
-        url: '/images/buy/big.png',
-        alt: 'Современная спальня с деревянными панелями',
-      },
-      { url: '/images/buy/1.png', alt: 'Дополнительное фото 1' },
-      { url: '/images/buy/2.jpeg', alt: 'Дополнительное фото 2' },
-      { url: '/images/buy/3.jpeg', alt: 'Дополнительное фото 3' },
-    ],
-    isTop: true,
-    price: 432000,
-    currency: 'с.',
-    title: '2-комн. квартира, 9 этаж, 78 м²',
-    locationName: 'Фирдавси',
-    description: 'Зеленый базар',
-    roomCountLabel: '2-ком',
-    area: 78,
-    floorInfo: '3/12 этаж',
-    agent: {
-      name: 'Мавзуна Шоева',
-      role: 'топ-риелтор',
-    },
-    date: '22.10.2023',
-    type: 'apartment',
-  },
-  {
-    id: 2,
-    images: [
-      { url: '/images/buy/1.png', alt: 'Квартира 2' },
-      { url: '/images/buy/2.jpeg', alt: 'Дополнительное фото 1' },
-      { url: '/images/buy/3.jpeg', alt: 'Дополнительное фото 2' },
-      { url: '/images/buy/4.jpeg', alt: 'Дополнительное фото 3' },
-    ],
-    isTop: true,
-    price: 333210,
-    currency: 'с.',
-    title: '1-комн. квартира, 1 этаж, 78 м²',
-    locationName: 'Сино',
-    description: 'Рынок Мехргон',
-    roomCountLabel: '1-ком',
-    area: 53,
-    floorInfo: '1/12 этаж',
-    type: 'apartment',
-  },
-  {
-    id: 3,
-    images: [
-      { url: '/images/buy/2.jpeg', alt: 'Квартира 3' },
-      { url: '/images/buy/3.jpeg', alt: 'Дополнительное фото 1' },
-      { url: '/images/buy/4.jpeg', alt: 'Дополнительное фото 2' },
-      { url: '/images/buy/5.jpeg', alt: 'Дополнительное фото 3' },
-    ],
-    isTop: true,
-    price: 1000000,
-    currency: 'с.',
-    title: '4-комн. квартира, 4 этаж, 178 м²',
-    locationName: 'Фирдавси',
-    description: 'Профсоюз',
-    roomCountLabel: '4-ком',
-    area: 178,
-    floorInfo: '4/16 этаж',
-    type: 'apartment',
-  },
-  {
-    id: 4,
-    images: [
-      { url: '/images/buy/3.jpeg', alt: 'Квартира 4' },
-      { url: '/images/buy/4.jpeg', alt: 'Дополнительное фото 1' },
-      { url: '/images/buy/5.jpeg', alt: 'Дополнительное фото 2' },
-      { url: '/images/buy/6.jpeg', alt: 'Дополнительное фото 3' },
-    ],
-    isTop: true,
-    price: 890000,
-    currency: 'с.',
-    title: '3-комн. квартира, 6 этаж, 100 м²',
-    locationName: 'Фирдавси',
-    description: 'Зеленый базар',
-    roomCountLabel: '3-ком',
-    area: 100,
-    floorInfo: '6/12 этаж',
-    type: 'apartment',
-  },
-  {
-    id: 5,
-    images: [
-      { url: '/images/buy/4.jpeg', alt: 'Квартира 5' },
-      { url: '/images/buy/5.jpeg', alt: 'Дополнительное фото 1' },
-      { url: '/images/buy/6.jpeg', alt: 'Дополнительное фото 2' },
-      { url: '/images/buy/7.jpeg', alt: 'Дополнительное фото 3' },
-    ],
-    isTop: true,
-    price: 432000,
-    currency: 'с.',
-    title: '2-комн. квартира, 9 этаж, 78 м²',
-    locationName: 'Фирдавси',
-    description: 'Саховат базар',
-    roomCountLabel: '2-ком',
-    area: 78,
-    floorInfo: '3/12 этаж',
-    type: 'apartment',
-  },
-];
+const propertyTypeMap: Record<string, PropertyType> = {
+  квартира: 'apartment',
+  дом: 'house',
+  'земельный участок': 'land',
+  коммерческая: 'commercial',
+  apartment: 'apartment',
+  house: 'house',
+  land: 'land',
+  commercial: 'commercial',
+};
 
 const tabOptions = [
   { key: 'apartment', label: 'Квартира' },
@@ -121,14 +27,86 @@ const tabOptions = [
   { key: 'commercial', label: 'Коммерческая' },
 ] as const;
 
-const TopListings: FC<{ title?: string }> = ({
-  title = 'Топовые объявления',
-}) => {
+const TopListings: FC<{
+  title?: string;
+  properties: PropertiesResponse | undefined;
+}> = ({ title = 'Топовые объявления', properties }) => {
   const [activeType, setActiveType] = useState<PropertyType>('apartment');
 
-  const filteredListings = sampleListings.filter(
-    (listing) => !listing.type || listing.type === activeType
-  );
+  const listings = useMemo(() => {
+    if (!properties?.data) return [];
+
+    const topProperties = properties.data.filter(
+      (property) => property.moderation_status === 'approved'
+    );
+
+    return topProperties.map((property: Property): Listing => {
+      const images =
+        property.photos && property.photos.length > 0
+          ? property.photos.map((photo) => ({
+              url: photo.file_path
+                ? `https://back.aura.bapew.tj/storage/${photo.file_path}`
+                : '/images/no-image.png',
+              alt: property.title || 'Фото недвижимости',
+            }))
+          : [{ url: '/images/no-image.png', alt: 'Нет фото' }];
+
+      const locationName =
+        typeof property.location === 'string'
+          ? property.location
+          : property.location?.city || 'Местоположение не указано';
+
+      const floorInfo =
+        property.floor && property.total_floors
+          ? `${property.floor}/${property.total_floors} этаж`
+          : 'Этаж не указан';
+
+      const roomCountLabel =
+        property.apartment_type ||
+        (property.rooms ? `${property.rooms}-ком` : 'Комнат не указано');
+
+      const typeFromApi = property.type?.name?.toLowerCase();
+      const mappedType = typeFromApi
+        ? propertyTypeMap[typeFromApi] || 'apartment'
+        : 'apartment';
+
+      return {
+        id: property.id,
+        images,
+        isTop: true,
+        price: parseFloat(property.price),
+        currency: property.currency === 'TJS' ? 'с.' : property.currency,
+        title: property.title || `${roomCountLabel}, ${property.total_area} м²`,
+        locationName,
+        description:
+          property.description || property.landmark || 'Описание отсутствует',
+        roomCountLabel,
+        area: property.total_area || 0,
+        floorInfo,
+        agent: property.creator
+          ? {
+              name: property.creator.name || 'Имя не указано',
+              role: 'риелтор',
+            }
+          : undefined,
+        date: property.created_at
+          ? new Date(property.created_at).toLocaleDateString('ru-RU')
+          : undefined,
+        type: mappedType,
+      };
+    });
+  }, [properties]);
+
+  //
+  const filteredListings = useMemo(() => {
+    return listings.filter(
+      (listing) => !listing.type || listing.type === activeType
+    );
+  }, [listings, activeType]);
+
+  if (filteredListings.length === 0) {
+    return null;
+  }
 
   const firstListing = filteredListings[0];
   const smallListings = filteredListings.slice(1, 5);

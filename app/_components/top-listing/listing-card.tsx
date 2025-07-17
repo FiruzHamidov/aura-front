@@ -3,13 +3,13 @@
 import { FC, useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { Listing } from './types';
-import HeartIcon from '@/icons/HeartIcon';
 import LocationIcon from '@/icons/LocationIcon';
 import CalendarIcon from '@/icons/CalendarIcon';
 import UserIcon from '@/icons/UserIcon';
 import useEmblaCarousel from 'embla-carousel-react';
 import clsx from 'clsx';
 import WhiteSettingsIcon from '@/icons/WhiteSettingsIcon';
+import FavoriteButton from '@/ui-components/favorite-button/favorite-button';
 
 interface ListingCardProps {
   listing: Listing;
@@ -91,7 +91,7 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
           )}
         >
           <div className="!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-[37px] h-[37px]">
-            <HeartIcon className="w-[18px] h-[18px] text-white" />
+            <FavoriteButton propertyId={listing.id} />
           </div>
           <div className="!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-[37px] h-[37px]">
             <WhiteSettingsIcon className="w-[18px] h-[18px]" />
@@ -140,7 +140,7 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
         <h3
           className={`mb-1 ${isLarge ? 'text-2xl font-normal' : 'text-base'}`}
         >
-          {listing.title} {listing.description}
+          {listing.title} {listing.description.substring(0, 55)}
         </h3>
 
         <div
@@ -154,7 +154,7 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
         </div>
 
         {isLarge && listing.agent && listing.date && (
-          <div className="mt-auto pt-8 flex items-center justify-between text-xs">
+          <div className="mt-auto pt-5 flex items-center justify-between text-xs">
             <div className="flex items-center">
               <div className="rounded-full w-9 h-9 bg-[#F1F5F9] p-1.5 mr-1.5 flex items-center justify-center">
                 <UserIcon className="h-[22px] w-[22px]" />

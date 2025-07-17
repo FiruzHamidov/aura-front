@@ -1,75 +1,77 @@
 'use client';
 
 import { useState } from 'react';
-import { Listing } from '../_components/buy/types';
+import { useMe } from '@/services/login/hooks';
+import { useFavorites } from '@/services/favorites/hooks';
 import { Tabs } from '@/ui-components/tabs/tabs';
 import BuyCard from '../_components/buy/buy-card';
+import { FavoriteResponse } from '@/services/favorites/types';
+import Link from 'next/link';
 
 type FilterType = 'all' | 'sale' | 'rent';
-
-const favoritesListings: Listing[] = [
-  {
-    id: 1,
-    images: [
-      {
-        url: '/images/buy/1.png',
-        alt: 'Современная спальня с деревянными панелями 1',
-      },
-      {
-        url: '/images/buy/2.jpeg',
-        alt: 'Современная спальня с деревянными панелями 2',
-      },
-      {
-        url: '/images/buy/3.jpeg',
-        alt: 'Современная спальня с деревянными панелями 3',
-      },
-    ],
-    price: 432000,
-    currency: 'с.',
-    title: '2-комн. квартира, 9 этаж, 78 м²',
-    locationName: 'Фирдавси',
-    description: 'Зеленый базар',
-    roomCountLabel: '2-ком',
-    area: 78,
-    floorInfo: '3/12 этаж',
-    agent: {
-      name: 'Мавзуна Шоева',
-      role: 'топ-риелтор',
-    },
-    date: '22.10.2023',
-  },
-  {
-    id: 2,
-    images: [
-      { url: '/images/buy/2.jpeg', alt: 'Квартира 2 изображение 1' },
-      { url: '/images/buy/3.jpeg', alt: 'Квартира 2 изображение 2' },
-      { url: '/images/buy/4.jpeg', alt: 'Квартира 2 изображение 3' },
-    ],
-    price: 333210,
-    currency: 'с.',
-    title: '1-комн. квартира, 1 этаж, 78 м²',
-    locationName: 'Сино',
-    description: 'Рынок Мехргон',
-    roomCountLabel: '1-ком',
-    area: 53,
-    floorInfo: '1/12 этаж',
-    agent: {
-      name: 'Мавзуна Шоева',
-      role: 'топ-риелтор',
-    },
-    date: '22.10.2023',
-  },
-];
 
 export default function Favorites() {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
 
-  const filteredListings =
-    activeFilter === 'all'
-      ? favoritesListings
-      : favoritesListings.filter((listing) => listing.type === activeFilter);
+  const { data: user } = useMe();
+  const { data: favorites = [], isLoading } = useFavorites(!!user);
 
-  const objectsCount = filteredListings.length;
+  const filteredFavorites =
+    activeFilter === 'all'
+      ? favorites
+      : favorites.filter(
+          (favorite) =>
+            favorite.property &&
+            (activeFilter === 'rent'
+              ? favorite.property.offer_type === 'rent'
+              : favorite.property.offer_type === 'sale' ||
+                favorite.property.offer_type !== 'rent')
+        );
+
+  const objectsCount = filteredFavorites.length;
+
+  if (isLoading) {
+    return (
+      <div className="container">
+        <div className="bg-white rounded-[22px] p-[30px] my-10">
+          <h1 className="text-2xl font-bold text-[#020617] mb-1">Избранное</h1>
+          <p className="text-[#666F8D]">Загрузка избранных объявлений...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="container">
+        <div className="bg-white rounded-[22px] p-[30px] my-10">
+          <h1 className="text-2xl font-bold text-[#020617] mb-1">Избранное</h1>
+          <p className="text-[#666F8D]">
+            Войдите в аккаунт, чтобы видеть избранные объявления
+          </p>
+          <div className="mt-4">
+            <Link
+              href="/login"
+              className="bg-[#0036A5] text-white px-4 py-2 rounded-lg"
+            >
+              Войти
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (favorites.length === 0) {
+    return (
+      <div className="container">
+        <div className="bg-white rounded-[22px] p-[30px] my-10">
+          <h1 className="text-2xl font-bold text-[#020617] mb-1">Избранное</h1>
+          <p className="text-[#666F8D]">У вас пока нет избранных объявлений</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container">
@@ -96,9 +98,9 @@ export default function Favorites() {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-[14px] mb-10 md:mb-16">
-        {favoritesListings.map((listing, index) => (
-          <BuyCard key={index} listing={listing} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[14px] mb-10 md:mb-16">
+        {filteredFavorites.map((favorite: FavoriteResponse) => (
+          <BuyCard key={favorite.id} listing={favorite.property} />
         ))}
       </div>
     </div>

@@ -39,11 +39,7 @@ export function SelectInput({
             }
           )}
         >
-          {placeholder && (
-            <option value="" selected>
-              {placeholder}
-            </option>
-          )}
+          {placeholder && <option value="">{placeholder}</option>}
           {options.map((option) => (
             <option key={option.id} value={option.id}>
               {option.name}

@@ -28,9 +28,14 @@ const Header: FC = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const userMenuRef = useRef<HTMLDivElement | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
   const { data: user, isLoading: userLoading } = useMe();
   const logoutMutation = useLogoutMutation();
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -83,7 +88,7 @@ const Header: FC = () => {
   }, [isMobileMenuOpen]);
 
   const UserMenu = ({ isMobile = false }: { isMobile?: boolean }) => {
-    if (userLoading) {
+    if (!isClient || userLoading) {
       return (
         <div
           className={`${
@@ -212,10 +217,10 @@ const Header: FC = () => {
           <div className="hidden md:flex items-center space-x-3 lg:space-x-4">
             {/* Icon buttons */}
             <Link href="/comparison" onClick={() => setIsMobileMenuOpen(false)}>
-            <button className="p-1.5 cursor-pointer text-[#0036A5] transition-colors">
-              <span className="sr-only">Filters</span>
-              <SettingsIcon className="h-6 w-6 cursor-pointer" />
-            </button>
+              <button className="p-1.5 cursor-pointer text-[#0036A5] transition-colors">
+                <span className="sr-only">Filters</span>
+                <SettingsIcon className="h-6 w-6 cursor-pointer" />
+              </button>
             </Link>
 
             <button className="p-1.5 cursor-pointer text-[#0036A5] transition-colors">
@@ -228,7 +233,10 @@ const Header: FC = () => {
             {/* User Menu */}
             <UserMenu />
 
-            <Link href="/profile/add-post" className="hidden pulse-shadow xl:flex items-center space-x-2 bg-[#0036A5] hover:bg-blue-800 text-white px-6 py-2 rounded-full transition-colors cursor-pointer">
+            <Link
+              href="/profile/add-post"
+              className="hidden pulse-shadow xl:flex items-center space-x-2 bg-[#0036A5] hover:bg-blue-800 text-white px-6 py-2 rounded-full transition-colors cursor-pointer"
+            >
               <PlusIcon className="h-5 w-5 cursor-pointer text-white mb-1" />
               <span>Добавить объявление</span>
             </Link>
@@ -346,12 +354,12 @@ const Header: FC = () => {
                 {/* Icon Actions */}
                 <div className="flex justify-center space-x-6 pt-2">
                   <Link
-                      href="/comparison"
-                      onClick={() => setIsMobileMenuOpen(false)}
+                    href="/comparison"
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
-                  <button className="p-3 text-[#0036A5] transition-colors">
-                    <SettingsIcon className="h-6 w-6" />
-                  </button>
+                    <button className="p-3 text-[#0036A5] transition-colors">
+                      <SettingsIcon className="h-6 w-6" />
+                    </button>
                   </Link>
                   <Link
                     href="/favorites"
@@ -361,7 +369,6 @@ const Header: FC = () => {
                       <HeartIcon className="h-6 w-6" />
                     </button>
                   </Link>
-
                 </div>
               </div>
 

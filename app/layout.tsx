@@ -1,10 +1,12 @@
 import { ReactNode, Suspense } from 'react';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { ToastContainer } from 'react-toastify';
 import './globals.css';
 import Footer from './_components/footer';
 import Header from './_components/header';
 import { QueryProvider } from '@/utils/providers';
+import 'react-toastify/dist/ReactToastify.css';
 
 const interFont = Inter({
   variable: '--font-inter',
@@ -31,6 +33,7 @@ export default function RootLayout({
             <Footer />
           </QueryProvider>
         </Suspense>
+        <ToastContainer />
       </body>
     </html>
   );
