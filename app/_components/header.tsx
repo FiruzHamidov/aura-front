@@ -6,7 +6,6 @@ import Logo from '@/icons/Logo';
 import MapIcon from '@/icons/MapIcon';
 import SettingsIcon from '@/icons/SettingsIcon';
 import HeartIcon from '@/icons/HeartIcon';
-import BoxIcon from '@/icons/BoxIcon';
 import PlusIcon from '@/icons/PlusIcon';
 import UserIcon from '@/icons/UserIcon';
 import { usePathname } from 'next/navigation';

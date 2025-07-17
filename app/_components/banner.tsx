@@ -72,6 +72,7 @@ export const MainBanner: FC<{ title: string }> = ({title}) => {
 
                 {/* Tabs */}
                 <div className="flex flex-wrap gap-2 mb-6 md:mb-8">
+
                     {(['buy', 'rent', 'to_rent', 'to_rent_out', 'map', 'evaluate', 'fast_buy'] as const).map((tab) => (
                         <button
                             key={tab}
