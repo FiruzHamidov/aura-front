@@ -53,7 +53,7 @@ export function PropertyDetailsStep({
 
         <Input
             label="Район"
-            name="owner_phone"
+            name="district"
             value={form.district}
             onChange={onChange}
             type="tel"
@@ -62,7 +62,7 @@ export function PropertyDetailsStep({
 
         <Input
             label="Адрес"
-            name="owner_phone"
+            name="address"
             value={form.address}
             onChange={onChange}
             type="tel"

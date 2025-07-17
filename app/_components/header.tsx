@@ -212,22 +212,19 @@ const Header: FC = () => {
           {/* Desktop Action Buttons - Hidden on mobile */}
           <div className="hidden md:flex items-center space-x-3 lg:space-x-4">
             {/* Icon buttons */}
+            <Link href="/comparison" onClick={() => setIsMobileMenuOpen(false)}>
             <button className="p-1.5 cursor-pointer text-[#0036A5] transition-colors">
               <span className="sr-only">Filters</span>
               <SettingsIcon className="h-6 w-6 cursor-pointer" />
             </button>
+            </Link>
+
             <button className="p-1.5 cursor-pointer text-[#0036A5] transition-colors">
               <Link href="/favorites">
                 <span className="sr-only">Favorites</span>
                 <HeartIcon className="h-6 w-6 cursor-pointer" />
               </Link>
             </button>
-            <Link href="/comparison" onClick={() => setIsMobileMenuOpen(false)}>
-              <button className="p-1.5 text-[#0036A5] transition-colors">
-                <span className="sr-only">Saved Items</span>
-                <BoxIcon className="h-6 w-6 cursor-pointer" />
-              </button>
-            </Link>
 
             {/* User Menu */}
             <UserMenu />
@@ -342,16 +339,21 @@ const Header: FC = () => {
                 </button>
 
                 {/* Add Listing Button */}
-                <button className="w-full flex items-center pulse-shadow justify-center space-x-2 bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-lg transition-colors">
+                <button className="w-full flex items-center pulse-shadow justify-center space-x-2 bg-[#0036A5] text-white hover:bg-gray-200 px-4 py-3 rounded-lg transition-colors">
                   <PlusIcon className="h-5 w-5" />
                   <span>Добавить объявление</span>
                 </button>
 
                 {/* Icon Actions */}
                 <div className="flex justify-center space-x-6 pt-2">
+                  <Link
+                      href="/comparison"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                  >
                   <button className="p-3 text-[#0036A5] transition-colors">
                     <SettingsIcon className="h-6 w-6" />
                   </button>
+                  </Link>
                   <Link
                     href="/favorites"
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -360,14 +362,7 @@ const Header: FC = () => {
                       <HeartIcon className="h-6 w-6" />
                     </button>
                   </Link>
-                  <Link
-                    href="/comparison"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <button className="p-3 text-[#0036A5] transition-colors">
-                      <BoxIcon className="h-6 w-6" />
-                    </button>
-                  </Link>
+
                 </div>
               </div>
 

@@ -33,7 +33,7 @@ export function SelectInput({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className={clsx(
-            'w-full bg-[#F0F2F5] rounded-lg py-5 px-4 text-lg appearance-none outline-none',
+            'w-full bg-[#F0F2F5] rounded-lg py-3 px-4 text-lg appearance-none outline-none',
             {
               'text-[#666F8D]': !value,
             }
