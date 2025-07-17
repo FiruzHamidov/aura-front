@@ -54,7 +54,7 @@ const TopListings: FC<{
       const locationName =
         typeof property.location === 'string'
           ? property.location
-          : property.location?.city || 'Местоположение не указано';
+          : property.location?.city || 'не указано';
 
       const floorInfo =
         property.floor && property.total_floors
@@ -63,7 +63,7 @@ const TopListings: FC<{
 
       const roomCountLabel =
         property.apartment_type ||
-        (property.rooms ? `${property.rooms}-ком` : 'Комнат не указано');
+        (property.rooms ? `${property.rooms}-ком` : 'не указано');
 
       const typeFromApi = property.type?.name?.toLowerCase();
       const mappedType = typeFromApi
@@ -85,7 +85,7 @@ const TopListings: FC<{
         floorInfo,
         agent: property.creator
           ? {
-              name: property.creator.name || 'Имя не указано',
+              name: property.creator.name || 'не указано',
               role: 'риелтор',
             }
           : undefined,

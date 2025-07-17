@@ -12,6 +12,7 @@ interface InputProps {
   required?: boolean;
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export function Input({
@@ -22,6 +23,7 @@ export function Input({
   type = 'text',
   textarea = false,
   required = false,
+  disabled = false,
   placeholder,
   className = '',
 }: InputProps) {
@@ -39,6 +41,7 @@ export function Input({
           required={required}
           placeholder={placeholder}
           rows={4}
+          disabled={disabled}
           className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 resize-vertical focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
         />
       ) : (
@@ -49,6 +52,7 @@ export function Input({
           onChange={onChange}
           required={required}
           placeholder={placeholder}
+          disabled={disabled}
           className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
         />
       )}

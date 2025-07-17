@@ -8,10 +8,21 @@ import ListingIcon from '@/icons/ListingIcon';
 import LogoutIcon from '@/icons/LogoutIcon';
 import UserIcon from '@/icons/UserIcon';
 import WalletIcon from '@/icons/WalletIcon';
-import PlusIcon from "@/icons/PlusIcon";
+import PlusIcon from '@/icons/PlusIcon';
+import { usePathname } from 'next/navigation';
 
 export const Sidebar = () => {
-  const [activeLink, setActiveLink] = useState('/profile');
+  const pathname = usePathname();
+
+  const newPath =
+    '/profile' +
+    (pathname.split('/').slice(2).join('/')
+      ? '/' + pathname.split('/').slice(2).join('/')
+      : '');
+
+  console.log({ newPath });
+
+  const [activeLink, setActiveLink] = useState(newPath);
   const logoutMutation = useLogoutMutation();
 
   const handleLogout = async () => {
@@ -75,13 +86,13 @@ export const Sidebar = () => {
         </Link>
 
         <Link
-            href="/profile/add-post"
-            className={`flex items-center gap-3 p-3 rounded-3xl font-medium ${
-                activeLink === '/profile/add-post'
-                    ? 'bg-[#0036A5] text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
-            }`}
-            onClick={() => setActiveLink('/profile/add-post')}
+          href="/profile/add-post"
+          className={`flex items-center gap-3 p-3 rounded-3xl font-medium ${
+            activeLink === '/profile/add-post'
+              ? 'bg-[#0036A5] text-white'
+              : 'text-gray-700 hover:bg-gray-100'
+          }`}
+          onClick={() => setActiveLink('/profile/add-post')}
         >
           <PlusIcon className="w-6 h-6" />
           <span>Добавить объявление</span>
