@@ -61,10 +61,10 @@ const BuyCard: FC<BuyCardProps> = ({ listing, isLarge = false }) => {
 
   const displayLocation =
     typeof listing.location === 'object'
-      ? listing.location?.city || 'Местоположение не указано'
-      : listing.location || 'Местоположение не указано';
+      ? listing.location?.city || 'не указано'
+      : listing.location || 'не указано';
 
-  const displayRooms = listing.apartment_type || 'Комнат не указано';
+  const displayRooms = listing.apartment_type || 'не указано';
 
   const displayArea = listing.total_area || 0;
 
@@ -78,7 +78,7 @@ const BuyCard: FC<BuyCardProps> = ({ listing, isLarge = false }) => {
 
   const displayAgent = listing.creator
     ? {
-        name: listing.creator.name || 'Имя не указано',
+        name: listing.creator.name || 'не указано',
         role: 'риелтор',
       }
     : null;
