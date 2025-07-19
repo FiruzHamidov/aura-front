@@ -13,17 +13,16 @@ async function getApartment(id: string): Promise<Property> {
     return res.json();
 }
 
-export default async function ApartmentPage({ params }: { params: { slug: string } }) {
-    const apartment = await getApartment(params.slug);
+export default async function ApartmentPage(props: {
+    params: Promise<{ slug: string }>;
+}) {
+    const { slug } = await props.params;
+    const apartment = await getApartment(slug);
 
-    const photos: string[] = apartment.photos?.map(
-        (p: PropertyPhoto) => `https://backend.aura.tj/storage/${p.file_path}`
-    ) ?? [];
+    const photos: string[] =
+        apartment.photos?.map(
+            (p: PropertyPhoto) => `https://backend.aura.tj/storage/${p.file_path}`
+        ) ?? [];
 
-    return (
-        <GalleryWrapper
-            apartment={apartment}
-            photos={photos}
-        />
-    );
+    return <GalleryWrapper apartment={apartment} photos={photos} />;
 }
