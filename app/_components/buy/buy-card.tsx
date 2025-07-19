@@ -44,7 +44,7 @@ const BuyCard: FC<BuyCardProps> = ({ listing, isLarge = false }) => {
     listing.photos && listing.photos.length > 0
       ? listing.photos.map((photo: PropertyPhoto, index: number) => ({
           url: photo.file_path
-            ? `https://back.aura.bapew.tj/storage/${photo.file_path}`
+            ? `https://backend.aura.tj/storage/${photo.file_path}`
             : '/images/no-image.png',
           alt: `Фото ${listing.title || 'объявления'} ${index + 1}`,
         }))
