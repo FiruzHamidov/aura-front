@@ -45,7 +45,7 @@ const TopListings: FC<{
         property.photos && property.photos.length > 0
           ? property.photos.map((photo) => ({
               url: photo.file_path
-                ? `https://back.aura.bapew.tj/storage/${photo.file_path}`
+                ? `https://backend.aura.tj/storage/${photo.file_path}`
                 : '/images/no-image.png',
               alt: property.title || 'Фото недвижимости',
             }))

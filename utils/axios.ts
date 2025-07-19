@@ -3,7 +3,7 @@ import type { InternalAxiosRequestConfig, AxiosInstance } from "axios";
 import { PUBLIC_API_ROUTES } from "@/constants/routes";
 
 export const axios: AxiosInstance = Axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://back.aura.tj/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://backend.aura.tj/api",
 });
 
 function getCookieConfig() {
