@@ -1,25 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { axios } from "@/utils/axios";
-import { FavoriteResponse } from "./types";
-
-const addToFavorites = async (
-  propertyId: number
-): Promise<FavoriteResponse> => {
-  const response = await axios.post("/favorites", { property_id: propertyId });
-  return response.data;
-};
-
-const removeFromFavorites = async (
-  propertyId: number
-): Promise<FavoriteResponse> => {
-  const response = await axios.delete(`/favorites/${propertyId}`);
-  return response.data;
-};
-
-const getFavorites = async (): Promise<FavoriteResponse[]> => {
-  const response = await axios.get("/favorites");
-  return response.data;
-};
+import { addToFavorites, removeFromFavorites, getFavorites } from "./api";
 
 export const useAddToFavorites = () => {
   const queryClient = useQueryClient();

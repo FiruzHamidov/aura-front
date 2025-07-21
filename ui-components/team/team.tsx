@@ -3,57 +3,18 @@
 import { FC, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-
-interface ExpertProfile {
-  id: number | string;
-  name: string;
-  role: string;
-  imageUrl: string;
-  imageAlt: string;
-  phone?: string;
-}
-
-const expertData: ExpertProfile[] = [
-  {
-    id: 1,
-    name: 'Савоев Шорух Искандарович',
-    role: 'Менеджер по продажам',
-    imageUrl: '/images/team/1.png',
-    imageAlt: 'Фото Савоев Шорух',
-    phone: '+123 456 7890',
-  },
-  {
-    id: 2,
-    name: 'Шамсидинова Фарангис Саторова',
-    role: 'Менеджер по продажам',
-    imageUrl: '/images/team/2.png',
-    imageAlt: 'Фото Шамсидинова Фарангис',
-    phone: '+123 456 7891',
-  },
-  {
-    id: 3,
-    name: 'Хошимов Туйчи Муродоавич',
-    role: 'Менеджер по продажам',
-    imageUrl: '/images/team/3.png',
-    imageAlt: 'Фото Хошимов Туйчи',
-    phone: '+123 456 7892',
-  },
-  {
-    id: 4,
-    name: 'Орипов Сухроб Валиевич',
-    role: 'Менеджер по продажам',
-    imageUrl: '/images/team/4.png',
-    imageAlt: 'Фото Орипов Сухроб',
-    phone: '+123 456 7893',
-  },
-];
+import { useGetAgentsQuery } from '@/services/users/hooks';
+import { Agent } from '@/services/users/types';
 
 interface ExpertCardProps {
-  expert: ExpertProfile;
+  expert: Agent;
 }
 
 const ExpertCard: FC<ExpertCardProps> = ({ expert }) => {
   const [showPhone, setShowPhone] = useState(false);
+  const photoPath = expert?.photo?.file_path;
+
+  const image = `https://backend.aura.tj/storage/${photoPath}`;
 
   const handleShowPhone = () => {
     setShowPhone(true);
@@ -63,8 +24,8 @@ const ExpertCard: FC<ExpertCardProps> = ({ expert }) => {
     <div className="bg-white rounded-[22px] px-9 py-[30px] text-center flex flex-col items-center h-full">
       <div className="relative w-20 h-20 mb-4">
         <Image
-          src={expert.imageUrl}
-          alt={expert.imageAlt}
+          src={photoPath ? image : '/images/team/2.png'}
+          alt={expert?.photo?.type}
           fill
           className="rounded-full"
           sizes="(max-width: 768px) 100px, 112px"
@@ -73,7 +34,7 @@ const ExpertCard: FC<ExpertCardProps> = ({ expert }) => {
       <h3 className="text-lg font-bold text-[#020617] mb-1.5 leading-snug">
         {expert.name}
       </h3>
-      <p className="text-[#666F8D] mb-2">{expert.role}</p>
+      <p className="text-[#666F8D] mb-2">{expert.role.name}</p>
       <button
         onClick={handleShowPhone}
         disabled={showPhone}
@@ -90,17 +51,23 @@ const ExpertCard: FC<ExpertCardProps> = ({ expert }) => {
 };
 
 const MeetTheTeam: FC = () => {
+  const { data: agents } = useGetAgentsQuery();
+
   return (
     <div className="container mt-10 md:mt-20">
       <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-6 md:mb-10">
         Встречайте команду экспертов Aura Estate!
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {expertData.map((expert) => (
-          <Link key={expert.id} href={`/about/team/${expert.id}`}>
-            <ExpertCard expert={expert} />
-          </Link>
-        ))}
+        {agents?.length ? (
+          agents?.map((expert) => (
+            <Link key={expert.id} href={`/about/team/${expert.id}`}>
+              <ExpertCard expert={expert} />
+            </Link>
+          ))
+        ) : (
+          <p>Нет доступных экспертов</p>
+        )}
       </div>
     </div>
   );
