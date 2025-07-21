@@ -5,6 +5,7 @@ import { Field, Label, Switch } from '@headlessui/react';
 import { FormInput } from '@/ui-components/FormInput';
 import { SelectInput } from '@/ui-components/SelectInput';
 import clsx from 'clsx';
+import { PropertyFilters } from '@/services/properties/types';
 
 interface Option {
   id: string | number;
@@ -38,9 +39,14 @@ const repairOptions: Option[] = [
 interface AllFiltersProps {
   isOpen: boolean;
   onClose: () => void;
+  onSearch: (filters: PropertyFilters) => void;
 }
 
-export const AllFilters: FC<AllFiltersProps> = ({ isOpen, onClose }) => {
+export const AllFilters: FC<AllFiltersProps> = ({
+  isOpen,
+  onClose,
+  onSearch,
+}) => {
   const [propertyType, setPropertyType] = useState('Квартиры во вторичке');
   const [apartmentType, setApartmentType] = useState('Студия');
   const [city, setCity] = useState('Душанбе');
@@ -53,6 +59,25 @@ export const AllFilters: FC<AllFiltersProps> = ({ isOpen, onClose }) => {
   const [floorTo, setFloorTo] = useState('-');
   const [repairType, setRepairType] = useState('Евроремонт');
   const [mortgageOption, setMortgageOption] = useState('mortgage');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const filters = {
+      propertyType: propertyType || undefined,
+      city: city || undefined,
+      district: district || undefined,
+      priceFrom: priceFrom || undefined,
+      priceTo: priceTo || undefined,
+      areaFrom: areaFrom || undefined,
+      areaTo: areaTo || undefined,
+      floorFrom: floorFrom || undefined,
+      floorTo: floorTo || undefined,
+      repairType: repairType || undefined,
+    };
+
+    onSearch(filters);
+  };
 
   return (
     <div className={`${isOpen ? 'block' : 'hidden pointer-events-none'}`}>
@@ -71,7 +96,7 @@ export const AllFilters: FC<AllFiltersProps> = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        <form id="filter-form" onSubmit={(e) => e.preventDefault()}>
+        <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <FormInput
               label="Тип недвижимости"

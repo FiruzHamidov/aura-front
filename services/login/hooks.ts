@@ -8,16 +8,14 @@ const COOKIE_MAX_AGE = 7 * 24 * 60 * 60;
 
 function getCookieConfig() {
   const isProduction = process.env.NODE_ENV === "production";
-  const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN;
-  const cookieSecure = process.env.NEXT_PUBLIC_COOKIE_SECURE === "true";
+  const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || ".aura.tj";
 
-  const domain = cookieDomain || (isProduction ? "aura.tj" : "localhost");
-  const secure = cookieSecure !== undefined ? cookieSecure : isProduction;
+  const secure = isProduction;
 
   return {
-    domain: domain !== "localhost" ? `; domain=${domain}` : "",
+    domain: cookieDomain !== "localhost" ? `; domain=${cookieDomain}` : "",
     secure: secure ? "; Secure" : "",
-    sameSite: "; SameSite=Lax",
+    sameSite: secure ? "; SameSite=None" : "; SameSite=Lax",
     path: "; path=/",
     maxAge: `; max-age=${COOKIE_MAX_AGE}`,
   };

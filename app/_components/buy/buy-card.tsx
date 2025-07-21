@@ -88,7 +88,7 @@ const BuyCard: FC<BuyCardProps> = ({ listing, isLarge = false }) => {
     : 'Дата не указана';
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden flex flex-col h-full hover:shadow-lg transition-shadow duration-200 p-4">
+    <div className="bg-white rounded-xl overflow-hidden flex flex-col h-full hover:shadow-sm transition-shadow duration-200 p-4">
       <div className="relative mb-3">
         <div className="overflow-hidden rounded-lg" ref={emblaRef}>
           <div className="flex">

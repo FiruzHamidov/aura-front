@@ -15,7 +15,6 @@ export const AUTH_REQUIRED_ROUTES = [
   "/profile/wallet",
   "/profile/my-listings",
   "/profile/add-post",
-  "/add-listing",
   "/dashboard",
 ];
 
@@ -23,7 +22,6 @@ export const AGENT_ONLY_ROUTES = [
   "/dashboard",
   "/dashboard/listings",
   "/dashboard/analytics",
-  "/add-listing",
 ];
 
 export const ADMIN_ONLY_ROUTES = [

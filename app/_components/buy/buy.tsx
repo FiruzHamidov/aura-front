@@ -3,9 +3,10 @@ import BuyCard from './buy-card';
 import Link from 'next/link';
 import { PropertiesResponse } from '@/services/properties/types';
 
-const Buy: FC<{ properties: PropertiesResponse | undefined }> = ({
-  properties,
-}) => {
+const Buy: FC<{
+  properties: PropertiesResponse | undefined;
+  hasTitle?: boolean;
+}> = ({ properties, hasTitle = true }) => {
   const buyListings = useMemo(() => {
     if (!properties?.data) return [];
 
@@ -43,9 +44,11 @@ const Buy: FC<{ properties: PropertiesResponse | undefined }> = ({
   return (
     <section>
       <div className="container">
-        <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
-          Купить
-        </h2>
+        {hasTitle && (
+          <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
+            Купить
+          </h2>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-[14px]">
           {buyListings.map((listing) => (

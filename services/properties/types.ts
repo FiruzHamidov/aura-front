@@ -84,6 +84,20 @@ export interface PropertyStatus {
   updated_at: string;
 }
 
+export interface PropertyFilters {
+  priceFrom?: string;
+  priceTo?: string;
+  city?: string;
+  repairType?: string;
+  propertyType?: string;
+  rooms?: string;
+  district?: string;
+  areaFrom?: string;
+  areaTo?: string;
+  floorFrom?: string;
+  floorTo?: string;
+}
+
 export interface User {
   id: number;
   name: string;
