@@ -25,8 +25,8 @@ const FavoriteButton: FC<FavoriteButtonProps> = ({
   const { data: favorites = [] } = useFavorites(!!user);
   const toggleFavorite = useToggleFavorite();
 
-  const isFavorite = favorites.some(
-    (favorite: FavoriteResponse) => favorite.property?.id === propertyId
+  const isFavorite = Array.isArray(favorites) && favorites.some(
+      (favorite: FavoriteResponse) => favorite.property?.id === propertyId
   );
   const [isLoading, setIsLoading] = useState(false);
 

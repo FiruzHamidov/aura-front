@@ -51,7 +51,7 @@ export default function GalleryWrapper({ apartment, photos }: Props) {
                         <div className="md:flex justify-between items-start mb-4">
                             <div>
                                 <h1 className="text-2xl font-bold mb-2">
-                                    {apartment.title || 'Объект без названия'}
+                                    {apartment.floor} ком квартира
                                 </h1>
                                 <div className="text-[#666F8D] text-lg">ID: {apartment.id}</div>
                             </div>
