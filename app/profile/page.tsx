@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useProfile, useUpdateProfileMutation } from '@/services/login/hooks';
+import { useAddProfilePhotoMutation } from '@/services/users/hooks';
 import { toast } from 'react-toastify';
+import { STORAGE_URL } from '@/constants/base-url';
 
 export default function Profile() {
   const { data: user, isLoading, error } = useProfile();
@@ -16,9 +18,12 @@ export default function Profile() {
     phone: '',
     email: '',
   });
+  const profilePhoto = `${STORAGE_URL}/${user?.photo || '/images/team/1.png'}`;
 
-  // eslint-disable-next-line
-  const [profileImage, setProfileImage] = useState('/images/team/1.png');
+  const [profileImage] = useState(profilePhoto);
+  const [uploading, setUploading] = useState(false);
+
+  const addProfilePhotoMutation = useAddProfilePhotoMutation();
 
   useEffect(() => {
     if (user) {
@@ -54,14 +59,28 @@ export default function Profile() {
     }
   };
 
-  const handleUpdatePhoto = () => {
-    // Photo update logic will go here
-    console.log('Updating photo');
+  const handleUpdatePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user?.id || !e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    setUploading(true);
+    try {
+      await addProfilePhotoMutation.mutateAsync({
+        userId: String(user.id),
+        photo: file,
+      });
+      // Optionally update the UI with the new photo URL if returned
+      // setProfileImage(URL.createObjectURL(file));
+      toast.success('Фото профиля обновлено!');
+    } catch (error) {
+      toast.error('Ошибка при обновлении фото: ' + error);
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleDeletePhoto = () => {
     // Photo deletion logic will go here
-    console.log('Deleting photo');
+    toast.info('Удаление фото пока не реализовано');
   };
 
   if (isLoading) {
@@ -128,13 +147,17 @@ export default function Profile() {
             />
           </div>
         </div>
-        <div className="ml-4 flex gap-4 text-lg">
-          <button
-            onClick={handleUpdatePhoto}
-            className="px-2.5 py-1.5 bg-[#E8F6FF] text-[#3498DB] rounded-sm hover:bg-blue-200"
-          >
-            Обновить фото
-          </button>
+        <div className="ml-4 flex gap-4 text-lg items-center">
+          <label className="px-2.5 py-1.5 bg-[#E8F6FF] text-[#3498DB] rounded-sm hover:bg-blue-200 cursor-pointer">
+            {uploading ? 'Загрузка...' : 'Обновить фото'}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleUpdatePhoto}
+              className="hidden"
+              disabled={uploading}
+            />
+          </label>
           <button
             onClick={handleDeletePhoto}
             className="px-2.5 py-1.5 bg-[#FFE9EA] text-[#FF0F0F] rounded-sm hover:bg-red-200"

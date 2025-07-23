@@ -9,6 +9,7 @@ import CalendarIcon from '@/icons/CalendarIcon';
 import WhiteSettingsIcon from '@/icons/WhiteSettingsIcon';
 import FavoriteButton from '@/ui-components/favorite-button/favorite-button';
 import { Property, PropertyPhoto } from '@/services/properties/types';
+import { STORAGE_URL } from '@/constants/base-url';
 
 interface BuyCardProps {
   listing: Property;
@@ -44,7 +45,7 @@ const BuyCard: FC<BuyCardProps> = ({ listing, isLarge = false }) => {
     listing.photos && listing.photos.length > 0
       ? listing.photos.map((photo: PropertyPhoto, index: number) => ({
           url: photo.file_path
-            ? `https://backend.aura.tj/storage/${photo.file_path}`
+            ? `${STORAGE_URL}/${photo.file_path}`
             : '/images/no-image.png',
           alt: `Фото ${listing.title || 'объявления'} ${index + 1}`,
         }))
