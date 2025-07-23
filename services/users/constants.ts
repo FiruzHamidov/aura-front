@@ -4,4 +4,5 @@ export enum AGENT_QUERY_KEYS {
 
 export enum AGENT_ENDPOINTS {
   AGENTS = "/user/agents",
+  PROFILE_PHOTO = "/user",
 }

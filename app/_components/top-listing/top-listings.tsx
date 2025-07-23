@@ -6,6 +6,7 @@ import ListingCard from './listing-card';
 import Link from 'next/link';
 import { Tabs } from '@/ui-components/tabs/tabs';
 import { PropertiesResponse, Property } from '@/services/properties/types';
+import { STORAGE_URL } from '@/constants/base-url';
 
 type PropertyType = 'apartment' | 'house' | 'land' | 'commercial';
 
@@ -45,7 +46,7 @@ const TopListings: FC<{
         property.photos && property.photos.length > 0
           ? property.photos.map((photo) => ({
               url: photo.file_path
-                ? `https://backend.aura.tj/storage/${photo.file_path}`
+                ? `${STORAGE_URL}/${photo.file_path}`
                 : '/images/no-image.png',
               alt: property.title || 'Фото недвижимости',
             }))

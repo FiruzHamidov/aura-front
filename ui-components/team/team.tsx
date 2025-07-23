@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useGetAgentsQuery } from '@/services/users/hooks';
 import { Agent } from '@/services/users/types';
+import { STORAGE_URL } from '@/constants/base-url';
 
 interface ExpertCardProps {
   expert: Agent;
@@ -14,7 +15,7 @@ const ExpertCard: FC<ExpertCardProps> = ({ expert }) => {
   const [showPhone, setShowPhone] = useState(false);
   const photoPath = expert?.photo?.file_path;
 
-  const image = `https://backend.aura.tj/storage/${photoPath}`;
+  const image = `${STORAGE_URL}/${photoPath}`;
 
   const handleShowPhone = () => {
     setShowPhone(true);

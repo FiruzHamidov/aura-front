@@ -33,6 +33,7 @@ export interface User {
   name: string;
   email: string;
   phone: string;
+  photo?: string;
   role_id: number;
   status: string;
   auth_method: string;
