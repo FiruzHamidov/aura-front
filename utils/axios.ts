@@ -18,7 +18,7 @@ function getCookieConfig() {
   };
 }
 
-const getAuthToken = (): string | null => {
+export const getAuthToken = (): string | null => {
   if (typeof window !== "undefined") {
     const cookies = document.cookie.split(";");
     const tokenCookie = cookies.find((cookie) =>

@@ -1,9 +1,10 @@
-import { axios } from "@/utils/axios";
+import { axios, getAuthToken } from "@/utils/axios";
 import { PROPERTY_ENDPOINTS } from "./constants";
-import { PropertiesResponse, PropertyFilters } from "./types";
+import { PropertiesResponse, Property, PropertyFilters } from "./types";
 
 export const getProperties = async (
-  filters?: PropertyFilters
+  filters?: PropertyFilters,
+  withAuth: boolean = false
 ): Promise<PropertiesResponse> => {
   let url: string = PROPERTY_ENDPOINTS.PROPERTIES;
 
@@ -20,6 +21,29 @@ export const getProperties = async (
     }
   }
 
-  const { data } = await axios.get<PropertiesResponse>(url);
+  const { data } = await axios.get<PropertiesResponse>(url, {
+    ...(withAuth && {
+      headers: {
+        Authorization: `Bearer ${getAuthToken()}`,
+      },
+    }),
+  });
+  return data;
+};
+
+export const getPropertyById = async (
+  id: string,
+  withAuth: boolean = false
+): Promise<Property> => {
+  const { data } = await axios.get<Property>(
+    `${PROPERTY_ENDPOINTS.PROPERTIES}/${id}`,
+    {
+      ...(withAuth && {
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      }),
+    }
+  );
   return data;
 };

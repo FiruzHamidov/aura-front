@@ -1,24 +1,27 @@
-import { Property, PropertyPhoto } from '@/services/properties/types';
+'use client';
+
+import { useParams } from 'next/navigation';
+import { useGetPropertyByIdQuery } from '@/services/properties/hooks';
+import { PropertyPhoto } from '@/services/properties/types';
 import GalleryWrapper from './_components/GalleryWrapper';
 import { STORAGE_URL } from '@/constants/base-url';
 
-async function getApartment(id: string): Promise<Property> {
-  const res = await fetch(`https://backend.aura.tj/api/properties/${id}`, {
-    cache: 'no-store',
-  });
+export default function ApartmentPage() {
+  const { slug } = useParams();
 
-  if (!res.ok) {
-    throw new Error('Ошибка при получении объекта');
+  const {
+    data: apartment,
+    isLoading,
+    error,
+  } = useGetPropertyByIdQuery(slug as string);
+
+  if (isLoading) {
+    return <div>Загрузка...</div>;
   }
 
-  return res.json();
-}
-
-export default async function ApartmentPage(props: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await props.params;
-  const apartment = await getApartment(slug);
+  if (error || !apartment) {
+    return <div>Ошибка при загрузке объекта</div>;
+  }
 
   const photos: string[] =
     apartment.photos?.map(

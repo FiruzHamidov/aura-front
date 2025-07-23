@@ -18,9 +18,9 @@ export default function Profile() {
     phone: '',
     email: '',
   });
+
   const profilePhoto = `${STORAGE_URL}/${user?.photo || '/images/team/1.png'}`;
 
-  const [profileImage] = useState(profilePhoto);
   const [uploading, setUploading] = useState(false);
 
   const addProfilePhotoMutation = useAddProfilePhotoMutation();
@@ -139,7 +139,7 @@ export default function Profile() {
         <div className="relative">
           <div className="w-[62px] h-[62px] rounded-full overflow-hidden bg-gray-200">
             <Image
-              src={profileImage}
+              src={profilePhoto}
               alt="Profile"
               width={62}
               height={62}

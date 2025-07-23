@@ -50,22 +50,22 @@ const footerNav = [
 const socialMedia = [
   {
     Icon: FacebookIcon,
-    href: 'https://facebook.com',
+    href: 'https://www.facebook.com/people/Aura-estate/61558372065984/',
     label: 'Facebook',
   },
   {
     Icon: InstagramIcon,
-    href: 'https://instagram.com',
+    href: 'https://www.instagram.com/aura_estate_/',
     label: 'Instagram',
   },
   {
     Icon: WhatsAppIcon,
-    href: 'https://whatsapp.com',
+    href: 'https://wa.me/+992945313131',
     label: 'WhatsApp',
   },
   {
     Icon: YouTubeIcon,
-    href: 'https://youtube.com',
+    href: 'https://www.youtube.com/channel/UCFqrFmI0ha2CKYM3zUuGQCg',
     label: 'YouTube',
   },
 ];
