@@ -31,7 +31,7 @@ const tabOptions = [
 const VipListings: FC<{
   title?: string;
   properties: PropertiesResponse | undefined;
-}> = ({ title = 'VIP объявления', properties }) => {
+}> = ({ title = 'Срочная продажа', properties }) => {
   const [activeType, setActiveType] = useState<PropertyType>('apartment');
 
   const listings = useMemo(() => {

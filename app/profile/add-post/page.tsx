@@ -37,6 +37,8 @@ export default function AddPost() {
         <PropertySelectionStep
           selectedOfferType={formData.selectedOfferType}
           setSelectedOfferType={formData.setSelectedOfferType}
+          selectedListingType={formData.selectedListingType}
+          setSelectedListingType={formData.setSelectedListingType}
           selectedPropertyType={formData.selectedPropertyType}
           setSelectedPropertyType={formData.setSelectedPropertyType}
           selectedBuildingType={formData.selectedBuildingType}

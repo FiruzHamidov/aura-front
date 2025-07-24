@@ -31,30 +31,24 @@ const propertyTypes: Option[] = [
   { id: 'land', name: 'Земельный участок' },
 ];
 
-const roomOptions: Option[] = [
-  { id: '1', name: '1' },
-  { id: '2', name: '2' },
-  { id: '3', name: '3' },
-  { id: '4+', name: '4+' },
-  { id: 'studio', name: 'Студия' },
-];
-
 export const MainBanner: FC<{ title: string }> = ({ title }) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<ActiveTab>('buy');
   const [propertyType, setPropertyType] = useState('');
-  const [rooms, setRooms] = useState('');
+  const [roomsFrom, setRoomsFrom] = useState('');
+  const [roomsTo, setRoomsTo] = useState('');
   const [priceFrom, setPriceFrom] = useState('');
   const [priceTo, setPriceTo] = useState('');
-
   const [showPriceRange, setShowPriceRange] = useState(false);
+  const [showRoomRange, setShowRoomRange] = useState(false);
   const [isAllFiltersOpen, setIsAllFiltersOpen] = useState(false);
 
   const handleSearch = () => {
     const searchParams = new URLSearchParams();
 
     if (propertyType) searchParams.append('propertyType', propertyType);
-    if (rooms) searchParams.append('rooms', rooms);
+    if (roomsFrom) searchParams.append('roomsFrom', roomsFrom);
+    if (roomsTo) searchParams.append('roomsTo', roomsTo);
     if (priceFrom) searchParams.append('priceFrom', priceFrom);
     if (priceTo) searchParams.append('priceTo', priceTo);
 
@@ -152,14 +146,56 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
               />
             </div>
 
-            {/* Rooms */}
-            <div className="lg:w-[169px]">
-              <SelectInput
-                value={rooms}
-                placeholder="Комнат"
-                onChange={(value) => setRooms(value)}
-                options={roomOptions}
-              />
+            {/* Rooms Dropdown with range inputs */}
+            <div className="lg:w-[169px] relative">
+              <button
+                onClick={() => setShowRoomRange(!showRoomRange)}
+                className="w-full bg-white hover:bg-gray-50 px-4 py-3 rounded-lg text-left border border-gray-200 transition-colors flex items-center justify-between"
+              >
+                <span className="text-gray-500">
+                  {roomsFrom || roomsTo
+                    ? `${roomsFrom || '0'} - ${roomsTo || '∞'}`
+                    : 'Комнат'}
+                </span>
+
+                <svg
+                  className={`w-4 h-4 transition-transform ${
+                    showRoomRange ? 'rotate-180' : ''
+                  }`}
+                  width="12"
+                  height="8"
+                  viewBox="0 0 12 8"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M1 1.5L6 6.5L11 1.5"
+                    stroke="#333"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+
+              {showRoomRange && (
+                <div className="mt-2 grid grid-cols-2 gap-2 absolute z-50 w-full">
+                  <input
+                    type="tel"
+                    placeholder="От"
+                    value={roomsFrom}
+                    onChange={(e) => setRoomsFrom(e.target.value)}
+                    className="px-3 py-2 border outline-0 border-gray-200 rounded-lg text-sm bg-white"
+                  />
+                  <input
+                    type="tel"
+                    placeholder="До"
+                    value={roomsTo}
+                    onChange={(e) => setRoomsTo(e.target.value)}
+                    className="px-3 py-2 border outline-0 border-gray-200 rounded-lg text-sm bg-white"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Price Dropdown with expandable inputs */}
@@ -194,9 +230,8 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
                 </svg>
               </button>
 
-              {/* Price Range Inputs - directly below */}
               {showPriceRange && (
-                <div className="mt-2 grid grid-cols-2 gap-2 absolute">
+                <div className="mt-2 grid grid-cols-2 gap-2 absolute z-50 w-full">
                   <input
                     type="tel"
                     placeholder="От"
@@ -214,54 +249,6 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
                 </div>
               )}
             </div>
-
-            {/* Area Dropdown with expandable inputs */}
-            {/* <div className="lg:w-[141px]">
-              <button
-                onClick={() => setShowAreaRange(!showAreaRange)}
-                className="w-full bg-white hover:bg-gray-50 px-4 py-3 rounded-lg text-left border border-gray-200 transition-colors flex items-center justify-between"
-              >
-                <span className="text-gray-500">
-                  {areaFrom || areaTo
-                    ? `${areaFrom || '0'} - ${areaTo || '∞'} м²`
-                    : 'Площадь'}
-                </span>
-                <svg
-                  className={`w-4 h-4 transition-transform ${
-                    showAreaRange ? 'rotate-180' : ''
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-
-              {showAreaRange && (
-                <div className="mt-2 grid grid-cols-2 gap-2">
-                  <input
-                    type="number"
-                    placeholder="От"
-                    value={areaFrom}
-                    onChange={(e) => setAreaFrom(e.target.value)}
-                    className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
-                  />
-                  <input
-                    type="number"
-                    placeholder="До"
-                    value={areaTo}
-                    onChange={(e) => setAreaTo(e.target.value)}
-                    className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
-                  />
-                </div>
-              )}
-            </div> */}
 
             {/* All Filters Button */}
             <button

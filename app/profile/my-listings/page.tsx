@@ -6,7 +6,10 @@ import { useGetPropertiesQuery } from '@/services/properties/hooks';
 import { Property } from '@/services/properties/types';
 
 export default function MyListings() {
-  const { data: properties, isLoading } = useGetPropertiesQuery({}, true);
+  const { data: properties, isLoading } = useGetPropertiesQuery(
+    { listing_type: 'regular' },
+    true
+  );
 
   if (isLoading) {
     return (
