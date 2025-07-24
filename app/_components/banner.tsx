@@ -39,20 +39,15 @@ const roomOptions: Option[] = [
   { id: 'studio', name: 'Студия' },
 ];
 
-const priceOptions: Option[] = [
-  { id: '0-50k', name: '250 000' },
-  { id: '50k-100k', name: '350 000' },
-  { id: '100k-200k', name: '450 000' },
-  { id: '200k+', name: '550 000' },
-  { id: '1kk+', name: '1 550 000' },
-];
-
 export const MainBanner: FC<{ title: string }> = ({ title }) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<ActiveTab>('buy');
   const [propertyType, setPropertyType] = useState('');
   const [rooms, setRooms] = useState('');
-  const [price, setPrice] = useState('');
+  const [priceFrom, setPriceFrom] = useState('');
+  const [priceTo, setPriceTo] = useState('');
+
+  const [showPriceRange, setShowPriceRange] = useState(false);
   const [isAllFiltersOpen, setIsAllFiltersOpen] = useState(false);
 
   const handleSearch = () => {
@@ -60,21 +55,8 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
 
     if (propertyType) searchParams.append('propertyType', propertyType);
     if (rooms) searchParams.append('rooms', rooms);
-    if (price) {
-      const priceMap: Record<string, { from: string; to: string }> = {
-        '0-50k': { from: '0', to: '250000' },
-        '50k-100k': { from: '250000', to: '350000' },
-        '100k-200k': { from: '350000', to: '450000' },
-        '200k+': { from: '450000', to: '550000' },
-        '1kk+': { from: '1550000', to: '' },
-      };
-
-      const priceRange = priceMap[price];
-      if (priceRange) {
-        if (priceRange.from) searchParams.append('priceFrom', priceRange.from);
-        if (priceRange.to) searchParams.append('priceTo', priceRange.to);
-      }
-    }
+    if (priceFrom) searchParams.append('priceFrom', priceFrom);
+    if (priceTo) searchParams.append('priceTo', priceTo);
 
     const queryString = searchParams.toString();
     router.push(`/buy${queryString ? `?${queryString}` : ''}`);
@@ -158,53 +140,146 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
         </div>
 
         {/* Filter Controls */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-3">
-          {/* Property Type - Full width on mobile, auto on desktop */}
-          <div className="sm:col-span-2 lg:col-span-1 lg:w-[373px]">
-            <SelectInput
-              value={propertyType}
-              placeholder="Тип недвижимости"
-              onChange={(value) => setPropertyType(value)}
-              options={propertyTypes}
-            />
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-3">
+            {/* Property Type */}
+            <div className="sm:col-span-2 lg:col-span-1 lg:w-[273px]">
+              <SelectInput
+                value={propertyType}
+                placeholder="Тип недвижимости"
+                onChange={(value) => setPropertyType(value)}
+                options={propertyTypes}
+              />
+            </div>
+
+            {/* Rooms */}
+            <div className="lg:w-[169px]">
+              <SelectInput
+                value={rooms}
+                placeholder="Комнат"
+                onChange={(value) => setRooms(value)}
+                options={roomOptions}
+              />
+            </div>
+
+            {/* Price Dropdown with expandable inputs */}
+            <div className="lg:w-[241px] relative">
+              <button
+                onClick={() => setShowPriceRange(!showPriceRange)}
+                className="w-full bg-white hover:bg-gray-50 px-4 py-3 rounded-lg text-left border border-gray-200 transition-colors flex items-center justify-between"
+              >
+                <span className="text-gray-500">
+                  {priceFrom || priceTo
+                    ? `${priceFrom || '0'} - ${priceTo || '∞'}`
+                    : 'Цена'}
+                </span>
+
+                <svg
+                  className={`w-4 h-4 transition-transform ${
+                    showPriceRange ? 'rotate-180' : ''
+                  }`}
+                  width="12"
+                  height="8"
+                  viewBox="0 0 12 8"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M1 1.5L6 6.5L11 1.5"
+                    stroke="#333"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+
+              {/* Price Range Inputs - directly below */}
+              {showPriceRange && (
+                <div className="mt-2 grid grid-cols-2 gap-2 absolute">
+                  <input
+                    type="tel"
+                    placeholder="От"
+                    value={priceFrom}
+                    onChange={(e) => setPriceFrom(e.target.value)}
+                    className="px-3 py-2 border outline-0 border-gray-200 rounded-lg text-sm bg-white"
+                  />
+                  <input
+                    type="tel"
+                    placeholder="До"
+                    value={priceTo}
+                    onChange={(e) => setPriceTo(e.target.value)}
+                    className="px-3 py-2 border outline-0 border-gray-200 rounded-lg text-sm bg-white"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Area Dropdown with expandable inputs */}
+            {/* <div className="lg:w-[141px]">
+              <button
+                onClick={() => setShowAreaRange(!showAreaRange)}
+                className="w-full bg-white hover:bg-gray-50 px-4 py-3 rounded-lg text-left border border-gray-200 transition-colors flex items-center justify-between"
+              >
+                <span className="text-gray-500">
+                  {areaFrom || areaTo
+                    ? `${areaFrom || '0'} - ${areaTo || '∞'} м²`
+                    : 'Площадь'}
+                </span>
+                <svg
+                  className={`w-4 h-4 transition-transform ${
+                    showAreaRange ? 'rotate-180' : ''
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+
+              {showAreaRange && (
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <input
+                    type="number"
+                    placeholder="От"
+                    value={areaFrom}
+                    onChange={(e) => setAreaFrom(e.target.value)}
+                    className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                  />
+                  <input
+                    type="number"
+                    placeholder="До"
+                    value={areaTo}
+                    onChange={(e) => setAreaTo(e.target.value)}
+                    className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                  />
+                </div>
+              )}
+            </div> */}
+
+            {/* All Filters Button */}
+            <button
+              className="sm:col-span-2 lg:col-span-1 lg:w-[197px] bg-[#F0F2F5] hover:bg-sky-100 text-slate-700 px-4 sm:px-6 lg:px-[25px] py-3 rounded-lg text-lg flex items-center justify-center transition-colors cursor-pointer whitespace-nowrap"
+              onClick={() => setIsAllFiltersOpen((prev) => !prev)}
+            >
+              <FilterSearchIcon className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-blue-600" />
+              <span>Все фильтры</span>
+            </button>
+
+            {/* Search Button */}
+            <button
+              onClick={handleSearch}
+              className="sm:col-span-2 lg:col-span-1 lg:w-[197px] cursor-pointer bg-[#FFDE2C] hover:bg-[#d9b90f] px-4 sm:px-6 lg:px-[71px] py-3 rounded-lg font-bold transition-all flex items-center justify-center"
+            >
+              Найти
+            </button>
           </div>
-
-          {/* Rooms */}
-          <div className="lg:w-[169px]">
-            <SelectInput
-              value={rooms}
-              placeholder="Комнат"
-              onChange={(value) => setRooms(value)}
-              options={roomOptions}
-            />
-          </div>
-
-          {/* Price */}
-          <div className="lg:w-[141px]">
-            <SelectInput
-              value={price}
-              placeholder="Цена"
-              onChange={(value) => setPrice(value)}
-              options={priceOptions}
-            />
-          </div>
-
-          {/* All Filters Button */}
-          <button
-            className="sm:col-span-2 lg:col-span-1 lg:w-[197px] bg-[#F0F2F5] hover:bg-sky-100 text-slate-700 px-4 sm:px-6 lg:px-[25px] py-3 rounded-lg text-lg flex items-center justify-center transition-colors cursor-pointer whitespace-nowrap"
-            onClick={() => setIsAllFiltersOpen((prev) => !prev)}
-          >
-            <FilterSearchIcon className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-blue-600" />
-            <span>Все фильтры</span>
-          </button>
-
-          {/* Search Button */}
-          <button
-            onClick={handleSearch}
-            className="sm:col-span-2 lg:col-span-1 lg:w-[197px] cursor-pointer bg-[#FFDE2C] hover:bg-[#d9b90f] px-4 sm:px-6 lg:px-[71px] py-3 rounded-lg font-bold transition-all flex items-center justify-center"
-          >
-            Найти
-          </button>
         </div>
       </div>
 

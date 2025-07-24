@@ -96,6 +96,7 @@ export interface PropertyFilters {
   areaTo?: string;
   floorFrom?: string;
   floorTo?: string;
+  listing_type: "regular" | "vip" | "urgent";
 }
 
 export interface User {
