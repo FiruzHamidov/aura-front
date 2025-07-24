@@ -8,12 +8,7 @@ import FilterSearchIcon from '@/icons/FilterSearchIcon';
 import { SelectInput } from '@/ui-components/SelectInput';
 import { AllFilters } from './filters';
 import { PropertyFilters } from '@/services/properties/types';
-
-interface Option {
-  id: string | number;
-  name: string;
-  unavailable?: boolean;
-}
+import { useGetPropertyTypesQuery } from '@/services/add-post';
 
 type ActiveTab =
   | 'buy'
@@ -24,15 +19,11 @@ type ActiveTab =
   | 'evaluate'
   | 'fast_buy';
 
-const propertyTypes: Option[] = [
-  { id: 'apartment', name: 'Квартира' },
-  { id: 'house', name: 'Дом' },
-  { id: 'commercial', name: 'Коммерческая' },
-  { id: 'land', name: 'Земельный участок' },
-];
-
 export const MainBanner: FC<{ title: string }> = ({ title }) => {
   const router = useRouter();
+
+  const { data: propertyTypes } = useGetPropertyTypesQuery();
+
   const [activeTab, setActiveTab] = useState<ActiveTab>('buy');
   const [propertyType, setPropertyType] = useState('');
   const [roomsFrom, setRoomsFrom] = useState('');
@@ -142,7 +133,7 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
                 value={propertyType}
                 placeholder="Тип недвижимости"
                 onChange={(value) => setPropertyType(value)}
-                options={propertyTypes}
+                options={propertyTypes ?? []}
               />
             </div>
 

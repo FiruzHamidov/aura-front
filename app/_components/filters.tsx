@@ -6,28 +6,23 @@ import { FormInput } from '@/ui-components/FormInput';
 import { SelectInput } from '@/ui-components/SelectInput';
 import clsx from 'clsx';
 import { PropertyFilters } from '@/services/properties/types';
+import {
+  useGetBuildingTypesQuery,
+  useGetLocationsQuery,
+  useGetPropertyTypesQuery,
+} from '@/services/add-post';
 
 interface Option {
   id: string | number;
+  slug?: string;
   name: string;
   unavailable?: boolean;
 }
-
-const cityOptions: Option[] = [
-  { id: 'dushanbe', name: 'Душанбе' },
-  { id: 'khujand', name: 'Худжанд' },
-];
 
 const districtOptions: Option[] = [
   { id: 'sino', name: 'Сино' },
   { id: 'firdavsi', name: 'Фирдавси' },
   { id: 'somoni', name: 'Сомони' },
-];
-
-const apartmentTypeOptions: Option[] = [
-  { id: 'studio', name: 'Студия' },
-  { id: '1room', name: '1-комнатная' },
-  { id: '2room', name: '2-комнатная' },
 ];
 
 const repairOptions: Option[] = [
@@ -47,6 +42,17 @@ export const AllFilters: FC<AllFiltersProps> = ({
   onClose,
   onSearch,
 }) => {
+  const { data: propertyTypes } = useGetPropertyTypesQuery();
+  const { data: buildingTypes } = useGetBuildingTypesQuery();
+
+  const { data: locationTypes } = useGetLocationsQuery();
+
+  const newLocationTypes =
+    locationTypes?.map((location) => ({
+      ...location,
+      name: location.city!,
+    })) ?? [];
+
   const [propertyType, setPropertyType] = useState('Квартиры во вторичке');
   const [apartmentType, setApartmentType] = useState('Студия');
   const [city, setCity] = useState('Душанбе');
@@ -101,22 +107,23 @@ export const AllFilters: FC<AllFiltersProps> = ({
 
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <FormInput
+            <SelectInput
               label="Тип недвижимости"
               value={propertyType}
-              onChange={(val) => setPropertyType(val)}
+              onChange={(value) => setPropertyType(value)}
+              options={propertyTypes ?? []}
             />
             <SelectInput
               label="Тип квартиры"
               value={apartmentType}
               onChange={(val) => setApartmentType(val)}
-              options={apartmentTypeOptions}
+              options={buildingTypes ?? []}
             />
             <SelectInput
               label="Город"
               value={city}
               onChange={(val) => setCity(val)}
-              options={cityOptions}
+              options={newLocationTypes}
             />
             <SelectInput
               label="Район"
