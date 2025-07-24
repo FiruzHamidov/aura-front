@@ -96,6 +96,7 @@ export interface PropertyFilters {
   areaTo?: string;
   floorFrom?: string;
   floorTo?: string;
+  listing_type?: string;
 }
 
 export interface User {
