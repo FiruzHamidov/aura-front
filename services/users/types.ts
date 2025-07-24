@@ -8,7 +8,7 @@ export interface Agent {
   role_id: number;
   status: string;
   auth_method: string;
-  photo: PropertyPhoto;
+  photo: string;
   created_at: string;
   updated_at: string;
   role: Role;

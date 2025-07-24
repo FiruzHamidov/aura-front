@@ -13,7 +13,7 @@ interface ExpertCardProps {
 
 const ExpertCard: FC<ExpertCardProps> = ({ expert }) => {
   const [showPhone, setShowPhone] = useState(false);
-  const photoPath = expert?.photo?.file_path;
+  const photoPath = expert?.photo;
 
   const image = `${STORAGE_URL}/${photoPath}`;
 
@@ -26,7 +26,7 @@ const ExpertCard: FC<ExpertCardProps> = ({ expert }) => {
       <div className="relative w-20 h-20 mb-4">
         <Image
           src={photoPath ? image : '/images/team/2.png'}
-          alt={expert?.photo?.type}
+          alt={expert?.name}
           fill
           className="rounded-full"
           sizes="(max-width: 768px) 100px, 112px"
