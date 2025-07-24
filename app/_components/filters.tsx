@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, useState } from 'react';
+import { FC, FormEvent, useState } from 'react';
 import { Field, Label, Switch } from '@headlessui/react';
 import { FormInput } from '@/ui-components/FormInput';
 import { SelectInput } from '@/ui-components/SelectInput';
@@ -59,8 +59,10 @@ export const AllFilters: FC<AllFiltersProps> = ({
   const [floorTo, setFloorTo] = useState('-');
   const [repairType, setRepairType] = useState('Евроремонт');
   const [mortgageOption, setMortgageOption] = useState('mortgage');
+  // eslint-disable-next-line
+  const [listingType, setListingType] = useState('regular');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
     const filters = {
@@ -74,6 +76,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
       floorFrom: floorFrom || undefined,
       floorTo: floorTo || undefined,
       repairType: repairType || undefined,
+      listing_type: listingType,
     };
 
     onSearch(filters);
