@@ -17,6 +17,7 @@ export interface PropertiesResponse {
 export interface Property {
   id: number;
   title: string;
+  address: string;
   description: string;
   type_id: number;
   status_id: number;
