@@ -25,6 +25,7 @@ export const BuyContent = () => {
     areaTo: searchParams.get('areaTo') || undefined,
     floorFrom: searchParams.get('floorFrom') || undefined,
     floorTo: searchParams.get('floorTo') || undefined,
+    listing_type: 'regular',
   };
 
   const { data: properties, isLoading } = useGetPropertiesQuery(filters);

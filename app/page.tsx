@@ -7,11 +7,17 @@ import PersonalRealtorCta from './_components/personal-realtor';
 import Promo from './_components/promo';
 import Services from './_components/services';
 import TopListings from './_components/top-listing/top-listings';
-import VipListings from '@/app/_components/top-listing/vip-listings';
 import { useGetPropertiesQuery } from '@/services/properties/hooks';
 
 export default function Home() {
   const { data: properties, isLoading } = useGetPropertiesQuery();
+  const { data: vipProperties } = useGetPropertiesQuery({
+    listing_type: 'vip',
+  });
+
+  const { data: urgentProperties } = useGetPropertiesQuery({
+    listing_type: 'urgent',
+  });
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -23,9 +29,9 @@ export default function Home() {
       <div className="lg:container mx-auto mb-10 md:mb-20">
         <Services />
       </div>
-      <VipListings properties={properties} />
+      <TopListings properties={urgentProperties} title="Срочные объявления" />
       <Promo />
-      <TopListings properties={properties} />
+      <TopListings properties={vipProperties} title="VIP объявления" />
       <PersonalRealtorCta />
       <div className="mt-10 md:mt-20">
         <Buy properties={properties} />

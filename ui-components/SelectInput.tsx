@@ -3,7 +3,8 @@
 import clsx from 'clsx';
 
 interface Option {
-  id: string | number;
+  id?: string | number;
+  slug?: string;
   name: string;
   unavailable?: boolean;
 }
@@ -41,7 +42,10 @@ export function SelectInput({
         >
           {placeholder && <option value="">{placeholder}</option>}
           {options.map((option) => (
-            <option key={option.id} value={option.id}>
+            <option
+              key={option.id || option.slug}
+              value={option.id || option.slug}
+            >
               {option.name}
             </option>
           ))}
