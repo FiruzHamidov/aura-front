@@ -11,7 +11,7 @@ export default function MyListings() {
     const [page, setPage] = useState(1);
 
     const isMyListings = activeTab === 'my';
-    const { data: properties, isLoading } = useGetPropertiesQuery({ page }, isMyListings);
+    const { data: properties, isLoading } = useGetPropertiesQuery({ page, listing_type: 'regular' }, isMyListings);
 
     const tabTitle = isMyListings ? 'Мои объявления' : 'Все объявления';
 
