@@ -97,6 +97,7 @@ export interface PropertyFilters {
   floorFrom?: string;
   floorTo?: string;
   listing_type?: string;
+  page?: number;
 }
 
 export interface User {
