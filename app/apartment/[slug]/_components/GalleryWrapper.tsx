@@ -7,6 +7,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import SettingsIcon from '@/icons/SettingsIcon';
 import HeartIcon from '@/icons/HeartIcon';
 import { Property } from '@/services/properties/types';
+import { useProfile } from '@/services/login/hooks';
 import MortgageCalculator from '../_components/MortgageCalculator';
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export default function GalleryWrapper({ apartment, photos }: Props) {
+  const { data: user } = useProfile();
   const [isFavorite, setIsFavorite] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
@@ -42,6 +44,13 @@ export default function GalleryWrapper({ apartment, photos }: Props) {
   const phone = apartment.creator?.phone ?? '';
   const cleanPhone = phone.replace(/[^\d+]/g, '');
 
+  // Check if current user can edit this property
+  const canEdit =
+    user &&
+    apartment.creator &&
+    (user.id === apartment.creator.id ||
+      (apartment.agent_id && user.id === apartment.agent_id));
+
   return (
     <div className="container pt-8 pb-12">
       <div className="flex flex-col lg:flex-row gap-5">
@@ -51,11 +60,36 @@ export default function GalleryWrapper({ apartment, photos }: Props) {
             <div className="md:flex justify-between items-start mb-4">
               <div>
                 <h1 className="text-2xl font-bold mb-2">
-                  {apartment.rooms} ком квартира, {apartment.floor} этаж, {apartment.address}
+                  {apartment.rooms} ком квартира, {apartment.floor} этаж,{' '}
+                  {apartment.address || 'Адрес не указан'}
                 </h1>
                 <div className="text-[#666F8D] text-lg">ID: {apartment.id}</div>
               </div>
               <div className="flex gap-2 md:mt-0 mt-4">
+                {canEdit && (
+                  <Link
+                    href={`/profile/edit-post/${apartment.id}`}
+                    className="w-14 h-14 rounded-full border border-[#0036A5] bg-[#0036A5] flex items-center justify-center hover:bg-blue-800 transition-colors"
+                    title="Редактировать объявление"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M12 20H21"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M16.5 3.5C16.8978 3.10218 17.4374 2.87868 18 2.87868C18.2786 2.87868 18.5544 2.93355 18.8118 3.04016C19.0692 3.14676 19.303 3.30301 19.5 3.5C19.697 3.69699 19.8532 3.9308 19.9598 4.18819C20.0665 4.44558 20.1213 4.72142 20.1213 5C20.1213 5.27858 20.0665 5.55442 19.9598 5.81181C19.8532 6.0692 19.697 6.30301 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </Link>
+                )}
                 <button className="w-14 h-14 rounded-full border border-[#BAC0CC] flex items-center justify-center hover:bg-gray-50 cursor-pointer">
                   <SettingsIcon className="w-6 h-6 text-[#1E3A8A]" />
                 </button>
@@ -162,7 +196,7 @@ export default function GalleryWrapper({ apartment, photos }: Props) {
             <div className="mt-6">
               <h2 className="text-2xl font-bold mb-4">Описание</h2>
               <div className="text-[#666F8D] whitespace-pre-line">
-                {apartment.description}
+                {apartment.description || 'Описание не указано'}
               </div>
             </div>
           </div>

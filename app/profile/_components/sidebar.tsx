@@ -20,8 +20,6 @@ export const Sidebar = () => {
       ? '/' + pathname.split('/').slice(2).join('/')
       : '');
 
-  console.log({ newPath });
-
   const [activeLink, setActiveLink] = useState(newPath);
   const logoutMutation = useLogoutMutation();
 
