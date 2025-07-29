@@ -57,8 +57,9 @@ export interface Property {
   district?: string;
   offer_type?: string;
   type: PropertyType;
-  photos: PropertyPhoto[];
+  status: PropertyStatus;
   location: PropertyLocation | null;
+  photos: PropertyPhoto[];
 }
 
 export interface PropertyLocation {

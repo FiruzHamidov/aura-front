@@ -43,10 +43,10 @@ const VipListings: FC<{
           ? property.photos.map((photo) => ({
               url: photo.file_path
                 ? `${STORAGE_URL}/${photo.file_path}`
-                : '/images/no-image.png',
+                : '/images/no-image.jpg',
               alt: property.title || 'Фото недвижимости',
             }))
-          : [{ url: '/images/no-image.png', alt: 'Нет фото' }];
+          : [{ url: '/images/no-image.jpg', alt: 'Нет фото' }];
 
       const locationName =
         typeof property.location === 'string'

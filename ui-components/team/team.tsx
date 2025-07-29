@@ -28,7 +28,7 @@ const ExpertCard: FC<ExpertCardProps> = ({ expert }) => {
           src={photoPath ? image : '/images/team/2.png'}
           alt={expert?.name}
           fill
-          className="rounded-full"
+          className="rounded-full object-cover"
           sizes="(max-width: 768px) 100px, 112px"
         />
       </div>

@@ -46,10 +46,10 @@ const BuyCard: FC<BuyCardProps> = ({ listing, isLarge = false }) => {
       ? listing.photos.map((photo: PropertyPhoto, index: number) => ({
           url: photo.file_path
             ? `${STORAGE_URL}/${photo.file_path}`
-            : '/images/no-image.png',
+            : '/images/no-image.jpg',
           alt: `Фото ${listing.title || 'объявления'} ${index + 1}`,
         }))
-      : [{ url: '/images/no-image.png', alt: 'Нет фото' }];
+      : [{ url: '/images/no-image.jpg', alt: 'Нет фото' }];
 
   const displayTitle =
     listing.title ||
