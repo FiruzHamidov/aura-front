@@ -31,12 +31,14 @@ export interface Role {
 export interface User {
   id: number;
   name: string;
+  description: string;
   email: string;
   phone: string;
   photo?: string;
   role_id: number;
   status: string;
   auth_method: string;
+  birthday: string;
   created_at: string;
   updated_at: string;
   role?: Role;
@@ -45,7 +47,7 @@ export interface User {
 export interface ProfileUpdateRequest {
   firstName?: string;
   lastName?: string;
-  dateOfBirth?: string;
+  birthday?: string;
   phone?: string;
   email?: string;
 }

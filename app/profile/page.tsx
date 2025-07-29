@@ -1,21 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import {useState, useEffect, ChangeEvent} from 'react';
 import Image from 'next/image';
 import { useProfile, useUpdateProfileMutation } from '@/services/login/hooks';
 import { useAddProfilePhotoMutation } from '@/services/users/hooks';
 import { toast } from 'react-toastify';
 import { STORAGE_URL } from '@/constants/base-url';
+import {Input} from "@/ui-components/Input";
 
 export default function Profile() {
   const { data: user, isLoading, error } = useProfile();
   const updateProfileMutation = useUpdateProfileMutation();
 
   const [profileData, setProfileData] = useState({
-    firstName: '',
-    lastName: '',
-    dateOfBirth: '22/10/1999',
+    fullName: '',
+    birthday: '22/10/1999',
     phone: '',
+    description: '',
     email: '',
   });
 
@@ -27,18 +28,17 @@ export default function Profile() {
 
   useEffect(() => {
     if (user) {
-      const nameParts = user.name.split(' ');
       setProfileData({
-        firstName: nameParts[0] || '',
-        lastName: nameParts[1] || '',
-        dateOfBirth: '22/10/1999',
+        fullName: user.name,
+        description: user.description,
+        birthday: '22/10/1999',
         phone: user.phone,
         email: user.email,
       });
     }
   }, [user]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setProfileData({
       ...profileData,
@@ -174,22 +174,22 @@ export default function Profile() {
           <input
             type="text"
             name="firstName"
-            value={profileData.firstName}
+            value={profileData.fullName}
             onChange={handleInputChange}
             className="w-full px-4 py-3 rounded-md bg-gray-50"
           />
         </div>
 
-        <div>
-          <label className="block mb-2 text-sm text-gray-600">Фамилия</label>
-          <input
-            type="text"
-            name="lastName"
-            value={profileData.lastName}
-            onChange={handleInputChange}
-            className="w-full px-4 py-3 rounded-md bg-gray-50"
-          />
-        </div>
+        {/*<div>*/}
+        {/*  <label className="block mb-2 text-sm text-gray-600">Фамилия</label>*/}
+        {/*  <input*/}
+        {/*    type="text"*/}
+        {/*    name="lastName"*/}
+        {/*    value={profileData.lastName}*/}
+        {/*    onChange={handleInputChange}*/}
+        {/*    className="w-full px-4 py-3 rounded-md bg-gray-50"*/}
+        {/*  />*/}
+        {/*</div>*/}
 
         <div>
           <label className="block mb-2 text-sm text-gray-600">
@@ -198,7 +198,7 @@ export default function Profile() {
           <input
             type="text"
             name="dateOfBirth"
-            value={profileData.dateOfBirth}
+            value={profileData.birthday}
             onChange={handleInputChange}
             className="w-full px-4 py-3 rounded-md bg-gray-50"
           />
@@ -227,6 +227,20 @@ export default function Profile() {
             className="w-full px-4 py-3 rounded-md bg-gray-50"
           />
         </div>
+
+        <div>
+          <Input
+              label="Описание"
+              name="description"
+              value={profileData.description}
+              textarea
+              onChange={handleInputChange}
+              placeholder="Подробное описание ..."
+              className="mt-4"
+          />
+        </div>
+
+
 
         <div className="mt-4">
           <button

@@ -24,12 +24,12 @@ export default function MyListings() {
 
     const handleTabChange = (tab: 'my' | 'all') => {
         setActiveTab(tab);
-        setPage(1); // сброс страницы при смене таба
+        setPage(1);
     };
 
     return (
-        <div className="container">
-            <div className="bg-white rounded-[22px] p-[30px] my-10">
+        <div className="md:container">
+            <div className="bg-white rounded-[22px] p-[30px] mt-10 sm:mt-0">
                 {/* Таб-переключатель */}
                 <div className="flex space-x-4 mb-6">
                     <button
@@ -87,7 +87,7 @@ export default function MyListings() {
             {/* Карточки */}
             {!isLoading && properties && properties.data.length > 0 && (
                 <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[14px] mb-10 md:mb-16">
+                    <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-3 2xl-grid-cols-3 gap-[14px] mb-10 md:mb-16">
                         {properties.data.map((property: Property) => (
                             <Link key={property.id} href={`/apartment/${property.id}`}>
                                 <BuyCard listing={property} />
