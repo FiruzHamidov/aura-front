@@ -239,44 +239,6 @@ export default function MyListings() {
                                 </label>
                             </div>
 
-                            <div className="flex gap-4">
-                                <div className="flex-1">
-                                    <label className="block text-sm font-medium">Дата от:</label>
-                                    <input
-                                        type="datetime-local"
-                                        className="w-full border border-gray-300 rounded p-2"
-                                        value={selectedRange ? formatInputDate(selectedRange.start) : ''}
-                                        onChange={(e) => {
-                                            if (selectedRange) {
-                                                setSelectedRange({
-                                                    ...selectedRange,
-                                                    start: new Date(e.target.value),
-                                                });
-                                            }
-                                        }}
-                                        required
-                                    />
-                                </div>
-
-                                <div className="flex-1">
-                                    <label className="block text-sm font-medium">Дата до:</label>
-                                    <input
-                                        type="datetime-local"
-                                        className="w-full border border-gray-300 rounded p-2"
-                                        value={selectedRange ? formatInputDate(selectedRange.end) : ''}
-                                        onChange={(e) => {
-                                            if (selectedRange) {
-                                                setSelectedRange({
-                                                    ...selectedRange,
-                                                    end: new Date(e.target.value),
-                                                });
-                                            }
-                                        }}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
                             <div>
                                 <label>
                                     Телефон клиента:
@@ -291,6 +253,45 @@ export default function MyListings() {
                                     />
                                 </label>
                             </div>
+
+                            <div className="flex gap-4">
+                                <div className="flex-1">
+                                    <label className="block text-sm font-medium">Время показа с:</label>
+                                    <input
+                                        type="datetime-local"
+                                        className=" border border-gray-300 rounded p-2"
+                                        value={selectedRange ? formatInputDate(selectedRange.start) : ''}
+                                        onChange={(e) => {
+                                            if (selectedRange) {
+                                                setSelectedRange({
+                                                    ...selectedRange,
+                                                    start: new Date(e.target.value),
+                                                });
+                                            }
+                                        }}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="flex-1">
+                                    <label className="block text-sm font-medium">Время показа до:</label>
+                                    <input
+                                        type="datetime-local"
+                                        className=" border border-gray-300 rounded p-2"
+                                        value={selectedRange ? formatInputDate(selectedRange.end) : ''}
+                                        onChange={(e) => {
+                                            if (selectedRange) {
+                                                setSelectedRange({
+                                                    ...selectedRange,
+                                                    end: new Date(e.target.value),
+                                                });
+                                            }
+                                        }}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
 
                             <br/>
 
@@ -338,7 +339,7 @@ export default function MyListings() {
                             <p><strong>Агент:</strong> {selectedBooking.agent.name}</p>
                             <p>
                                 <strong>Клиент:</strong> {selectedBooking.client_name},
-                                <a href={`+992${selectedBooking.client_phone}`}>📞 {selectedBooking.client_phone}</a>
+                                <a href={`tel:${selectedBooking.client_phone}`}>📞 {selectedBooking.client_phone}</a>
                             </p>
                             <p><strong>Время:</strong> {selectedBooking.start_time} — {selectedBooking.end_time}</p>
                             <p><strong>Комментарий:</strong> {selectedBooking.note}</p>
