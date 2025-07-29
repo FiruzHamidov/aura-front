@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { STORAGE_URL } from '@/constants/base-url';
 import {Input} from "@/ui-components/Input";
 
+
 export default function Profile() {
   const { data: user, isLoading, error } = useProfile();
   const updateProfileMutation = useUpdateProfileMutation();
