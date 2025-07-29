@@ -31,6 +31,35 @@ export const getProperties = async (
   return data;
 };
 
+export const getMyProperties = async (
+    filters?: PropertyFilters,
+    withAuth: boolean = false
+): Promise<PropertiesResponse> => {
+  let url: string = PROPERTY_ENDPOINTS.MY_PROPERTIES;
+
+  if (filters) {
+    const queryParams = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value && value !== "") {
+        queryParams.append(key, String(value));
+      }
+    });
+
+    if (queryParams.toString()) {
+      url = `${url}?${queryParams.toString()}`;
+    }
+  }
+
+  const { data } = await axios.get<PropertiesResponse>(url, {
+    ...(withAuth && {
+      headers: {
+        Authorization: `Bearer ${getAuthToken()}`,
+      },
+    }),
+  });
+  return data;
+};
+
 export const getPropertyById = async (
   id: string,
   withAuth: boolean = false

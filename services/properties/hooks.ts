@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { PROPERTY_QUERY_KEYS } from "./constants";
-import { getProperties, getPropertyById } from "./api";
+import {getMyProperties, getProperties, getPropertyById} from "./api";
 import { PropertyFilters } from "./types";
 
 export const useGetPropertiesQuery = (
@@ -10,6 +10,16 @@ export const useGetPropertiesQuery = (
   return useQuery({
     queryKey: [PROPERTY_QUERY_KEYS.PROPERTY, filters, withAuth],
     queryFn: () => getProperties(filters, withAuth),
+  });
+};
+
+export const useGetMyPropertiesQuery = (
+    filters?: PropertyFilters,
+    withAuth: boolean = false
+) => {
+  return useQuery({
+    queryKey: [PROPERTY_QUERY_KEYS.PROPERTY, filters, withAuth],
+    queryFn: () => getMyProperties(filters, withAuth),
   });
 };
 

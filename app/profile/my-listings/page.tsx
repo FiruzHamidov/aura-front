@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import BuyCard from '@/app/_components/buy/buy-card';
-import { useGetPropertiesQuery } from '@/services/properties/hooks';
+import {useGetMyPropertiesQuery, useGetPropertiesQuery} from '@/services/properties/hooks';
 import { Property } from '@/services/properties/types';
 
 export default function MyListings() {
@@ -11,7 +11,14 @@ export default function MyListings() {
     const [page, setPage] = useState(1);
 
     const isMyListings = activeTab === 'my';
-    const { data: properties, isLoading } = useGetPropertiesQuery({ page, listing_type: 'regular' }, isMyListings);
+    const filters = { page, listing_type: 'regular' };
+
+    const myQuery = useGetMyPropertiesQuery(filters, true);
+    const allQuery = useGetPropertiesQuery(filters);
+
+    const properties = isMyListings ? myQuery.data : allQuery.data;
+    const isLoading = isMyListings ? myQuery.isLoading : allQuery.isLoading;
+
 
     const tabTitle = isMyListings ? 'Мои объявления' : 'Все объявления';
 

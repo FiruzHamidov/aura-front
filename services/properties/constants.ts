@@ -5,4 +5,5 @@ export enum PROPERTY_QUERY_KEYS {
 
 export enum PROPERTY_ENDPOINTS {
   PROPERTIES = "/properties",
+  MY_PROPERTIES = "/my-properties",
 }
