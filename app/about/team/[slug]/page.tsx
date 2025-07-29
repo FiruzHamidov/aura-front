@@ -10,6 +10,7 @@ import WhatsAppNoBgIcon from '@/icons/WhatsappNoBgIcon';
 import ThumbsUpIcon from '@/icons/ThumbsUp';
 import PencilIcon from '@/icons/PencilIcon';
 import { toast } from 'react-toastify';
+import {STORAGE_URL} from "@/constants/base-url";
 
 interface Review {
   id: number;
@@ -25,9 +26,11 @@ interface Realtor {
   position: string | null;
   avatar: string | null;
   phone: string;
+  photo: string;
   rating: number;
   reviewCount: number;
   reviews: Review[];
+  description?: string;
 }
 
 const Rating = ({ value }: { value: number }) => (
@@ -54,8 +57,7 @@ const Rating = ({ value }: { value: number }) => (
 );
 
 const RealtorPage = () => {
-  const params = useParams();
-  const id = params?.id; // из /about/team/[id]
+  const { slug } = useParams() as { slug: string };
 
   const [realtorData, setRealtorData] = useState<Realtor | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -64,14 +66,14 @@ const RealtorPage = () => {
   const reviewsPerPage = 4;
 
   useEffect(() => {
-    if (id) {
-      fetchRealtor(id.toString());
+    if (slug) {
+      fetchRealtor(slug.toString());
     }
-  }, [id]);
+  }, [slug]);
 
-  const fetchRealtor = async (userId: string) => {
+  const fetchRealtor = async (slug: string) => {
     try {
-      const res = await axios.get(`https://backend.aura.tj/api/user/${userId}`);
+      const res = await axios.get(`https://backend.aura.tj/api/user/${slug}`);
       const data = res.data;
 
       const realtor: Realtor = {
@@ -80,8 +82,10 @@ const RealtorPage = () => {
         position: data.role?.name ?? 'Агент',
         avatar: data.photo,
         phone: data.phone,
+        photo: `${STORAGE_URL}/${data.photo}`,
+        description: data.description,
         rating: 5, // TODO: получить из API
-        reviewCount: 10, // TODO: получить из API
+        reviewCount: 0, // TODO: получить из API
         reviews: [], // TODO: получить отзывы с API, если есть
       };
 
@@ -116,7 +120,7 @@ const RealtorPage = () => {
               <div className="flex gap-[22px] bg-white p-10 rounded-[22px]">
                 <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden flex-shrink-0">
                   <Image
-                      src={realtorData.avatar || '/images/team/1.png'}
+                      src={realtorData.photo || '/images/team/1.png'}
                       alt={realtorData.name}
                       fill
                       className="object-cover"
@@ -133,6 +137,12 @@ const RealtorPage = () => {
                     </div>
                     <div className="text-[#666F8D]">{realtorData.reviewCount} отзывов</div>
                   </div>
+
+                  {realtorData.description && (
+                      <p className="mt-4 text-[#666F8D] text-lg leading-relaxed">
+                        {realtorData.description}
+                      </p>
+                  )}
 
                   <div className="mt-3">
                     <a
