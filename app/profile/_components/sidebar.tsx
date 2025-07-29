@@ -9,11 +9,10 @@ import HeartIcon from '@/icons/HeartIcon';
 import ListingIcon from '@/icons/ListingIcon';
 import LogoutIcon from '@/icons/LogoutIcon';
 import UserIcon from '@/icons/UserIcon';
-import WalletIcon from '@/icons/WalletIcon';
 import PlusIcon from '@/icons/PlusIcon';
-import MenuIcon from '@/icons/MenuIcon'; // иконка бургер-меню
+import MenuIcon from '@/icons/MenuIcon';
 import XIcon from '@/icons/XIcon';
-import CalendarIcon from "@/icons/CalendarIcon"; // иконка закрытия
+import CalendarIcon from "@/icons/CalendarIcon";
 
 export const Sidebar = () => {
   const pathname = usePathname();
