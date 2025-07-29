@@ -14,7 +14,7 @@ export default function Profile() {
 
   const [profileData, setProfileData] = useState({
     fullName: '',
-    birthday: '22/10/1999',
+    birthday: '',
     phone: '',
     description: '',
     email: '',
@@ -31,7 +31,7 @@ export default function Profile() {
       setProfileData({
         fullName: user.name,
         description: user.description,
-        birthday: '22/10/1999',
+        birthday: user.birthday,
         phone: user.phone,
         email: user.email,
       });
@@ -180,24 +180,13 @@ export default function Profile() {
           />
         </div>
 
-        {/*<div>*/}
-        {/*  <label className="block mb-2 text-sm text-gray-600">Фамилия</label>*/}
-        {/*  <input*/}
-        {/*    type="text"*/}
-        {/*    name="lastName"*/}
-        {/*    value={profileData.lastName}*/}
-        {/*    onChange={handleInputChange}*/}
-        {/*    className="w-full px-4 py-3 rounded-md bg-gray-50"*/}
-        {/*  />*/}
-        {/*</div>*/}
-
         <div>
           <label className="block mb-2 text-sm text-gray-600">
             Дата рождения
           </label>
           <input
-            type="text"
-            name="dateOfBirth"
+            type="date"
+            name="birthday"
             value={profileData.birthday}
             onChange={handleInputChange}
             className="w-full px-4 py-3 rounded-md bg-gray-50"
