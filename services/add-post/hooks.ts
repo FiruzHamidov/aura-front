@@ -1,47 +1,46 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ADD_POST_QUERY_KEYS } from "./constants";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addPostApi } from "./api";
 import { CreatePropertyRequest } from "./types";
 
 export const useGetPropertyTypesQuery = () => {
   return useQuery({
-    queryKey: [ADD_POST_QUERY_KEYS.PROPERTY_TYPES],
-    queryFn: () => addPostApi.getPropertyTypes(),
+    queryKey: ["get-property-types"],
+    queryFn: addPostApi.getPropertyTypes,
   });
 };
 
 export const useGetBuildingTypesQuery = () => {
   return useQuery({
-    queryKey: [ADD_POST_QUERY_KEYS.BUILDING_TYPES],
-    queryFn: () => addPostApi.getBuildingTypes(),
+    queryKey: ["get-building-types"],
+    queryFn: addPostApi.getBuildingTypes,
   });
 };
 
 export const useGetLocationsQuery = () => {
   return useQuery({
-    queryKey: [ADD_POST_QUERY_KEYS.LOCATIONS],
-    queryFn: () => addPostApi.getLocations(),
+    queryKey: ["get-locations"],
+    queryFn: addPostApi.getLocations,
   });
 };
 
 export const useGetRepairTypesQuery = () => {
   return useQuery({
-    queryKey: [ADD_POST_QUERY_KEYS.REPAIR_TYPES],
-    queryFn: () => addPostApi.getRepairTypes(),
+    queryKey: ["get-repair-types"],
+    queryFn: addPostApi.getRepairTypes,
   });
 };
 
 export const useGetHeatingTypesQuery = () => {
   return useQuery({
-    queryKey: [ADD_POST_QUERY_KEYS.HEATING_TYPES],
-    queryFn: () => addPostApi.getHeatingTypes(),
+    queryKey: ["get-heating-types"],
+    queryFn: addPostApi.getHeatingTypes,
   });
 };
 
 export const useGetParkingTypesQuery = () => {
   return useQuery({
-    queryKey: [ADD_POST_QUERY_KEYS.PARKING_TYPES],
-    queryFn: () => addPostApi.getParkingTypes(),
+    queryKey: ["get-parking-types"],
+    queryFn: addPostApi.getParkingTypes,
   });
 };
 
@@ -52,9 +51,30 @@ export const useCreatePropertyMutation = () => {
     mutationFn: (propertyData: CreatePropertyRequest) =>
       addPostApi.createProperty(propertyData),
     onSuccess: () => {
-      // Invalidate and refetch properties list
       queryClient.invalidateQueries({
         queryKey: ["get-properties"],
+      });
+    },
+  });
+};
+
+export const useUpdatePropertyMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      propertyData,
+    }: {
+      id: string;
+      propertyData: CreatePropertyRequest;
+    }) => addPostApi.updateProperty(id, propertyData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["get-properties"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["get-property-by-id"],
       });
     },
   });
