@@ -78,7 +78,7 @@ const VipListings: FC<{
         description:
           property.description || property.landmark || 'Описание отсутствует',
         roomCountLabel,
-        area: property.total_area || 0,
+        area: property.total_area ? parseFloat(property.total_area) : 0,
         floorInfo,
         agent: property.creator
           ? {

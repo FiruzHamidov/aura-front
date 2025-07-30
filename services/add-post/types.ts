@@ -1,7 +1,47 @@
+import { Property } from "../properties/types";
+
 export interface SelectOption {
   id: number;
   name: string;
   city?: string;
+  slug?: string;
+}
+
+export interface PropertyType {
+  id: number;
+  name: string;
+  slug?: string;
+}
+
+export interface BuildingType {
+  id: number;
+  name: string;
+  slug?: string;
+}
+
+export interface Location {
+  id: number;
+  name: string;
+  city: string;
+  slug?: string;
+}
+
+export interface RepairType {
+  id: number;
+  name: string;
+  slug?: string;
+}
+
+export interface HeatingType {
+  id: number;
+  name: string;
+  slug?: string;
+}
+
+export interface ParkingType {
+  id: number;
+  name: string;
+  slug?: string;
 }
 
 export interface FormState {
@@ -70,4 +110,5 @@ export interface CreatePropertyRequest {
 export interface CreatePropertyResponse {
   id: number;
   message: string;
+  property?: Property;
 }
