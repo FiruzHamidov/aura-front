@@ -85,8 +85,6 @@ export default function EditPost() {
     propertyData: convertedPropertyData as Property | undefined,
   });
 
-  console.log({ formData });
-
   const { currentStep, nextStep, prevStep } = useMultiStepForm({
     totalSteps: 2,
     initialStep: 1,
