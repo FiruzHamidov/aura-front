@@ -109,7 +109,7 @@ export function useAddPostForm({
         latitude: propertyData.latitude || "",
         longitude: propertyData.longitude || "",
         agent_id: propertyData.agent_id?.toString() || "",
-        photos: [], // Keep empty for new uploads
+        photos: propertyData.photos || [], // Keep existing photos
         owner_phone: propertyData.owner_phone || "",
         district: propertyData.district || "",
         address: propertyData.address || "",
@@ -122,7 +122,7 @@ export function useAddPostForm({
 
       isInitialized.current = true;
     }
-  }, [editMode, propertyData?.id]); // Only depend on editMode and property ID
+  }, [editMode, propertyData?.id]);
 
   // Handlers
   const handleChange = (
@@ -170,6 +170,11 @@ export function useAddPostForm({
 
     if (!validateForm()) return;
 
+    // Only send File objects to the API, not existing photos
+    const newPhotos = form.photos.filter(
+      (photo): photo is File => photo instanceof File
+    );
+
     const propertyDataToSubmit = {
       description: form.description,
       type_id: selectedPropertyType!,
@@ -199,7 +204,7 @@ export function useAddPostForm({
       latitude: form.latitude,
       longitude: form.longitude,
       agent_id: form.agent_id,
-      photos: form.photos,
+      photos: newPhotos, // Only send new File objects
     };
 
     try {

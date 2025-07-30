@@ -72,7 +72,7 @@ export interface FormState {
   agent_id: string;
   district: string;
   address: string;
-  photos: File[];
+  photos: (File | { id: number; file_path: string; type: string })[];
 }
 
 export interface CreatePropertyRequest {
