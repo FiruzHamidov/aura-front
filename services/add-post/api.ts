@@ -154,7 +154,8 @@ export const addPostApi = {
 
     // Required fields
     formData.append("description", propertyData.description);
-    formData.append("type_id", propertyData.type_id.toString());
+    formData.append("_method", "PUT");
+    formData.append("type_id", "propertyData.type_id.toString()");
     formData.append("status_id", propertyData.status_id.toString());
     formData.append("location_id", propertyData.location_id);
     formData.append("repair_type_id", propertyData.repair_type_id);
@@ -197,7 +198,7 @@ export const addPostApi = {
       });
     }
 
-    const { data } = await axios.put<CreatePropertyResponse>(
+    const { data } = await axios.post<CreatePropertyResponse>(
       `${ADD_POST_ENDPOINTS.CREATE_PROPERTY}/${id}`,
       formData,
       {
