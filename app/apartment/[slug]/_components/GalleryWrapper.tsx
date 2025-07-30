@@ -44,12 +44,14 @@ export default function GalleryWrapper({ apartment, photos }: Props) {
   const phone = apartment.creator?.phone ?? '';
   const cleanPhone = phone.replace(/[^\d+]/g, '');
 
-  // Check if current user can edit this property
+  console.log('Apartment data:', apartment);
+  console.log('user data:', user);
+
   const canEdit =
-    user &&
-    apartment.creator &&
-    (user.id === apartment.creator.id ||
-      (apartment.agent_id && user.id === apartment.agent_id));
+    (user && user.role?.slug === 'admin') ||
+    (apartment.creator &&
+      (user?.id === apartment.creator.id ||
+        (apartment.agent_id && user?.id === apartment.agent_id)));
 
   return (
     <div className="container pt-8 pb-12">
