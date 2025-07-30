@@ -44,9 +44,6 @@ export default function GalleryWrapper({ apartment, photos }: Props) {
   const phone = apartment.creator?.phone ?? '';
   const cleanPhone = phone.replace(/[^\d+]/g, '');
 
-  console.log('Apartment data:', apartment);
-  console.log('user data:', user);
-
   const canEdit =
     (user && user.role?.slug === 'admin') ||
     (apartment.creator &&
