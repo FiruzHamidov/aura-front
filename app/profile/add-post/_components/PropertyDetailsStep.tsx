@@ -290,7 +290,7 @@ export function PropertyDetailsStep({
       />
 
       <div className="mt-4">
-        <label className="block mb-2 text-sm font-medium text-[#666F8D]">
+        <label className="block mb-2 text-sm  text-[#666F8D]">
           Расположение на карте (кликните для выбора)
         </label>
         <div className="h-[400px] w-full">

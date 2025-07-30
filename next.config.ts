@@ -2,9 +2,16 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-    images: {
-        domains: ['backend.aura.tj'],
-    },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "backend.aura.tj",
+        port: "",
+        pathname: "/**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

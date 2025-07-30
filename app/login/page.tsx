@@ -80,7 +80,7 @@ export default function Login() {
               setMode('sms');
               resetSmsFlow();
             }}
-            className={`px-6 py-2 rounded-full cursor-pointer font-medium transition-all duration-150 ease-in-out ${
+            className={`px-6 py-2 rounded-full cursor-pointer  transition-all duration-150 ease-in-out ${
               mode === 'sms'
                 ? 'bg-white text-[#0036A5]'
                 : 'text-gray-600 hover:text-gray-900'
@@ -93,7 +93,7 @@ export default function Login() {
               setMode('password');
               resetSmsFlow();
             }}
-            className={`px-6 py-2 rounded-full cursor-pointer font-medium transition-all duration-150 ease-in-out ${
+            className={`px-6 py-2 rounded-full cursor-pointer  transition-all duration-150 ease-in-out ${
               mode === 'password'
                 ? 'bg-white text-[#0036A5]'
                 : 'text-gray-600 hover:text-gray-900'
@@ -211,11 +211,7 @@ export default function Login() {
           </form>
         )}
 
-        {error && (
-          <div className="mt-4 text-red-600 text-center font-medium">
-            {error}
-          </div>
-        )}
+        {error && <div className="mt-4 text-red-600 text-center ">{error}</div>}
 
         <button className="mt-auto pt-20 text-[#666F8D] hover:text-gray-700 text-lg">
           Помощь

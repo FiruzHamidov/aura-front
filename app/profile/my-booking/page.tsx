@@ -197,7 +197,7 @@ export default function MyListings() {
             <h2 className="text-xl font-semibold mb-4">Создать показ</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium">Объект</label>
+                <label className="block text-sm ">Объект</label>
                 <select
                   className="w-full border border-gray-300 rounded p-2"
                   value={selectedProperty ?? ''}
@@ -217,7 +217,7 @@ export default function MyListings() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium">Агент</label>
+                <label className="block text-sm ">Агент</label>
                 <select
                   className="w-full border border-gray-300 rounded p-2"
                   value={selectedAgent ?? ''}
@@ -266,9 +266,7 @@ export default function MyListings() {
 
               <div className="flex gap-4">
                 <div className="flex-1">
-                  <label className="block text-sm font-medium">
-                    Время показа с:
-                  </label>
+                  <label className="block text-sm ">Время показа с:</label>
                   <input
                     type="datetime-local"
                     className=" border border-gray-300 rounded p-2"
@@ -288,9 +286,7 @@ export default function MyListings() {
                 </div>
 
                 <div className="flex-1">
-                  <label className="block text-sm font-medium">
-                    Время показа до:
-                  </label>
+                  <label className="block text-sm ">Время показа до:</label>
                   <input
                     type="datetime-local"
                     className=" border border-gray-300 rounded p-2"
@@ -313,7 +309,7 @@ export default function MyListings() {
               <br />
 
               <div>
-                <label className="block text-sm font-medium">Комментарий</label>
+                <label className="block text-sm ">Комментарий</label>
                 <textarea
                   className="w-full border border-gray-300 rounded p-2"
                   rows={3}

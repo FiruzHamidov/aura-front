@@ -122,7 +122,7 @@ const Header: FC = () => {
               <UserIcon className="w-6 h-6 text-white" />
             </div>
             <div>
-              <div className="font-medium text-gray-900">{user.name}</div>
+              <div className=" text-gray-900">{user.name}</div>
               <div className="text-sm text-gray-600">
                 {user.role?.name || 'Пользователь'}
               </div>
@@ -153,7 +153,7 @@ const Header: FC = () => {
           <div className="w-6 h-6 bg-[#0036A5] rounded-full flex">
             <UserIcon className="w-6 h-6 text-white" />
           </div>
-          <span className="hidden lg:block font-medium">{user.name}</span>
+          <span className="hidden lg:block ">{user.name}</span>
           <svg
             className={`w-4 h-4 transition-transform ${
               isUserMenuOpen ? 'rotate-180' : ''
@@ -378,7 +378,7 @@ const Header: FC = () => {
                   <div key={item.name}>
                     <Link
                       href={item.href}
-                      className={`block py-3 px-4 hover:bg-gray-50 rounded-lg transition-colors font-medium ${
+                      className={`block py-3 px-4 hover:bg-gray-50 rounded-lg transition-colors  ${
                         pathname === item.href
                           ? 'text-blue-600 bg-blue-50'
                           : 'text-gray-900'
