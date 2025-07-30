@@ -69,8 +69,11 @@ export default function EditPost() {
   useEffect(() => {
     if (propertyData && user) {
       const canEdit =
-        user.id === propertyData.creator?.id ||
-        user.id === propertyData.agent_id;
+        (user && user.role?.slug === 'admin') ||
+        (propertyData.creator &&
+          (user?.id === propertyData.creator.id ||
+            (propertyData.agent_id && user?.id === propertyData.agent_id)));
+
       if (!canEdit) {
         router.push('/profile');
       }
@@ -81,6 +84,8 @@ export default function EditPost() {
     editMode: true,
     propertyData: convertedPropertyData as Property | undefined,
   });
+
+  console.log({ formData });
 
   const { currentStep, nextStep, prevStep } = useMultiStepForm({
     totalSteps: 2,
