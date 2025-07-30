@@ -68,7 +68,7 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
                   {option.area} м²
                 </div>
               </div>
-              <div className="text-right font-medium text-[#666F8D]">
+              <div className="text-right  text-[#666F8D]">
                 {formatPrice(option.price)} {option.currency || 'с.'}
               </div>
             </div>

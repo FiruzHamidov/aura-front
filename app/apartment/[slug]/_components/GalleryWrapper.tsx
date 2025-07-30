@@ -220,7 +220,7 @@ export default function GalleryWrapper({ apartment, photos }: Props) {
 
               <Link
                 href={`tel:${cleanPhone}`}
-                className="block w-full bg-[#0036A5] hover:bg-blue-800 text-white py-5 rounded-full text-center font-medium mb-4 transition-colors"
+                className="block w-full bg-[#0036A5] hover:bg-blue-800 text-white py-5 rounded-full text-center  mb-4 transition-colors"
               >
                 {apartment.creator.phone}
               </Link>
@@ -228,7 +228,7 @@ export default function GalleryWrapper({ apartment, photos }: Props) {
               <div className="flex flex-col gap-3">
                 <Link
                   href={`https://wa.me/${cleanPhone}`}
-                  className="w-full py-3 border border-[#25D366] text-[#25D366] rounded-full text-center font-medium hover:bg-[#25D366]/10 transition"
+                  className="w-full py-3 border border-[#25D366] text-[#25D366] rounded-full text-center  hover:bg-[#25D366]/10 transition"
                   target="_blank"
                 >
                   WhatsApp

@@ -36,7 +36,7 @@ export function ProgressIndicator({
           return (
             <div key={stepNumber} className="flex flex-col items-center">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium border-2 transition-all duration-200 ${
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm  border-2 transition-all duration-200 ${
                   isCompleted
                     ? 'bg-[#0036A5] border-[#0036A5] text-white'
                     : isActive
@@ -49,7 +49,7 @@ export function ProgressIndicator({
               <span
                 className={`text-xs mt-2 text-center ${
                   isActive
-                    ? 'text-[#0036A5] font-medium'
+                    ? 'text-[#0036A5] '
                     : isCompleted
                     ? 'text-gray-700'
                     : 'text-gray-400'

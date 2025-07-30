@@ -149,7 +149,7 @@ export default function Comparison() {
               )}
             >
               <div className="w-2/3 flex">
-                <div className="w-1/2 px-[30px] py-4 font-medium">
+                <div className="w-1/2 px-[30px] py-4 ">
                   <div className="w-1/3 h-6 mb-3 text-lg text-[#667085] text-nowrap whitespace-nowrap">
                     {attribute}
                   </div>
@@ -168,7 +168,7 @@ export default function Comparison() {
                   )}
                 </div>
 
-                <div className="w-1/2 px-[30px] py-4 font-medium">
+                <div className="w-1/2 px-[30px] py-4 ">
                   <div className="w-1/3 h-6 mb-3" />
                   {attribute.includes('площадь') ? (
                     <div className="text-2xl font-normal">

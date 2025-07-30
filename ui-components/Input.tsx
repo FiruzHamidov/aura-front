@@ -29,7 +29,7 @@ export function Input({
 }: InputProps) {
   return (
     <div className={className}>
-      <label className="block mb-2 text-sm font-medium text-[#666F8D]">
+      <label className="block mb-2 text-sm  text-[#666F8D]">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>

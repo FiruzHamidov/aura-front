@@ -22,9 +22,7 @@ export function PhotoUpload({
 
   return (
     <div className={className}>
-      <label className="block mb-2 text-sm font-medium text-[#666F8D]">
-        {label}
-      </label>
+      <label className="block mb-2 text-sm  text-[#666F8D]">{label}</label>
       <div className="flex gap-3 flex-wrap">
         {photoPreviews.map((url, index) => (
           <div
