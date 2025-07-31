@@ -18,7 +18,7 @@ export const BuyContent = () => {
     priceTo: searchParams.get('priceTo') || undefined,
     city: searchParams.get('city') || undefined,
     repairType: searchParams.get('repairType') || undefined,
-    propertyType: searchParams.get('type_id') || undefined,
+    type_id: searchParams.get('propertyType') || undefined,
     rooms: searchParams.get('rooms') || undefined,
     district: searchParams.get('district') || undefined,
     areaFrom: searchParams.get('areaFrom') || undefined,
