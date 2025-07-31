@@ -27,7 +27,7 @@ export const ExtraPagesBanner: FC<ExtraPagesBannerProps> = ({
           {description}
         </p>
         <Link href={buttonLink}>
-          <button className="bg-[#0036A5] rounded-full px-[25px] py-[21px] text-white hover:bg-blue-800 transition-colors text-lg">
+          <button className="bg-[#0036A5] rounded-full px-11 py-[21px] text-white hover:bg-blue-800 transition-colors text-lg">
             {buttonLabel}
           </button>
         </Link>
