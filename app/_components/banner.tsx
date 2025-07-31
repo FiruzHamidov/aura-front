@@ -50,7 +50,7 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
 
   const TAB_ACTIONS: Record<ActiveTab, { type: 'tab' | 'link'; label: string; href?: string }> = {
     buy: { type: 'tab', label: 'Купить' },
-    rent: { type: 'tab', label: 'Продать', href: '/sell' },
+    rent: { type: 'link', label: 'Продать', href: '/sell' },
     to_rent: { type: 'tab', label: 'Снять' },
     to_rent_out: { type: 'link', label: 'Сдать', href: '/rent-out' },
     map: { type: 'tab', label: 'На карте' },

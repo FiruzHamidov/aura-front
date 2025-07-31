@@ -35,10 +35,10 @@ const servicesData: ServiceItem[] = [
     href: '/services/documents',
   },
   {
-    title: 'Ипотечный калькулятор',
+    title: 'Ипотека',
     imageUrl: '/images/services/calculator.png',
     altText: 'Illustration of a calculator next to a house model',
-    href: '/mortgage/calculator',
+    href: '/mortgage',
   },
 ];
 
