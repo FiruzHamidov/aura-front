@@ -84,6 +84,9 @@ const VipListings: FC<{
           ? {
               name: property.creator.name || 'не указано',
               role: 'риелтор',
+              avatarUrl: property.creator.photo
+                ? `${STORAGE_URL}/${property.creator.photo}`
+                : '',
             }
           : undefined,
         date: property.created_at

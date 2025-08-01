@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import Image from 'next/image';
-import Link from "next/link";
+import Link from 'next/link';
 
 interface ServiceItem {
   title: string;
@@ -21,19 +21,19 @@ const servicesData: ServiceItem[] = [
     title: 'Дизайнерские услуги',
     imageUrl: '/images/services/design.png',
     altText: 'Illustration of a modern living room interior design',
-    href: '#',
+    href: '/design',
   },
   {
     title: 'Клининговые услуги',
     imageUrl: '/images/services/cleaning.png',
     altText: 'Illustration of cleaning supplies like mop and bucket',
-    href: '#',
+    href: '/cleaning',
   },
   {
     title: 'Оформление документов',
     imageUrl: '/images/services/documents.png',
     altText: 'Illustration of document folders',
-    href: '#',
+    href: '/document-registration',
   },
   {
     title: 'Ипотека',
