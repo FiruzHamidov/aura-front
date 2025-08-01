@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import Image from 'next/image';
+import Link from "next/link";
 
 interface ServiceItem {
   title: string;
@@ -14,31 +15,31 @@ const servicesData: ServiceItem[] = [
     title: 'Ремонт под ключ',
     imageUrl: '/images/services/renovation.png',
     altText: 'Illustration of a house being renovated',
-    href: '/services/renovation',
+    href: '#',
   },
   {
     title: 'Дизайнерские услуги',
     imageUrl: '/images/services/design.png',
     altText: 'Illustration of a modern living room interior design',
-    href: '/services/design',
+    href: '#',
   },
   {
     title: 'Клининговые услуги',
     imageUrl: '/images/services/cleaning.png',
     altText: 'Illustration of cleaning supplies like mop and bucket',
-    href: '/services/cleaning',
+    href: '#',
   },
   {
     title: 'Оформление документов',
     imageUrl: '/images/services/documents.png',
     altText: 'Illustration of document folders',
-    href: '/services/documents',
+    href: '#',
   },
   {
-    title: 'Ипотечный калькулятор',
+    title: 'Ипотека',
     imageUrl: '/images/services/calculator.png',
     altText: 'Illustration of a calculator next to a house model',
-    href: '/mortgage/calculator',
+    href: '/mortgage',
   },
 ];
 
@@ -47,8 +48,9 @@ const Services: FC = () => {
     <div className="bg-white rounded-[22px] px-4 md:px-10 py-6 md:py-[55px]">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8">
         {servicesData.map((service) => (
-          <div
+          <Link
             key={service.href}
+            href={service.href}
             className="h-full flex flex-col bg-[#EFF6FF] rounded-[22px] transition-all duration-300 ease-in-out group-hover:shadow-md group-hover:-translate-y-1"
           >
             <div className="flex-grow flex flex-col justify-center p-5 max-w-[130px]">
@@ -65,7 +67,7 @@ const Services: FC = () => {
                 className="justify-self-end"
               />
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

@@ -9,6 +9,7 @@ import { SelectInput } from '@/ui-components/SelectInput';
 import { AllFilters } from './filters';
 import { PropertyFilters } from '@/services/properties/types';
 import { useGetPropertyTypesQuery } from '@/services/add-post';
+import Link from "next/link";
 
 type ActiveTab =
   | 'buy'
@@ -45,6 +46,16 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
 
     const queryString = searchParams.toString();
     router.push(`/buy${queryString ? `?${queryString}` : ''}`);
+  };
+
+  const TAB_ACTIONS: Record<ActiveTab, { type: 'tab' | 'link'; label: string; href?: string }> = {
+    buy: { type: 'tab', label: 'Купить' },
+    rent: { type: 'link', label: 'Продать', href: '/sell' },
+    to_rent: { type: 'tab', label: 'Снять' },
+    to_rent_out: { type: 'link', label: 'Сдать', href: '/rent-out' },
+    map: { type: 'tab', label: 'На карте' },
+    evaluate: { type: 'link', label: 'Оценить', href: '/evaluate' },
+    fast_buy: { type: 'link', label: 'Сроч. выкуп', href: '/buy-real-estate' },
   };
 
   const handleAdvancedSearch = (filters: PropertyFilters) => {
@@ -87,41 +98,35 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
 
         {/* Tabs */}
         <div className="flex flex-wrap gap-2 mb-6 md:mb-8">
-          {(
-            [
-              'buy',
-              'rent',
-              'to_rent',
-              'to_rent_out',
-              'map',
-              'evaluate',
-              'fast_buy',
-            ] as const
-          ).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-3 sm:px-6 lg:px-9 py-2 sm:py-3 rounded-lg cursor-pointer transition-all duration-150 ease-in-out text-sm sm:text-base ${
-                activeTab === tab
-                  ? 'bg-[#FFDE2C] shadow-sm'
-                  : 'bg-white text-gray-700 border border-[#CBD5E1] hover:bg-gray-50 hover:border-gray-400'
-              }`}
-            >
-              {tab === 'buy'
-                ? 'Купить'
-                : tab === 'rent'
-                ? 'Продать'
-                : tab === 'to_rent'
-                ? 'Снять'
-                : tab === 'to_rent_out'
-                ? 'Сдать'
-                : tab === 'map'
-                ? 'На карте'
-                : tab === 'evaluate'
-                ? 'Оценить'
-                : 'Cроч. выкуп'}
-            </button>
-          ))}
+          {(Object.entries(TAB_ACTIONS) as [ActiveTab, typeof TAB_ACTIONS[ActiveTab]][]).map(
+              ([key, { type, label, href }]) => {
+                const isActive = activeTab === key;
+
+                const className = `px-3 sm:px-6 lg:px-9 py-2 sm:py-3 rounded-lg cursor-pointer transition-all duration-150 ease-in-out text-sm sm:text-base ${
+                    isActive
+                        ? 'bg-[#FFDE2C] shadow-sm'
+                        : 'bg-white text-gray-700 border border-[#CBD5E1] hover:bg-gray-50 hover:border-gray-400'
+                }`;
+
+                if (type === 'tab') {
+                  return (
+                      <button key={key} onClick={() => setActiveTab(key)} className={className}>
+                        {label}
+                      </button>
+                  );
+                }
+
+                if (type === 'link' && href) {
+                  return (
+                      <Link key={key} href={href} className={className}>
+                        {label}
+                      </Link>
+                  );
+                }
+
+                return null;
+              }
+          )}
         </div>
 
         {/* Filter Controls */}
@@ -130,18 +135,18 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
             {/* Property Type */}
             <div className="sm:col-span-2 lg:col-span-1 lg:w-[273px]">
               <SelectInput
-                value={propertyType}
-                placeholder="Тип недвижимости"
-                onChange={(value) => setPropertyType(value)}
-                options={propertyTypes ?? []}
+                  value={propertyType}
+                  placeholder="Тип недвижимости"
+                  onChange={(value) => setPropertyType(value)}
+                  options={propertyTypes ?? []}
               />
             </div>
 
             {/* Rooms Dropdown with range inputs */}
             <div className="lg:w-[169px] relative">
               <button
-                onClick={() => setShowRoomRange(!showRoomRange)}
-                className="w-full bg-white hover:bg-gray-50 px-4 py-3 rounded-lg text-left border border-gray-200 transition-colors flex items-center justify-between"
+                  onClick={() => setShowRoomRange(!showRoomRange)}
+                  className="w-full bg-white hover:bg-gray-50 px-4 py-3 rounded-lg text-left border border-gray-200 transition-colors flex items-center justify-between"
               >
                 <span className="text-gray-500">
                   {roomsFrom || roomsTo
