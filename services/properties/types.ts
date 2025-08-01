@@ -31,6 +31,9 @@ export interface Property {
     id: number;
     name: string;
     phone: string;
+    photo?: string;
+    email?: string;
+    role_id: number;
   };
   agent_id?: number;
   type_id?: number;
