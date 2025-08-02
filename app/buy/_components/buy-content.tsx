@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Buy from '@/app/_components/buy/buy';
-import { useGetPropertiesQuery } from '@/services/properties/hooks';
+import { useGetPropertiesInfiniteQuery } from '@/services/properties/hooks';
 import { Tabs } from '@/ui-components/tabs/tabs';
 
 type FilterType = 'list' | 'map';
@@ -27,9 +27,54 @@ export const BuyContent = () => {
     floorFrom: searchParams.get('floorFrom') || undefined,
     floorTo: searchParams.get('floorTo') || undefined,
     listing_type: 'regular',
+    offer_type: 'sale',
   };
 
-  const { data: properties, isLoading } = useGetPropertiesQuery(filters);
+  const {
+    data: propertiesData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isFetching,
+  } = useGetPropertiesInfiniteQuery(filters);
+
+  const properties = propertiesData?.pages.flatMap((page) => page.data) || [];
+
+  const propertiesForBuy = {
+    data: properties,
+    current_page: 1,
+    last_page:
+      propertiesData?.pages[propertiesData.pages.length - 1]?.last_page || 1,
+    per_page: 10,
+    total:
+      propertiesData?.pages[propertiesData.pages.length - 1]?.total ||
+      properties.length,
+    from: 1,
+    to: properties.length,
+    first_page_url: '',
+    last_page_url: '',
+    links: [],
+    next_page_url: hasNextPage ? 'next' : null,
+    path: '',
+    prev_page_url: null,
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+          document.documentElement.offsetHeight - 1000 &&
+        hasNextPage &&
+        !isFetching
+      ) {
+        fetchNextPage();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [fetchNextPage, hasNextPage, isFetching]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -45,7 +90,7 @@ export const BuyContent = () => {
                 Купить квартиру вторичка
               </h1>
               <p className="text-[#666F8D]">
-                Найдено {properties?.data.length} объекта
+                Найдено {propertiesForBuy.total} объекта
               </p>
             </div>
 
@@ -62,7 +107,20 @@ export const BuyContent = () => {
           </div>
         </div>
       </div>
-      <Buy properties={properties} hasTitle={false} />;
+
+      <Buy properties={propertiesForBuy} hasTitle={false} />
+
+      {/* Loading indicators */}
+      {isFetchingNextPage && (
+        <div className="text-center py-4">
+          <div>Loading more properties...</div>
+        </div>
+      )}
+      {!hasNextPage && properties.length > 0 && (
+        <div className="text-center py-4 text-gray-500">
+          No more properties to load
+        </div>
+      )}
     </div>
   );
 };

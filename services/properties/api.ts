@@ -31,9 +31,44 @@ export const getProperties = async (
   return data;
 };
 
+export const getPropertiesInfinite = async ({
+  pageParam = 1,
+  filters,
+  withAuth = false,
+}: {
+  pageParam: number;
+  filters?: PropertyFilters;
+  withAuth?: boolean;
+}): Promise<PropertiesResponse> => {
+  let url: string = PROPERTY_ENDPOINTS.PROPERTIES;
+
+  const queryParams = new URLSearchParams();
+  queryParams.append("page", String(pageParam));
+  queryParams.append("per_page", "10");
+
+  if (filters) {
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value && value !== "" && key !== "page") {
+        queryParams.append(key, String(value));
+      }
+    });
+  }
+
+  url = `${url}?${queryParams.toString()}`;
+
+  const { data } = await axios.get<PropertiesResponse>(url, {
+    ...(withAuth && {
+      headers: {
+        Authorization: `Bearer ${getAuthToken()}`,
+      },
+    }),
+  });
+  return data;
+};
+
 export const getMyProperties = async (
-    filters?: PropertyFilters,
-    withAuth: boolean = false
+  filters?: PropertyFilters,
+  withAuth: boolean = false
 ): Promise<PropertiesResponse> => {
   let url: string = PROPERTY_ENDPOINTS.MY_PROPERTIES;
 
@@ -49,6 +84,41 @@ export const getMyProperties = async (
       url = `${url}?${queryParams.toString()}`;
     }
   }
+
+  const { data } = await axios.get<PropertiesResponse>(url, {
+    ...(withAuth && {
+      headers: {
+        Authorization: `Bearer ${getAuthToken()}`,
+      },
+    }),
+  });
+  return data;
+};
+
+export const getMyPropertiesInfinite = async ({
+  pageParam = 1,
+  filters,
+  withAuth = false,
+}: {
+  pageParam: number;
+  filters?: PropertyFilters;
+  withAuth?: boolean;
+}): Promise<PropertiesResponse> => {
+  let url: string = PROPERTY_ENDPOINTS.MY_PROPERTIES;
+
+  const queryParams = new URLSearchParams();
+  queryParams.append("page", String(pageParam));
+  queryParams.append("per_page", "10");
+
+  if (filters) {
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value && value !== "" && key !== "page") {
+        queryParams.append(key, String(value));
+      }
+    });
+  }
+
+  url = `${url}?${queryParams.toString()}`;
 
   const { data } = await axios.get<PropertiesResponse>(url, {
     ...(withAuth && {
