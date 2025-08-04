@@ -1,14 +1,15 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import MeetTheTeam from '@/ui-components/team/team';
+import { Loading } from '@/ui-components/Loading';
+import { useGetPropertiesQuery } from '@/services/properties/hooks';
 import Buy from './_components/buy/buy';
 import { MainBanner } from './_components/banner';
 import PersonalRealtorCta from './_components/personal-realtor';
 import Promo from './_components/promo';
 import Services from './_components/services';
 import TopListings from './_components/top-listing/top-listings';
-import { useGetPropertiesQuery } from '@/services/properties/hooks';
-import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const router = useRouter();
@@ -23,7 +24,7 @@ export default function Home() {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   return (
