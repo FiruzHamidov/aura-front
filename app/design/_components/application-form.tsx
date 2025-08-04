@@ -28,15 +28,19 @@ export const ApplicationForm = () => {
     <div className="bg-gradient-to-br overflow-hidden relative z-10 from-[#0036A5] to-[#115DFB] rounded-3xl">
       <div className="flex justify-center gap-52">
         <div className="text-white w-[70%] py-[60px] px-20">
-          <h2 className="text-[40px] font-bold mb-7">Клининговые услуги</h2>
-          <p className="text-[20px] text-[#BBD2FF] leading-relaxed">
-            Подготовим объект к продаже или сдаче чисто, быстро и
-            профессионально.
+          <h2 className="text-[40px] font-bold mb-7">Заказать дизайн проект</h2>
+          <p className="text-[20px] text-[#BBD2FF] leading-[24px]">
+            Закажите индивидуальный дизайн-проект, созданный с учётом ваших
+            пожеланий, стиля жизни и бюджета. Мы разработаем функциональное и
+            эстетичное пространство, в котором будет приятно жить, работать и
+            отдыхать. От идеи до реализации - всё под ключ с профессиональным
+            подходом и вниманием к деталям.
           </p>
 
+          {/* Keys illustration */}
           <div className="mt-5 relative z-0 h-full opacity-45">
             <Image
-              src="/images/extra-pages/cleaning-hardware.png"
+              src="/images/extra-pages/keys.png"
               alt="Keys illustration"
               width={378}
               height={378}

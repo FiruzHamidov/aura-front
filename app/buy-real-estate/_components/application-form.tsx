@@ -202,7 +202,7 @@ export const ApplicationForm = () => {
             {/* Submit button */}
             <button
               type="submit"
-              className="w-full bg-[#0036A5] text-white py-[13px] rounded-lg transition-colors duration-200 hover:bg-[#002d8a]"
+              className="w-full mt-4 bg-[#0036A5] text-white py-[13px] rounded-lg transition-colors duration-200 hover:bg-[#002d8a]"
             >
               Отправить запрос
             </button>
