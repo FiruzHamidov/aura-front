@@ -216,7 +216,7 @@ export default function GalleryWrapper({ apartment, photos }: Props) {
               <h3 className="text-2xl font-bold mb-2">
                 {apartment.creator.name}
               </h3>
-              <div className="text-[#666F8D] mb-4">Агент</div>
+              <div className="text-[#666F8D] mb-4">Агент по недвижимости</div>
 
               <Link
                 href={`tel:${cleanPhone}`}

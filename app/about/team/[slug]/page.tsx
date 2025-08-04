@@ -79,7 +79,7 @@ const RealtorPage = () => {
       const realtor: Realtor = {
         id: data.id,
         name: data.name,
-        position: data.role?.name ?? 'Агент',
+        position: 'Агент по недвижимости',
         avatar: data.photo,
         phone: data.phone,
         photo: `${STORAGE_URL}/${data.photo}`,

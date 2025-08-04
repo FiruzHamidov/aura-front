@@ -332,17 +332,15 @@ export function PropertyDetailsStep({
         </p>
       </div>
 
-      <div className="flex justify-between mt-6">
+      <div className="flex justify-between mt-2 flex-col sm:flex-row">
         {onBack && (
-          <Button type="button" variant="outline" onClick={onBack} size="lg">
+          <Button className='mt-4'  type="button" variant="outline" onClick={onBack} size="lg">
             Назад
           </Button>
         )}
-        <div className="flex gap-3">
-          <Button type="submit" loading={isSubmitting} size="lg">
+          <Button className='mt-4' type="submit" loading={isSubmitting} size="lg">
             {isSubmitting ? 'Сохранение...' : 'Сохранить'}
           </Button>
-        </div>
       </div>
     </form>
   );
