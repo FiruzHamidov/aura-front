@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Buy from '@/app/_components/buy/buy';
 import { useGetPropertiesInfiniteQuery } from '@/services/properties/hooks';
 import { Tabs } from '@/ui-components/tabs/tabs';
+import { Loading } from '@/ui-components/Loading';
 
 type FilterType = 'list' | 'map';
 
@@ -77,7 +78,7 @@ export const BuyContent = () => {
   }, [fetchNextPage, hasNextPage, isFetching]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   return (
@@ -110,15 +111,22 @@ export const BuyContent = () => {
 
       <Buy properties={propertiesForBuy} hasTitle={false} />
 
-      {/* Loading indicators */}
       {isFetchingNextPage && (
-        <div className="text-center py-4">
-          <div>Loading more properties...</div>
+        <div className="text-center py-4 flex justify-center items-center space-x-1">
+          <div className="w-2 h-2 bg-[#0036A5] rounded-full animate-bounce"></div>
+          <div
+            className="w-2 h-2 bg-[#0036A5] rounded-full animate-bounce"
+            style={{ animationDelay: '0.1s' }}
+          ></div>
+          <div
+            className="w-2 h-2 bg-[#0036A5] rounded-full animate-bounce"
+            style={{ animationDelay: '0.2s' }}
+          ></div>
         </div>
       )}
       {!hasNextPage && properties.length > 0 && (
         <div className="text-center py-4 text-gray-500">
-          No more properties to load
+          Больше объявлений нет
         </div>
       )}
     </div>
