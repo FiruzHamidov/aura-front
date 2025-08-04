@@ -140,7 +140,7 @@ export function PropertyDetailsStep({
           name="district"
           value={form.district}
           onChange={onChange}
-          type="tel"
+          type="text"
           placeholder="Сино"
         />
 
@@ -149,7 +149,7 @@ export function PropertyDetailsStep({
           name="address"
           value={form.address}
           onChange={onChange}
-          type="tel"
+          type="text"
           placeholder="Айни 51"
         />
 
