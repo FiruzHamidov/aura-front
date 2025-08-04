@@ -136,7 +136,7 @@ export const ApplicationForm = () => {
             {/* Submit button */}
             <button
               type="submit"
-              className="w-full bg-[#0036A5] text-white py-[13px] rounded-lg transition-colors duration-200"
+              className="w-full mt-4 bg-[#0036A5] text-white py-[13px] rounded-lg transition-colors duration-200"
             >
               Отправить запрос
             </button>

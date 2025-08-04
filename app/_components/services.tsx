@@ -15,7 +15,7 @@ const servicesData: ServiceItem[] = [
     title: 'Ремонт под ключ',
     imageUrl: '/images/services/renovation.png',
     altText: 'Illustration of a house being renovated',
-    href: '#',
+    href: '/repair',
   },
   {
     title: 'Дизайнерские услуги',
