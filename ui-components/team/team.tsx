@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useGetAgentsQuery } from '@/services/users/hooks';
 import { Agent } from '@/services/users/types';
 import { STORAGE_URL } from '@/constants/base-url';
+import ExpertCardSkeleton from '../ExpertCardSkeleton';
 
 interface ExpertCardProps {
   expert: Agent;
@@ -52,7 +53,22 @@ const ExpertCard: FC<ExpertCardProps> = ({ expert }) => {
 };
 
 const MeetTheTeam: FC = () => {
-  const { data: agents } = useGetAgentsQuery();
+  const { data: agents, isLoading } = useGetAgentsQuery();
+
+  if (isLoading) {
+    return (
+      <div className="container mt-10 md:mt-20">
+        <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-6 md:mb-10">
+          Встречайте команду экспертов Aura Estate!
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <ExpertCardSkeleton key={index} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mt-10 md:mt-20">
@@ -67,7 +83,9 @@ const MeetTheTeam: FC = () => {
             </Link>
           ))
         ) : (
-          <p>Нет доступных экспертов</p>
+          <div className="col-span-full text-center py-16">
+            <p className="text-gray-500 text-lg">Нет доступных экспертов</p>
+          </div>
         )}
       </div>
     </div>

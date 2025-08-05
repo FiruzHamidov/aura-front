@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Tabs } from '@/ui-components/tabs/tabs';
 import { PropertiesResponse, Property } from '@/services/properties/types';
 import { STORAGE_URL } from '@/constants/base-url';
+import ListingCardSkeleton from '@/ui-components/ListingCardSkeleton';
 
 type PropertyType = 'apartment' | 'house' | 'land' | 'commercial';
 
@@ -30,8 +31,9 @@ const tabOptions = [
 
 const TopListings: FC<{
   title?: string;
+  isLoading?: boolean;
   properties: PropertiesResponse | undefined;
-}> = ({ title = 'Топовые объявления', properties }) => {
+}> = ({ title = 'Топовые объявления', properties, isLoading }) => {
   const [activeType, setActiveType] = useState<PropertyType>('apartment');
 
   const listings = useMemo(() => {
@@ -69,7 +71,7 @@ const TopListings: FC<{
       const typeFromApi = property.type?.name?.toLowerCase();
       const mappedType = typeFromApi
         ? propertyTypeMap[typeFromApi] || 'apartment'
-        : 'apartment';
+        : 'house';
 
       return {
         id: property.id,
@@ -101,14 +103,47 @@ const TopListings: FC<{
     });
   }, [properties]);
 
-  //
   const filteredListings = useMemo(() => {
     return listings.filter(
       (listing) => !listing.type || listing.type === activeType
     );
   }, [listings, activeType]);
 
-  if (filteredListings.length === 0) {
+  // Show skeleton loading state
+  if (isLoading) {
+    return (
+      <section>
+        <div className="container">
+          <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
+            {title}
+          </h2>
+          <div className="mb-5 md:mb-8 overflow-auto">
+            <Tabs
+              tabs={tabOptions}
+              activeType={activeType}
+              setActiveType={setActiveType}
+            />
+          </div>
+          <div className="grid md:grid-cols-2 gap-5">
+            {/* Large skeleton card */}
+            <div className="md:h-full md:max-h-[576px]">
+              <ListingCardSkeleton isLarge={true} />
+            </div>
+
+            {/* Small skeleton cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:max-h-[576px]">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <ListingCardSkeleton key={index} isLarge={false} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Don't render if no listings after loading
+  if (!isLoading && filteredListings.length === 0) {
     return null;
   }
 

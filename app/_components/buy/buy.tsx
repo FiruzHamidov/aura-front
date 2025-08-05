@@ -1,25 +1,48 @@
 import { FC, useMemo } from 'react';
 import BuyCard from './buy-card';
+import BuyCardSkeleton from '@/ui-components/BuyCardSkeleton';
 import Link from 'next/link';
 import { PropertiesResponse } from '@/services/properties/types';
 
 const Buy: FC<{
   properties: PropertiesResponse | undefined;
   hasTitle?: boolean;
-}> = ({ properties, hasTitle = true }) => {
+  isLoading?: boolean;
+}> = ({ properties, hasTitle = true, isLoading = false }) => {
   const buyListings = useMemo(() => {
     if (!properties?.data) return [];
 
     return properties.data;
   }, [properties]);
 
+  if (isLoading) {
+    return (
+      <section>
+        <div className="container">
+          {hasTitle && (
+            <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
+              Купить
+            </h2>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-[14px]">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <BuyCardSkeleton key={index} />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   if (!properties) {
     return (
       <section>
         <div className="container">
-          <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
-            Купить
-          </h2>
+          {hasTitle && (
+            <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
+              Купить
+            </h2>
+          )}
           <div className="text-center py-6">Загрузка объявлений...</div>
         </div>
       </section>
@@ -30,9 +53,11 @@ const Buy: FC<{
     return (
       <section>
         <div className="container">
-          <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
-            Купить
-          </h2>
+          {hasTitle && (
+            <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
+              Купить
+            </h2>
+          )}
           <div className="text-center py-6">
             Объявления о продаже не найдены
           </div>
