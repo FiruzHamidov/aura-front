@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation';
 import MeetTheTeam from '@/ui-components/team/team';
-import { Loading } from '@/ui-components/Loading';
 import { useGetPropertiesQuery } from '@/services/properties/hooks';
 import Buy from './_components/buy/buy';
 import { MainBanner } from './_components/banner';
@@ -15,17 +14,15 @@ export default function Home() {
   const router = useRouter();
 
   const { data: properties, isLoading } = useGetPropertiesQuery();
-  const { data: vipProperties } = useGetPropertiesQuery({
-    listing_type: 'vip',
-  });
+  const { data: vipProperties, isLoading: isVipLoading } =
+    useGetPropertiesQuery({
+      listing_type: 'vip',
+    });
 
-  const { data: urgentProperties } = useGetPropertiesQuery({
-    listing_type: 'urgent',
-  });
-
-  if (isLoading) {
-    return <Loading />;
-  }
+  const { data: urgentProperties, isLoading: isUrgentLoading } =
+    useGetPropertiesQuery({
+      listing_type: 'urgent',
+    });
 
   return (
     <>
@@ -33,12 +30,20 @@ export default function Home() {
       <div className="lg:container mx-auto mb-10 md:mb-20">
         <Services />
       </div>
-      <TopListings properties={urgentProperties} title="Срочные объявления" />
+      <TopListings
+        properties={urgentProperties}
+        title="Срочные объявления"
+        isLoading={isUrgentLoading}
+      />
       <Promo />
-      <TopListings properties={vipProperties} title="VIP объявления" />
+      <TopListings
+        properties={vipProperties}
+        title="VIP объявления"
+        isLoading={isVipLoading}
+      />
       <PersonalRealtorCta />
       <div className="mt-10 md:mt-20">
-        <Buy properties={properties} />
+        <Buy properties={properties} isLoading={isLoading} />
       </div>
       <div className="container text-center pt-6">
         <button

@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Buy from '@/app/_components/buy/buy';
 import { useGetPropertiesInfiniteQuery } from '@/services/properties/hooks';
 import { Tabs } from '@/ui-components/tabs/tabs';
-import { Loading } from '@/ui-components/Loading';
+import BuyCardSkeleton from '@/ui-components/BuyCardSkeleton';
 
 type FilterType = 'list' | 'map';
 
@@ -78,7 +78,44 @@ export const BuyContent = () => {
   }, [fetchNextPage, hasNextPage, isFetching]);
 
   if (isLoading) {
-    return <Loading />;
+    return (
+      <div className="mb-[60px]">
+        <div className="container">
+          <div className="bg-white rounded-[22px] p-[30px] my-10">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center">
+              <div>
+                <h1 className="text-2xl font-bold text-[#020617] mb-1">
+                  Купить квартиру вторичка
+                </h1>
+                <p className="text-[#666F8D]">Загрузка объявлений...</p>
+              </div>
+
+              <div className="mt-4 md:mt-0">
+                <Tabs
+                  tabs={[
+                    { key: 'list', label: 'Списком' },
+                    { key: 'map', label: 'На карте' },
+                  ]}
+                  activeType={activeFilter}
+                  setActiveType={setActiveFilter}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Skeleton grid */}
+          <section>
+            <div className="container">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-[14px]">
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <BuyCardSkeleton key={index} />
+                ))}
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -109,21 +146,25 @@ export const BuyContent = () => {
         </div>
       </div>
 
-      <Buy properties={propertiesForBuy} hasTitle={false} />
+      <Buy
+        properties={propertiesForBuy}
+        hasTitle={false}
+        isLoading={isLoading}
+      />
 
+      {/* Loading more skeleton cards */}
       {isFetchingNextPage && (
-        <div className="text-center py-4 flex justify-center items-center space-x-1">
-          <div className="w-2 h-2 bg-[#0036A5] rounded-full animate-bounce"></div>
-          <div
-            className="w-2 h-2 bg-[#0036A5] rounded-full animate-bounce"
-            style={{ animationDelay: '0.1s' }}
-          ></div>
-          <div
-            className="w-2 h-2 bg-[#0036A5] rounded-full animate-bounce"
-            style={{ animationDelay: '0.2s' }}
-          ></div>
-        </div>
+        <section>
+          <div className="container">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-[14px] mb-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <BuyCardSkeleton key={`loading-${index}`} />
+              ))}
+            </div>
+          </div>
+        </section>
       )}
+
       {!hasNextPage && properties.length > 0 && (
         <div className="text-center py-4 text-gray-500">
           Больше объявлений нет

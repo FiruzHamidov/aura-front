@@ -11,9 +11,10 @@ import { useGetPropertiesQuery } from '@/services/properties/hooks';
 export default function Rent() {
   const { data: properties, isLoading } = useGetPropertiesQuery();
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  const { data: vipProperties, isLoading: isVipLoading } =
+    useGetPropertiesQuery({
+      listing_type: 'vip',
+    });
 
   return (
     <>
@@ -21,12 +22,13 @@ export default function Rent() {
       <div className="mt-10 md:mt-[60px]">
         <TopListings
           title="Снять недвижимость топовые объявления"
-          properties={properties}
+          properties={vipProperties}
+          isLoading={isVipLoading}
         />
       </div>
       <Promo />
 
-      <Buy properties={properties} />
+      <Buy properties={properties} isLoading={isLoading} />
       <div className="lg:container mx-auto mt-10 md:mt-20">
         <Services />
       </div>
