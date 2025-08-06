@@ -8,12 +8,12 @@ import { PhotoCarousel } from './_components/photo-carousel';
 export default function Cleaning() {
   return (
     <>
-      <div className="container pt-10 pb-5">
+      <div className="container pt-10 md:pb-5">
         <ExtraPagesBanner
           title="Клининговые услуги"
           description="Подготовим объект к продаже или сдаче  чисто, быстро и профессионально."
           buttonLabel="Заказать уборку"
-          buttonLink="#form"
+          buttonLink="#cleaning-form"
           imageUrl="/images/extra-pages/cleaning-banner.png"
           imageAlt="Клининговые услуги"
         />
@@ -73,10 +73,10 @@ export default function Cleaning() {
         </div>
       </div>
 
-      <div className="pb-24">
+      <div className="pb-10 md:pb-24">
         <PhotoCarousel />
       </div>
-      <div className="container pb-[108px]">
+      <div className="container pb-16 md:pb-[108px]" id="cleaning-form">
         <ApplicationForm />
       </div>
     </>
