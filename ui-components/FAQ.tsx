@@ -20,22 +20,26 @@ interface FAQProps {
 export const FAQ: FC<FAQProps> = ({ title, items }) => {
   return (
     <div>
-      <h2 className="font-bold text-[32px] mb-10">{title}</h2>
+      <h2 className="font-bold text-2xl md:text-[32px] mb-6 md:mb-10">
+        {title}
+      </h2>
 
       {items.map((item, index) => (
         <Disclosure
           as="div"
           key={index}
-          className="bg-white px-10 py-[27px] mb-5 rounded-xl"
+          className={`bg-white px-6 md:px-10 py-6 md:py-[27px] rounded-xl ${
+            index === items.length - 1 ? 'mb-0' : 'mb-4 md:mb-5'
+          }`}
         >
           <DisclosureButton className="group flex w-full items-center justify-between text-left">
-            <h3 className=" text-gray-900 group-data-[open]:font-bold transition-all duration-300">
+            <h3 className="md:text-xl text-gray-900 group-data-[open]:font-bold transition-all duration-300 pr-4">
               {item.question}
             </h3>
-            <BigPlusIcon className="size-[46px] fill-gray-600 group-data-open:hidden" />
-            <MinusIcon className="size-[46px] fill-gray-600 group-data-[open]:block hidden" />
+            <BigPlusIcon className="size-[46px] group-data-open:hidden flex-shrink-0" />
+            <MinusIcon className="size-[46px] group-data-[open]:block hidden flex-shrink-0" />
           </DisclosureButton>
-          <DisclosurePanel className="mt-4 text-gray-700">
+          <DisclosurePanel className="mt-3 md:mt-4 text-sm md:text-lg text-gray-700">
             <p>{item.answer}</p>
           </DisclosurePanel>
         </Disclosure>

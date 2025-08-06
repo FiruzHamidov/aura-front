@@ -70,20 +70,37 @@ const services = [
 export const WeSuggest = () => {
   return (
     <>
-      <h2 className="text-[36px] font-bold mb-10">Мы предлагаем</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 auto-rows-[1fr] gap-5 items-stretch">
+      <h2 className="text-2xl md:text-[36px] font-bold mb-6 md:mb-10">
+        Мы предлагаем
+      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 md:auto-rows-[1fr] gap-4 md:gap-5 md:items-stretch">
         {/* Left side - Services */}
-        <div className="space-y-5">
+        <div className="space-y-4 md:space-y-5">
           {services.map((service, index) => (
             <div
               key={index}
-              className="space-y-4 bg-white rounded-[22px] pt-[60px] pl-11 pb-[56px] pr-28"
+              className="bg-white rounded-[22px] p-6 md:pt-[60px] md:pl-11 md:pb-[56px] md:pr-28"
             >
-              <div className="flex items-start gap-4">
+              {/* Mobile Layout - Vertical Stack */}
+              <div className="flex flex-col items-center space-y-4 md:hidden">
+                <div className="w-16 h-16 bg-[#F0F2F5] rounded-[22px] flex items-center justify-center">
+                  <span>{service.icon}</span>
+                </div>
+                <h3 className="text-xl font-bold leading-6">{service.title}</h3>
+                <p className="text-base leading-5 text-[#353E5C]">
+                  {service.description}
+                </p>
+                <button className="bg-[#E3E6EA] text-[#353E5C] px-6 py-3 rounded-full text-base cursor-pointer w-full">
+                  {service.buttonText}
+                </button>
+              </div>
+
+              {/* Desktop Layout - Horizontal */}
+              <div className="hidden md:flex items-start gap-4">
                 <div className="w-20 h-20 bg-[#F0F2F5] rounded-[22px] flex items-center justify-center flex-shrink-0">
                   <span>{service.icon}</span>
                 </div>
-                <div className="space-y-5">
+                <div className="space-y-5 flex-1">
                   <h3 className="text-2xl font-bold leading-8">
                     {service.title}
                   </h3>
@@ -99,11 +116,11 @@ export const WeSuggest = () => {
           ))}
         </div>
 
-        <div className="relative p-5 bg-white rounded-[22px]">
+        <div className="relative p-4 md:p-5 bg-white rounded-[22px]">
           <Image
             src="/images/extra-pages/repair-suggest.png"
             alt="Ремонт и дизайн интерьеров"
-            className="w-full h-[640px] object-cover rounded-xl"
+            className="w-full h-[300px] md:h-[640px] object-cover rounded-xl"
             width={589}
             height={676}
           />

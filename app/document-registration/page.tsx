@@ -9,7 +9,7 @@ const bannerData = {
   description:
     'Полный комплекс юридического сопровождения сделок с недвижимостью. Надежно. Законно. Под ключ.',
   buttonLabel: 'Получить консультацию ',
-  buttonLink: '/document-registration/start',
+  buttonLink: '#document-registration-form',
   imageUrl: '/images/extra-pages/doc-banner.png',
   imageAlt: 'Регистрация документов',
 };
@@ -44,7 +44,7 @@ export default function DocumentRegistration() {
 
       <ProcessSteps />
 
-      <div className="py-10">
+      <div className="py-10" id="document-registration-form">
         <ApplicationForm />
       </div>
       <FAQ

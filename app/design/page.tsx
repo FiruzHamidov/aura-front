@@ -13,7 +13,7 @@ export default function Design() {
         title="Дизайнерские услуги"
         description="Разрабатываем стильные и функциональные интерьеры, подготавливаем квартиры к продаже создаём 3D-визуализации и планировки"
         buttonLabel="Заказать дизайн"
-        buttonLink="#form"
+        buttonLink="#design-form"
         imageUrl="/images/extra-pages/design-banner.png"
         imageAlt="Дизайнерские услуги"
       />
@@ -59,7 +59,9 @@ export default function Design() {
         />
       </div>
 
-      <ApplicationForm />
+      <div id="design-form">
+        <ApplicationForm />
+      </div>
     </div>
   );
 }

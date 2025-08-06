@@ -66,20 +66,22 @@ const stages = [
 
 export const Stages = () => {
   return (
-    <div className="flex items-center gap-5">
+    <div className="flex flex-col lg:flex-row items-stretch gap-4 lg:gap-5">
       {stages.map((stage, index) => (
         <div
           key={index}
           className="flex-1 rounded-[22px] bg-white overflow-hidden"
         >
-          <div className="bg-[#0036A5] text-white py-4 px-[30px]">
-            <h2 className="text-2xl font-bold">{stage.title}</h2>
-            <p className="text-lg">{stage.description}</p>
+          <div className="bg-[#0036A5] text-white py-4 px-6 lg:px-[30px]">
+            <h2 className="text-xl lg:text-2xl font-bold">{stage.title}</h2>
+            <p className="text-base lg:text-lg">{stage.description}</p>
           </div>
-          <ul className="pl-[30px] pr-10 pt-[22px] pb-16">
+          <ul className="px-6 lg:pl-[30px] lg:pr-10 pt-4 lg:pt-[22px] pb-8 lg:pb-16">
             {stage.items.map((item, itemIndex) => (
-              <li key={itemIndex} className="mb-[22px]">
-                <div className="font-bold text-lg mb-0.5">{item.title}</div>
+              <li key={itemIndex} className="mb-4 lg:mb-[22px]">
+                <div className="font-bold text-base lg:text-lg mb-0.5">
+                  {item.title}
+                </div>
                 <div className="text-sm leading-5 text-[#666F8D]">
                   {item.description}
                 </div>

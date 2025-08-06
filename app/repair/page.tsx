@@ -13,7 +13,7 @@ export default function Repair() {
         title="Ремонт под ключ"
         description="Доверьте ремонт профессионалам - мы берём на себя все этапы работ: от черновой отделки до финального декора."
         buttonLabel="Оставить заявку"
-        buttonLink="#"
+        buttonLink="#repair-form"
         imageUrl="/images/extra-pages/repair-banner.png"
         imageAlt="Ремонт под ключ"
       />
@@ -53,7 +53,7 @@ export default function Repair() {
         ]}
       />
 
-      <div className="py-10">
+      <div className="py-10" id="repair-form">
         <ApplicationForm />
       </div>
     </div>

@@ -26,16 +26,28 @@ export const ApplicationForm = () => {
 
   return (
     <div className="bg-gradient-to-br overflow-hidden relative z-10 from-[#0036A5] to-[#115DFB] rounded-3xl">
-      <div className="flex justify-center gap-52">
-        <div className="text-white w-[70%] py-[60px] px-20">
-          <h2 className="text-[40px] font-bold mb-7">Ответим на все вопросы</h2>
-          <p className="text-[20px] text-[#BBD2FF] leading-relaxed">
+      <div className="flex flex-col lg:flex-row lg:justify-center lg:gap-52">
+        {/* Mobile: Title and Description first */}
+        <div className="text-white lg:hidden px-6 py-8">
+          <h2 className="text-2xl font-bold mb-4">Ответим на все вопросы</h2>
+          <p className="text-lg text-[#BBD2FF] leading-relaxed">
+            Заполните форму, наши менеджеры свяжутся с вами и постараются быть
+            максимально полезными
+          </p>
+        </div>
+
+        {/* Desktop: Original layout with image */}
+        <div className="hidden lg:block text-white w-full lg:w-[70%] py-8 px-6 lg:py-[60px] lg:px-20">
+          <h2 className="text-2xl lg:text-[40px] font-bold mb-4 lg:mb-7">
+            Ответим на все вопросы
+          </h2>
+          <p className="text-lg lg:text-[20px] text-[#BBD2FF] leading-relaxed">
             Заполните форму, наши менеджеры свяжутся с вами и постараются быть
             максимально полезными
           </p>
 
-          {/* Keys illustration */}
-          <div className="mt-5 relative z-0 h-full opacity-45">
+          {/* Keys illustration - Desktop only */}
+          <div className="mt-4 lg:mt-5 relative z-0 h-32 lg:h-full opacity-45">
             <Image
               src="/images/extra-pages/keys.png"
               alt="Keys illustration"
@@ -46,15 +58,18 @@ export const ApplicationForm = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl pt-[30px] pb-[46px] px-10 my-[35px] mr-[60px] shadow-xs">
-          <div className="mb-4">
-            <h3 className="text-2xl font-bold mb-1">Форма связи онлайн</h3>
+        {/* Form section */}
+        <div className="bg-white rounded-t-2xl lg:rounded-2xl pt-6 pb-8 px-6 lg:pt-[30px] lg:pb-[46px] lg:px-10 lg:my-[35px] lg:mr-[60px] shadow-xs">
+          <div className="mb-4 lg:mb-4">
+            <h3 className="text-xl lg:text-2xl font-bold mb-1">
+              Форма связи онлайн
+            </h3>
             <p className="text-[#666F8D] text-sm">
               Обратитесь к нам напрямую и с вами свяжутся наши менеджеры
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-2">
+          <form onSubmit={handleSubmit} className="space-y-3 lg:space-y-2">
             {/* Name field */}
             <div>
               <label className="block text-sm mb-1.5">Представьтесь</label>
@@ -135,7 +150,7 @@ export const ApplicationForm = () => {
             {/* Submit button */}
             <button
               type="submit"
-              className="w-full mt-4 bg-[#0036A5] text-white py-[13px] rounded-lg transition-colors duration-200"
+              className="w-full mt-4 bg-[#0036A5] text-white py-[13px] rounded-lg hover:bg-blue-700 transition-colors duration-200"
             >
               Отправить запрос
             </button>
