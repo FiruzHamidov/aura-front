@@ -186,6 +186,7 @@ export function useAddPostForm({
       price: form.price,
       currency: form.currency,
       offer_type: selectedOfferType,
+      listing_type: selectedListingType,
       rooms: selectedRooms!,
       total_area: form.total_area,
       living_area: form.living_area,
