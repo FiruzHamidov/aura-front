@@ -53,11 +53,11 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
     { type: 'tab' | 'link'; label: string; href?: string }
   > = {
     buy: { type: 'tab', label: 'Купить' },
-    rent: { type: 'link', label: 'Продать', href: '/sell' },
+    rent: { type: 'link', label: 'Продать', href: '/sell-property' },
     to_rent: { type: 'tab', label: 'Снять' },
-    to_rent_out: { type: 'link', label: 'Сдать', href: '/rent-out' },
+    to_rent_out: { type: 'link', label: 'Сдать', href: '/rent-property' },
     map: { type: 'tab', label: 'На карте' },
-    evaluate: { type: 'link', label: 'Оценить', href: '/evaluate' },
+    evaluate: { type: 'link', label: 'Оценить', href: '/rate-property' },
     fast_buy: { type: 'link', label: 'Сроч. выкуп', href: '/buy-property' },
   };
 

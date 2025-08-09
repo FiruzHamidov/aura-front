@@ -1,13 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import {useState} from 'react';
 import Link from 'next/link';
 import BuyCard from '@/app/_components/buy/buy-card';
 import BuyCardSkeleton from '@/ui-components/BuyCardSkeleton';
 import { useGetMyPropertiesQuery } from '@/services/properties/hooks';
 import { Property } from '@/services/properties/types';
+import {useProfile} from "@/services/login/hooks";
 
 export default function MyListings() {
+
+  const { data: user } = useProfile();
+
   const { data: myProperties, isLoading } = useGetMyPropertiesQuery();
   const [selectedTab, setSelectedTab] = useState<'active' | 'inactive'>(
     'active'
@@ -25,6 +29,7 @@ export default function MyListings() {
 
   const currentListings =
     selectedTab === 'active' ? activeListings : inactiveListings;
+
 
   if (isLoading) {
     return (
@@ -102,7 +107,7 @@ export default function MyListings() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[14px]">
           {currentListings.map((listing: Property) => (
             <Link key={listing.id} href={`/profile/edit-post/${listing.id}`}>
-              <BuyCard listing={listing} />
+              <BuyCard listing={listing} user={user} />
             </Link>
           ))}
         </div>
