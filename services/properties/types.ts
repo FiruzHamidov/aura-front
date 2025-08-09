@@ -57,6 +57,7 @@ export interface Property {
   latitude?: string;
   longitude?: string;
   owner_phone?: string;
+  listing_type: string;
   district?: string;
   offer_type?: string;
   type: PropertyType;
