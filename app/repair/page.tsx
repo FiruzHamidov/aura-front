@@ -8,7 +8,7 @@ import { ApplicationForm } from './_components/application-form';
 
 export default function Repair() {
   return (
-    <div className="container py-10">
+    <div className="container py-10 md:pt-[100px]">
       <ExtraPagesBanner
         title="Ремонт под ключ"
         description="Доверьте ремонт профессионалам - мы берём на себя все этапы работ: от черновой отделки до финального декора."
@@ -33,7 +33,6 @@ export default function Repair() {
       </div>
 
       <FAQ
-        title="Часто задаваемые вопросы (FAQ)"
         items={[
           {
             question: 'Как объяснить ремонтнику, чего я хочу?',

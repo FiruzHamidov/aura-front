@@ -16,7 +16,7 @@ const bannerData = {
 
 export default function DocumentRegistration() {
   return (
-    <div className="container pt-10 pb-[100px]">
+    <div className="container py-10 md:py-[100px]">
       <ExtraPagesBanner {...bannerData} />
       <div className="py-10">
         <WhyUs
@@ -48,7 +48,6 @@ export default function DocumentRegistration() {
         <ApplicationForm />
       </div>
       <FAQ
-        title="Часто задаваемые вопросы"
         items={[
           {
             question: 'Какой срок оформления документов?',

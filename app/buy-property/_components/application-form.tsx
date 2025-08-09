@@ -32,12 +32,25 @@ export const ApplicationForm = () => {
 
   return (
     <div className="bg-gradient-to-br overflow-hidden relative z-10 from-[#0036A5] to-[#115DFB] rounded-3xl">
-      <div className="flex justify-center gap-52">
-        <div className="text-white w-[70%] py-[60px] px-20">
-          <h2 className="text-[40px] leading-12 font-bold mb-7">
+      <div className="flex flex-col md:flex-row md:justify-center md:gap-52">
+        {/* Mobile: Title and Description first */}
+        <div className="text-white md:hidden px-6 py-8 text-center">
+          <h2 className="text-2xl font-bold mb-4">
             Срочный выкуп недвижимости
           </h2>
-          <p className="text-[20px] text-[#BBD2FF] leading-relaxed">
+          <p className="text-lg text-[#BBD2FF] leading-relaxed">
+            Нужна срочная продажа? Услуга быстрого выкупа от Aura Estate — это
+            надёжный и выгодный способ продать вашу недвижимость в кратчайшие
+            сроки.
+          </p>
+        </div>
+
+        {/* Desktop: Original layout with image */}
+        <div className="hidden md:block text-white w-full md:w-[70%] py-8 px-6 md:py-[60px] md:px-20">
+          <h2 className="text-2xl md:text-[40px] font-bold mb-4 md:mb-7">
+            Срочный выкуп недвижимости
+          </h2>
+          <p className="text-lg md:text-[20px] text-[#BBD2FF] leading-relaxed">
             Нужна срочная продажа? Услуга быстрого выкупа от Aura Estate — это
             надёжный и выгодный способ продать вашу недвижимость в кратчайшие
             сроки.
@@ -47,8 +60,8 @@ export const ApplicationForm = () => {
             сделку и самые выгодные условия. Свяжитесь с нами прямо сейчас!
           </p>
 
-          {/* Keys illustration */}
-          <div className="mt-5 relative z-0 h-full opacity-45">
+          {/* Keys illustration - Desktop only */}
+          <div className="mt-4 md:mt-5 relative z-0 h-32 md:h-full opacity-45">
             <Image
               src="/images/extra-pages/keys.png"
               alt="Keys illustration"
@@ -59,15 +72,18 @@ export const ApplicationForm = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl pt-[30px] pb-[46px] px-10 my-[35px] mr-[60px] shadow-xs relative z-10">
-          <div className="mb-4">
-            <h3 className="text-2xl font-bold mb-1">Форма связи онлайн</h3>
+        {/* Form section */}
+        <div className="bg-white rounded-t-2xl md:rounded-2xl pt-6 pb-8 px-6 md:pt-[30px] md:pb-[46px] md:px-10 md:my-[35px] md:mr-[60px] shadow-xs">
+          <div className="mb-4 md:mb-4">
+            <h3 className="text-xl md:text-2xl font-bold mb-1">
+              Форма связи онлайн
+            </h3>
             <p className="text-[#666F8D] text-sm">
               Обратитесь к нам напрямую и с вами свяжутся наши менеджеры
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-2">
+          <form onSubmit={handleSubmit} className="space-y-3 md:space-y-2">
             {/* Name field */}
             <div>
               <label className="block text-sm mb-1.5">Представьтесь</label>
@@ -202,7 +218,7 @@ export const ApplicationForm = () => {
             {/* Submit button */}
             <button
               type="submit"
-              className="w-full mt-4 bg-[#0036A5] text-white py-[13px] rounded-lg transition-colors duration-200 hover:bg-[#002d8a]"
+              className="w-full mt-4 bg-[#0036A5] text-white py-[13px] rounded-lg hover:bg-blue-700 transition-colors duration-200"
             >
               Отправить запрос
             </button>
