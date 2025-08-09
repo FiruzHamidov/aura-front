@@ -13,15 +13,14 @@ interface FAQItem {
 }
 
 interface FAQProps {
-  title: string;
   items: FAQItem[];
 }
 
-export const FAQ: FC<FAQProps> = ({ title, items }) => {
+export const FAQ: FC<FAQProps> = ({ items }) => {
   return (
     <div>
       <h2 className="font-bold text-2xl md:text-[32px] mb-6 md:mb-10">
-        {title}
+        Часто задаваемые вопросы (FAQ)
       </h2>
 
       {items.map((item, index) => (

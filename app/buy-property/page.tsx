@@ -6,12 +6,12 @@ import { Cards } from './_components/cards';
 
 export default function BuyRealEstate() {
   return (
-    <div className="container py-10">
+    <div className="container pt-10 md:pt-[100px] pb-10">
       <ExtraPagesBanner
         title="Срочный выкуп недвижимости"
         description="Быстро и безопасно выкупим вашу недвижимость по рыночной цене, полное юридическое сопровождение и прозрачные условия сделки."
         buttonLabel="Оставить заявку"
-        buttonLink="/buy-real-estate#search"
+        buttonLink="/buy-property#search"
         imageUrl="/images/extra-pages/buy-real-estate.png"
         imageAlt="Покупка недвижимости"
       />
@@ -28,7 +28,6 @@ export default function BuyRealEstate() {
 
       <div className="py-10">
         <FAQ
-          title="Часто задаваемые вопросы"
           items={[
             {
               question: 'Сколько времени занимает выкуп?',

@@ -8,7 +8,7 @@ import { ProcessSteps } from './_components/process-steps';
 
 export default function Design() {
   return (
-    <div className="container py-10">
+    <div className="container pt-10 md:pt-[100px] pb-10">
       <ExtraPagesBanner
         title="Дизайнерские услуги"
         description="Разрабатываем стильные и функциональные интерьеры, подготавливаем квартиры к продаже создаём 3D-визуализации и планировки"
@@ -32,7 +32,6 @@ export default function Design() {
 
       <div className="py-10">
         <FAQ
-          title="Часто задаваемые вопросы"
           items={[
             {
               question: 'Как объяснить дизайнеру, чего я хочу?',

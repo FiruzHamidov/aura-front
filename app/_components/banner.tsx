@@ -58,7 +58,7 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
     to_rent_out: { type: 'link', label: 'Сдать', href: '/rent-out' },
     map: { type: 'tab', label: 'На карте' },
     evaluate: { type: 'link', label: 'Оценить', href: '/evaluate' },
-    fast_buy: { type: 'link', label: 'Сроч. выкуп', href: '/buy-real-estate' },
+    fast_buy: { type: 'link', label: 'Сроч. выкуп', href: '/buy-property' },
   };
 
   const handleAdvancedSearch = (filters: PropertyFilters) => {

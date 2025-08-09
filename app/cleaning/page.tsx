@@ -8,7 +8,7 @@ import { PhotoCarousel } from './_components/photo-carousel';
 export default function Cleaning() {
   return (
     <>
-      <div className="container pt-10 md:pb-5">
+      <div className="container pt-10 md:pt-[100px] pb-10md:pb-5">
         <ExtraPagesBanner
           title="Клининговые услуги"
           description="Подготовим объект к продаже или сдаче  чисто, быстро и профессионально."
@@ -46,7 +46,6 @@ export default function Cleaning() {
 
         <div className="py-10">
           <FAQ
-            title="Часто задаваемые вопросы"
             items={[
               {
                 question: 'Что входит в уборку?',
