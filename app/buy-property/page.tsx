@@ -11,7 +11,7 @@ export default function BuyRealEstate() {
         title="Срочный выкуп недвижимости"
         description="Быстро и безопасно выкупим вашу недвижимость по рыночной цене, полное юридическое сопровождение и прозрачные условия сделки."
         buttonLabel="Оставить заявку"
-        buttonLink="/buy-property#search"
+        buttonLink="/buy-property#buy-form"
         imageUrl="/images/extra-pages/buy-real-estate.png"
         imageAlt="Покупка недвижимости"
       />
@@ -24,7 +24,7 @@ export default function BuyRealEstate() {
         <ProcessSteps />
       </div>
 
-      <ApplicationForm />
+      <ApplicationForm id={'buy-form'} title={'Срочный выкуп недвижимости'} />
 
       <div className="py-10">
         <FAQ

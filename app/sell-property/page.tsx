@@ -13,7 +13,7 @@ export default function SellProperty() {
         description="Эффективные стратегии и проверенные способы быстрой и прибыльной продажи недвижимости"
         buttonLabel="Получить консультацию"
         buttonLink="#sell-property-form"
-        imageUrl="/images/extra-pages/sell-property-banner.png"
+        imageUrl="/images/extra-pages/sell-property-banner-min.png"
         imageAlt="Как выгодно продать недвижимость?"
       />
 
@@ -27,7 +27,7 @@ export default function SellProperty() {
         <HowItWorks />
       </div>
 
-      <ApplicationForm />
+      <ApplicationForm id={'sell-property-form'} title={'Продать квартиру'}/>
 
       <div className="py-10">
         <FAQ

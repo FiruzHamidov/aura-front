@@ -312,7 +312,7 @@ export default function GalleryWrapper({ apartment, photos }: Props) {
           </div>
         </div>
 
-        <MortgageCalculator />
+        <MortgageCalculator propertyPrice={apartment.price} />
       </div>
 
       <PhotoGalleryModal

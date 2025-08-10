@@ -2,16 +2,21 @@ import { FAQ } from '@/ui-components/FAQ';
 import { ExtraPagesBanner } from '../_components/extra-pages-banner';
 import { WhyUs } from '../_components/why-us';
 import { ProcessSteps } from './_components/process-steps';
-import { ApplicationForm } from './_components/application-form';
+import { ApplicationForm } from '../document-registration/_components/application-form';
 import { PhotoCarousel } from './_components/photo-carousel';
+
+const bannerData = {
+    title: 'Клининговые услуги',
+    description: 'Подготовим объект к продаже или сдаче  чисто, быстро и профессионально.'
+}
 
 export default function Cleaning() {
   return (
     <>
       <div className="container pt-10 md:pt-[100px] pb-10md:pb-5">
         <ExtraPagesBanner
-          title="Клининговые услуги"
-          description="Подготовим объект к продаже или сдаче  чисто, быстро и профессионально."
+          title={bannerData.title}
+          description={bannerData.description}
           buttonLabel="Заказать уборку"
           buttonLink="#cleaning-form"
           imageUrl="/images/extra-pages/cleaning-banner.png"
@@ -76,7 +81,7 @@ export default function Cleaning() {
         <PhotoCarousel />
       </div>
       <div className="container pb-16 md:pb-[108px]" id="cleaning-form">
-        <ApplicationForm />
+          <ApplicationForm title={bannerData.title} description={bannerData.description}/>
       </div>
     </>
   );

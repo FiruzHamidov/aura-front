@@ -45,7 +45,7 @@ export default function DocumentRegistration() {
       <ProcessSteps />
 
       <div className="py-10" id="document-registration-form">
-        <ApplicationForm />
+        <ApplicationForm title={bannerData.title} description={bannerData.description}/>
       </div>
       <FAQ
         items={[

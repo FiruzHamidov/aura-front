@@ -20,6 +20,10 @@
     --breakpoint-xxs: 320px;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: var(--font-inter);
     background: #f7f8fa;

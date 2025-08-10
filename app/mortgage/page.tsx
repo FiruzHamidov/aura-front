@@ -12,7 +12,7 @@ export default function Mortgage() {
         imageUrl="/images/extra-pages/mortgage.png"
         imageAlt="Ипотека"
       />
-      <MortgageCalculator />
+      <MortgageCalculator id={'calculator'} propertyPrice={450000} />
     </div>
   );
 }

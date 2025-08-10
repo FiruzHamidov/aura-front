@@ -2,7 +2,7 @@ import { FAQ } from '@/ui-components/FAQ';
 import { Cards } from './_components/cards';
 import { ExtraPagesBanner } from '../_components/extra-pages-banner';
 import { ProcessSteps } from './_components/process-steps';
-import { ApplicationForm } from './_components/application-form';
+import { ApplicationForm } from '../sell-property/_components/application-form';
 import { OurServices } from './_components/our-services';
 
 export default function RentProperty() {
@@ -12,8 +12,8 @@ export default function RentProperty() {
         title="Сдайте свою недвижимость быстро и выгодно"
         description="Эффективная аренда без лишних хлопот — мы найдём надёжных арендаторов и обеспечим вам стабильный доход"
         buttonLabel="Получить консультацию"
-        buttonLink="#sell-property-form"
-        imageUrl="/images/extra-pages/sell-property-banner.png"
+        buttonLink="#rent-property-form"
+        imageUrl="/images/extra-pages/rent-property-banner.png"
         imageAlt="Сдайте свою недвижимость быстро и выгодно"
       />
 
@@ -27,7 +27,7 @@ export default function RentProperty() {
         <OurServices />
       </div>
 
-      <ApplicationForm />
+      <ApplicationForm id={'rent-property-form'} title={'Аренда недвижимости'} />
 
       <div className="py-10">
         <FAQ

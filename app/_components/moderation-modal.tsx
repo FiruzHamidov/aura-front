@@ -1,10 +1,10 @@
 'use client';
 
-import { FC, useState } from 'react';
-import { Property } from '@/services/properties/types';
+import {FC, useState} from 'react';
+import {Property} from '@/services/properties/types';
 
 
-import { toast } from 'react-toastify';
+import {toast} from 'react-toastify';
 import {axios} from "@/utils/axios";
 import {SelectToggle} from "@/ui-components/SelectToggle";
 
@@ -58,9 +58,9 @@ const ModerationModal: FC<ModerationModalProps> = ({
                         <SelectToggle
                             title="Тип объявления"
                             options={[
-                                { id: 'regular', name: 'Обычное' },
-                                { id: 'vip', name: 'VIP' },
-                                { id: 'urgent', name: 'Срочная продажа' },
+                                {id: 'regular', name: 'Обычное'},
+                                {id: 'vip', name: 'VIP'},
+                                {id: 'urgent', name: 'Срочная продажа'},
                             ]}
                             selected={selectedListingType}
                             setSelected={setSelectedListingType}
@@ -68,16 +68,16 @@ const ModerationModal: FC<ModerationModalProps> = ({
                     </div>
                 )}
 
-                {userRole === 'agent' || userRole === 'admin'  && (
+                {userRole === 'agent' || userRole === 'admin' && (
                     <div className="mb-4">
                         <SelectToggle
                             title="Статус модерации"
                             options={[
-                                { id: 'pending', name: 'На модерации' },
-                                { id: 'approved', name: 'Одобрено' },
-                                { id: 'rejected', name: 'Отклонено' },
-                                { id: 'draft', name: 'Черновик' },
-                                { id: 'deleted', name: 'Удалено' },
+                                {id: 'pending', name: 'На модерации'},
+                                {id: 'approved', name: 'Одобрено'},
+                                {id: 'rejected', name: 'Отклонено'},
+                                {id: 'draft', name: 'Черновик'},
+                                {id: 'deleted', name: 'Удалено'},
                             ]}
                             selected={selectedModerationStatus}
                             setSelected={setSelectedModerationStatus}

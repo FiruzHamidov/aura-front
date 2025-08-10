@@ -1,7 +1,7 @@
 import { FAQ } from '@/ui-components/FAQ';
 import { Cards } from './_components/cards';
 import { ExtraPagesBanner } from '../_components/extra-pages-banner';
-import { ApplicationForm } from './_components/application-form';
+import { ApplicationForm } from '../sell-property/_components/application-form';
 import { WhyWeRate } from './_components/why-we-rate';
 import { RateBanner } from './_components/rate-banner';
 
@@ -12,8 +12,8 @@ export default function RateProperty() {
         title="Мы осуществляем реальную оценку вашей недвижимости."
         description="Точная и объективная оценка стоимости - основа успешной сдачи или продажи недвижимости"
         buttonLabel="Получить консультацию"
-        buttonLink="#sell-property-form"
-        imageUrl="/images/extra-pages/sell-property-banner.png"
+        buttonLink="#rate-property-form"
+        imageUrl="/images/extra-pages/rate-property-banner.png"
         imageAlt="Сдайте свою недвижимость быстро и выгодно"
       />
 
@@ -27,7 +27,7 @@ export default function RateProperty() {
         <RateBanner />
       </div>
 
-      <ApplicationForm />
+      <ApplicationForm id={'rate-property-form'} title={'Оценка недвижимости'}/>
 
       <div className="py-10">
         <FAQ
