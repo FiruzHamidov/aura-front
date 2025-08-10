@@ -95,11 +95,43 @@ const RealtorPage = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.info('Форма отправлена');
-    setName('');
-    setPhone('');
+    if (!realtorData) return;
+
+    // Подготовка данных
+    const payload = {
+      name: name.trim(),
+      phone: phone.trim(),
+      requestType: 'realtor_contact',
+      title: `Заявка агенту: ${realtorData.name}`,
+      pageUrl: typeof window !== 'undefined' ? window.location.href : '',
+      agentName: realtorData.name,
+      agentId: String(realtorData.id),
+      agentPhone: realtorData.phone,
+    };
+
+    try {
+      const res = await fetch('/api/telegram/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+
+      if (!json.ok) {
+        console.error(json.error);
+        toast.error('Не удалось отправить заявку. Попробуйте ещё раз.');
+        return;
+      }
+
+      toast.success('Заявка отправлена');
+      setName('');
+      setPhone('');
+    } catch (err) {
+      console.error(err);
+      toast.error('Ошибка сети. Попробуйте позже.');
+    }
   };
 
   if (!realtorData) return <div className="p-6 text-center">Загрузка...</div>;
