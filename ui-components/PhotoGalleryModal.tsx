@@ -158,15 +158,17 @@ const PhotoGalleryModal = ({
                   className="relative min-w-full h-full flex items-center justify-center"
                   style={{ flex: '0 0 100%' }}
                 >
-                  <div className="relative w-full h-full max-h-[80vh]">
+                  <div className="h-full flex items-center justify-center">
                     <Image
-                      src={image}
-                      alt={`Фото ${index + 1}`}
-                      fill
-                      className="rounded-[22px]"
-                      priority={index === selectedIndex}
-                      sizes="100vw"
-                      quality={90}
+                        src={image}
+                        alt={`Фото ${index + 1}`}
+                        height={0} // заглушка, чтобы TS не ругался
+                        width={0}  // заглушка
+                        sizes="100vh" // подгон под высоту окна
+                        style={{height: '100%', width: 'auto'}} // ✅ высота 100%, ширина авто
+                        className="rounded-[22px]"
+                        quality={90}
+                        priority={index === selectedIndex}
                     />
                   </div>
                 </div>
@@ -175,10 +177,10 @@ const PhotoGalleryModal = ({
           </div>
 
           {photos.length > 1 && (
-            <>
-              <button
-                onClick={scrollPrev}
-                className="absolute top-1/2 left-4 z-15 transform -translate-y-1/2 w-12 h-12 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
+              <>
+                <button
+                    onClick={scrollPrev}
+                    className="absolute top-1/2 left-4 z-15 transform -translate-y-1/2 w-12 h-12 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
                 aria-label="Предыдущее фото"
                 tabIndex={0}
               >

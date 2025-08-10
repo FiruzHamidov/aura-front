@@ -31,10 +31,6 @@ body {
     font-weight: 500;
 }
 
-img {
-    object-fit: cover;
-    max-width: 100%;
-}
 
 @keyframes pulse-shadow {
     0% {
