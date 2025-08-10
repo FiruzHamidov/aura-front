@@ -1,5 +1,4 @@
-// app/api/telegram/lead/route.ts
-import { NextResponse } from 'next/server';
+import {NextResponse} from 'next/server';
 
 const BOT_TOKEN = process.env.TG_BOT_TOKEN!;
 const CHAT_ID = process.env.TG_CHAT_ID!;
@@ -32,21 +31,19 @@ type Payload = {
 
 export async function POST(req: Request) {
     if (!BOT_TOKEN || !CHAT_ID) {
-        return NextResponse.json({ ok: false, error: 'Bot env not set' }, { status: 500 });
+        return NextResponse.json({ok: false, error: 'Bot env not set'}, {status: 500});
     }
 
     let data: Payload;
     try {
         data = await req.json();
     } catch {
-        return NextResponse.json({ ok: false, error: 'Invalid JSON' }, { status: 400 });
+        return NextResponse.json({ok: false, error: 'Invalid JSON'}, {status: 400});
     }
 
     if (!data.phone) {
-        return NextResponse.json({ ok: false, error: 'phone is required' }, { status: 422 });
+        return NextResponse.json({ok: false, error: 'phone is required'}, {status: 422});
     }
-
-    const title = data.title ? `*${esc(data.title)}*\n` : '*Новая заявка*\n';
 
     const paymentTypeLabel =
         data.paymentType === 'differentiated' ? 'Дифференцированный' :
@@ -75,7 +72,13 @@ export async function POST(req: Request) {
 
     const text = `${data.title ? `*${esc(data.title)}*` : '*Новая заявка*'}\n\n${lines}`;
 
-    const body: Record<string, any> = {
+    const body: {
+        chat_id: string;
+        text: string;
+        parse_mode: 'MarkdownV2';
+        disable_web_page_preview: boolean;
+        message_thread_id?: number;
+    } = {
         chat_id: CHAT_ID,
         text,
         parse_mode: 'MarkdownV2',
@@ -86,15 +89,19 @@ export async function POST(req: Request) {
     try {
         const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(body),
         });
         const json = await res.json();
         if (!res.ok || !json.ok) {
-            return NextResponse.json({ ok: false, error: json?.description ?? 'TG error' }, { status: 502 });
+            return NextResponse.json({ok: false, error: json?.description ?? 'TG error'}, {status: 502});
         }
-        return NextResponse.json({ ok: true });
-    } catch (e: any) {
-        return NextResponse.json({ ok: false, error: e?.message ?? 'Network error' }, { status: 500 });
+        return NextResponse.json({ok: true});
+    } catch (e: unknown) {
+        let message = 'Network error';
+        if (e instanceof Error) {
+            message = e.message;
+        }
+        return NextResponse.json({ok: false, error: message}, {status: 500});
     }
 }

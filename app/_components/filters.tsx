@@ -20,9 +20,13 @@ interface Option {
 }
 
 const districtOptions: Option[] = [
-  { id: 'sino', name: 'Сино' },
-  { id: 'firdavsi', name: 'Фирдавси' },
-  { id: 'somoni', name: 'Сомони' },
+  { id: 'Сино 1', name: 'Сино 1' },
+  { id: 'Сино 2', name: 'Сино 2' },
+  { id: 'Шохмансур', name: 'Шохмансур 1' },
+  { id: 'Шохмансур 2', name: 'Шохмансур 2' },
+  { id: 'Фирдавси 1', name: 'Фирдавси 1' },
+  { id: 'Фирдавси 2', name: 'Фирдавси 2' },
+  { id: 'Сомони', name: 'Сомони' },
 ];
 
 const repairOptions: Option[] = [

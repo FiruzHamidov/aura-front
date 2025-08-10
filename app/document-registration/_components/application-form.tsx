@@ -16,12 +16,24 @@ export const ApplicationForm = ({ title, description }: ApplicationFormProps) =>
   const nameRef = useRef<HTMLInputElement>(null);
   const phoneRef = useRef<HTMLInputElement>(null);
 
+  type FormState = {
+    name: string;
+    phone: string;
+  };
+
+  type FormErrors = Partial<Record<keyof FormState, string>>;
+  type FieldName = keyof FormState;
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const field = name as FieldName;
+
+    setFormData((prev) => ({ ...prev, [field]: value }));
+
+    // без any и без no-unused-vars
     setErrors((prev) => {
-      const next = { ...prev };
-      delete (next as any)[name];
+      const next: FormErrors = { ...prev };
+      if (field in next) delete next[field];
       return next;
     });
   };

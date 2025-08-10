@@ -67,6 +67,7 @@ export const ApplicationForm = ({id, title}: ApplicationFormProps) => {
                     <ellipse cx="12" cy="17" rx="7" ry="4" fill="#0036A5"/>
                   </svg>
                 </span>
+                                <input type="hidden" value={title}/>
                                 <input
                                     name="name"
                                     value={formData.name}

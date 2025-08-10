@@ -46,12 +46,15 @@ export const ApplicationForm = ({id, title}: ApplicationFormProps) => {
     const handleInputChange = (
         e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
     ) => {
-        const {name, value} = e.target;
-        setFormData((prev) => ({...prev, [name]: value}));
-        // Снимаем ошибку по мере ввода
+        const { name, value } = e.target;
+        const field = name as keyof FormState; // <— ключи строго типизированы
+
+        setFormData((prev) => ({ ...prev, [field]: value }));
+
+        // Снимаем ошибку по мере ввода — без any
         setErrors((prev) => {
-            const clone = {...prev};
-            delete (clone as any)[name];
+            const clone: FormErrors = { ...prev };
+            delete clone[field];
             return clone;
         });
     };
@@ -156,7 +159,6 @@ export const ApplicationForm = ({id, title}: ApplicationFormProps) => {
 
             const json = await res.json();
             if (!json.ok) {
-                console.error(json.error);
                 alert('Не удалось отправить заявку. Попробуйте ещё раз.');
                 return;
             }

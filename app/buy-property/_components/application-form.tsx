@@ -16,6 +16,8 @@ type FormState = {
 };
 
 type FormErrors = Partial<Record<keyof FormState, string>>;
+type FieldName = keyof FormState;
+type Focusable = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
 export const ApplicationForm = ({ id, title }: ApplicationFormProps) => {
     const [formData, setFormData] = useState<FormState>({
@@ -28,23 +30,30 @@ export const ApplicationForm = ({ id, title }: ApplicationFormProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // refs для фокуса на первом ошибочном поле
-    const refs = {
-        name: useRef<HTMLInputElement>(null),
-        phone: useRef<HTMLInputElement>(null),
-        requestType: useRef<HTMLSelectElement>(null),
-        message: useRef<HTMLTextAreaElement>(null),
+    const nameRef = useRef<HTMLInputElement>(null);
+    const phoneRef = useRef<HTMLInputElement>(null);
+    const requestTypeRef = useRef<HTMLSelectElement>(null);
+    const messageRef = useRef<HTMLTextAreaElement>(null);
+
+    const focusRefs: Record<keyof FormState, React.RefObject<Focusable>> = {
+        name: nameRef as React.RefObject<Focusable>,
+        phone: phoneRef as React.RefObject<Focusable>,
+        requestType: requestTypeRef as React.RefObject<Focusable>,
+        message: messageRef as React.RefObject<Focusable>,
     };
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
     ) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-        // убираем ошибку при вводе
+        const field = name as FieldName;
+
+        setFormData((prev) => ({ ...prev, [field]: value }));
+
         setErrors((prev) => {
-            const next = { ...prev };
-            delete (next as any)[name];
-            return next;
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { [field]: _, ...rest } = prev;
+            return rest;
         });
     };
 
@@ -69,10 +78,10 @@ export const ApplicationForm = ({ id, title }: ApplicationFormProps) => {
     };
 
     const focusFirstError = (errs: FormErrors) => {
-        const order: (keyof FormState)[] = ['name', 'phone', 'requestType', 'message'];
+        const order: FieldName[] = ['name', 'phone', 'requestType', 'message'];
         for (const key of order) {
             if (errs[key]) {
-                (refs as any)[key]?.current?.focus?.();
+                focusRefs[key]?.current?.focus();
                 break;
             }
         }
@@ -105,7 +114,7 @@ export const ApplicationForm = ({ id, title }: ApplicationFormProps) => {
                 body: JSON.stringify(payload),
             });
 
-            const json = await res.json();
+            const json: { ok: boolean; error?: string } = await res.json();
             if (!json.ok) {
                 console.error(json.error);
                 alert('Не удалось отправить заявку. Попробуйте ещё раз.');
@@ -175,7 +184,7 @@ export const ApplicationForm = ({ id, title }: ApplicationFormProps) => {
                                     </svg>
                                 </div>
                                 <input
-                                    ref={refs.name}
+                                    ref={nameRef}
                                     type="text"
                                     name="name"
                                     value={formData.name}
@@ -195,11 +204,11 @@ export const ApplicationForm = ({ id, title }: ApplicationFormProps) => {
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <svg className="h-5 w-5 text-[#0036A5]" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                                        <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06л-1.548.773a11.037 11.037 0 006.105 6.105л.774-1.548a1 1 0 011.059-.54л4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                                     </svg>
                                 </div>
                                 <input
-                                    ref={refs.phone}
+                                    ref={phoneRef}
                                     type="tel"
                                     name="phone"
                                     value={formData.phone}
@@ -219,11 +228,11 @@ export const ApplicationForm = ({ id, title }: ApplicationFormProps) => {
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <svg className="h-5 w-5 text-[#0036A5]" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                                        <path d="M10.707 2.293a1 1 0 00-1.414 0л-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2а1 1 0 011-1h2а1 1 0 011 1v2а1 1 0 001 1h2а1 1 0 001-1v-6.586л.293.293a1 1 0 001.414-1.414л-7-7z" />
                                     </svg>
                                 </div>
                                 <select
-                                    ref={refs.requestType}
+                                    ref={requestTypeRef}
                                     name="requestType"
                                     value={formData.requestType}
                                     onChange={handleInputChange}
@@ -239,7 +248,7 @@ export const ApplicationForm = ({ id, title }: ApplicationFormProps) => {
                                 </select>
                                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                     <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586л3.293-3.293a1 1 0 111.414 1.414л-4 4a1 1 0 01-1.414 0л-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                                     </svg>
                                 </div>
                             </div>
@@ -250,7 +259,7 @@ export const ApplicationForm = ({ id, title }: ApplicationFormProps) => {
                         <div>
                             <label className="block text-sm mb-1.5">Текст письма</label>
                             <textarea
-                                ref={refs.message}
+                                ref={messageRef}
                                 name="message"
                                 value={formData.message}
                                 onChange={handleInputChange}
