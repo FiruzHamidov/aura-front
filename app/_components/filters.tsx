@@ -135,6 +135,9 @@ export const AllFilters: FC<AllFiltersProps> = ({
               onChange={(val) => setDistrict(val)}
               options={districtOptions}
             />
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-2 gap-4 mt-4">
             <FormInput
               label="Цена от"
               value={priceFrom}
@@ -171,6 +174,9 @@ export const AllFilters: FC<AllFiltersProps> = ({
               onChange={(val) => setFloorTo(val)}
               placeholder="0"
             />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
             <SelectInput
               label="Ремонт"
               value={repairType}

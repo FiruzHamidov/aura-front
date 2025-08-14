@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, useState } from 'react';
+import { FC, useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useGetAgentsQuery } from '@/services/users/hooks';
@@ -23,7 +23,10 @@ const ExpertCard: FC<ExpertCardProps> = ({ expert }) => {
   };
 
   return (
-    <div className="bg-white rounded-[22px] px-9 py-[30px] text-center flex flex-col items-center h-full">
+    <div
+      data-slide
+      className="bg-white rounded-[22px] px-9 py-[30px] text-center flex flex-col items-center h-full snap-start min-w-[280px] md:min-w-0"
+    >
       <div className="relative w-20 h-20 mb-4">
         <Image
           src={photoPath ? image : '/images/team/2.png'}
@@ -54,6 +57,42 @@ const ExpertCard: FC<ExpertCardProps> = ({ expert }) => {
 
 const MeetTheTeam: FC = () => {
   const { data: agents, isLoading } = useGetAgentsQuery();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const scrollerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+
+    const onScroll = () => {
+      const slides = Array.from(
+        el.querySelectorAll<HTMLElement>('[data-slide]')
+      );
+      if (!slides.length) return;
+      let idx = 0;
+      let min = Number.POSITIVE_INFINITY;
+      slides.forEach((slide, i) => {
+        const dist = Math.abs(slide.offsetLeft - el.scrollLeft);
+        if (dist < min) {
+          min = dist;
+          idx = i;
+        }
+      });
+      setActiveIndex(idx);
+    };
+
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [agents]);
+
+  const scrollTo = (index: number) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const slides = el.querySelectorAll<HTMLElement>('[data-slide]');
+    const target = slides[index];
+    if (!target) return;
+    el.scrollTo({ left: target.offsetLeft, behavior: 'smooth' });
+  };
 
   if (isLoading) {
     return (
@@ -75,19 +114,44 @@ const MeetTheTeam: FC = () => {
       <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-6 md:mb-10">
         Встречайте команду экспертов Aura Estate!
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {agents?.length ? (
-          agents?.map((expert) => (
-            <Link key={expert.id} href={`/about/team/${expert.id}`}>
-              <ExpertCard expert={expert} />
-            </Link>
-          ))
-        ) : (
-          <div className="col-span-full text-center py-16">
-            <p className="text-gray-500 text-lg">Нет доступных экспертов</p>
-          </div>
-        )}
+
+      {/* Mobile: horizontal scroll; Desktop: grid */}
+      <div
+        ref={scrollerRef}
+        className="overflow-x-auto md:overflow-visible hide-scrollbar snap-x snap-mandatory -mx-4 sm:mx-0"
+      >
+        <div className="grid grid-flow-col auto-cols-[280px] sm:auto-cols-[300px] gap-5 px-4 sm:px-0 md:grid-flow-row md:auto-cols-auto md:grid-cols-1 sm:md:grid-cols-2 lg:grid-cols-4">
+          {agents?.length ? (
+            agents?.map((expert) => (
+              <Link key={expert.id} href={`/about/team/${expert.id}`}>
+                <ExpertCard expert={expert} />
+              </Link>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-16">
+              <p className="text-gray-500 text-lg">Нет доступных экспертов</p>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Dots indicator - only show on mobile/tablet when there are multiple items */}
+      {agents && agents.length > 1 && (
+        <div className="flex md:hidden justify-center items-center space-x-2 mt-[18px]">
+          {agents.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => scrollTo(index)}
+              className={`w-2.5 h-2.5 rounded-full transition-colors duration-200 ${
+                index === activeIndex
+                  ? 'bg-[#0036A5]'
+                  : 'bg-gray-300 hover:bg-gray-400'
+              }`}
+              aria-label={`Перейти к слайду ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -100,43 +100,45 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
         </div>
 
         {/* Tabs */}
-        <div className="flex flex-wrap gap-2 mb-6 md:mb-8">
-          {(
-            Object.entries(TAB_ACTIONS) as [
-              ActiveTab,
-              (typeof TAB_ACTIONS)[ActiveTab]
-            ][]
-          ).map(([key, { type, label, href }]) => {
-            const isActive = activeTab === key;
+        <div className="overflow-x-auto md:overflow-visible hide-scrollbar -mx-4 sm:mx-0 mb-6 md:mb-8">
+          <div className="flex flex-nowrap md:flex-wrap gap-2 px-4 sm:px-0">
+            {(
+              Object.entries(TAB_ACTIONS) as [
+                ActiveTab,
+                (typeof TAB_ACTIONS)[ActiveTab]
+              ][]
+            ).map(([key, { type, label, href }]) => {
+              const isActive = activeTab === key;
 
-            const className = `px-3 sm:px-6 lg:px-9 py-2 sm:py-3 rounded-lg cursor-pointer transition-all duration-150 ease-in-out text-sm sm:text-base ${
-              isActive
-                ? 'bg-[#FFDE2C] shadow-sm'
-                : 'bg-white text-gray-700 border border-[#CBD5E1] hover:bg-gray-50 hover:border-gray-400'
-            }`;
+              const className = `shrink-0 whitespace-nowrap px-3 sm:px-6 lg:px-9 py-2 sm:py-3 rounded-lg cursor-pointer transition-all duration-150 ease-in-out text-sm sm:text-base ${
+                isActive
+                  ? 'bg-[#FFDE2C] shadow-sm'
+                  : 'bg-white text-gray-700 border border-[#CBD5E1] hover:bg-gray-50 hover:border-gray-400'
+              }`;
 
-            if (type === 'tab') {
-              return (
-                <button
-                  key={key}
-                  onClick={() => setActiveTab(key)}
-                  className={className}
-                >
-                  {label}
-                </button>
-              );
-            }
+              if (type === 'tab') {
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setActiveTab(key)}
+                    className={className}
+                  >
+                    {label}
+                  </button>
+                );
+              }
 
-            if (type === 'link' && href) {
-              return (
-                <Link key={key} href={href} className={className}>
-                  {label}
-                </Link>
-              );
-            }
+              if (type === 'link' && href) {
+                return (
+                  <Link key={key} href={href} className={className}>
+                    {label}
+                  </Link>
+                );
+              }
 
-            return null;
-          })}
+              return null;
+            })}
+          </div>
         </div>
 
         {/* Filter Controls */}
@@ -152,108 +154,111 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
               />
             </div>
 
-            {/* Rooms Dropdown with range inputs */}
-            <div className="lg:w-[169px] relative">
-              <button
-                onClick={() => setShowRoomRange(!showRoomRange)}
-                className="w-full bg-white hover:bg-gray-50 px-4 py-3 rounded-lg text-left border border-gray-200 transition-colors flex items-center justify-between"
-              >
-                <span className="text-gray-500">
-                  {roomsFrom || roomsTo
-                    ? `${roomsFrom || '0'} - ${roomsTo || '∞'}`
-                    : 'Комнат'}
-                </span>
-
-                <svg
-                  className={`w-4 h-4 transition-transform ${
-                    showRoomRange ? 'rotate-180' : ''
-                  }`}
-                  width="12"
-                  height="8"
-                  viewBox="0 0 12 8"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+            {/* Rooms and Price in one row on mobile */}
+            <div className="grid grid-cols-2 sm:col-span-2 lg:col-span-1 lg:flex gap-3">
+              {/* Rooms Dropdown with range inputs */}
+              <div className="lg:w-[169px] relative">
+                <button
+                  onClick={() => setShowRoomRange(!showRoomRange)}
+                  className="w-full bg-white hover:bg-gray-50 px-4 py-3 rounded-lg text-left border border-gray-200 transition-colors flex items-center justify-between"
                 >
-                  <path
-                    d="M1 1.5L6 6.5L11 1.5"
-                    stroke="#333"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
+                  <span className="text-gray-500">
+                    {roomsFrom || roomsTo
+                      ? `${roomsFrom || '0'} - ${roomsTo || '∞'}`
+                      : 'Комнат'}
+                  </span>
 
-              {showRoomRange && (
-                <div className="mt-2 grid grid-cols-2 gap-2 absolute z-50 w-full">
-                  <input
-                    type="tel"
-                    placeholder="От"
-                    value={roomsFrom}
-                    onChange={(e) => setRoomsFrom(e.target.value)}
-                    className="px-3 py-2 border outline-0 border-gray-200 rounded-lg text-sm bg-white"
-                  />
-                  <input
-                    type="tel"
-                    placeholder="До"
-                    value={roomsTo}
-                    onChange={(e) => setRoomsTo(e.target.value)}
-                    className="px-3 py-2 border outline-0 border-gray-200 rounded-lg text-sm bg-white"
-                  />
-                </div>
-              )}
-            </div>
+                  <svg
+                    className={`w-4 h-4 transition-transform ${
+                      showRoomRange ? 'rotate-180' : ''
+                    }`}
+                    width="12"
+                    height="8"
+                    viewBox="0 0 12 8"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M1 1.5L6 6.5L11 1.5"
+                      stroke="#333"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
 
-            {/* Price Dropdown with expandable inputs */}
-            <div className="lg:w-[241px] relative">
-              <button
-                onClick={() => setShowPriceRange(!showPriceRange)}
-                className="w-full bg-white hover:bg-gray-50 px-4 py-3 rounded-lg text-left border border-gray-200 transition-colors flex items-center justify-between"
-              >
-                <span className="text-gray-500">
-                  {priceFrom || priceTo
-                    ? `${priceFrom || '0'} - ${priceTo || '∞'}`
-                    : 'Цена'}
-                </span>
+                {showRoomRange && (
+                  <div className="mt-2 grid grid-cols-2 gap-2 absolute z-50 w-full">
+                    <input
+                      type="tel"
+                      placeholder="От"
+                      value={roomsFrom}
+                      onChange={(e) => setRoomsFrom(e.target.value)}
+                      className="px-3 py-2 border outline-0 border-gray-200 rounded-lg text-sm bg-white"
+                    />
+                    <input
+                      type="tel"
+                      placeholder="До"
+                      value={roomsTo}
+                      onChange={(e) => setRoomsTo(e.target.value)}
+                      className="px-3 py-2 border outline-0 border-gray-200 rounded-lg text-sm bg-white"
+                    />
+                  </div>
+                )}
+              </div>
 
-                <svg
-                  className={`w-4 h-4 transition-transform ${
-                    showPriceRange ? 'rotate-180' : ''
-                  }`}
-                  width="12"
-                  height="8"
-                  viewBox="0 0 12 8"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+              {/* Price Dropdown with expandable inputs */}
+              <div className="lg:w-[241px] relative">
+                <button
+                  onClick={() => setShowPriceRange(!showPriceRange)}
+                  className="w-full bg-white hover:bg-gray-50 px-4 py-3 rounded-lg text-left border border-gray-200 transition-colors flex items-center justify-between"
                 >
-                  <path
-                    d="M1 1.5L6 6.5L11 1.5"
-                    stroke="#333"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
+                  <span className="text-gray-500">
+                    {priceFrom || priceTo
+                      ? `${priceFrom || '0'} - ${priceTo || '∞'}`
+                      : 'Цена'}
+                  </span>
 
-              {showPriceRange && (
-                <div className="mt-2 grid grid-cols-2 gap-2 absolute z-50 w-full">
-                  <input
-                    type="tel"
-                    placeholder="От"
-                    value={priceFrom}
-                    onChange={(e) => setPriceFrom(e.target.value)}
-                    className="px-3 py-2 border outline-0 border-gray-200 rounded-lg text-sm bg-white"
-                  />
-                  <input
-                    type="tel"
-                    placeholder="До"
-                    value={priceTo}
-                    onChange={(e) => setPriceTo(e.target.value)}
-                    className="px-3 py-2 border outline-0 border-gray-200 rounded-lg text-sm bg-white"
-                  />
-                </div>
-              )}
+                  <svg
+                    className={`w-4 h-4 transition-transform ${
+                      showPriceRange ? 'rotate-180' : ''
+                    }`}
+                    width="12"
+                    height="8"
+                    viewBox="0 0 12 8"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M1 1.5L6 6.5L11 1.5"
+                      stroke="#333"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+
+                {showPriceRange && (
+                  <div className="mt-2 grid grid-cols-2 gap-2 absolute z-50 w-full">
+                    <input
+                      type="tel"
+                      placeholder="От"
+                      value={priceFrom}
+                      onChange={(e) => setPriceFrom(e.target.value)}
+                      className="px-3 py-2 border outline-0 border-gray-200 rounded-lg text-sm bg-white"
+                    />
+                    <input
+                      type="tel"
+                      placeholder="До"
+                      value={priceTo}
+                      onChange={(e) => setPriceTo(e.target.value)}
+                      className="px-3 py-2 border outline-0 border-gray-200 rounded-lg text-sm bg-white"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* All Filters Button */}
