@@ -1,4 +1,6 @@
-import { FC } from 'react';
+'use client';
+
+import { FC, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 
 interface PromoCardData {
@@ -51,15 +53,17 @@ interface PromoCardProps {
 const PromoCard: FC<PromoCardProps> = ({ cardData }) => {
   return (
     <div
-      className={`relative rounded-3xl p-6 md:p-8 overflow-hidden h-full flex flex-col justify-between min-h-[200px] md:min-h-[240px] ${cardData.bgColor} ${cardData.textColor} hover:shadow-lg transition-shadow duration-200 cursor-pointer`}
+      data-slide
+      className={`relative rounded-3xl p-6 md:p-8 overflow-hidden h-full flex flex-col justify-between min-h-[200px] md:min-h-[240px] snap-start ${cardData.bgColor} ${cardData.textColor} hover:shadow-lg transition-shadow duration-200 cursor-pointer`}
     >
-      <div className="relative z-10 max-w-[60%]">
-        {' '}
+      <div className="relative z-10 md:max-w-[60%]">
         <h3
-          className="text-lg font-bold mb-2.5 leading-6 md:leading-none"
+          className="text-sm md:text-[28px] font-bold mb-2.5 leading-tight md:leading-none"
           dangerouslySetInnerHTML={{ __html: cardData.title }}
         />
-        <p className="text-xs md:text-sm opacity-90">{cardData.description}</p>
+        <p className="text-xs md:text-base opacity-90">
+          {cardData.description}
+        </p>
       </div>
 
       <div className="absolute bottom-0 right-0 w-1/2 md:w-[45%] lg:w-[55%] max-w-[160px] sm:max-w-[180px] md:max-w-[200px] lg:max-w-[220px] aspect-[5/4] pointer-events-none -bottom-1 -right-1 md:-bottom-2 md:-right-2">
@@ -75,19 +79,63 @@ const PromoCard: FC<PromoCardProps> = ({ cardData }) => {
 };
 
 const Promo: FC = () => {
-  const activeIndex = 0;
+  const [activeIndex, setActiveIndex] = useState(0);
+  const scrollerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+
+    const onScroll = () => {
+      const slides = Array.from(
+        el.querySelectorAll<HTMLElement>('[data-slide]')
+      );
+      if (!slides.length) return;
+      let idx = 0;
+      let min = Number.POSITIVE_INFINITY;
+      slides.forEach((slide, i) => {
+        const dist = Math.abs(slide.offsetLeft - el.scrollLeft);
+        if (dist < min) {
+          min = dist;
+          idx = i;
+        }
+      });
+      setActiveIndex(idx);
+    };
+
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const scrollTo = (index: number) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const slides = el.querySelectorAll<HTMLElement>('[data-slide]');
+    const target = slides[index];
+    if (!target) return;
+    el.scrollTo({ left: target.offsetLeft, behavior: 'smooth' });
+  };
+
   return (
     <section className="container py-10 md:py-20 px-4 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-        {promoData.map((card) => (
-          <PromoCard key={card.id} cardData={card} />
-        ))}
+      {/* Mobile: horizontal scroll with snap; Desktop: 3-column grid */}
+      <div
+        ref={scrollerRef}
+        className="overflow-x-auto md:overflow-visible hide-scrollbar snap-x snap-mandatory -mx-4 sm:mx-0"
+      >
+        <div className="grid grid-flow-col auto-cols-[85%] sm:auto-cols-[75%] gap-4 px-4 sm:px-0 md:grid-flow-row md:auto-cols-auto md:grid-cols-3 md:gap-6 lg:gap-8">
+          {promoData.map((card) => (
+            <PromoCard key={card.id} cardData={card} />
+          ))}
+        </div>
       </div>
 
-      <div className="flex justify-center items-center space-x-2 mt-[22px]">
+      {/* Dots indicator - only show on mobile/tablet */}
+      <div className="flex md:hidden justify-center items-center space-x-2 mt-[18px]">
         {promoData.map((_, index) => (
           <button
             key={index}
+            onClick={() => scrollTo(index)}
             className={`w-2.5 h-2.5 rounded-full transition-colors duration-200 ${
               index === activeIndex
                 ? 'bg-[#0036A5]'

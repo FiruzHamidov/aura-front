@@ -1,5 +1,3 @@
-import { PropertyPhoto } from "../properties/types";
-
 export interface Agent {
   id: number;
   name: string;

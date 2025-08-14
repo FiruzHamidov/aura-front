@@ -13,12 +13,12 @@ import { useMe, useLogoutMutation } from '@/services/login/hooks';
 
 const navItems = [
   { name: 'Главная', href: '/' },
+  { name: 'Снять', href: '/rent' },
   { name: 'Аренда', href: '/rent' },
-  { name: 'Услуги', href: '/services' },
   { name: 'Новостройки', href: '/new-buildings' },
-  { name: 'Новости', href: '/about/news' },
-  { name: 'Команда', href: '/about/team' },
-  { name: 'О нас', href: '/about' },
+  { name: 'Ипотека', href: '/mortgage' },
+  { name: 'Сервисы', href: '/services' },
+  { name: 'Реклама', href: '/advertising' },
 ];
 
 const Header: FC = () => {
@@ -26,6 +26,7 @@ const Header: FC = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isAboutDropdownOpen, setIsAboutDropdownOpen] = useState(false);
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const userMenuRef = useRef<HTMLDivElement | null>(null);
   const [isClient, setIsClient] = useState(false);
@@ -73,7 +74,7 @@ const Header: FC = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (isMobileMenuOpen && !(event.target as Element).closest('header')) {
+      if (isMobileMenuOpen && !(event.target as Element).closest('nav')) {
         setIsMobileMenuOpen(false);
       }
     };
@@ -297,102 +298,148 @@ const Header: FC = () => {
         </div>
       </nav>
 
-      {/* Mobile Navigation Overlay */}
+      {/* Mobile Navigation Fullscreen Overlay */}
       {isMobileMenuOpen && (
-        <div
-          className="md:hidden fixed inset-0 z-50 bg-black bg-opacity-50"
-          onClick={() => setIsMobileMenuOpen(false)}
-        >
-          <nav
-            className="bg-white w-full max-w-sm h-full shadow-xl overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Mobile Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-              <Logo className="w-[135px] h-[45px]" />
-              <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2 text-gray-600 hover:text-gray-900"
-                aria-label="Close menu"
+        <nav className="md:hidden fixed inset-0 z-50 bg-gradient-to-b bg-[#0036a5] flex flex-col">
+          {/* Mobile Header */}
+          <div className="flex items-center justify-between px-6 py-4">
+            <Logo className="w-[135px] h-[45px] brightness-0 invert" />
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="p-2 text-white hover:text-gray-200 rounded-full bg-white/10 hover:bg-white/20 transition-all"
+              aria-label="Close menu"
+            >
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
 
-            <div className="p-4">
-              {/* Mobile User Menu */}
-              <div className="mb-6 pb-6 border-b border-gray-200">
-                <UserMenu isMobile />
-              </div>
-
-              {/* Mobile Action Buttons */}
-              <div className="space-y-3 mb-6 pb-6 border-b border-gray-200">
-                {/* Location Button */}
-                <button className="w-full flex items-center justify-center space-x-2 bg-sky-100/70 hover:bg-sky-100 px-4 py-3 rounded-lg transition-colors">
-                  <MapIcon className="h-5 w-5 text-slate-600" />
-                  <span>Душанбе</span>
-                </button>
-
-                {/* Add Listing Button */}
-                <button className="w-full flex items-center pulse-shadow justify-center space-x-2 bg-[#0036A5] text-white hover:bg-gray-200 px-4 py-3 rounded-lg transition-colors">
-                  <PlusIcon className="h-5 w-5" />
-                  <span>Добавить объявление</span>
-                </button>
-
-                {/* Icon Actions */}
-                <div className="flex justify-center space-x-6 pt-2">
+          {/* Navigation Links - Center */}
+          <div className="flex-1 flex flex-col justify-center px-6">
+            <div className="space-y-7">
+              {navItems.map((item) => (
+                <div key={item.name} className="text-center">
                   <Link
-                    href="/comparison"
+                    href={item.href}
+                    className={`block text-white text-2xl hover:text-gray-200 transition-colors py-2 ${
+                      pathname === item.href ? 'text-yellow-300' : ''
+                    }`}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <button className="p-3 text-[#0036A5] transition-colors">
-                      <SettingsIcon className="h-6 w-6" />
-                    </button>
-                  </Link>
-                  <Link
-                    href="/favorites"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <button className="p-3 text-[#0036A5] transition-colors">
-                      <HeartIcon className="h-6 w-6" />
-                    </button>
+                    {item.name}
                   </Link>
                 </div>
-              </div>
+              ))}
 
-              {/* Mobile Navigation Links */}
-              <div className="space-y-1">
-                {navItems.map((item) => (
-                  <div key={item.name}>
+              {/* О нас dropdown */}
+              <div className="text-center">
+                <button
+                  onClick={() => setIsAboutDropdownOpen(!isAboutDropdownOpen)}
+                  className="flex items-center justify-center space-x-2 text-white text-2xl hover:text-gray-200 transition-colors py-2 mx-auto"
+                >
+                  <span>О нас</span>
+                  <svg
+                    className={`w-5 h-5 transition-transform ${
+                      isAboutDropdownOpen ? 'rotate-180' : ''
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {isAboutDropdownOpen && (
+                  <div className="mt-4 space-y-3">
                     <Link
-                      href={item.href}
-                      className={`block py-3 px-4 hover:bg-gray-50 rounded-lg transition-colors  ${
-                        pathname === item.href
-                          ? 'text-blue-600 bg-blue-50'
-                          : 'text-gray-900'
-                      }`}
+                      href="/about/news"
+                      className="block text-white/80 text-lg hover:text-white transition-colors py-1"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      {item.name}
+                      Новости
+                    </Link>
+                    <Link
+                      href="/about/team"
+                      className="block text-white/80 text-lg hover:text-white transition-colors py-1"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Команда
+                    </Link>
+                    <Link
+                      href="/about"
+                      className="block text-white/80 text-lg hover:text-white transition-colors py-1"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      О компании
                     </Link>
                   </div>
-                ))}
+                )}
               </div>
             </div>
-          </nav>
-        </div>
+          </div>
+
+          {/* Bottom Action Buttons */}
+          <div className="p-6 space-y-4">
+            <div className="flex space-x-4">
+              {/* Location Button */}
+              <button className="flex-1 flex items-center justify-center space-x-1 bg-white px-3 py-2 rounded-full transition-all">
+                <MapIcon className="h-5 w-5 text-white" />
+                <span>Душанбе</span>
+              </button>
+
+              {/* Login/User Button */}
+              {!user ? (
+                <Link
+                  href="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex-1"
+                >
+                  <button className="w-full bg-white px-4 py-3 rounded-full transition-all">
+                    Войти
+                  </button>
+                </Link>
+              ) : (
+                <div className="flex-1">
+                  <div className="flex items-center space-x-1 bg-white px-3 py-2 rounded-full">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center">
+                      <UserIcon className="w-5 h-5 text-[#0036a5]" />
+                    </div>
+                    <span className="text-sm">{user.name}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Add Listing Button */}
+            <Link
+              href="/profile/add-post"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block"
+            >
+              <button className="w-full flex items-center justify-center space-x-2 text-white border-2 border-white font-semibold px-6 py-3 rounded-full hover:bg-gray-100 transition-colors">
+                <PlusIcon className="h-5 w-5" />
+                <span>Добавить объявление</span>
+              </button>
+            </Link>
+          </div>
+        </nav>
       )}
     </header>
   );
