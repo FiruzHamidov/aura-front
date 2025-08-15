@@ -86,6 +86,7 @@ export interface CreatePropertyRequest {
   price: string;
   currency: string;
   offer_type: string;
+  listing_type: string;
   rooms: number;
   total_area: string;
   living_area: string;

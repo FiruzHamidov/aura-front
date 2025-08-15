@@ -90,6 +90,7 @@ export const addPostApi = {
     formData.append("price", propertyData.price);
     formData.append("currency", propertyData.currency);
     formData.append("offer_type", propertyData.offer_type);
+    formData.append("listing_type", propertyData.listing_type);
     formData.append("rooms", propertyData.rooms.toString());
     formData.append("total_area", propertyData.total_area);
     formData.append("living_area", propertyData.living_area);
@@ -164,6 +165,7 @@ export const addPostApi = {
     formData.append("price", propertyData.price);
     formData.append("currency", propertyData.currency);
     formData.append("offer_type", propertyData.offer_type);
+    formData.append("listing_type", propertyData.listing_type);
     formData.append("rooms", propertyData.rooms.toString());
     formData.append("total_area", propertyData.total_area);
     formData.append("living_area", propertyData.living_area);
