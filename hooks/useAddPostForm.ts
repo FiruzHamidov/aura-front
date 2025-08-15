@@ -117,6 +117,7 @@ export function useAddPostForm({
 
       setSelectedOfferType(propertyData.offer_type || "sale");
       setSelectedPropertyType(propertyData.type_id || null);
+      setSelectedListingType(propertyData.listing_type || "regular");
       setSelectedBuildingType(propertyData.status_id || null);
       setSelectedRooms(propertyData.rooms || null);
 
