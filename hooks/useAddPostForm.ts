@@ -183,6 +183,8 @@ export function useAddPostForm({
       location_id: form.location_id,
       repair_type_id: form.repair_type_id,
       heating_type_id: form.heating_type_id,
+      address: form.address,
+      district: form.district,
       parking_type_id: form.parking_type_id,
       price: form.price,
       currency: form.currency,

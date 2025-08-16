@@ -26,7 +26,6 @@ export interface Property {
   currency: string;
   rooms: number;
   floor: string;
-  address?: string;
   creator?: {
     id: number;
     name: string;
@@ -59,6 +58,7 @@ export interface Property {
   owner_phone?: string;
   listing_type: string;
   district?: string;
+  address?: string;
   offer_type?: string;
   type: PropertyType;
   status: PropertyStatus;
@@ -115,6 +115,7 @@ export interface PropertyFilters {
   floorTo?: string;
   listing_type: string;
   page?: number;
+  per_page?: number;
 }
 
 export interface User {

@@ -80,6 +80,8 @@ export interface CreatePropertyRequest {
   type_id: number;
   status_id: number;
   location_id: string;
+  address: string;
+  district: string;
   repair_type_id: string;
   heating_type_id: string;
   parking_type_id: string;

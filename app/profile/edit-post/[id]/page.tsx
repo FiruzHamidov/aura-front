@@ -36,6 +36,7 @@ export default function EditPost() {
         floor: propertyData.floor,
         title: propertyData.title,
         address: propertyData.address,
+        district: propertyData.district,
         creator: propertyData.creator,
         agent_id: propertyData.agent_id,
         type_id: propertyData.type_id,
@@ -59,7 +60,6 @@ export default function EditPost() {
         latitude: propertyData.latitude,
         longitude: propertyData.longitude,
         owner_phone: propertyData.owner_phone,
-        district: propertyData.district,
         offer_type: propertyData.offer_type,
         photos: propertyData.photos,
       }
