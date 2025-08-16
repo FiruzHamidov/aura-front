@@ -113,6 +113,7 @@ export interface PropertyFilters {
   areaTo?: string;
   floorFrom?: string;
   floorTo?: string;
+  moderation_status?: string;
   listing_type: string;
   page?: number;
   per_page?: number;

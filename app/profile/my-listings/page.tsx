@@ -5,93 +5,141 @@ import BuyCard from '@/app/_components/buy/buy-card';
 import BuyCardSkeleton from '@/ui-components/BuyCardSkeleton';
 import {useGetMyPropertiesQuery} from '@/services/properties/hooks';
 import {Property} from '@/services/properties/types';
-import {useProfile} from "@/services/login/hooks";
+import {useProfile} from '@/services/login/hooks';
+
+const TABS = [
+    {key: 'pending', label: 'На модерации'},
+    {key: 'approved', label: 'Активные'},
+    {key: 'rejected', label: 'Отклонённые'},
+    {key: 'draft', label: 'Черновики'},
+    {key: 'deleted', label: 'Удаленные'},
+] as const;
+
+type TabKey = typeof TABS[number]['key'];
 
 export default function MyListings() {
     const {data: user} = useProfile();
 
-    // базовые параметры запроса — как и было
-    const {data: myProperties, isLoading} = useGetMyPropertiesQuery(
-        { listing_type: '', per_page: 100 },
-        true
-    );
-
-    const [selectedTab, setSelectedTab] = useState<'active' | 'inactive'>('active');
-
-    // ====== ПАГИНАЦИЯ (клиентская) ======
+    const [selectedTab, setSelectedTab] = useState<TabKey>('approved');
     const [page, setPage] = useState(1);
-    const perPage = 12;
+    const perPage = 20;
 
-    // ресет страницы при смене вкладки или обновлении данных
-    useEffect(() => { setPage(1); }, [selectedTab]);
-    useEffect(() => { setPage(1); }, [myProperties]);
-
-    const listings: Property[] = myProperties?.data || [];
-
-    const activeListings = useMemo(
-        () => listings.filter(l => l.moderation_status === 'approved'),
-        [listings]
+    /**
+     * Основной список: серверная пагинация и фильтрация по выбранной вкладке.
+     */
+    const {
+        data: myProperties,
+        isLoading,
+        isFetching,
+    } = useGetMyPropertiesQuery(
+        {
+            listing_type: '',
+            page,
+            per_page: perPage,
+            moderation_status: selectedTab,
+        },
+        // если твой хук поддерживает опции React Query
+        {
+            keepPreviousData: true,
+            staleTime: 60_000,
+            refetchOnWindowFocus: false,
+        } as any
     );
 
-    const inactiveListings = useMemo(
-        () => listings.filter(l => l.moderation_status !== 'approved'),
-        [listings]
-    );
-
-    const currentListings = selectedTab === 'active' ? activeListings : inactiveListings;
-
-    const totalItems = currentListings.length;
-    const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
-    const startIdx = (page - 1) * perPage;
-    const endIdx = Math.min(startIdx + perPage, totalItems);
-
-    const paginated = useMemo(
-        () => currentListings.slice(startIdx, endIdx),
-        [currentListings, startIdx, endIdx]
-    );
-
-    const changeTab = (tab: 'active' | 'inactive') => {
-        setSelectedTab(tab);
+    useEffect(() => {
         setPage(1);
+    }, [selectedTab]);
+
+    /**
+     * Лёгкие запросы для тоталов на каждую вкладку (per_page: 1).
+     * Эти запросы качают только meta, трафик минимальный.
+     */
+    const {data: pendingMeta} = useGetMyPropertiesQuery(
+        {listing_type: '', page: 1, per_page: 1, moderation_status: 'pending'},
+        {staleTime: 120_000, refetchOnWindowFocus: false} as any
+    );
+
+    const {data: approvedMeta} = useGetMyPropertiesQuery(
+        {listing_type: '', page: 1, per_page: 1, moderation_status: 'approved'},
+        {staleTime: 120_000, refetchOnWindowFocus: false} as any
+    );
+
+    const {data: rejectedMeta} = useGetMyPropertiesQuery(
+        {listing_type: '', page: 1, per_page: 1, moderation_status: 'rejected'},
+        {staleTime: 120_000, refetchOnWindowFocus: false} as any
+    );
+
+    const {data: draftMeta} = useGetMyPropertiesQuery(
+        {listing_type: '', page: 1, per_page: 1, moderation_status: 'draft'},
+        {staleTime: 120_000, refetchOnWindowFocus: false} as any
+    );
+
+    const {data: deletedMeta} = useGetMyPropertiesQuery(
+        {listing_type: '', page: 1, per_page: 1, moderation_status: 'deleted'},
+        {staleTime: 120_000, refetchOnWindowFocus: false} as any
+    );
+
+    /**
+     * Данные для активной вкладки.
+     */
+    const serverData: Property[] = myProperties?.data ?? [];
+    const totalItems = myProperties?.total ?? 0;
+    const totalPages = myProperties?.last_page ?? 1;
+    const currentPage = myProperties?.current_page ?? page;
+    const from = myProperties?.from ?? 0;
+    const to = myProperties?.to ?? 0;
+
+    /**
+     * Счётчики по всем вкладкам.
+     */
+    const tabTotals: Record<TabKey, number | undefined> = {
+        pending: pendingMeta?.total,
+        approved: approvedMeta?.total,
+        rejected: rejectedMeta?.total,
+        draft: draftMeta?.total,
+        deleted: deletedMeta?.total,
     };
 
-    const goTo = (p: number) => setPage(Math.min(Math.max(1, p), totalPages));
+    function changeTab(tab: TabKey) {
+        setSelectedTab(tab);
+        setPage(1);
+    }
 
-    // для компактной навигации страниц сделаем небольшую "полосу" кнопок
+    function goTo(targetPage: number) {
+        const safePage = Math.min(Math.max(1, targetPage), totalPages);
+        setPage(safePage);
+    }
+
     const pageNumbers = useMemo(() => {
-        const delta = 1; // соседние страницы слева/справа
-        const pages: number[] = [];
-        const from = Math.max(1, page - delta);
-        const to   = Math.min(totalPages, page + delta);
-        for (let i = from; i <= to; i++) pages.push(i);
-        // гарантируем первую/последнюю
-        if (pages[0] !== 1) pages.unshift(1);
-        if (pages[pages.length - 1] !== totalPages) pages.push(totalPages);
-        // уберем дубликаты
-        return [...new Set(pages)];
-    }, [page, totalPages]);
+        const delta = 1;
+        const numbers: number[] = [];
+        const fromPage = Math.max(1, currentPage - delta);
+        const toPage = Math.min(totalPages, currentPage + delta);
+        for (let i = fromPage; i <= toPage; i++) numbers.push(i);
+        if (numbers[0] !== 1) numbers.unshift(1);
+        if (numbers[numbers.length - 1] !== totalPages) numbers.push(totalPages);
+        return [...new Set(numbers)];
+    }, [currentPage, totalPages]);
 
-    if (isLoading) {
+    if (isLoading && !myProperties) {
         return (
             <div>
                 <div className="mb-6">
                     <div className="flex space-x-4 border-b">
-                        <button
-                            className={`pb-2 px-4 border-b-2 font-medium ${
-                                selectedTab === 'active' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'
-                            }`}
-                            onClick={() => changeTab('active')}
-                        >
-                            Активные
-                        </button>
-                        <button
-                            className={`pb-2 px-4 border-b-2 font-medium ${
-                                selectedTab === 'inactive' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'
-                            }`}
-                            onClick={() => changeTab('inactive')}
-                        >
-                            Неактивные
-                        </button>
+                        {TABS.map((tabDef) => (
+                            <button
+                                key={tabDef.key}
+                                className={`pb-2 px-4 border-b-2 font-medium ${
+                                    selectedTab === tabDef.key
+                                        ? 'border-blue-500 text-blue-600'
+                                        : 'border-transparent text-gray-500'
+                                }`}
+                                onClick={() => changeTab(tabDef.key)}
+                            >
+                                {tabDef.label}
+                                {typeof tabTotals[tabDef.key] === 'number' ? ` (${tabTotals[tabDef.key]})` : ''}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
@@ -109,72 +157,74 @@ export default function MyListings() {
             <div className="mb-6">
                 <div className="flex flex-wrap items-end justify-between gap-3 border-b pb-2">
                     <div className="flex space-x-4">
-                        <button
-                            className={`pb-2 px-4 border-b-2 font-medium ${
-                                selectedTab === 'active' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'
-                            }`}
-                            onClick={() => changeTab('active')}
-                        >
-                            Активные ({activeListings.length})
-                        </button>
-                        <button
-                            className={`pb-2 px-4 border-b-2 font-medium ${
-                                selectedTab === 'inactive' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'
-                            }`}
-                            onClick={() => changeTab('inactive')}
-                        >
-                            Неактивные ({inactiveListings.length})
-                        </button>
+                        {TABS.map((tabDef) => (
+                            <button
+                                key={tabDef.key}
+                                className={`pb-2 px-4 border-b-2 font-medium ${
+                                    selectedTab === tabDef.key
+                                        ? 'border-blue-500 text-blue-600'
+                                        : 'border-transparent text-gray-500'
+                                }`}
+                                onClick={() => changeTab(tabDef.key)}
+                            >
+                                {tabDef.label}{' '}
+                                {typeof tabTotals[tabDef.key] === 'number'
+                                    ? `(${tabTotals[tabDef.key]})`
+                                    : '(…)'}
+                            </button>
+                        ))}
                     </div>
 
-                    {/* Инфо по текущему диапазону */}
                     <div className="text-sm text-gray-500">
-                        {totalItems > 0
-                            ? <>Показываю <span className="font-medium">{startIdx + 1}–{endIdx}</span> из <span className="font-medium">{totalItems}</span></>
-                            : 'Нет данных'}
+                        {totalItems > 0 ? (
+                            <>
+                                Показываю <span className="font-medium">{from}–{to}</span> из{' '}
+                                <span className="font-medium">{totalItems}</span>
+                            </>
+                        ) : (
+                            ''
+                        )}
+                        {isFetching && <span className="ml-2 text-gray-400">Обновление…</span>}
                     </div>
                 </div>
             </div>
 
-            {paginated.length === 0 ? (
+            {serverData.length === 0 ? (
                 <div className="text-center py-16">
-                    <p className="text-gray-500 text-lg">
-                        {selectedTab === 'active'
-                            ? 'У вас нет активных объявлений'
-                            : 'У вас нет неактивных объявлений'}
-                    </p>
+                    <p className="text-gray-500 text-lg">Нет объявлений</p>
                 </div>
             ) : (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[14px]">
-                        {paginated.map((listing: Property) => (
+                        {serverData.map((listing: Property) => (
                             <BuyCard listing={listing} user={user} key={listing.id}/>
                         ))}
                     </div>
 
-                    {/* ПАГИНАТОР */}
                     <div className="mt-6 flex items-center justify-center gap-2">
                         <button
                             className="px-3 py-2 rounded-xl border text-sm hover:bg-gray-50 disabled:opacity-40"
-                            onClick={() => goTo(page - 1)}
-                            disabled={page <= 1}
+                            onClick={() => goTo(currentPage - 1)}
+                            disabled={currentPage <= 1}
                         >
                             Назад
                         </button>
 
-                        {pageNumbers.map((n, i) => {
-                            const isEllipsis =
-                                (i > 0 && n - pageNumbers[i - 1] > 1);
+                        {pageNumbers.map((pageNumber, index) => {
+                            const needEllipsis =
+                                index > 0 && pageNumber - pageNumbers[index - 1] > 1;
                             return (
-                                <span key={`${n}-${i}`} className="flex">
-                  {isEllipsis && <span className="px-1 text-gray-400">…</span>}
+                                <span key={`${pageNumber}-${index}`} className="flex">
+                  {needEllipsis && <span className="px-1 text-gray-400">…</span>}
                                     <button
-                                        onClick={() => goTo(n)}
+                                        onClick={() => goTo(pageNumber)}
                                         className={`px-3 py-2 rounded-xl border text-sm mx-0.5 ${
-                                            n === page ? 'bg-blue-600 text-white border-blue-600' : 'hover:bg-gray-50'
+                                            pageNumber === currentPage
+                                                ? 'bg-blue-600 text-white border-blue-600'
+                                                : 'hover:bg-gray-50'
                                         }`}
                                     >
-                    {n}
+                    {pageNumber}
                   </button>
                 </span>
                             );
@@ -182,8 +232,8 @@ export default function MyListings() {
 
                         <button
                             className="px-3 py-2 rounded-xl border text-sm hover:bg-gray-50 disabled:opacity-40"
-                            onClick={() => goTo(page + 1)}
-                            disabled={page >= totalPages}
+                            onClick={() => goTo(currentPage + 1)}
+                            disabled={currentPage >= totalPages}
                         >
                             Вперёд
                         </button>
