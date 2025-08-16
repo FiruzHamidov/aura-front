@@ -24,9 +24,7 @@ export default function MyListings() {
     const [page, setPage] = useState(1);
     const perPage = 20;
 
-    /**
-     * Основной список: серверная пагинация и фильтрация по выбранной вкладке.
-     */
+    // Основной список (серверная пагинация + фильтр по вкладке)
     const {
         data: myProperties,
         isLoading,
@@ -38,50 +36,36 @@ export default function MyListings() {
             per_page: perPage,
             moderation_status: selectedTab,
         },
-        // если твой хук поддерживает опции React Query
-        {
-            keepPreviousData: true,
-            staleTime: 60_000,
-            refetchOnWindowFocus: false,
-        } as any
+        true // <-- второй аргумент этого хука — boolean (enable)
     );
 
     useEffect(() => {
         setPage(1);
     }, [selectedTab]);
 
-    /**
-     * Лёгкие запросы для тоталов на каждую вкладку (per_page: 1).
-     * Эти запросы качают только meta, трафик минимальный.
-     */
+    // Лёгкие запросы для тоталов по всем вкладкам (per_page: 1)
     const {data: pendingMeta} = useGetMyPropertiesQuery(
         {listing_type: '', page: 1, per_page: 1, moderation_status: 'pending'},
-        {staleTime: 120_000, refetchOnWindowFocus: false} as any
+        true
     );
-
     const {data: approvedMeta} = useGetMyPropertiesQuery(
         {listing_type: '', page: 1, per_page: 1, moderation_status: 'approved'},
-        {staleTime: 120_000, refetchOnWindowFocus: false} as any
+        true
     );
-
     const {data: rejectedMeta} = useGetMyPropertiesQuery(
         {listing_type: '', page: 1, per_page: 1, moderation_status: 'rejected'},
-        {staleTime: 120_000, refetchOnWindowFocus: false} as any
+        true
     );
-
     const {data: draftMeta} = useGetMyPropertiesQuery(
         {listing_type: '', page: 1, per_page: 1, moderation_status: 'draft'},
-        {staleTime: 120_000, refetchOnWindowFocus: false} as any
+        true
     );
-
     const {data: deletedMeta} = useGetMyPropertiesQuery(
         {listing_type: '', page: 1, per_page: 1, moderation_status: 'deleted'},
-        {staleTime: 120_000, refetchOnWindowFocus: false} as any
+        true
     );
 
-    /**
-     * Данные для активной вкладки.
-     */
+    // Данные активной вкладки
     const serverData: Property[] = myProperties?.data ?? [];
     const totalItems = myProperties?.total ?? 0;
     const totalPages = myProperties?.last_page ?? 1;
@@ -89,9 +73,7 @@ export default function MyListings() {
     const from = myProperties?.from ?? 0;
     const to = myProperties?.to ?? 0;
 
-    /**
-     * Счётчики по всем вкладкам.
-     */
+    // Тоталы для заголовков вкладок
     const tabTotals: Record<TabKey, number | undefined> = {
         pending: pendingMeta?.total,
         approved: approvedMeta?.total,
