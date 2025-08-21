@@ -32,6 +32,12 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false}) => {
     const userRole =
         user?.role?.slug === 'admin' ? 'admin' : user?.role?.slug === 'agent' ? 'agent' : null;
 
+    const canModerate =
+        userRole === 'admin' ||
+        (userRole === 'agent' &&
+            user?.id != null &&
+            Number(user?.id) === Number(listing.creator?.id));
+
     const scrollTo = useCallback((index: number) => emblaApi && emblaApi.scrollTo(index), [emblaApi]);
 
 
@@ -137,7 +143,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false}) => {
                         <WhiteSettingsIcon className="w-[18px] h-[18px] text-white"/>
                     </div>
 
-                    {userRole && (
+                    {canModerate && (
                         <div
                             onClick={(e) => {
                                 e.preventDefault();
@@ -201,7 +207,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false}) => {
                 </div>
 
                 {displayAgent && (
-                    <div className="mt-auto pt-3 flex items-center justify-between text-xs">
+                    <div className="mt-auto pt-3 flex items-center justify-between text-xs gap-1">
                         <div className="flex items-center justify-center">
                             {displayAgent.photo ? (
                                 <Image
