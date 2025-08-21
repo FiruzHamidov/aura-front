@@ -18,7 +18,7 @@ const navItems = [
     {name: 'Новостройки', href: '/new-buildings'},
     {name: 'Ипотека', href: '/mortgage'},
     {name: 'Сервисы', href: '/services'},
-    {name: 'Реклама', href: '/advertising'},
+    // {name: 'Реклама', href: '/advertising'},
 ];
 
 const Header: FC = () => {

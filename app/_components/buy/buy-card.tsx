@@ -7,12 +7,13 @@ import LocationIcon from '@/icons/LocationIcon';
 import CalendarIcon from '@/icons/CalendarIcon';
 import WhiteSettingsIcon from '@/icons/WhiteSettingsIcon';
 import FavoriteButton from '@/ui-components/favorite-button/favorite-button';
-import {Property, PropertyPhoto} from '@/services/properties/types';
+import {LISTING_TYPE_META, Property, PropertyPhoto} from '@/services/properties/types';
 import {STORAGE_URL} from '@/constants/base-url';
 import UserIcon from '@/icons/UserIcon';
 import {User} from '@/services/login/types';
 import ModerationModal from '@/app/_components/moderation-modal';
 import Link from "next/link";
+import clsx from "clsx";
 
 interface BuyCardProps {
     listing: Property;
@@ -32,6 +33,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false}) => {
         user?.role?.slug === 'admin' ? 'admin' : user?.role?.slug === 'agent' ? 'agent' : null;
 
     const scrollTo = useCallback((index: number) => emblaApi && emblaApi.scrollTo(index), [emblaApi]);
+
 
     const onSelect = useCallback(() => {
         if (!emblaApi) return;
@@ -92,22 +94,37 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false}) => {
                 <div className="overflow-hidden rounded-lg" ref={emblaRef}>
                     <div className="flex">
                         {displayImages.map((image, index) => (
-                            <div key={index} className="min-w-full relative">
+
+                            <div className="min-w-full relative" key={index}>
                                 <Link href={`/apartment/${listing.id}`}
                                       onClick={(e) => isModalOpen && e.preventDefault()}>
+
                                     <Image
                                         src={image.url}
                                         alt={image.alt}
                                         width={600}
                                         height={400}
-                                        className="w-full object-cover aspect-[4/3]"
+                                        className="w-full object-cover aspect-[4/3] bg-gray-100"
                                     />
                                 </Link>
+
                             </div>
                         ))}
                     </div>
                 </div>
-
+                {listing.listing_type && (
+                    <span
+                        className={clsx(
+                            isLarge ? 'top-[22px] left-[22px]' : 'top-[14px] left-[14px]',
+                            'absolute text-xs font-bold px-[18px] py-1 rounded-full shadow',
+                            'backdrop-blur-sm ring-1 ring-black/10',
+                            LISTING_TYPE_META[listing.listing_type]?.classes ?? 'bg-slate-200 text-slate-900'
+                        )}
+                        title={LISTING_TYPE_META[listing.listing_type]?.label}
+                    >
+                        {LISTING_TYPE_META[listing.listing_type]?.label ?? 'Статус'}
+                  </span>
+                )}
                 <div className="absolute top-2 md:top-[22px] right-2 md:right-[22px] flex flex-col space-y-2">
                     <FavoriteButton
                         propertyId={listing.id}
@@ -166,7 +183,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false}) => {
 
             <div className="flex flex-col flex-grow ">
                 <div className="flex justify-between items-center mb-3">
-                    <span className="font-bold text-[#020617]">{formattedPrice} {displayCurrency}</span>
+                    <span className="font-bold text-[#0036A5] text-2xl">{formattedPrice} {displayCurrency}</span>
                     <div className="flex items-center text-xs text-[#666F8D] bg-[#EFF6FF] px-2 py-1 rounded-full">
                         <LocationIcon className="mr-1 w-[18px] h-[18px]"/>
                         {displayLocation}

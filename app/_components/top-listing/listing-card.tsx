@@ -11,6 +11,7 @@ import clsx from 'clsx';
 import WhiteSettingsIcon from '@/icons/WhiteSettingsIcon';
 import FavoriteButton from '@/ui-components/favorite-button/favorite-button';
 import {User} from "@/services/login/types";
+import {LISTING_TYPE_META} from "@/services/properties/types";
 // import ModerationModal from "@/app/_components/moderation-modal";
 // import {Property} from "@/services/properties/types";
 
@@ -18,9 +19,10 @@ interface ListingCardProps {
   listing: Listing;
   isLarge?: boolean;
   user?: User;
+  promoTitle?: String;
 }
 
-const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
+const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false, promoTitle}) => {
   const formattedPrice = listing.price.toLocaleString('ru-RU');
 
   const images = listing.images || [
@@ -65,32 +67,37 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
         <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex">
             {images.map((image, index) => (
-              <div key={index} className="min-w-full relative">
-                <Image
-                  src={image.url ?? ''}
-                  alt={image.alt || `Фото ${listing.title}`}
-                  width={isLarge ? 580 : 279}
-                  height={isLarge ? 293 : 128}
-                  className="w-full object-cover rounded-lg"
-                  style={{
-                    aspectRatio: isLarge ? '4/3' : '4/3',
-                    height: isLarge ? '293px' : '128px',
-                  }}
-                />
-              </div>
+                <div key={index} className="min-w-full">
+                  <div
+                      className="relative w-full overflow-hidden rounded-lg"
+                      style={{height: isLarge ? 293 : 128}} // задаём высоту контейнера
+                  >
+                    <Image
+                        src={image.url ?? ''}
+                        alt={image.alt || `Фото ${listing.title}`}
+                        fill
+                        className="object-cover"              // заполняет контейнер, без искажений (возможна обрезка краёв)
+                        sizes="(min-width: 768px) 580px, 100vw"
+                        priority={index === 0}
+                    />
+                  </div>
+                </div>
             ))}
           </div>
         </div>
 
-        {listing.isTop && (
-          <span
-            className={clsx(
-              isLarge ? 'top-[22px] left-[22px]' : 'top-[14px] left-[14px]',
-              'absolute bg-[#E1C116] text-[#020617] text-xs font-bold px-[18px] py-1 rounded-full shadow'
-            )}
-          >
-            ТОП
-          </span>
+        {listing.listing_type && (
+            <span
+                className={clsx(
+                    isLarge ? 'top-[22px] left-[22px]' : 'top-[14px] left-[14px]',
+                    'absolute text-xs font-bold px-[18px] py-1 rounded-full shadow',
+                    'backdrop-blur-sm ring-1 ring-black/10',
+                    LISTING_TYPE_META[listing.listing_type]?.classes ?? 'bg-slate-200 text-slate-900'
+                )}
+                title={LISTING_TYPE_META[listing.listing_type]?.label}
+            >
+                        {LISTING_TYPE_META[listing.listing_type]?.label ?? 'Статус'}
+                  </span>
         )}
 
         <div

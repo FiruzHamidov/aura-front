@@ -22,7 +22,7 @@ const footerLinks: LinkColumn[] = [
     title: 'Связь с нами',
     links: [
       { name: 'Информация о компании', href: '/about' },
-      { name: 'Реклама', href: '/advertising' },
+      // { name: 'Реклама', href: '/advertising' },
       { name: 'Контакты', href: '/contacts' },
       { name: 'Часто задаваемые вопросы', href: '/faq' },
     ],
@@ -30,10 +30,10 @@ const footerLinks: LinkColumn[] = [
   {
     title: 'Сервисы',
     links: [
-      { name: 'Выкуп недвижимости', href: '/services/purchase' },
+      { name: 'Выкуп недвижимости', href: '/buy-property' },
       { name: 'Ипотека', href: '/mortgage' },
-      { name: 'Оформление документов', href: '/services/documents' },
-      { name: 'Клининговые услуги', href: '/services/cleaning' },
+      { name: 'Оформление документов', href: '/document-registration' },
+      { name: 'Клининговые услуги', href: '/cleaning' },
     ],
   },
 ];
@@ -41,7 +41,7 @@ const footerLinks: LinkColumn[] = [
 const footerNav = [
   { name: 'Главная', href: '/' },
   { name: 'Объявления', href: '/buy' },
-  { name: 'Реклама', href: '/' },
+  // { name: 'Реклама', href: '/' },
   { name: 'Политика', href: '/policy' },
   { name: 'Сервисы', href: '/services' },
   { name: 'Контакты', href: '/about' },

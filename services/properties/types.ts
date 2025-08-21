@@ -136,3 +136,18 @@ export interface PaginationLink {
   label: string;
   active: boolean;
 }
+
+export const LISTING_TYPE_META: Record<string, { label: string; classes: string }> = {
+  regular: {
+    label: 'Продаётся',
+    classes: 'bg-[#0036A5] text-white',
+  },
+  vip: {
+    label: 'VIP',
+    classes: 'bg-amber-400 text-[#020617]',
+  },
+  urgent: {
+    label: 'Срочная',
+    classes: 'bg-rose-500 text-white',
+  },
+};

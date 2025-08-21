@@ -33,9 +33,10 @@ const tabOptions = [
 
 const TopListings: FC<{
   title?: string;
+  promoTitle?: string;
   isLoading?: boolean;
   properties: PropertiesResponse | undefined;
-}> = ({ title = 'Топовые объявления', properties, isLoading }) => {
+}> = ({ title = 'Топовые объявления', properties, isLoading, promoTitle = 'VIP' }) => {
   const [activeType, setActiveType] = useState<PropertyType>('apartment');
   const { data: user } = useProfile();
 
@@ -84,6 +85,7 @@ const TopListings: FC<{
         currency: property.currency === 'TJS' ? 'с.' : property.currency,
         title: property.title || `${roomCountLabel}, ${property.total_area} м²`,
         locationName,
+        listing_type: property.listing_type,
         description:
           property.description || property.landmark || 'Описание отсутствует',
         roomCountLabel,
@@ -168,16 +170,16 @@ const TopListings: FC<{
         <div className="grid md:grid-cols-2 gap-5">
           {firstListing && (
             <div className="md:h-full md:max-h-[576px]">
-              <Link href={`/apartment/${firstListing.id}`}>
-                <ListingCard listing={firstListing} isLarge={true} user={user} />
+              <Link href={`/apartment/${firstListing.id}`} className="max-h-[300px]">
+                <ListingCard listing={firstListing} isLarge={true} user={user} promoTitle={promoTitle} />
               </Link>
             </div>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:max-h-[576px]">
             {smallListings.map((listing) => (
-              <Link key={listing.id} href={`/apartment/${listing.id}`}>
-                <ListingCard listing={listing} isLarge={false} user={user} />
+              <Link key={listing.id} href={`/apartment/${listing.id}`} className="max-h-[300px]">
+                <ListingCard listing={listing} isLarge={false} user={user} promoTitle={promoTitle} />
               </Link>
             ))}
           </div>

@@ -1,7 +1,6 @@
 import { FC, useMemo } from 'react';
 import BuyCard from './buy-card';
 import BuyCardSkeleton from '@/ui-components/BuyCardSkeleton';
-import Link from 'next/link';
 import { PropertiesResponse } from '@/services/properties/types';
 import {useProfile} from "@/services/login/hooks";
 
@@ -79,9 +78,7 @@ const Buy: FC<{
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[14px]">
           {buyListings.map((listing) => (
-            <Link key={listing.id} href={`/apartment/${listing.id}`}>
               <BuyCard listing={listing} user={user} key={listing.id}/>
-            </Link>
           ))}
         </div>
       </div>

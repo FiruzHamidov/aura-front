@@ -18,6 +18,7 @@ export interface Listing {
     price: number;
     currency: string;
     title: string;
+    listing_type: string;
     locationName: string;
     description: string;
     roomCountLabel: string;

@@ -33,12 +33,14 @@ export default function Home() {
       <TopListings
         properties={urgentProperties}
         title="Срочные объявления"
+        promoTitle="Срочная"
         isLoading={isUrgentLoading}
       />
       <Promo />
       <TopListings
         properties={vipProperties}
         title="VIP объявления"
+        promoTitle="VIP"
         isLoading={isVipLoading}
       />
       <PersonalRealtorCta />

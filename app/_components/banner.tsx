@@ -79,7 +79,7 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
     <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 relative py-8 md:py-10 md:pt-[22px] bg-gradient-to-b overflow-hidden ">
       <div
         className={clsx(
-          'bg-white relative overflow-hidden z-0 rounded-[22px] px-4 sm:px-8 md:px-12 lg:px-[70px] py-6 sm:py-12 md:py-16 lg:py-[89px] bg-gradient-to-br from-[#0036a5] to-[#0058d4]',
+          'bg-white relative overflow-hidden z-0 rounded-[22px] px-4 sm:px-8 md:px-12 lg:px-[40px] py-6 sm:py-12 md:py-16 lg:py-[89px] bg-gradient-to-br from-[#0036a5] to-[#0058d4]',
           isAllFiltersOpen && 'rounded-b-none'
         )}
       >
@@ -90,7 +90,7 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
           height={695}
           className="absolute -right-12 z-0 top-0 opacity-[8%] z-[-1] pointer-events-none max-w-none"
         />
-        <div className="text-center mb-6 sm:mb-8 md:mb-12 lg:mb-[60px]">
+        <div className="text-center mb-6 sm:mb-8 md:mb-12 lg:mb-[60px] lg:px-[10px]">
           <h1 className="text-xl md:text-[52px] font-extrabold text-white mb-1.5 tracking-tight uppercase transition-all duration-300 hover:scale-105 cursor-default">
             {title}
           </h1>
@@ -264,7 +264,15 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
             {/* All Filters Button */}
             <button
               className="sm:col-span-2 lg:col-span-1 lg:w-[197px] bg-[#F0F2F5] hover:bg-sky-100 text-slate-700 px-4 sm:px-6 lg:px-[25px] py-3 rounded-lg text-lg flex items-center justify-center transition-colors cursor-pointer whitespace-nowrap"
-              onClick={() => setIsAllFiltersOpen((prev) => !prev)}
+              onClick={() => {
+                setIsAllFiltersOpen((prev) => !prev);
+
+                window.scrollBy({
+                  top: 400,        // на 100px вниз
+                  left: 0,
+                  behavior: 'smooth', // плавная прокрутка
+                });
+              }}
             >
               <FilterSearchIcon className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-blue-600" />
               <span>Все фильтры</span>
