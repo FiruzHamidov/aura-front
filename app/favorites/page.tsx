@@ -70,7 +70,7 @@ export default function Favorites() {
             );
 
     return (
-        <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
             <div className="bg-white rounded-[22px] p-[30px] my-10">
                 <h1 className="text-2xl font-bold text-[#020617] mb-1">Избранное</h1>
                 <p className="text-[#666F8D]">

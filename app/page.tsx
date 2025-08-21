@@ -27,7 +27,7 @@ export default function Home() {
     return (
         <>
             <MainBanner title="Недвижимость в Таджикистане"/>
-            <div className="lg:mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 mx-auto mb-10 md:mb-20">
+            <div className="lg:mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 mx-auto mb-10 md:mb-20">
                 <Services/>
             </div>
             <TopListings
@@ -45,7 +45,7 @@ export default function Home() {
             <div className="mt-10 md:mt-20">
                 <Buy properties={properties} isLoading={isLoading}/>
             </div>
-            <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 text-center pt-6">
+            <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 text-center pt-6">
                 <button
                     onClick={() => router.push('/buy')}
                     className="bg-[#0036A5] text-white text-lg px-10 py-2.5 rounded-lg cursor-pointer"

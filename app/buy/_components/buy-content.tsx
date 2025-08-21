@@ -80,7 +80,7 @@ export const BuyContent = () => {
   if (isLoading) {
     return (
       <div className="mb-[60px]">
-        <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-[22px] p-[30px] my-10">
             <div className="flex flex-col md:flex-row md:justify-between md:items-center">
               <div>
@@ -105,7 +105,7 @@ export const BuyContent = () => {
 
           {/* Skeleton grid */}
           <section>
-            <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-[14px]">
                 {Array.from({ length: 8 }).map((_, index) => (
                   <BuyCardSkeleton key={index} />
@@ -120,7 +120,7 @@ export const BuyContent = () => {
 
   return (
     <div className="mb-[60px]">
-      <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-[22px] p-[30px] my-10">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center">
             <div>
@@ -155,7 +155,7 @@ export const BuyContent = () => {
       {/* Loading more skeleton cards */}
       {isFetchingNextPage && (
         <section>
-          <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-[14px] mb-4">
               {Array.from({ length: 4 }).map((_, index) => (
                 <BuyCardSkeleton key={`loading-${index}`} />

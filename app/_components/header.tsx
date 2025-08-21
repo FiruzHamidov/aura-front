@@ -202,7 +202,7 @@ const Header: FC = () => {
 
     return (
         <header className="bg-white">
-            <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center py-3 sm:py-4 lg:py-5">
                     {/* Logo and Location - Desktop */}
                     <div className="flex items-center space-x-4 md:space-x-6 lg:space-x-10">
@@ -283,7 +283,7 @@ const Header: FC = () => {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:block border-t border-gray-200">
-                <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 flex justify-between items-center mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 flex justify-between items-center mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex space-x-4 lg:space-x-6 xl:space-x-8 py-4 lg:py-[22px] overflow-x-auto">
                         {navItems.map((item) => (
                             <div key={item.name} className="relative">

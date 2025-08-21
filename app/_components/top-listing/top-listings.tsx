@@ -117,7 +117,7 @@ const TopListings: FC<{
   if (isLoading) {
     return (
       <section>
-        <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
             {title}
           </h2>
@@ -155,7 +155,7 @@ const TopListings: FC<{
 
   return (
     <section>
-      <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
         <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
           {title}
         </h2>
@@ -168,8 +168,8 @@ const TopListings: FC<{
         </div>
         <div className="grid md:grid-cols-2 gap-5">
           {firstListing && (
-            <div className="md:h-full md:max-h-[576px]">
-              <Link href={`/apartment/${firstListing.id}`} className="max-h-[300px]">
+            <div className="md:h-full md:max-h-[650px]">
+              <Link href={`/apartment/${firstListing.id}`} className="max-h-[600px]">
                 <ListingCard listing={firstListing} isLarge={true} user={user} />
               </Link>
             </div>

@@ -74,7 +74,7 @@ export default function NewBuildings() {
   const [showOnlyDifferences, setShowOnlyDifferences] = useState(false);
 
   return (
-    <div className="pt-6 pb-[87px] mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+    <div className="pt-6 pb-[87px] mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
       <div className="md:flex justify-between items-center mb-10 bg-white rounded-[22px] p-[30px]">
         <div>
           <h1 className="text-2xl font-bold mb-1.5">Новостройки</h1>

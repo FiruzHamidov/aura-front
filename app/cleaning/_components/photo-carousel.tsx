@@ -30,7 +30,7 @@ export const PhotoCarousel = () => {
 
   return (
     <div className="mb-6 md:mb-10">
-      <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-11 gap-4 px-4 md:px-0">
           <div className="text-2xl md:text-[32px] font-bold">
             Фото наших работ
@@ -77,7 +77,7 @@ export const PhotoCarousel = () => {
       </div>
 
       <div className="embla overflow-hidden" ref={emblaRef}>
-        <div className="embla__mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 flex gap-3 md:gap-5 pl-4 md:pl-[calc((100vw-1400px)/2)] pr-4 md:pr-[calc((100vw-1400px)/2)]">
+        <div className="embla__mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 flex gap-3 md:gap-5 pl-4 md:pl-[calc((100vw-1400px)/2)] pr-4 md:pr-[calc((100vw-1400px)/2)]">
           {images.map((image, index) => (
             <div
               key={index}

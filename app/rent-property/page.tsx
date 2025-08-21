@@ -7,7 +7,7 @@ import { OurServices } from './_components/our-services';
 
 export default function RentProperty() {
   return (
-    <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-10 md:pt-[100px]">
+    <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 py-10 md:pt-[100px]">
       <ExtraPagesBanner
         title="Сдайте свою недвижимость быстро и выгодно"
         description="Эффективная аренда без лишних хлопот — мы найдём надёжных арендаторов и обеспечим вам стабильный доход"

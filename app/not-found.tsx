@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 export default function NotFound() {
   const router = useRouter();
   return (
-    <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-40 text-center">
+    <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 py-40 text-center">
       <h1 className="text-3xl uppercase font-semibold mb-6">
         Страница не найдена (later will be implemented)
       </h1>

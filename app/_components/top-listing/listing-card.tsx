@@ -69,7 +69,7 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false}) => {
                 <div key={index} className="min-w-full">
                   <div
                       className="relative w-full overflow-hidden rounded-lg"
-                      style={{height: isLarge ? 293 : 128}} // задаём высоту контейнера
+                      style={{height: isLarge ? 390 : 128}} // задаём высоту контейнера
                   >
                     <Image
                         src={image.url ?? ''}
@@ -185,7 +185,7 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false}) => {
 
         <div
           className={`flex items-center space-x-3 text-[#666F8D] ${
-            isLarge ? 'text-sm mb-8' : 'text-xs'
+            isLarge ? 'text-sm mb-1' : 'text-xs'
           }`}
         >
           <span>{listing.roomCountLabel}</span>

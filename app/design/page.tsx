@@ -13,7 +13,7 @@ const bannerData = {
 
 export default function Design() {
     return (
-        <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 pt-10 md:pt-[100px] pb-10">
+        <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 pt-10 md:pt-[100px] pb-10">
             <ExtraPagesBanner
                 title={bannerData.title}
                 description={bannerData.description}

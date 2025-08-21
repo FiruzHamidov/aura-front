@@ -76,7 +76,7 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
   };
 
   return (
-    <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 relative py-8 md:py-10 md:pt-[22px] bg-gradient-to-b overflow-hidden ">
+    <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 relative py-8 md:py-10 md:pt-[22px] bg-gradient-to-b overflow-hidden ">
       <div
         className={clsx(
           'bg-white relative overflow-hidden z-0 rounded-[22px] px-4 sm:px-8 md:px-12 lg:px-[40px] py-6 sm:py-12 md:py-16 lg:py-[89px] bg-gradient-to-br from-[#0036a5] to-[#0058d4]',

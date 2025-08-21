@@ -120,7 +120,7 @@ const Promo: FC = () => {
     };
 
     return (
-        <section className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-10 md:py-20 px-4 sm:px-6 lg:px-8">
+        <section className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 py-10 md:py-20 px-4 sm:px-6 lg:px-8">
             {/* Mobile: horizontal scroll with snap; Desktop: 3-column grid */}
             <div
                 ref={scrollerRef}

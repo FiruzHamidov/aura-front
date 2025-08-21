@@ -96,7 +96,7 @@ const MeetTheTeam: FC = () => {
 
   if (isLoading) {
     return (
-      <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 mt-10 md:mt-20">
+      <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 mt-10 md:mt-20">
         <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-6 md:mb-10">
           Встречайте команду экспертов Aura Estate!
         </h2>
@@ -110,7 +110,7 @@ const MeetTheTeam: FC = () => {
   }
 
   return (
-    <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 mt-10 md:mt-20">
+    <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 mt-10 md:mt-20">
       <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-6 md:mb-10">
         Встречайте команду экспертов Aura Estate!
       </h2>

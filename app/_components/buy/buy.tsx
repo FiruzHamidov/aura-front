@@ -19,7 +19,7 @@ const Buy: FC<{
   if (isLoading) {
     return (
       <section>
-        <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
           {hasTitle && (
             <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
               Купить
@@ -38,7 +38,7 @@ const Buy: FC<{
   if (!properties) {
     return (
       <section>
-        <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
           {hasTitle && (
             <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
               Купить
@@ -53,7 +53,7 @@ const Buy: FC<{
   if (buyListings.length === 0) {
     return (
       <section>
-        <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
           {hasTitle && (
             <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
               Купить
@@ -69,7 +69,7 @@ const Buy: FC<{
 
   return (
     <section>
-      <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
         {hasTitle && (
           <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
             Купить

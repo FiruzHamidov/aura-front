@@ -6,7 +6,7 @@ import { Cards } from './_components/cards';
 
 export default function BuyRealEstate() {
   return (
-    <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 pt-10 md:pt-[100px] pb-10">
+    <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 pt-10 md:pt-[100px] pb-10">
       <ExtraPagesBanner
         title="Срочный выкуп недвижимости"
         description="Быстро и безопасно выкупим вашу недвижимость по рыночной цене, полное юридическое сопровождение и прозрачные условия сделки."
