@@ -13,7 +13,7 @@ const bannerData = {
 
 export default function Repair() {
     return (
-        <div className="container py-10 md:pt-[100px]">
+        <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-10 md:pt-[100px]">
             <ExtraPagesBanner
                 title={bannerData.title}
                 description={bannerData.description}

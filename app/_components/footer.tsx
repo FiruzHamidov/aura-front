@@ -73,7 +73,7 @@ const socialMedia = [
 const Footer = () => {
   return (
     <footer className="bg-[#12213A] text-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
+      <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 md:mb-12">
           {/* First Column - Address */}
           <div>
@@ -135,7 +135,7 @@ const Footer = () => {
       <hr className="border-t border-gray-700/50" />
 
       {/* Bottom Section */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col md:flex-row items-center justify-between">
           <div className="mb-6 md:mb-0">
             <Link href="/" className="inline-block">

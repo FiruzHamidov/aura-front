@@ -16,7 +16,7 @@ export function FormLayout({
   className = '',
 }: FormLayoutProps) {
   return (
-    <div className={`sm:container mx-auto px-0 sm:px-4 py-8 ${className}`}>
+    <div className={`sm:mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 mx-auto px-0 sm:px-4 py-8 ${className}`}>
       <div className="max-w-4xl mx-auto">
         {title && (
           <div className="mb-8 text-center">

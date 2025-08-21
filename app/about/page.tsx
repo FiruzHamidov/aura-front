@@ -4,7 +4,7 @@ import { Company } from './_components/company';
 
 export default function About() {
   return (
-    <div className="container pt-10 md:pt-[69px] pb-14 md:pb-[116px]">
+    <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 pt-10 md:pt-[69px] pb-14 md:pb-[116px]">
       <Company />
       <AboutUs />
       <MeetTheTeam />

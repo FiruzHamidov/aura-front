@@ -56,6 +56,16 @@ export const useGetMyPropertiesQuery = (
   });
 };
 
+export const useGetAllPropertiesQuery = (
+    filters?: PropertyFilters,
+    withAuth: boolean = false
+) => {
+  return useQuery({
+    queryKey: [PROPERTY_QUERY_KEYS.PROPERTY, "my", filters, withAuth],
+    queryFn: () => getMyProperties(filters, withAuth),
+  });
+};
+
 export const useGetMyPropertiesInfiniteQuery = (
   filters?: PropertyFilters,
   withAuth: boolean = false

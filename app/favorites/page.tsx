@@ -24,7 +24,7 @@ const FavoritesGrid = ({
 }) => {
     if (isLoading) {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-[14px] mb-10 md:mb-16">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[14px] mb-10 md:mb-16">
                 {Array.from({length: 8}).map((_, index) => (
                     <BuyCardSkeleton key={index}/>
                 ))}
@@ -41,7 +41,7 @@ const FavoritesGrid = ({
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-[14px] mb-10 md:mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[14px] mb-10 md:mb-16">
             {favorites.map((favorite: FavoriteResponse) => (
                 <Link key={favorite.id} href={`/apartment/${favorite.property.id}`}>
                     <BuyCard listing={favorite.property} key={favorite.property.id} user={user}/>
@@ -70,7 +70,7 @@ export default function Favorites() {
             );
 
     return (
-        <div className="container">
+        <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
             <div className="bg-white rounded-[22px] p-[30px] my-10">
                 <h1 className="text-2xl font-bold text-[#020617] mb-1">Избранное</h1>
                 <p className="text-[#666F8D]">

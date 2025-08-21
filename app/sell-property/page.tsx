@@ -7,7 +7,7 @@ import { ApplicationForm } from './_components/application-form';
 
 export default function SellProperty() {
   return (
-    <div className="container py-10 md:pt-[100px]">
+    <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-10 md:pt-[100px]">
       <ExtraPagesBanner
         title="Как выгодно продать недвижимость?"
         description="Эффективные стратегии и проверенные способы быстрой и прибыльной продажи недвижимости"

@@ -3,7 +3,7 @@ import MortgageCalculator from '../apartment/[slug]/_components/MortgageCalculat
 
 export default function Mortgage() {
   return (
-    <div className="container pt-10 pb-16">
+    <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 pt-10 pb-16">
       <ExtraPagesBanner
         title="Ипотека"
         description="Планируйте покупку жилья с умом - рассчитайте ипотеку заранее и принимайте взвешенные финансовые решения."

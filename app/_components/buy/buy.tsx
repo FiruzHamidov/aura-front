@@ -20,13 +20,13 @@ const Buy: FC<{
   if (isLoading) {
     return (
       <section>
-        <div className="container">
+        <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
           {hasTitle && (
             <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
               Купить
             </h2>
           )}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-[14px]">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[14px]">
             {Array.from({ length: 8 }).map((_, index) => (
               <BuyCardSkeleton key={index}  />
             ))}
@@ -39,7 +39,7 @@ const Buy: FC<{
   if (!properties) {
     return (
       <section>
-        <div className="container">
+        <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
           {hasTitle && (
             <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
               Купить
@@ -54,7 +54,7 @@ const Buy: FC<{
   if (buyListings.length === 0) {
     return (
       <section>
-        <div className="container">
+        <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
           {hasTitle && (
             <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
               Купить
@@ -70,14 +70,14 @@ const Buy: FC<{
 
   return (
     <section>
-      <div className="container">
+      <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
         {hasTitle && (
           <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
             Купить
           </h2>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-[14px]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[14px]">
           {buyListings.map((listing) => (
             <Link key={listing.id} href={`/apartment/${listing.id}`}>
               <BuyCard listing={listing} user={user} key={listing.id}/>

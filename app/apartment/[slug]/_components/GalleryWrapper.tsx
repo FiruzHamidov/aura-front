@@ -41,7 +41,7 @@ export default function GalleryWrapper({ apartment, photos }: Props) {
 
     return (
         <>
-            <div className="container pt-8 pb-12">
+            <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 pt-8 pb-12">
                 <div className="flex flex-col lg:flex-row gap-5">
                     {/* Левая часть */}
                     <div className="lg:w-3/4">
@@ -317,7 +317,6 @@ function Thumbs({
             </div>
         );
     }
-
     // Десктоп: 3 колонки, видно 3 ряда (итого 9), дальше вертикальный скролл
     return (
         <div

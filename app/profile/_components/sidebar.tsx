@@ -85,6 +85,11 @@ export const Sidebar = () => {
               label: 'Мои объявления',
             },
             {
+              href: '/profile/all-listings',
+              icon: <ListingIcon className="w-6 h-6" />,
+              label: 'Все объявления',
+            },
+            {
               href: '/profile/my-booking',
               icon: <CalendarIcon className="w-6 h-6" />,
               label: 'Мои показы',

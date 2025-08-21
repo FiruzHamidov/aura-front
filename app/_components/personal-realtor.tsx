@@ -75,7 +75,7 @@ const PersonalRealtorCta: FC<PersonalRealtorCtaProps> = ({
   const inputClass = `${base} ${error ? 'border-red-400' : 'border-white'} focus:border-white/80`;
 
   return (
-      <section className="container">
+      <section className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
         <div className="mt-10 md:mt-20 relative bg-blue-800 rounded-3xl overflow-hidden">
           <Image
               src="/images/personal-cta/img.png"

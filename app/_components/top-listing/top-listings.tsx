@@ -116,7 +116,7 @@ const TopListings: FC<{
   if (isLoading) {
     return (
       <section>
-        <div className="container">
+        <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
             {title}
           </h2>
@@ -154,7 +154,7 @@ const TopListings: FC<{
 
   return (
     <section>
-      <div className="container">
+      <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
         <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
           {title}
         </h2>

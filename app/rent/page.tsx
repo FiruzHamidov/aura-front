@@ -29,7 +29,7 @@ export default function Rent() {
       <Promo />
 
       <Buy properties={properties} isLoading={isLoading} />
-      <div className="lg:container mx-auto mt-10 md:mt-20">
+      <div className="lg:mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 mx-auto mt-10 md:mt-20">
         <Services />
       </div>
       <div className="mb-14 md:mb-[85px] mx-auto md:px-4 sm:px-6 lg:px-8">

@@ -20,7 +20,7 @@ interface ListingCardProps {
   user?: User;
 }
 
-const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false, user }) => {
+const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
   const formattedPrice = listing.price.toLocaleString('ru-RU');
 
   const images = listing.images || [
