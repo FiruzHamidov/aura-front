@@ -140,27 +140,24 @@ export const addPostApi = {
   },
 
   updateProperty: async (
-    id: string,
-    propertyData: CreatePropertyRequest
+      id: string,
+      propertyData: CreatePropertyRequest
   ): Promise<CreatePropertyResponse> => {
     const formData = new FormData();
 
-    // Helper function to append if value exists
     const appendIfFilled = (key: string, value: unknown) => {
-      if (typeof value === "string" && value !== "") {
-        formData.append(key, value);
-      } else if (typeof value === "number") {
-        formData.append(key, value.toString());
-      } else if (typeof value === "boolean") {
-        formData.append(key, value ? "1" : "0");
-      }
+      if (typeof value === "string" && value !== "") formData.append(key, value);
+      else if (typeof value === "number") formData.append(key, String(value));
+      else if (typeof value === "boolean") formData.append(key, value ? "1" : "0");
     };
 
-    // Required fields
-    formData.append("description", propertyData.description);
+    // метод перегрузки для Laravel (если используешь Route::resource)
     formData.append("_method", "PUT");
-    formData.append("type_id", propertyData.type_id.toString());
-    formData.append("status_id", propertyData.status_id.toString());
+
+    // обязательные/обычные поля
+    formData.append("description", propertyData.description);
+    formData.append("type_id", String(propertyData.type_id));
+    formData.append("status_id", String(propertyData.status_id));
     formData.append("address", propertyData.address);
     formData.append("district", propertyData.district);
     formData.append("location_id", propertyData.location_id);
@@ -171,7 +168,7 @@ export const addPostApi = {
     formData.append("currency", propertyData.currency);
     formData.append("offer_type", propertyData.offer_type);
     formData.append("listing_type", propertyData.listing_type);
-    formData.append("rooms", propertyData.rooms.toString());
+    formData.append("rooms", String(propertyData.rooms));
     formData.append("total_area", propertyData.total_area);
     formData.append("living_area", propertyData.living_area);
     formData.append("floor", propertyData.floor);
@@ -181,38 +178,41 @@ export const addPostApi = {
     formData.append("apartment_type", propertyData.apartment_type);
     formData.append("has_garden", propertyData.has_garden ? "1" : "0");
     formData.append("has_parking", propertyData.has_parking ? "1" : "0");
-    formData.append(
-      "is_mortgage_available",
-      propertyData.is_mortgage_available ? "1" : "0"
-    );
-    formData.append(
-      "is_from_developer",
-      propertyData.is_from_developer ? "1" : "0"
-    );
+    formData.append("is_mortgage_available", propertyData.is_mortgage_available ? "1" : "0");
+    formData.append("is_from_developer", propertyData.is_from_developer ? "1" : "0");
     formData.append("landmark", propertyData.landmark);
 
-    // Optional fields
+    // опциональные
     appendIfFilled("owner_phone", propertyData.owner_phone);
     appendIfFilled("youtube_link", propertyData.youtube_link);
     appendIfFilled("latitude", propertyData.latitude);
     appendIfFilled("longitude", propertyData.longitude);
     appendIfFilled("agent_id", propertyData.agent_id);
 
-    // Append photos if any new ones
-    if (propertyData.photos.length > 0) {
-      propertyData.photos.forEach((file) => {
-        formData.append("photos[]", file);
-      });
+    // НОВОЕ: порядок существующих фото
+    (propertyData.photos_keep ?? []).forEach(id => {
+      formData.append("photos_keep[]", String(id));
+    });
+
+    // НОВОЕ: удалить существующие
+    (propertyData.remove_ids ?? []).forEach(id => {
+      formData.append("remove_ids[]", String(id));
+    });
+
+    // НОВОЕ: обложка (опц.)
+    if (propertyData.cover_id) {
+      formData.append("cover_id", String(propertyData.cover_id));
     }
 
+    // НОВОЕ: только НОВЫЕ файлы (в текущем порядке)
+    (propertyData.photos ?? []).forEach(file => {
+      formData.append("photos[]", file);
+    });
+
     const { data } = await axios.post<CreatePropertyResponse>(
-      `${ADD_POST_ENDPOINTS.CREATE_PROPERTY}/${id}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
+        `${ADD_POST_ENDPOINTS.CREATE_PROPERTY}/${id}`, // убедись, что URL верный
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
     );
 
     return data;

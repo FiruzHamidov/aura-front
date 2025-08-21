@@ -34,7 +34,7 @@ export default function ProfileFavorites() {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[14px] h-max mb-10 md:mb-16">
       {favorites.map((favorite) => (
         <Link key={favorite.id} href={`/apartment/${favorite.property.id}`}>
-          <BuyCard listing={favorite.property} />
+          <BuyCard listing={favorite.property} user={user} key={favorite.property.id}  />
         </Link>
       ))}
     </div>

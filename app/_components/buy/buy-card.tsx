@@ -112,8 +112,6 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false}) => {
                     <FavoriteButton
                         propertyId={listing.id}
                         className="!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-9 h-9"
-                        // На всякий случай: клики по кнопке не должны вести на страницу
-
                     />
                     <div
                         className="!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-9 h-9"
@@ -124,7 +122,9 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false}) => {
 
                     {userRole && (
                         <div
-                            onClick={() => {
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
                                 setIsModalOpen(true);
                             }}
                             className="!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-9 h-9"

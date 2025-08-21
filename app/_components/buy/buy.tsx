@@ -3,12 +3,14 @@ import BuyCard from './buy-card';
 import BuyCardSkeleton from '@/ui-components/BuyCardSkeleton';
 import Link from 'next/link';
 import { PropertiesResponse } from '@/services/properties/types';
+import {useProfile} from "@/services/login/hooks";
 
 const Buy: FC<{
   properties: PropertiesResponse | undefined;
   hasTitle?: boolean;
   isLoading?: boolean;
 }> = ({ properties, hasTitle = true, isLoading = false }) => {
+  const {data: user} = useProfile();
   const buyListings = useMemo(() => {
     if (!properties?.data) return [];
 
@@ -26,7 +28,7 @@ const Buy: FC<{
           )}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-[14px]">
             {Array.from({ length: 8 }).map((_, index) => (
-              <BuyCardSkeleton key={index} />
+              <BuyCardSkeleton key={index}  />
             ))}
           </div>
         </div>
@@ -78,7 +80,7 @@ const Buy: FC<{
         <div className="grid grid-cols-1 md:grid-cols-4 gap-[14px]">
           {buyListings.map((listing) => (
             <Link key={listing.id} href={`/apartment/${listing.id}`}>
-              <BuyCard listing={listing} />
+              <BuyCard listing={listing} user={user} key={listing.id}/>
             </Link>
           ))}
         </div>

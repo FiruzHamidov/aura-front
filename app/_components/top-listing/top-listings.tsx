@@ -8,6 +8,8 @@ import { Tabs } from '@/ui-components/tabs/tabs';
 import { PropertiesResponse, Property } from '@/services/properties/types';
 import { STORAGE_URL } from '@/constants/base-url';
 import ListingCardSkeleton from '@/ui-components/ListingCardSkeleton';
+import {useProfile} from "@/services/login/hooks";
+
 
 type PropertyType = 'apartment' | 'house' | 'land' | 'commercial';
 
@@ -35,6 +37,7 @@ const TopListings: FC<{
   properties: PropertiesResponse | undefined;
 }> = ({ title = 'Топовые объявления', properties, isLoading }) => {
   const [activeType, setActiveType] = useState<PropertyType>('apartment');
+  const { data: user } = useProfile();
 
   const listings = useMemo(() => {
     if (!properties?.data) return [];
@@ -142,7 +145,6 @@ const TopListings: FC<{
     );
   }
 
-  // Don't render if no listings after loading
   if (!isLoading && filteredListings.length === 0) {
     return null;
   }
@@ -167,7 +169,7 @@ const TopListings: FC<{
           {firstListing && (
             <div className="md:h-full md:max-h-[576px]">
               <Link href={`/apartment/${firstListing.id}`}>
-                <ListingCard listing={firstListing} isLarge={true} />
+                <ListingCard listing={firstListing} isLarge={true} user={user} />
               </Link>
             </div>
           )}
@@ -175,12 +177,13 @@ const TopListings: FC<{
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:max-h-[576px]">
             {smallListings.map((listing) => (
               <Link key={listing.id} href={`/apartment/${listing.id}`}>
-                <ListingCard listing={listing} isLarge={false} />
+                <ListingCard listing={listing} isLarge={false} user={user} />
               </Link>
             ))}
           </div>
         </div>
       </div>
+
     </section>
   );
 };

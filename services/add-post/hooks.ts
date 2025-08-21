@@ -62,20 +62,11 @@ export const useUpdatePropertyMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      propertyData,
-    }: {
-      id: string;
-      propertyData: CreatePropertyRequest;
-    }) => addPostApi.updateProperty(id, propertyData),
+    mutationFn: ({ id, propertyData }: { id: string; propertyData: CreatePropertyRequest }) =>
+        addPostApi.updateProperty(id, propertyData),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["get-properties"],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["get-property-by-id"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["get-properties"] });
+      queryClient.invalidateQueries({ queryKey: ["get-property-by-id"] });
     },
   });
 };
