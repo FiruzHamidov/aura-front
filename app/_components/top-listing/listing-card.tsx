@@ -19,10 +19,9 @@ interface ListingCardProps {
   listing: Listing;
   isLarge?: boolean;
   user?: User;
-  promoTitle?: String;
 }
 
-const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false, promoTitle}) => {
+const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false}) => {
   const formattedPrice = listing.price.toLocaleString('ru-RU');
 
   const images = listing.images || [
@@ -74,7 +73,7 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false, promoTitl
                   >
                     <Image
                         src={image.url ?? ''}
-                        alt={image.alt || `Фото ${listing.title}`}
+                        alt={`Фото ${listing.title}`}
                         fill
                         className="object-cover"              // заполняет контейнер, без искажений (возможна обрезка краёв)
                         sizes="(min-width: 768px) 580px, 100vw"

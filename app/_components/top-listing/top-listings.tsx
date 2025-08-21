@@ -33,10 +33,9 @@ const tabOptions = [
 
 const TopListings: FC<{
   title?: string;
-  promoTitle?: string;
   isLoading?: boolean;
   properties: PropertiesResponse | undefined;
-}> = ({ title = 'Топовые объявления', properties, isLoading, promoTitle = 'VIP' }) => {
+}> = ({ title = 'Топовые объявления', properties, isLoading }) => {
   const [activeType, setActiveType] = useState<PropertyType>('apartment');
   const { data: user } = useProfile();
 
@@ -171,7 +170,7 @@ const TopListings: FC<{
           {firstListing && (
             <div className="md:h-full md:max-h-[576px]">
               <Link href={`/apartment/${firstListing.id}`} className="max-h-[300px]">
-                <ListingCard listing={firstListing} isLarge={true} user={user} promoTitle={promoTitle} />
+                <ListingCard listing={firstListing} isLarge={true} user={user} />
               </Link>
             </div>
           )}
@@ -179,7 +178,7 @@ const TopListings: FC<{
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:max-h-[576px]">
             {smallListings.map((listing) => (
               <Link key={listing.id} href={`/apartment/${listing.id}`} className="max-h-[300px]">
-                <ListingCard listing={listing} isLarge={false} user={user} promoTitle={promoTitle} />
+                <ListingCard listing={listing} isLarge={false} user={user} />
               </Link>
             ))}
           </div>
