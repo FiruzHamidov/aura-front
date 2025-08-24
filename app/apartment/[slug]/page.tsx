@@ -5,6 +5,7 @@ import { useGetPropertyByIdQuery } from '@/services/properties/hooks';
 import { PropertyPhoto } from '@/services/properties/types';
 import GalleryWrapper from './_components/GalleryWrapper';
 import { STORAGE_URL } from '@/constants/base-url';
+import { Loading } from '@/ui-components/Loading';
 
 export default function ApartmentPage() {
   const { slug } = useParams();
@@ -16,7 +17,7 @@ export default function ApartmentPage() {
   } = useGetPropertyByIdQuery(slug as string);
 
   if (isLoading) {
-    return <div>Загрузка...</div>;
+    return <Loading />;
   }
 
   if (error || !apartment) {
