@@ -10,7 +10,7 @@ export const AboutUs = () => {
             <h2 className="text-2xl md:text-4xl font-bold md:mb-6 text-[#020617]">
               О нас
             </h2>
-            <div className="relative h-80 w-full">
+            <div className="relative h-80 w-full hidden md:block">
               <Image
                 src="/images/about/1.png"
                 alt="3D Buildings"
@@ -49,6 +49,16 @@ export const AboutUs = () => {
         </div>
       </section>
 
+      <div className="bg-white rounded-[22px] mb-5 w-full md:hidden block">
+        <Image
+          src="/images/about/1.png"
+          alt="3D Buildings"
+          width={410}
+          height={410}
+          className="!w-[410px] !h-[410px]"
+        />
+      </div>
+
       <section className="mb-5 md:mb-10">
         <div className="flex flex-col lg:flex-row gap-5">
           <div className="bg-white px-4 py-6 md:p-10 rounded-[22px] lg:w-2/3">
@@ -82,7 +92,7 @@ export const AboutUs = () => {
                 alt="Target"
                 width={444}
                 height={444}
-                className="w-[444px] h-[444px] absolute left-16 top-0 -rotate-[90deg]"
+                className="w-full h-full md:w-[444px] md:h-[444px] md:absolute left-16 top-0 -rotate-[90deg]"
               />
             </div>
           </div>
@@ -91,14 +101,14 @@ export const AboutUs = () => {
 
       <section className="mb-5 md:mb-10">
         <div className="flex flex-col lg:flex-row gap-5">
-          <div className="lg:w-1/3 relative bg-white rounded-[22px] p-10 flex items-center justify-center overflow-hidden">
+          <div className="lg:w-1/3 order-2 md:order-none relative bg-white rounded-[22px] md:p-10 flex items-center justify-center overflow-hidden">
             <div className="h-80 w-80">
               <Image
                 src="/images/about/3.png"
                 alt="Blue House"
                 width={444}
                 height={444}
-                className="w-[444px] h-[444px] right-16 absolute -left-14 -top-3"
+                className="w-full h-full md:w-[444px] md:h-[444px] right-16 md:absolute -left-14 -top-3"
               />
             </div>
           </div>

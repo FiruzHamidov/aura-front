@@ -23,20 +23,26 @@ export const Company = () => {
         </div>
       </div>
 
-      <div className="flex flex-wrap md:flex-nowrap gap-4 md:gap-5 mb-10 md:mb-16">
-        <div className="bg-white py-[18px] px-6 rounded-xl w-full md:w-max">
+      <div className="flex flex-nowrap overflow-x-auto scroll-smooth pb-2 gap-4 md:gap-5 mb-10 md:mb-16 -mx-4 px-4 md:mx-0 md:px-0 hide-scrollbar">
+        <div className="bg-white py-[18px] px-6 rounded-xl min-w-[260px] md:min-w-0 md:w-max flex-shrink-0">
           <h2 className="text-[32px] font-bold text-[#0036A5] mb-1">$100M</h2>
-          <p className="text-[#666F8D]">Текущий объем листинга</p>
+          <p className="text-[#666F8D] whitespace-normal">
+            Текущий объем листинга
+          </p>
         </div>
 
-        <div className="bg-white py-[18px] px-6 rounded-xl w-full md:w-max">
+        <div className="bg-white py-[18px] px-6 rounded-xl min-w-[260px] md:min-w-0 md:w-max flex-shrink-0">
           <h2 className="text-[32px] font-bold text-[#0036A5] mb-1">$400M</h2>
-          <p className="text-[#666F8D]">Всего продано за 2019-2024 г.</p>
+          <p className="text-[#666F8D] whitespace-normal">
+            Всего продано за 2019-2024 г.
+          </p>
         </div>
 
-        <div className="bg-white py-[18px] px-6 rounded-xl w-full md:w-max">
+        <div className="bg-white py-[18px] px-6 rounded-xl min-w-[260px] md:min-w-0 md:w-max flex-shrink-0">
           <h2 className="text-[32px] font-bold text-[#0036A5] mb-1">$2B</h2>
-          <p className="text-[#666F8D]">Объем продаж за весь срок службы</p>
+          <p className="text-[#666F8D] whitespace-normal">
+            Объем продаж за весь срок службы
+          </p>
         </div>
       </div>
 
@@ -47,7 +53,7 @@ export const Company = () => {
         title="YouTube video player"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
-        className="rounded-[22px]"
+        className="rounded-[22px] h-[220px] md:h-[420px]"
       ></iframe>
     </div>
   );

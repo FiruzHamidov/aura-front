@@ -64,6 +64,24 @@ export interface Property {
   status: PropertyStatus;
   location: PropertyLocation | null;
   photos: PropertyPhoto[];
+  // details table in /slug
+  bathroom_count?: string | number;
+  elevator_count?: string | number;
+  building_type?: string;
+  repair_type?: {
+    id: number;
+    name: string;
+    created_at: string;
+    updated_at: string;
+  };
+  heating_type?: {
+    id: number;
+    name: string;
+  };
+  parking_type?: {
+    id: number;
+    name: string;
+  };
 }
 
 export interface PropertyLocation {
@@ -137,17 +155,20 @@ export interface PaginationLink {
   active: boolean;
 }
 
-export const LISTING_TYPE_META: Record<string, { label: string; classes: string }> = {
+export const LISTING_TYPE_META: Record<
+  string,
+  { label: string; classes: string }
+> = {
   regular: {
-    label: 'Продаётся',
-    classes: 'bg-[#0036A5] text-white',
+    label: "Продаётся",
+    classes: "bg-[#0036A5] text-white",
   },
   vip: {
-    label: 'VIP',
-    classes: 'bg-amber-400 text-[#020617]',
+    label: "VIP",
+    classes: "bg-amber-400 text-[#020617]",
   },
   urgent: {
-    label: 'Срочная',
-    classes: 'bg-rose-500 text-white',
+    label: "Срочная",
+    classes: "bg-rose-500 text-white",
   },
 };
