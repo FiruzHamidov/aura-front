@@ -174,7 +174,7 @@ export default function Profile() {
           <label className="block mb-2 text-sm text-gray-600">Имя</label>
           <input
             type="text"
-            name="firstName"
+            name="fullName"
             value={profileData.fullName}
             onChange={handleInputChange}
             className="w-full px-4 py-3 rounded-md bg-gray-50"
