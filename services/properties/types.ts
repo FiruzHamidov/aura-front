@@ -126,9 +126,14 @@ export interface PropertyFilters {
   repairType?: string;
   propertyType?: string;
   rooms?: string;
+  offer_type?: string;
+  roomsFrom?: string;
+  roomsTo?: string;
   district?: string;
   areaFrom?: string;
   areaTo?: string;
+  created_by?: string;
+  agent_id?: string;
   floorFrom?: string;
   floorTo?: string;
   moderation_status?: string;
