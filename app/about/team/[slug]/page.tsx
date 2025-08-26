@@ -307,7 +307,7 @@ const RealtorPage = () => {
                     </div>
                 </div>
                     {/* Заголовок перед кнопками */}
-                    <h2 className="text-2xl md:text-4xl font-bold mt-10 mb-4">Объекты от Агентов</h2>
+                    <h2 className="text-2xl md:text-4xl font-bold mt-10 mb-4">Список объектов агента</h2>
 
                     {/* Кнопки комнат */}
                     <div className="bg-white rounded-[22px] p-[20px]">

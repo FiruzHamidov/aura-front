@@ -12,6 +12,12 @@ interface ServiceItem {
 
 const servicesData: ServiceItem[] = [
   {
+    title: 'Срочный выкуп',
+    imageUrl: '/images/extra-pages/buy-real-estate.png',
+    altText: 'Illustration of a house real estat',
+    href: '/buy-property',
+  },
+  {
     title: 'Ремонт под ключ',
     imageUrl: '/images/services/renovation.png',
     altText: 'Illustration of a house being renovated',
@@ -45,10 +51,10 @@ const servicesData: ServiceItem[] = [
 
 const Services: FC = () => {
   return (
-    <div className="bg-white rounded-[22px] px-4 md:px-10 py-6 md:py-[55px]">
+    <div className="bg-white rounded-[22px] py-6 md:py-[55px]">
       {/* Mobile: horizontal scroll, Desktop: grid */}
-      <div className="overflow-x-auto md:overflow-visible hide-scrollbar">
-        <div className="grid grid-flow-col auto-cols-[minmax(120px,1fr)] gap-4 md:grid-flow-row sm:auto-cols-[minmax(300px,1fr)] md:grid-cols-3 lg:grid-cols-5 md:gap-8">
+      <div className="overflow-x-auto hide-scrollbar">
+        <div className="grid grid-flow-col auto-cols-[minmax(120px,1fr)] gap-4 md:auto-cols-[minmax(250px,1fr)] md:gap-8 px-4 md:px-10">
           {servicesData.map((service) => (
             <Link
               key={service.href}
