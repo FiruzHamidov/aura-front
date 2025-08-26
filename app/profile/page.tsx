@@ -14,7 +14,7 @@ export default function Profile() {
   const updateProfileMutation = useUpdateProfileMutation();
 
   const [profileData, setProfileData] = useState({
-    fullName: '',
+    name: '',
     birthday: '',
     phone: '',
     description: '',
@@ -30,7 +30,7 @@ export default function Profile() {
   useEffect(() => {
     if (user) {
       setProfileData({
-        fullName: user.name,
+         name: user.name,
         description: user.description,
         birthday: user.birthday,
         phone: user.phone,
@@ -174,8 +174,8 @@ export default function Profile() {
           <label className="block mb-2 text-sm text-gray-600">Имя</label>
           <input
             type="text"
-            name="fullName"
-            value={profileData.fullName}
+            name="name"
+            value={profileData.name}
             onChange={handleInputChange}
             className="w-full px-4 py-3 rounded-md bg-gray-50"
           />
