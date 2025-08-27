@@ -74,10 +74,10 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false}) => {
             ? listing.location?.city || 'не указано'
             : listing.location || 'не указано';
 
-    const displayRooms = listing.rooms || 'не указано';
-    const displayArea = listing.total_area || 0;
-    const displayFloorInfo =
-        listing.floor && listing.total_floors ? `${listing.floor}/${listing.total_floors} этаж` : 'Этаж не указан';
+    // const displayRooms = listing.rooms || 'не указано';
+    // const displayArea = listing.total_area || 0;
+    // const displayFloorInfo =
+    //     listing.floor && listing.total_floors ? `${listing.floor}/${listing.total_floors} этаж` : 'Этаж не указан';
     const displayCurrency = listing.currency === 'TJS' ? 'с.' : listing.currency || 'с.';
 
     const displayAgent = listing.creator
