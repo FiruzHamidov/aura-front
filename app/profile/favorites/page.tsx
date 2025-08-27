@@ -12,7 +12,7 @@ export default function ProfileFavorites() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[14px] h-max mb-10 md:mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[30px] h-max mb-10 md:mb-16">
         {Array.from({ length: 6 }).map((_, index) => (
           <BuyCardSkeleton key={index} />
         ))}
@@ -31,7 +31,7 @@ export default function ProfileFavorites() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[14px] h-max mb-10 md:mb-16">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[30px] h-max mb-10 md:mb-16">
       {favorites.map((favorite) => (
         <Link key={favorite.id} href={`/apartment/${favorite.property.id}`}>
           <BuyCard listing={favorite.property} user={user} key={favorite.property.id}  />

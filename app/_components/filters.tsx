@@ -23,13 +23,13 @@ const districtOptions: Option[] = [
   { id: 'Сино', name: 'Сино' },
   { id: 'Шохмансур', name: 'Шохмансур' },
   { id: 'Фирдавси', name: 'Фирдавси' },
-  { id: 'Сомони', name: 'Сомони' },
+  { id: 'И Сомони', name: 'Сомони' },
 ];
 
 const repairOptions: Option[] = [
-  { id: 'euro', name: 'Евроремонт' },
-  { id: 'cosmetic', name: 'Косметический' },
-  { id: 'none', name: 'Без ремонта' },
+  { id: 'euro', name: 'Новый ремонт' },
+  { id: 'cosmetic', name: 'Без ремонта / коробка' },
+  { id: 'none', name: 'С ремонтом' },
 ];
 
 interface AllFiltersProps {

@@ -67,7 +67,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false}) => {
         listing.apartment_type || 'квартира,'
     } ${listing.floor ? `${listing.floor} этаж,` : ''} ${
         listing.total_area ? `${listing.total_area} м²` : ''
-    } ${listing.address ? `${listing.landmark}` : ''}`;
+    }`;
 
     const displayLocation =
         typeof listing.location === 'object'
@@ -189,21 +189,26 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false}) => {
 
             <div className="flex flex-col flex-grow ">
                 <div className="flex justify-between items-center mb-3">
-                    <span className="font-bold text-[#0036A5] text-2xl">{formattedPrice} {displayCurrency}</span>
+                    <Link className='transition-transform duration-200 hover:scale-105'
+                          href={`/apartment/${listing.id}`} onClick={(e) => isModalOpen && e.preventDefault()}>
+                        <span className="font-bold text-[#0036A5] text-2xl ">{formattedPrice} {displayCurrency}</span>
+                    </Link>
                     <div className="flex items-center text-xs text-[#666F8D] bg-[#EFF6FF] px-2 py-1 rounded-full">
                         <LocationIcon className="mr-1 w-[18px] h-[18px]"/>
                         {displayLocation}
                     </div>
                 </div>
                 <Link href={`/apartment/${listing.id}`} onClick={(e) => isModalOpen && e.preventDefault()}>
-                    <h3 className={`font-semibold text-base mb-2 ${isLarge ? 'lg:text-lg' : ''}`}>{displayTitle}</h3>
+                    <h3 className={`font-semibold text-base mb-2  ${isLarge ? 'lg:text-lg' : ''}`}>{displayTitle}</h3>
                 </Link>
 
 
                 <div className="flex items-center space-x-3 text-sm text-[#666F8D] mb-2">
-                    <span>{displayRooms}-ком</span>
-                    <span>{displayArea} м²</span>
-                    <span>{displayFloorInfo}</span>
+                    <LocationIcon className="mr-1 w-[18px] h-[18px]"/>
+                    <span>{listing.address} {listing.landmark && (
+                        `(${listing.landmark})`
+                    )}
+                        </span>
                 </div>
 
                 {displayAgent && (
@@ -224,8 +229,9 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false}) => {
                             )}
                             <div>
                                 <div className="font-bold text-sm text-[#020617]">{displayAgent.name}</div>
-                                <div className="text-[#666F8D] text-xs">{displayAgent.role}</div>
+                                {/*<div className="text-[#666F8D] text-xs">{displayAgent.role}</div>*/}
                             </div>
+
                         </div>
                         <div className="flex items-center justify-center">
                             <CalendarIcon className="mr-1 w-[14px] h-[14px]"/>

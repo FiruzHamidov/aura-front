@@ -24,7 +24,7 @@ const FavoritesGrid = ({
 }) => {
     if (isLoading) {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[14px] mb-10 md:mb-16">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[30px] mb-10 md:mb-16">
                 {Array.from({length: 8}).map((_, index) => (
                     <BuyCardSkeleton key={index}/>
                 ))}
@@ -41,7 +41,7 @@ const FavoritesGrid = ({
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[14px] mb-10 md:mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[30px] mb-10 md:mb-16">
             {favorites.map((favorite: FavoriteResponse) => (
                 <Link key={favorite.id} href={`/apartment/${favorite.property.id}`}>
                     <BuyCard listing={favorite.property} key={favorite.property.id} user={user}/>

@@ -69,7 +69,7 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false}) => {
                 <div key={index} className="min-w-full">
                   <div
                       className="relative w-full overflow-hidden rounded-lg"
-                      style={{height: isLarge ? 390 : 128}} // задаём высоту контейнера
+                      style={{height: isLarge ? 450 : 200}} // задаём высоту контейнера
                   >
                     <Image
                         src={image.url ?? ''}

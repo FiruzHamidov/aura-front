@@ -168,16 +168,16 @@ const TopListings: FC<{
         </div>
         <div className="grid md:grid-cols-2 gap-5">
           {firstListing && (
-            <div className="md:h-full md:max-h-[650px]">
+            <div className="md:h-full md:max-h-[730px]">
               <Link href={`/apartment/${firstListing.id}`} className="max-h-[600px]">
                 <ListingCard listing={firstListing} isLarge={true} user={user} />
               </Link>
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:max-h-[576px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:max-h-[730px]">
             {smallListings.map((listing) => (
-              <Link key={listing.id} href={`/apartment/${listing.id}`} className="max-h-[300px]">
+              <Link key={listing.id} href={`/apartment/${listing.id}`} className="max-h-[350px] min-h-[350px]">
                 <ListingCard listing={listing} isLarge={false} user={user} />
               </Link>
             ))}

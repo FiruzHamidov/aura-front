@@ -174,6 +174,6 @@ export const LISTING_TYPE_META: Record<
   },
   urgent: {
     label: "Срочная",
-    classes: "bg-rose-500 text-white",
+    classes: "bg-red-500 text-white",
   },
 };

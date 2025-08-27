@@ -125,7 +125,7 @@ export default function MyListings() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[14px]">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                     {Array.from({length: 6}).map((_, index) => (
                         <BuyCardSkeleton key={index}/>
                     ))}
@@ -177,7 +177,7 @@ export default function MyListings() {
                 </div>
             ) : (
                 <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[14px]">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                         {serverData.map((listing: Property) => (
                             <BuyCard listing={listing} user={user} key={listing.id}/>
                         ))}

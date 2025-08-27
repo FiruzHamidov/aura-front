@@ -121,7 +121,7 @@ export default function Comparison() {
       </div>
 
       {/* Property cards - using the custom BuyCard component */}
-      <div className="grid grid-cols-4 gap-[14px] mb-[53px]">
+      <div className="grid grid-cols-4 gap-[30px] mb-[53px]">
         {properties.map((property) => (
           <div key={property.id} className="relative">
             <BuyCard listing={property} />

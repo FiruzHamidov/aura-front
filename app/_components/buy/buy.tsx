@@ -25,7 +25,7 @@ const Buy: FC<{
               Купить
             </h2>
           )}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[14px]">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[30px]">
             {Array.from({ length: 8 }).map((_, index) => (
               <BuyCardSkeleton key={index}  />
             ))}
@@ -76,7 +76,7 @@ const Buy: FC<{
           </h2>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[14px]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[30px]">
           {buyListings.map((listing) => (
               <BuyCard listing={listing} user={user} key={listing.id}/>
           ))}

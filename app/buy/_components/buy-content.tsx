@@ -106,7 +106,7 @@ export const BuyContent = () => {
           {/* Skeleton grid */}
           <section>
             <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-[14px]">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-[30px]">
                 {Array.from({ length: 8 }).map((_, index) => (
                   <BuyCardSkeleton key={index} />
                 ))}
@@ -156,7 +156,7 @@ export const BuyContent = () => {
       {isFetchingNextPage && (
         <section>
           <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-[14px] mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-[30px] mb-4">
               {Array.from({ length: 4 }).map((_, index) => (
                 <BuyCardSkeleton key={`loading-${index}`} />
               ))}
