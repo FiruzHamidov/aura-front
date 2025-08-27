@@ -5,6 +5,7 @@ import { ToastContainer } from 'react-toastify';
 import './globals.css';
 import Footer from './_components/footer';
 import Header from './_components/header';
+import MobileBottomNavigation from './_components/MobileBottomNavigation';
 import { QueryProvider } from '@/utils/providers';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -29,7 +30,8 @@ export default function RootLayout({
         <Suspense>
           <QueryProvider>
             <Header />
-            {children}
+            <main>{children}</main>
+            <MobileBottomNavigation />
             <Footer />
           </QueryProvider>
         </Suspense>
