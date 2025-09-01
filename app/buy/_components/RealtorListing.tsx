@@ -108,7 +108,7 @@ export const RealtorListings: React.FC<RealtorListingsProps> = ({slug, selectedR
             />
 
             {totalPages > 1 && (
-                <div className="mt-6 flex items-center gap-2 flex-wrap">
+                <div className="mt-6 flex items-center justify-center gap-2 flex-wrap">
                     <button
                         type="button"
                         onClick={() => goToPage(currentPage - 1)}

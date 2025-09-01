@@ -8,6 +8,7 @@ import { useGetAgentsQuery } from '@/services/users/hooks';
 import { Agent } from '@/services/users/types';
 import { STORAGE_URL } from '@/constants/base-url';
 import ExpertCardSkeleton from '../ExpertCardSkeleton';
+import UserIcon from "@/icons/UserIcon";
 
 interface ExpertCardProps {
   expert: Agent;
@@ -26,13 +27,21 @@ const ExpertCard: FC<ExpertCardProps> = ({ expert }) => {
       className="bg-white rounded-[18px] px-4 py-5 text-center flex flex-col items-center h-full w-full max-w-full min-w-0 md:rounded-[22px] md:px-9 md:py-[30px] snap-start"
     >
       <div className="relative w-16 h-16 mb-3 md:w-20 md:h-20 md:mb-4">
-        <Image
-          src={photoPath ? image : '/images/team/2.png'}
-          alt={expert?.name}
-          fill
-          className="rounded-full object-cover"
-          sizes="(max-width: 768px) 64px, 112px"
-        />
+
+        {expert.photo ? (
+            <Image
+                src={photoPath ? image : '/images/team/2.png'}
+                alt={expert?.name}
+                fill
+                className="rounded-full object-cover"
+                sizes="(max-width: 768px) 64px, 112px"
+            />
+        ) : (
+            <div
+                className="rounded-full flex justify-center items-center  h-[80px] w-[80px] bg-[#F1F5F9] p-1.5 mr-1.5">
+              <UserIcon className="w-6 h-7"/>
+            </div>
+        )}
       </div>
       <h3 className="text-sm font-bold text-[#020617] mb-1 md:text-lg md:mb-1.5 leading-snug">
         {expert.name}
