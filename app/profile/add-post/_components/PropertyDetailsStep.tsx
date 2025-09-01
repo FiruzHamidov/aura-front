@@ -1,12 +1,12 @@
 'use client';
 
 import { FormEvent, ChangeEvent, useRef, useState } from 'react';
+import { Map, Placemark, YMaps } from '@pbe/react-yandex-maps';
 import { Input } from '@/ui-components/Input';
 import { Select } from '@/ui-components/Select';
 import { PhotoUpload } from '@/ui-components/PhotoUpload';
 import { Button } from '@/ui-components/Button';
 import { SelectOption, FormState } from '@/services/add-post/types';
-import { Map, Placemark, YMaps } from '@pbe/react-yandex-maps';
 
 interface PropertyDetailsStepProps {
   form: FormState;
@@ -334,13 +334,19 @@ export function PropertyDetailsStep({
 
       <div className="flex justify-between mt-2 flex-col sm:flex-row">
         {onBack && (
-          <Button className='mt-4'  type="button" variant="outline" onClick={onBack} size="lg">
+          <Button
+            className="mt-4"
+            type="button"
+            variant="outline"
+            onClick={onBack}
+            size="lg"
+          >
             Назад
           </Button>
         )}
-          <Button className='mt-4' type="submit" loading={isSubmitting} size="lg">
-            {isSubmitting ? 'Сохранение...' : 'Сохранить'}
-          </Button>
+        <Button className="mt-4" type="submit" loading={isSubmitting} size="lg">
+          {isSubmitting ? 'Сохранение...' : 'Сохранить'}
+        </Button>
       </div>
     </form>
   );

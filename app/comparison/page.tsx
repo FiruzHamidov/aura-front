@@ -107,21 +107,25 @@ export default function Comparison() {
   return (
     <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 py-6">
       {/* Header section */}
-      <div className="flex justify-between items-center mb-10 bg-white rounded-[22px] p-[30px]">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-10 bg-white rounded-[22px] p-4 sm:p-[30px]">
         <div>
-          <h1 className="text-2xl font-bold">Сравнение</h1>
-          <p className="text-[#666F8D]">Найдено 2 объекта</p>
+          <h1 className="text-xl sm:text-2xl font-bold">Сравнение</h1>
+          <p className="text-[#666F8D] text-sm sm:text-base">
+            Найдено 2 объекта
+          </p>
         </div>
 
-        <Tabs
-          tabs={tabs}
-          activeType={activeType}
-          setActiveType={setActiveType}
-        />
+        <div className="w-full sm:w-auto overflow-x-auto hide-scrollbar">
+          <Tabs
+            tabs={tabs}
+            activeType={activeType}
+            setActiveType={setActiveType}
+          />
+        </div>
       </div>
 
-      {/* Property cards - using the custom BuyCard component */}
-      <div className="grid grid-cols-4 gap-[30px] mb-[53px]">
+      {/* Property cards - responsive grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-[30px] mb-8 sm:mb-[53px]">
         {properties.map((property) => (
           <div key={property.id} className="relative">
             <BuyCard listing={property} />
@@ -129,8 +133,8 @@ export default function Comparison() {
         ))}
       </div>
 
-      {/* Comparison table */}
-      <div className="bg-white rounded-[22px] overflow-hidden mb-[83px]">
+      {/* Comparison table - mobile responsive */}
+      <div className="bg-white rounded-[22px] overflow-hidden mb-16 sm:mb-[83px]">
         {filteredAttributes.map((attribute) => {
           const isLightBackground = [
             'Жилая площадь',
@@ -144,41 +148,81 @@ export default function Comparison() {
             <div
               key={attribute}
               className={clsx(
-                'flex',
+                'flex flex-col sm:flex-row',
                 isLightBackground ? 'bg-[#EFF6FF]' : 'bg-white'
               )}
             >
-              <div className="w-2/3 flex">
-                <div className="w-1/2 px-[30px] py-4 ">
-                  <div className="w-1/3 h-6 mb-3 text-lg text-[#667085] text-nowrap whitespace-nowrap">
+              {/* Mobile: Stack vertically */}
+              <div className="sm:hidden">
+                <div className="px-4 py-3 border-b border-gray-100">
+                  <div className="text-sm text-[#667085] mb-2">{attribute}</div>
+                  <div className="flex justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="text-xs text-gray-500 mb-1">Объект 1</div>
+                      {attribute.includes('площадь') ? (
+                        <div className="text-base font-normal">
+                          {properties[0].attributes[attribute].split('м²')[0]}
+                          <span>
+                            м<sup>2</sup>
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="text-base font-normal">
+                          {properties[0].attributes[attribute]}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-xs text-gray-500 mb-1">Объект 2</div>
+                      {attribute.includes('площадь') ? (
+                        <div className="text-base font-normal">
+                          {properties[1].attributes[attribute].split('м²')[0]}
+                          <span>
+                            м<sup>2</sup>
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="text-base font-normal">
+                          {properties[1].attributes[attribute]}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop: Side by side */}
+              <div className="hidden sm:flex w-full">
+                <div className="w-1/2 px-4 sm:px-[30px] py-4">
+                  <div className="text-sm sm:text-lg text-[#667085] mb-2 sm:mb-3">
                     {attribute}
                   </div>
 
                   {attribute.includes('площадь') ? (
-                    <div className="text-2xl font-normal">
+                    <div className="text-lg sm:text-2xl font-normal">
                       {properties[0].attributes[attribute].split('м²')[0]}
                       <span>
                         м<sup>2</sup>
                       </span>
                     </div>
                   ) : (
-                    <div className="text-2xl font-normal">
+                    <div className="text-lg sm:text-2xl font-normal">
                       {properties[0].attributes[attribute]}
                     </div>
                   )}
                 </div>
 
-                <div className="w-1/2 px-[30px] py-4 ">
-                  <div className="w-1/3 h-6 mb-3" />
+                <div className="w-1/2 px-4 sm:px-[30px] py-4">
+                  <div className="h-6 mb-2 sm:mb-3" />
                   {attribute.includes('площадь') ? (
-                    <div className="text-2xl font-normal">
+                    <div className="text-lg sm:text-2xl font-normal">
                       {properties[1].attributes[attribute].split('м²')[0]}
                       <span>
                         м<sup>2</sup>
                       </span>
                     </div>
                   ) : (
-                    <div className="text-2xl font-normal">
+                    <div className="text-lg sm:text-2xl font-normal">
                       {properties[1].attributes[attribute]}
                     </div>
                   )}

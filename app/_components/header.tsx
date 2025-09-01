@@ -396,7 +396,7 @@ const Header: FC = () => {
           </div>
 
           {/* Bottom Action Buttons */}
-          <div className="p-6 space-y-4">
+          <div className="p-6 pt-16 space-y-4 mb-32 border-t border-white/20">
             <div className="flex space-x-4">
               {/* Location Button */}
               <button className="flex-1 flex items-center justify-center space-x-1 bg-white px-3 py-2 rounded-full transition-all">
