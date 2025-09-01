@@ -12,7 +12,8 @@ import PencilIcon from '@/icons/PencilIcon';
 import {toast} from 'react-toastify';
 
 import {STORAGE_URL} from "@/constants/base-url";
-import {RealtorListings, Chip} from "@/app/buy/_components/RealtorListing";
+import {Chip, RealtorListings} from "@/app/buy/_components/RealtorListing";
+import UserIcon from "@/icons/UserIcon";
 
 interface Review {
     id: number;
@@ -68,14 +69,16 @@ const RealtorPage = () => {
     const reviewsPerPage = 4;
 
     const ROOM_CHIPS = [1, 2, 3, 4, 5]; // 5 = "5+"
-    const [selectedRooms, setSelectedRooms] = useState<number[]>([1,2,3,4,5]); // "Все" по умолчанию
+    const [selectedRooms, setSelectedRooms] = useState<number[]>([1, 2, 3, 4, 5]); // "Все" по умолчанию
+
+    const [listingsTotal, setListingsTotal] = useState<number | null>(null);
 
     const isAllSelected = selectedRooms.length === ROOM_CHIPS.length;
 
     const toggleRoom = (v: number) => {
         setSelectedRooms(prev => {
             const has = prev.includes(v);
-            const next = has ? prev.filter(x => x !== v) : [...prev, v].sort((a,b)=>a-b);
+            const next = has ? prev.filter(x => x !== v) : [...prev, v].sort((a, b) => a - b);
             return next.length === 0 ? [...ROOM_CHIPS] : next; // не даём опустошить — вернём "Все"
         });
     };
@@ -94,18 +97,33 @@ const RealtorPage = () => {
             const res = await axios.get(`https://backend.aura.tj/api/user/${slug}`);
             const data = res.data;
 
+            let rawPhone = data.phone ?? '';
+
+            let digits = rawPhone.replace(/\D/g, '');
+
+            if (digits.startsWith('992')) {
+                digits = digits.slice(3);
+            }
+
+            let phone = digits.replace(/^(\d{3})(\d{2})(\d{2})(\d{2})$/, '$1 $2 $3 $4')
+
+            if (!phone.startsWith('+992')) {
+                phone = `+992 ${phone}`;
+            }
+
             const realtor: Realtor = {
                 id: data.id,
                 name: data.name,
                 position: 'Агент по недвижимости',
                 avatar: data.photo,
-                phone: data.phone,
-                photo: `${STORAGE_URL}/${data.photo}`,
+                phone: phone,
+                photo: data.photo,
                 description: data.description,
                 rating: 5, // TODO: получить из API
                 reviewCount: 0, // TODO: получить из API
                 reviews: [], // TODO: получить отзывы с API, если есть
             };
+
 
             setRealtorData(realtor);
         } catch (err) {
@@ -169,12 +187,20 @@ const RealtorPage = () => {
                     <div className="md:w-2/3">
                         <div className="flex gap-[22px] bg-white p-10 rounded-[22px]">
                             <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden flex-shrink-0">
-                                <Image
-                                    src={realtorData.photo || '/images/team/1.png'}
-                                    alt={realtorData.name}
-                                    fill
-                                    className="object-cover"
-                                />
+                                {realtorData.photo ? (
+                                    <Image
+                                        src={`${STORAGE_URL}/${realtorData.photo}`}
+                                        alt={realtorData.name}
+                                        width={120}
+                                        height={120}
+                                        className="rounded-full object-cover mr-2 h-[120px] w-[120px]"
+                                    />
+                                ) : (
+                                    <div
+                                        className="rounded-full flex justify-center items-center  h-[120px] w-[120px] bg-[#F1F5F9] p-1.5 mr-1.5">
+                                        <UserIcon className="w-6 h-7"/>
+                                    </div>
+                                )}
                             </div>
 
                             <div>
@@ -203,13 +229,15 @@ const RealtorPage = () => {
                                         {realtorData.phone}
                                     </a>
                                     <div className="flex gap-2">
-                                        <a href="#" aria-label="Telegram">
+                                        <a href={`tg://resolve?phone=${realtorData.phone.replace(/\D/g, '')}`}
+                                           target="_blank" aria-label="Telegram">
                                             <TelegramNoBgIcon className="w-12 h-12"/>
                                         </a>
                                         <a href={`tel:${realtorData.phone.replace(/\s/g, '')}`} aria-label="Phone">
                                             <PhoneNoBgIcon className="w-12 h-12"/>
                                         </a>
-                                        <a href="#" aria-label="WhatsApp">
+                                        <a href={`https://wa.me/${realtorData.phone.replace(/\s/g, '')}`}
+                                           target="_blank" aria-label="WhatsApp">
                                             <WhatsAppNoBgIcon className="w-12 h-12"/>
                                         </a>
                                     </div>
@@ -306,29 +334,37 @@ const RealtorPage = () => {
                         </form>
                     </div>
                 </div>
-                    {/* Заголовок перед кнопками */}
-                    <h2 className="text-2xl md:text-4xl font-bold mt-10 mb-4">Список объектов агента</h2>
 
-                    {/* Кнопки комнат */}
-                    <div className="bg-white rounded-[22px] p-[20px]">
-                        <p>Кол-во комнат:</p>
-                        <div className="flex flex-wrap items-center gap-2">
-                            <Chip active={isAllSelected} onClick={selectAll}>Все</Chip>
-                            {ROOM_CHIPS.map(v => (
-                                <Chip key={v} active={selectedRooms.includes(v)} onClick={() => toggleRoom(v)}>
-                                    {v === 5 ? '5+' : v}
-                                </Chip>
-                            ))}
-                        </div>
-                        <div className="text-sm text-[#666F8D] mt-3">
-                            Выбрано: {isAllSelected ? 'Все' : selectedRooms.map(v=>v===5?'5+':v).join(', ')} комнатные
-                        </div>
+            </div>
+            <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 pt-8">
+                {/* Заголовок перед кнопками */}
+                <h2 className="text-2xl md:text-4xl font-bold mt-10 mb-4">Объявлений: {listingsTotal ?? '—'}</h2>
+
+                {/* Кнопки комнат */}
+                <div className="bg-white rounded-[22px] p-[20px]">
+                    <p className="mt-2 mb-3">Кол-во комнат: </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Chip active={isAllSelected} onClick={selectAll}>Все</Chip>
+                        {ROOM_CHIPS.map(v => (
+                            <Chip key={v} active={selectedRooms.includes(v)} onClick={() => toggleRoom(v)}>
+                                {v === 5 ? '5+' : v}
+                            </Chip>
+                        ))}
                     </div>
+                    <div className="text-sm text-[#666F8D] mt-3">
+                        Выбрано: {isAllSelected ? 'Все' : selectedRooms.map(v => v === 5 ? '5+' : v).join(', ')} комнатные
+                    </div>
+                </div>
 
-                    {/* Секция со списком по выбранным комнатам */}
-                    <RealtorListings slug={slug as string} selectedRooms={selectedRooms} />
+                {/* Секция со списком по выбранным комнатам */}
+
+            </div>
+            <div className="mb-4">
+                <RealtorListings slug={slug as string} selectedRooms={selectedRooms} onCountChange={setListingsTotal}/>
             </div>
         </div>
+
+
     );
 };
 

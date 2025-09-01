@@ -14,6 +14,7 @@ import {User} from '@/services/login/types';
 import ModerationModal from '@/app/_components/moderation-modal';
 import Link from "next/link";
 import clsx from "clsx";
+import VerifiedIcon from "@/icons/Verified";
 
 interface BuyCardProps {
     listing: Property;
@@ -227,9 +228,19 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false}) => {
                                     <UserIcon className="h-[22px] w-[22px]"/>
                                 </div>
                             )}
-                            <div>
+                            <div className="flex items-center">
                                 <div className="font-bold text-sm text-[#020617]">{displayAgent.name}</div>
                                 {/*<div className="text-[#666F8D] text-xs">{displayAgent.role}</div>*/}
+                                <div className="relative group inline-flex items-center">
+                                    <VerifiedIcon className="w-4 h-4 ml-1" fill="#0036A5"
+                                                  aria-label="Подтверждено aura.tj"/>
+
+                                    {/* тултип */}
+                                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 hidden group-hover:block z-10
+                  bg-[#0036A5] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg">
+                                        Подтверждено aura.tj
+                                    </div>
+                                </div>
                             </div>
 
                         </div>

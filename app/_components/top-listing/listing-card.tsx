@@ -12,6 +12,7 @@ import WhiteSettingsIcon from '@/icons/WhiteSettingsIcon';
 import FavoriteButton from '@/ui-components/favorite-button/favorite-button';
 import {User} from "@/services/login/types";
 import {LISTING_TYPE_META} from "@/services/properties/types";
+import VerifiedIcon from "@/icons/Verified";
 // import ModerationModal from "@/app/_components/moderation-modal";
 // import {Property} from "@/services/properties/types";
 
@@ -210,13 +211,14 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false}) => {
                 </div>
               )}
 
-              <div>
+              <div className="flex items-center">
                 <div className="font-bold text-sm text-[#020617]">
                   {listing.agent.name}
                 </div>
-                <div className="text-[#666F8D] text-xs">
-                  {listing.agent.role}
-                </div>
+                <VerifiedIcon className="w-4 h-4 ml-1" />
+                {/*<div className="text-[#666F8D] text-xs">*/}
+                {/*  {listing.agent.role}*/}
+                {/*</div>*/}
               </div>
             </div>
 
