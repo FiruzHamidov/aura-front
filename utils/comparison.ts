@@ -38,10 +38,6 @@ export function removeFromComparison(propertyId: string | number): string[] {
   return newIds;
 }
 
-export function clearComparison(): void {
-  localStorage.removeItem(STORAGE_KEY);
-}
-
 export function isComparisonFull(): boolean {
   return getComparisonIds().length >= MAX_COMPARISON_ITEMS;
 }
