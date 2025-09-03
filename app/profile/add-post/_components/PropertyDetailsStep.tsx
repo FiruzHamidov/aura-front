@@ -156,25 +156,12 @@ export function PropertyDetailsStep({
                 />
 
                 <Input
-                    label="Широта"
-                    name="latitude"
+                    label="Ориентир"
+                    name="landmark"
                     type="number"
-                    value={form.latitude}
+                    value={form.landmark}
                     onChange={onChange}
-                    placeholder="1"
-                    required
-                    disabled
-                />
-
-                <Input
-                    label="Долгота"
-                    name="longitude"
-                    type="number"
-                    value={form.longitude}
-                    onChange={onChange}
-                    placeholder="1"
-                    required
-                    disabled
+                    placeholder="Например: Пайкари гумрук"
                 />
 
                 <Select
@@ -279,6 +266,28 @@ export function PropertyDetailsStep({
                     value={form.youtube_link}
                     onChange={onChange}
                     placeholder="https://youtube.com/..."
+                />
+
+                <Input
+                    label="Широта"
+                    name="latitude"
+                    type="number"
+                    value={form.latitude}
+                    onChange={onChange}
+                    placeholder="1"
+                    required
+                    disabled
+                />
+
+                <Input
+                    label="Долгота"
+                    name="longitude"
+                    type="number"
+                    value={form.longitude}
+                    onChange={onChange}
+                    placeholder="1"
+                    required
+                    disabled
                 />
             </div>
 

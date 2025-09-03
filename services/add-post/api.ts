@@ -66,7 +66,7 @@ export const addPostApi = {
 
   getContractTypes: async (): Promise<ContractType[]> => {
     const { data } = await axios.get<ContractType[]>(
-      ADD_POST_ENDPOINTS.GET_PARKING_TYPES
+      ADD_POST_ENDPOINTS.GET_CONTRACT_TYPES
     );
     return data;
   },
