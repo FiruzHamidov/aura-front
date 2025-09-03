@@ -168,6 +168,7 @@ export default function EditPost() {
           repairTypes={formData.repairTypes}
           heatingTypes={formData.heatingTypes}
           parkingTypes={formData.parkingTypes}
+          contractTypes={formData.contractTypes}
           onSubmit={handleFormSubmit}
           onChange={formData.handleChange}
           onPhotoChange={formData.handleFileChange}

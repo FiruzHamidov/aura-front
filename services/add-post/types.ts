@@ -44,6 +44,12 @@ export interface ParkingType {
     slug?: string;
 }
 
+export interface ContractType {
+    id: number;
+    name: string;
+    slug?: string;
+}
+
 export interface FormState {
     title: string;
     description: string;
@@ -51,6 +57,7 @@ export interface FormState {
     repair_type_id: string;
     heating_type_id: string;
     parking_type_id: string;
+    contract_type_id: string;
     owner_phone: string;
     price: string;
     currency: string;
@@ -85,6 +92,7 @@ export interface CreatePropertyRequest {
     repair_type_id: string;
     heating_type_id: string;
     parking_type_id: string;
+    contract_type_id: string;
     price: string;
     currency: string;
     offer_type: string;

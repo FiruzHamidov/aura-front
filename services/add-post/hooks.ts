@@ -44,6 +44,13 @@ export const useGetParkingTypesQuery = () => {
   });
 };
 
+export const useGetContractTypesQuery = () => {
+  return useQuery({
+    queryKey: ["get-contract-types"],
+    queryFn: addPostApi.getContractTypes,
+  });
+};
+
 export const useCreatePropertyMutation = () => {
   const queryClient = useQueryClient();
 

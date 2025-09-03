@@ -58,6 +58,7 @@ export default function AddPost() {
           repairTypes={formData.repairTypes}
           heatingTypes={formData.heatingTypes}
           parkingTypes={formData.parkingTypes}
+          contractTypes={formData.contractTypes}
           onSubmit={handleFormSubmit}
           onChange={formData.handleChange}
           onPhotoChange={formData.handleFileChange}

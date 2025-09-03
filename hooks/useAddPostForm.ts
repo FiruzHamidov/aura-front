@@ -4,7 +4,7 @@ import { ChangeEvent, FormEvent, useEffect, useState, useRef } from "react";
 import {
   FormState,
   useCreatePropertyMutation,
-  useGetBuildingTypesQuery,
+  useGetBuildingTypesQuery, useGetContractTypesQuery,
   useGetHeatingTypesQuery,
   useGetLocationsQuery,
   useGetParkingTypesQuery,
@@ -22,6 +22,7 @@ const initialFormState: FormState = {
   repair_type_id: "",
   heating_type_id: "",
   parking_type_id: "",
+  contract_type_id: "",
   price: "",
   currency: "TJS",
   total_area: "",
@@ -62,6 +63,7 @@ export function useAddPostForm({
   const { data: repairTypes = [] } = useGetRepairTypesQuery();
   const { data: heatingTypes = [] } = useGetHeatingTypesQuery();
   const { data: parkingTypes = [] } = useGetParkingTypesQuery();
+  const { data: contractTypes = [] } = useGetContractTypesQuery();
 
   const createPropertyMutation = useCreatePropertyMutation();
   const updatePropertyMutation = useUpdatePropertyMutation();
@@ -91,6 +93,7 @@ export function useAddPostForm({
         repair_type_id: propertyData.repair_type_id?.toString() || "",
         heating_type_id: propertyData.heating_type_id?.toString() || "",
         parking_type_id: propertyData.parking_type_id?.toString() || "",
+        contract_type_id: propertyData.contract_type_id?.toString() || "",
         price: propertyData.price || "",
         currency: propertyData.currency || "TJS",
         total_area: propertyData.total_area || "",
@@ -183,6 +186,7 @@ export function useAddPostForm({
       location_id: form.location_id,
       repair_type_id: form.repair_type_id,
       heating_type_id: form.heating_type_id,
+      contract_type_id: form.contract_type_id,
       address: form.address,
       district: form.district,
       parking_type_id: form.parking_type_id,
@@ -242,6 +246,7 @@ export function useAddPostForm({
     repairTypes,
     heatingTypes,
     parkingTypes,
+    contractTypes,
 
     // Form state
     form,

@@ -1,6 +1,6 @@
 import { axios } from "@/utils/axios";
 import {
-  BuildingType,
+  BuildingType, ContractType,
   CreatePropertyRequest,
   CreatePropertyResponse,
   HeatingType,
@@ -17,6 +17,7 @@ const ADD_POST_ENDPOINTS = {
   GET_REPAIR_TYPES: "/repair-types",
   GET_HEATING_TYPES: "/heating-types",
   GET_PARKING_TYPES: "/parking-types",
+  GET_CONTRACT_TYPES: "/contract-types",
   CREATE_PROPERTY: "/properties",
 } as const;
 
@@ -58,6 +59,13 @@ export const addPostApi = {
 
   getParkingTypes: async (): Promise<ParkingType[]> => {
     const { data } = await axios.get<ParkingType[]>(
+      ADD_POST_ENDPOINTS.GET_PARKING_TYPES
+    );
+    return data;
+  },
+
+  getContractTypes: async (): Promise<ContractType[]> => {
+    const { data } = await axios.get<ContractType[]>(
       ADD_POST_ENDPOINTS.GET_PARKING_TYPES
     );
     return data;

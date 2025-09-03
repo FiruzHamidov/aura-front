@@ -19,7 +19,7 @@ interface LinkColumn {
 
 const footerLinks: LinkColumn[] = [
   {
-    title: 'Связь с нами',
+    title: 'О нас',
     links: [
       { name: 'Информация о компании', href: '/about' },
       // { name: 'Реклама', href: '/advertising' },

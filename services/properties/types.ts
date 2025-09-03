@@ -39,6 +39,7 @@ export interface Property {
   status_id?: number;
   location_id?: number;
   repair_type_id?: number;
+  contract_type_id?: number;
   heating_type_id?: number;
   parking_type_id?: number;
   total_area?: string;
