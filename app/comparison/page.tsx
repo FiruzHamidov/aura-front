@@ -7,11 +7,7 @@ import { useRouter } from 'next/navigation';
 import clsx from 'clsx';
 import { Tabs } from '@/ui-components/tabs/tabs';
 import BuyCard from '../_components/buy/buy-card';
-import {
-  getComparisonIds,
-  removeFromComparison,
-  clearComparison,
-} from '@/utils/comparison';
+import { getComparisonIds, removeFromComparison } from '@/utils/comparison';
 import { useGetPropertyByIdQuery } from '@/services/properties/hooks';
 import { toast } from 'react-toastify';
 
@@ -118,11 +114,6 @@ export default function Comparison() {
     }
   };
 
-  const handleClearComparison = () => {
-    clearComparison();
-    router.push('/buy');
-  };
-
   if (isLoading) {
     return (
       <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 py-6">
@@ -174,12 +165,6 @@ export default function Comparison() {
               setActiveType={setActiveType}
             />
           </div>
-          <button
-            onClick={handleClearComparison}
-            className="text-sm text-[#0036A5] border border-[#0036A5] px-3 py-1 rounded-md"
-          >
-            Очистить
-          </button>
         </div>
       </div>
 
