@@ -1,18 +1,21 @@
 'use client';
 
-import { FC, useState, useCallback, useEffect } from 'react';
+import { FC, useState, useCallback, useEffect, MouseEvent } from 'react';
+import { toast } from 'react-toastify';
 import Image from 'next/image';
-import { Listing } from './types';
+import { useRouter } from 'next/navigation';
+import clsx from 'clsx';
+import useEmblaCarousel from 'embla-carousel-react';
 import LocationIcon from '@/icons/LocationIcon';
 import CalendarIcon from '@/icons/CalendarIcon';
 import UserIcon from '@/icons/UserIcon';
-import useEmblaCarousel from 'embla-carousel-react';
-import clsx from 'clsx';
 import WhiteSettingsIcon from '@/icons/WhiteSettingsIcon';
 import FavoriteButton from '@/ui-components/favorite-button/favorite-button';
-import {User} from "@/services/login/types";
-import {LISTING_TYPE_META} from "@/services/properties/types";
-import VerifiedIcon from "@/icons/Verified";
+import { User } from '@/services/login/types';
+import { LISTING_TYPE_META } from '@/services/properties/types';
+import VerifiedIcon from '@/icons/Verified';
+import { addToComparison } from '@/utils/comparison';
+import { Listing } from './types';
 // import ModerationModal from "@/app/_components/moderation-modal";
 // import {Property} from "@/services/properties/types";
 
@@ -22,7 +25,9 @@ interface ListingCardProps {
   user?: User;
 }
 
-const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false}) => {
+const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
+  const router = useRouter();
+
   const formattedPrice = listing.price.toLocaleString('ru-RU');
 
   const images = listing.images || [
@@ -34,6 +39,19 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false}) => {
 
   // const userRole =
   //     user?.role?.slug === 'admin' ? 'admin' : user?.role?.slug === 'agent' ? 'agent' : null;
+
+  const handleCompareClick = (e: MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const ids = addToComparison(listing.id);
+
+    if (ids.length === 2) {
+      router.push('/comparison');
+    } else {
+      toast.success('Объект добавлен к сравнению');
+    }
+  };
 
   const scrollTo = useCallback(
     (index: number) => emblaApi && emblaApi.scrollTo(index),
@@ -67,37 +85,38 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false}) => {
         <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex">
             {images.map((image, index) => (
-                <div key={index} className="min-w-full">
-                  <div
-                      className="relative w-full overflow-hidden rounded-lg"
-                      style={{height: isLarge ? 450 : 200}} // задаём высоту контейнера
-                  >
-                    <Image
-                        src={image.url ?? ''}
-                        alt={`Фото ${listing.title}`}
-                        fill
-                        className="object-cover"              // заполняет контейнер, без искажений (возможна обрезка краёв)
-                        sizes="(min-width: 768px) 580px, 100vw"
-                        priority={index === 0}
-                    />
-                  </div>
+              <div key={index} className="min-w-full">
+                <div
+                  className="relative w-full overflow-hidden rounded-lg"
+                  style={{ height: isLarge ? 450 : 200 }} // задаём высоту контейнера
+                >
+                  <Image
+                    src={image.url ?? ''}
+                    alt={`Фото ${listing.title}`}
+                    fill
+                    className="object-cover" // заполняет контейнер, без искажений (возможна обрезка краёв)
+                    sizes="(min-width: 768px) 580px, 100vw"
+                    priority={index === 0}
+                  />
                 </div>
+              </div>
             ))}
           </div>
         </div>
 
         {listing.listing_type && (
-            <span
-                className={clsx(
-                    isLarge ? 'top-[22px] left-[22px]' : 'top-[14px] left-[14px]',
-                    'absolute text-xs font-bold px-[18px] py-1 rounded-full shadow',
-                    'backdrop-blur-sm ring-1 ring-black/10',
-                    LISTING_TYPE_META[listing.listing_type]?.classes ?? 'bg-slate-200 text-slate-900'
-                )}
-                title={LISTING_TYPE_META[listing.listing_type]?.label}
-            >
-                        {LISTING_TYPE_META[listing.listing_type]?.label ?? 'Статус'}
-                  </span>
+          <span
+            className={clsx(
+              isLarge ? 'top-[22px] left-[22px]' : 'top-[14px] left-[14px]',
+              'absolute text-xs font-bold px-[18px] py-1 rounded-full shadow',
+              'backdrop-blur-sm ring-1 ring-black/10',
+              LISTING_TYPE_META[listing.listing_type]?.classes ??
+                'bg-slate-200 text-slate-900'
+            )}
+            title={LISTING_TYPE_META[listing.listing_type]?.label}
+          >
+            {LISTING_TYPE_META[listing.listing_type]?.label ?? 'Статус'}
+          </span>
         )}
 
         <div
@@ -109,7 +128,12 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false}) => {
           <div className="!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-[37px] h-[37px]">
             <FavoriteButton propertyId={listing.id} />
           </div>
-          <div className="!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-[37px] h-[37px]">
+          <div
+            onClick={handleCompareClick}
+            role="button"
+            aria-label="Добавить к сравнению"
+            className="!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-[37px] h-[37px]"
+          >
             <WhiteSettingsIcon className="w-[18px] h-[18px]" />
           </div>
 
