@@ -97,6 +97,7 @@ export const addPostApi = {
     formData.append("district", propertyData.district);
     formData.append("address", propertyData.address);
     formData.append("heating_type_id", propertyData.heating_type_id);
+    formData.append("contract_type_id", propertyData.contract_type_id);
     formData.append("parking_type_id", propertyData.parking_type_id);
     formData.append("price", propertyData.price);
     formData.append("currency", propertyData.currency);
@@ -170,6 +171,7 @@ export const addPostApi = {
     formData.append("district", propertyData.district);
     formData.append("location_id", propertyData.location_id);
     formData.append("repair_type_id", propertyData.repair_type_id);
+    formData.append("contract_type_id", propertyData.contract_type_id);
     formData.append("heating_type_id", propertyData.heating_type_id);
     formData.append("parking_type_id", propertyData.parking_type_id);
     formData.append("price", propertyData.price);

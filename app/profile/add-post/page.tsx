@@ -17,6 +17,7 @@ export default function AddPost() {
   });
 
   const handleFormSubmit = async (e: React.FormEvent) => {
+    console.log('formData', formData)
     await formData.handleSubmit(e);
     resetSteps();
   };

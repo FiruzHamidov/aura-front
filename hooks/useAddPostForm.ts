@@ -247,8 +247,6 @@ export function useAddPostForm({
     heatingTypes,
     parkingTypes,
     contractTypes,
-
-    // Form state
     form,
     selectedOfferType,
     selectedPropertyType,

@@ -158,7 +158,7 @@ export function PropertyDetailsStep({
                 <Input
                     label="Ориентир"
                     name="landmark"
-                    type="number"
+                    type="text"
                     value={form.landmark}
                     onChange={onChange}
                     placeholder="Например: Пайкари гумрук"
