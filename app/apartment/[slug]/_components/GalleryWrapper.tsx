@@ -11,8 +11,8 @@ import { useProfile } from '@/services/login/hooks';
 import MortgageCalculator from '../_components/MortgageCalculator';
 import PhotoGalleryModal from '@/ui-components/PhotoGalleryModal';
 import BookingSidebarForm from '@/app/apartment/[slug]/_components/BookingSidebarForm';
-import WhatsappGreenIcon from "@/icons/WhatsappGreenIcon";
 import FooterPhoneIcon from "@/icons/FooterPhoneIcon";
+import WhatsappInlineIcon from "@/icons/WhatsappInlineIcon";
 
 interface Props {
     apartment: Property;
@@ -33,7 +33,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
     };
     const closeModal = () => setIsModalOpen(false);
 
-    let rawPhone = apartment.creator?.phone ?? '';
+    const rawPhone = apartment.creator?.phone ?? '';
 
 // убираем пробелы, дефисы и прочие символы кроме цифр и "+"
     let cleanPhone = rawPhone.replace(/[^\d+]/g, '');
@@ -44,7 +44,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
         digits = digits.slice(3);
     }
 
-    let formatted = digits.replace(/^(\d{3})(\d{2})(\d{2})(\d{2})$/, '$1 $2 $3 $4');
+    const formatted = digits.replace(/^(\d{3})(\d{2})(\d{2})(\d{2})$/, '$1 $2 $3 $4');
     let phone = formatted
 
     if (!cleanPhone.startsWith('+992')) {
@@ -301,7 +301,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                     </svg>
                                 </button>
 
-                                <div className="grid md:grid-cols-2 gap-8 mb-10">
+                                <div className="flex gap-8 flex-col md:flex-row mb-10">
                                     <div className="w-[317px]">
                                         <h2 className="text-2xl font-bold mb-4">О квартире</h2>
                                         <div className="space-y-0.5 text-sm">
@@ -419,7 +419,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                         className="flex items-center justify-center gap-3 w-full py-3 border border-[#25D366] text-[#25D366] rounded-full text-center hover:bg-[#25D366]/10 transition"
                                         target="_blank"
                                     >
-                                        <WhatsappGreenIcon className="w-8 h-8"/> WhatsApp
+                                        <WhatsappInlineIcon className="w-8 h-8"/> WhatsApp
                                     </Link>
                                 </div>
                             </div>

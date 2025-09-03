@@ -97,7 +97,7 @@ const RealtorPage = () => {
             const res = await axios.get(`https://backend.aura.tj/api/user/${slug}`);
             const data = res.data;
 
-            let rawPhone = data.phone ?? '';
+            const rawPhone = data.phone ?? '';
 
             let digits = rawPhone.replace(/\D/g, '');
 
