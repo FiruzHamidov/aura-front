@@ -27,9 +27,11 @@ export const RealtorListings: React.FC<RealtorListingsProps> = ({slug, selectedR
     const allSelected = selectedRooms.length === 5;
 
     // Сбрасываем страницу при смене фильтров
+    const roomsKey = selectedRooms.join(',');
+
     useEffect(() => {
         setPage(1);
-    }, [slug, selectedRooms.join(',')]); // join, чтобы эффект срабатывал при изменении набора
+    }, [slug, roomsKey]);
 
     // Готовим фильтры (мемоизация, чтобы не дергать лишние запросы)
     const filters: PropertyFilters = useMemo(() => {
