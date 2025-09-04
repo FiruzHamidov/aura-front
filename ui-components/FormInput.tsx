@@ -24,7 +24,7 @@ export function FormInput({
           value={value}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full bg-[#F0F2F5] rounded-lg py-5 px-4 text-lg"
+          className="w-full bg-[#F0F2F5] rounded-lg py-2 px-4 text-lg"
         />
         {suffix && (
           <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600">

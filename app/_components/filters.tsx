@@ -1,206 +1,209 @@
 'use client';
 
-import { FC, FormEvent, useState } from 'react';
-import { Field, Label, Switch } from '@headlessui/react';
-import { FormInput } from '@/ui-components/FormInput';
-import { SelectInput } from '@/ui-components/SelectInput';
-import clsx from 'clsx';
-import { PropertyFilters } from '@/services/properties/types';
+import {FC, FormEvent, useState} from 'react';
+import {FormInput} from '@/ui-components/FormInput';
+import MultiSelectInput, {MultiOption} from '@/ui-components/MultiSelectInput';
+import {PropertyFilters} from '@/services/properties/types';
 import {
-  useGetBuildingTypesQuery,
-  useGetLocationsQuery,
-  useGetPropertyTypesQuery,
+    useGetBuildingTypesQuery,
+    useGetLocationsQuery,
+    useGetPropertyTypesQuery,
+    useGetRepairTypesQuery,
 } from '@/services/add-post';
 
 interface Option {
-  id: string | number;
-  slug?: string;
-  name: string;
-  unavailable?: boolean;
+    id: string | number;
+    slug?: string;
+    name: string;
+    unavailable?: boolean;
 }
 
 const districtOptions: Option[] = [
-  { id: 'Сино', name: 'Сино' },
-  { id: 'Шохмансур', name: 'Шохмансур' },
-  { id: 'Фирдавси', name: 'Фирдавси' },
-  { id: 'И Сомони', name: 'Сомони' },
-];
-
-const repairOptions: Option[] = [
-  { id: 'euro', name: 'Новый ремонт' },
-  { id: 'cosmetic', name: 'Без ремонта / коробка' },
-  { id: 'none', name: 'С ремонтом' },
+    {id: 'Сино', name: 'Сино'},
+    {id: 'Шохмансур', name: 'Шохмансур'},
+    {id: 'Фирдавси', name: 'Фирдавси'},
+    {id: 'Сомони', name: 'Сомони'},
 ];
 
 interface AllFiltersProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSearch: (filters: PropertyFilters) => void;
+    isOpen: boolean;
+    onClose: () => void;
+    onSearch: (filters: PropertyFilters) => void;
 }
 
 export const AllFilters: FC<AllFiltersProps> = ({
-  isOpen,
-  onClose,
-  onSearch,
-}) => {
-  const { data: propertyTypes } = useGetPropertyTypesQuery();
-  const { data: buildingTypes } = useGetBuildingTypesQuery();
+                                                    isOpen,
+                                                    onClose,
+                                                    onSearch,
+                                                }) => {
+    const {data: propertyTypes} = useGetPropertyTypesQuery();
+    const {data: buildingTypes} = useGetBuildingTypesQuery();
+    const {data: locationTypes} = useGetLocationsQuery();
+    const {data: repairTypes} = useGetRepairTypesQuery();
 
-  const { data: locationTypes } = useGetLocationsQuery();
+    const propertyTypeOpts: MultiOption[] =
+        (propertyTypes ?? []).map((x: ApiEntity) => ({
+            id: x.id ?? x.slug ?? x.name,
+            name: x.name,
+            slug: x.slug,
+        }));
 
-  const newLocationTypes =
-    locationTypes?.map((location) => ({
-      ...location,
-      name: location.city!,
-    })) ?? [];
+    const repairTypeOpts: MultiOption[] =
+        (repairTypes ?? []).map((x: ApiEntity) => ({
+            id: x.id ?? x.slug ?? x.name,
+            name: x.name,
+            slug: x.slug,
+        }));
 
-  const [propertyType, setPropertyType] = useState('Квартиры во вторичке');
-  const [apartmentType, setApartmentType] = useState('Студия');
-  const [city, setCity] = useState('Душанбе');
-  const [district, setDistrict] = useState('Сино');
-  const [priceFrom, setPriceFrom] = useState('0');
-  const [priceTo, setPriceTo] = useState('0');
-  const [areaFrom, setAreaFrom] = useState('0');
-  const [areaTo, setAreaTo] = useState('0');
-  const [floorFrom, setFloorFrom] = useState('1');
-  const [floorTo, setFloorTo] = useState('-');
-  const [repairType, setRepairType] = useState('Евроремонт');
-  const [mortgageOption, setMortgageOption] = useState('mortgage');
-  // eslint-disable-next-line
-  const [listingType, setListingType] = useState('regular');
+    const buildingTypeOpts: MultiOption[] =
+        (buildingTypes ?? []).map((x: ApiEntity) => ({
+            id: x.id ?? x.slug ?? x.name,
+            name: x.name,
+            slug: x.slug,
+        }));
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
+    const cityOpts: MultiOption[] =
+        (locationTypes ?? []).map((loc: LocationEntity) => ({
+            id: loc.id ?? loc.city ?? loc.name ?? String(Math.random()),
+            name: loc.city ?? loc.name ?? 'Город',
+        }));
 
-    const filters = {
-      propertyType: propertyType || undefined,
-      city: city || undefined,
-      district: district || undefined,
-      priceFrom: priceFrom || undefined,
-      priceTo: priceTo || undefined,
-      areaFrom: areaFrom || undefined,
-      areaTo: areaTo || undefined,
-      floorFrom: floorFrom || undefined,
-      floorTo: floorTo || undefined,
-      repairType: repairType || undefined,
-      listing_type: listingType,
+    const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<Array<string | number>>([]);
+    const [selectedApartmentTypes, setSelectedApartmentTypes] = useState<Array<string | number>>([]);
+    const [selectedCities, setSelectedCities] = useState<Array<string | number>>([]);
+    const [districts, setDistricts] = useState<Array<string | number>>([]);
+    const [repairs, setRepairs] = useState<Array<string | number>>([]);
+
+    // --- Остальные поля ---
+    const [priceFrom, setPriceFrom] = useState('0');
+    const [priceTo, setPriceTo] = useState('0');
+    const [areaFrom, setAreaFrom] = useState('0');
+    const [areaTo, setAreaTo] = useState('0');
+    const [floorFrom, setFloorFrom] = useState('1');
+    const [floorTo, setFloorTo] = useState('3');
+    const [mortgageOption] = useState<'mortgage' | 'developer'>('mortgage');
+    // eslint-disable-next-line
+    const [listingType, setListingType] = useState<'regular' | 'vip'>('regular');
+
+    const handleSubmit = (e: FormEvent) => {
+        e.preventDefault();
+
+        // Если на бэке ожидают CSV, можете заменить на .join(',')
+        const filters = {
+            // массивы:
+            propertyTypes: selectedPropertyTypes.length ? selectedPropertyTypes.map(String) : undefined,
+            apartmentTypes: selectedApartmentTypes.length ? selectedApartmentTypes.map(String) : undefined,
+            cities: selectedCities.length ? selectedCities.map(String) : undefined,
+            districts: districts.length ? districts.map(String) : undefined,
+            repairs: repairs.length ? repairs.map(String) : undefined,
+
+            // CSV-вариант (на случай, если нужно):
+            // propertyTypes: selectedPropertyTypes.length ? selectedPropertyTypes.join(',') : undefined,
+            // apartmentTypes: selectedApartmentTypes.length ? selectedApartmentTypes.join(',') : undefined,
+            // cities: selectedCities.length ? selectedCities.join(',') : undefined,
+            // districts: districts.length ? districts.join(',') : undefined,
+            // repairs: repairs.length ? repairs.join(',') : undefined,
+
+            priceFrom: priceFrom || undefined,
+            priceTo: priceTo || undefined,
+            areaFrom: areaFrom || undefined,
+            areaTo: areaTo || undefined,
+            floorFrom: floorFrom || undefined,
+            floorTo: floorTo || undefined,
+            listing_type: listingType,
+            mortgageOption,
+        };
+
+        onSearch(filters as unknown as PropertyFilters);
     };
 
-    onSearch(filters);
-  };
+    return (
+        <div className={`${isOpen ? 'block' : 'hidden pointer-events-none'}`}>
+            <div
+                className={`mx-auto bg-white px-4 sm:px-8 md:px-12 lg:px-[70px] p-6 transition-transform duration-300 ${
+                    isOpen ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'
+                }`}
+            >
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-2xl font-bold">Все фильтры</h3>
+                    <button
+                        onClick={onClose}
+                        className="w-10 h-10 flex items-center justify-center rounded-full bg-[#0036A5] text-white hover:bg-blue-800 transition-colors cursor-pointer"
+                    >
+                        ✕
+                    </button>
+                </div>
 
-  return (
-    <div className={`${isOpen ? 'block' : 'hidden pointer-events-none'}`}>
-      <div
-        className={`mx-auto bg-white px-4 sm:px-8 md:px-12 lg:px-[70px] p-6 transition-transform duration-300 ${
-          isOpen ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'
-        }`}
-      >
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-2xl font-bold">Все фильтры</h3>
-          <button
-            onClick={onClose}
-            className="w-10 h-10 flex items-center justify-center rounded-full bg-[#0036A5] text-white hover:bg-blue-800 transition-colors cursor-pointer"
-          >
-            ✕
-          </button>
-        </div>
+                <form onSubmit={handleSubmit}>
+                    {/* верхняя сетка: 4 мульти-селекта */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <MultiSelectInput
+                            label="Тип недвижимости"
+                            options={propertyTypeOpts}
+                            value={selectedPropertyTypes}
+                            onChange={setSelectedPropertyTypes}
+                            placeholder="Выберите типы недвижимости"
+                        />
 
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <SelectInput
-              label="Тип недвижимости"
-              value={propertyType}
-              onChange={(value) => setPropertyType(value)}
-              options={propertyTypes ?? []}
-            />
-            <SelectInput
-              label="Тип квартиры"
-              value={apartmentType}
-              onChange={(val) => setApartmentType(val)}
-              options={buildingTypes ?? []}
-            />
-            <SelectInput
-              label="Город"
-              value={city}
-              onChange={(val) => setCity(val)}
-              options={newLocationTypes}
-            />
-            <SelectInput
-              label="Район"
-              value={district}
-              onChange={(val) => setDistrict(val)}
-              options={districtOptions}
-            />
-          </div>
+                        <MultiSelectInput
+                            label="Тип квартиры"
+                            options={buildingTypeOpts}
+                            value={selectedApartmentTypes}
+                            onChange={setSelectedApartmentTypes}
+                            placeholder="Выберите типы квартир"
+                        />
 
-          <div className="grid grid-cols-2 lg:grid-cols-2 gap-4 mt-4">
-            <FormInput
-              label="Цена от"
-              value={priceFrom}
-              onChange={(val) => setPriceFrom(val)}
-              placeholder="0с"
-            />
-            <FormInput
-              label="Цена до"
-              value={priceTo}
-              onChange={(val) => setPriceTo(val)}
-              placeholder="0с"
-            />
-            <FormInput
-              label="Площадь от"
-              value={areaFrom}
-              onChange={(val) => setAreaFrom(val)}
-              placeholder="0м²"
-            />
-            <FormInput
-              label="Площадь до"
-              value={areaTo}
-              onChange={(val) => setAreaTo(val)}
-              placeholder="0м²"
-            />
-            <FormInput
-              label="Этаж от"
-              value={floorFrom}
-              onChange={(val) => setFloorFrom(val)}
-              placeholder="0"
-            />
-            <FormInput
-              label="Этаж до"
-              value={floorTo}
-              onChange={(val) => setFloorTo(val)}
-              placeholder="0"
-            />
-          </div>
+                        <MultiSelectInput
+                            label="Город"
+                            options={cityOpts}
+                            value={selectedCities}
+                            onChange={setSelectedCities}
+                            placeholder="Выберите города"
+                        />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-            <SelectInput
-              label="Ремонт"
-              value={repairType}
-              onChange={(val) => setRepairType(val)}
-              options={repairOptions}
-            />
-          </div>
+                        <MultiSelectInput
+                            label="Район"
+                            options={districtOptions as MultiOption[]}
+                            value={districts}
+                            onChange={setDistricts}
+                            placeholder="Выберите районы"
+                        />
+                    </div>
 
-          <div className="mt-6">
-            <FormInput label="Ориентир" value="Душанбе" onChange={() => {}} />
-          </div>
+                    {/* числовые поля + ремонт */}
+                    <div className="grid grid-cols-2 lg:grid-cols-2 gap-4 mt-4">
+                        <FormInput label="Цена от" value={priceFrom} onChange={setPriceFrom} placeholder="0с"/>
+                        <FormInput label="Цена до" value={priceTo} onChange={setPriceTo} placeholder="0с"/>
+                        <FormInput label="Площадь от" value={areaFrom} onChange={setAreaFrom} placeholder="0м²"/>
+                        <FormInput label="Площадь до" value={areaTo} onChange={setAreaTo} placeholder="0м²"/>
+                        <FormInput label="Этаж от" value={floorFrom} onChange={setFloorFrom} placeholder="0"/>
+                        <FormInput label="Этаж до" value={floorTo} onChange={setFloorTo} placeholder="0"/>
 
+                        <MultiSelectInput
+                            label="Ремонт"
+                            options={repairTypeOpts}
+                            value={repairs}
+                            onChange={setRepairs}
+                            placeholder="Выберите типы ремонта"
+                        />
+
+                        <FormInput label="Ориентир" value="Душанбе" onChange={() => {
+                        }}/>
+                    </div>
+
+                    {/* переключатели (по желанию) */}
+                    {/*
           <div className="mt-6 flex gap-8">
             <Field className="flex items-center">
               <Switch
                 checked={mortgageOption === 'mortgage'}
-                onChange={(checked) =>
-                  setMortgageOption(checked ? 'mortgage' : 'developer')
-                }
+                onChange={(checked) => setMortgageOption(checked ? 'mortgage' : 'developer')}
                 className="group relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition"
               >
                 <span
                   className={clsx(
                     'size-5 translate-x-0.5 rounded-full shadow-lg transition group-data-checked:translate-x-5',
-                    mortgageOption === 'mortgage'
-                      ? 'bg-[#0036A5]'
-                      : 'bg-[#BAC0CC]'
+                    mortgageOption === 'mortgage' ? 'bg-[#0036A5]' : 'bg-[#BAC0CC]'
                   )}
                 />
               </Switch>
@@ -210,34 +213,43 @@ export const AllFilters: FC<AllFiltersProps> = ({
             <Field className="flex items-center">
               <Switch
                 checked={mortgageOption === 'developer'}
-                onChange={(checked) =>
-                  setMortgageOption(checked ? 'developer' : 'mortgage')
-                }
+                onChange={(checked) => setMortgageOption(checked ? 'developer' : 'mortgage')}
                 className="group relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition focus:outline-none"
               >
                 <span
                   className={clsx(
                     'size-5 translate-x-0.5 rounded-full shadow-lg transition group-data-checked:translate-x-5',
-                    mortgageOption === 'developer'
-                      ? 'bg-[#0036A5]'
-                      : 'bg-[#BAC0CC]'
+                    mortgageOption === 'developer' ? 'bg-[#0036A5]' : 'bg-[#BAC0CC]'
                   )}
                 />
               </Switch>
               <Label className="ml-3">От застройщика</Label>
             </Field>
           </div>
+          */}
 
-          <div className="flex justify-end mt-8">
-            <button
-              type="submit"
-              className="bg-[#0036A5] text-white py-3 px-6 rounded-lg hover:bg-blue-800 cursor-pointer"
-            >
-              Найти объекты
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+                    <div className="flex justify-end mt-8">
+                        <button
+                            type="submit"
+                            className="bg-[#0036A5] text-white py-3 px-6 rounded-lg hover:bg-blue-800 cursor-pointer"
+                        >
+                            Найти объекты
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
 };
+
+interface ApiEntity {
+    id: string | number;
+    name: string;
+    slug?: string;
+}
+
+interface LocationEntity {
+    id: string | number;
+    city?: string;
+    name?: string;
+}
