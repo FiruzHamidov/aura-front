@@ -1,0 +1,409 @@
+'use client';
+
+import { useEffect, useMemo, useState, ChangeEvent } from 'react';
+import {
+    AgentsLeaderboardRow,
+    ManagerEfficiencyRow,
+    PriceBucketsResponse,
+    ReportsQuery,
+    reportsApi,
+    RoomsRow,
+    SummaryResponse,
+    TimeSeriesRow,
+} from '@/services/reports/api';
+import { BarOffer, BarRooms, LineTimeSeries, PieStatus, BarBuckets } from './_charts';
+import { MultiSelect } from '@/ui-components/MultiSelect';
+import { Button } from '@/ui-components/Button';
+import { Input } from '@/ui-components/Input';
+
+type FilterState = {
+    date_from: string;
+    date_to: string;
+    interval: 'day' | 'week' | 'month';
+    offer_type: (string | number)[];
+    moderation_status: (string | number)[];
+    type_id: (string | number)[];
+    location_id: (string | number)[];
+    agent_id: (string | number)[];
+};
+
+type PriceMetric = 'sum' | 'avg';
+
+// Для безопасного доступа к метрикам цены
+type WithMetrics = { sum_price?: number; avg_price?: number };
+type SummaryUnion = SummaryResponse & { sum_price?: number; sum_total_area?: number };
+
+const STATUS_OPTIONS = [
+    { label: 'Черновик', value: 'draft' },
+    { label: 'Ожидание', value: 'pending' },
+    { label: 'Одобрено/Опубликовано', value: 'approved' },
+    { label: 'Отклонено', value: 'rejected' },
+    { label: 'Продано', value: 'sold' },
+    { label: 'Арендовано', value: 'rented' },
+    { label: 'Удалено', value: 'deleted' },
+];
+
+const OFFER_OPTIONS = [
+    { label: 'Продажа', value: 'sale' },
+    { label: 'Аренда', value: 'rent' },
+];
+
+export default function ReportsPage() {
+    const [filters, setFilters] = useState<FilterState>({
+        date_from: '',
+        date_to: '',
+        interval: 'week',
+        offer_type: [],
+        moderation_status: [],
+        type_id: [],
+        location_id: [],
+        agent_id: [],
+    });
+
+    const [priceMetric, setPriceMetric] = useState<PriceMetric>('sum');
+
+    const [loading, setLoading] = useState(false);
+    const [summary, setSummary] = useState<SummaryResponse | null>(null);
+    const [series, setSeries] = useState<TimeSeriesRow[]>([]);
+    const [buckets, setBuckets] = useState<PriceBucketsResponse | null>(null);
+    const [rooms, setRooms] = useState<RoomsRow[]>([]);
+    const [managers, setManagers] = useState<ManagerEfficiencyRow[]>([]);
+    const [leaders, setLeaders] = useState<AgentsLeaderboardRow[]>([]);
+    const [error, setError] = useState<string | null>(null);
+
+    // Формируем query строго типизированно
+    const query = useMemo<Partial<ReportsQuery>>(() => {
+        const q: Partial<ReportsQuery> = {
+            date_from: filters.date_from || undefined,
+            date_to: filters.date_to || undefined,
+            interval: filters.interval,
+            price_metric: priceMetric, // отправляем выбранную метрику
+        };
+        if (filters.offer_type.length) q.offer_type = filters.offer_type;
+        if (filters.moderation_status.length) q.moderation_status = filters.moderation_status;
+        if (filters.type_id.length) q.type_id = filters.type_id;
+        if (filters.location_id.length) q.location_id = filters.location_id;
+        if (filters.agent_id.length) q.agent_id = filters.agent_id;
+        return q;
+    }, [filters, priceMetric]);
+
+    const load = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const [s, ts, pb, rh, me, lb] = await Promise.all([
+                reportsApi.summary(query),
+                reportsApi.timeSeries(query),
+                reportsApi.priceBuckets({ ...query, buckets: 10 }),
+                reportsApi.roomsHist(query),
+                reportsApi.managerEfficiency({ ...query, group_by: 'agent_id' }),
+                reportsApi.agentsLeaderboard({ ...query, limit: 10 }),
+            ]);
+            setSummary(s);
+            setSeries(ts);
+            setBuckets(pb);
+            setRooms(rh);
+            setManagers(me);
+            setLeaders(lb);
+        } catch (e) {
+            const message =
+                e instanceof Error
+                    ? e.message
+                    : typeof e === 'object' && e !== null && 'message' in e
+                        ? String((e as { message: unknown }).message)
+                        : 'Ошибка загрузки';
+            setError(message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        load();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Преобразования данных для графиков
+    const statusData = useMemo(
+        () =>
+            (summary?.by_status ?? []).map((r) => ({
+                label: r.moderation_status ?? '—',
+                value: Number(r.cnt || 0),
+            })),
+        [summary]
+    );
+
+    const offerData = useMemo(
+        () =>
+            (summary?.by_offer_type ?? []).map((r) => ({
+                label: r.offer_type ?? '—',
+                value: Number(r.cnt || 0),
+            })),
+        [summary]
+    );
+
+    const seriesData = useMemo(
+        () => series.map((r) => ({ x: r.bucket, total: r.total, closed: r.closed })),
+        [series]
+    );
+
+    // Вернули корзины цен — теперь переменная buckets используется
+    const bucketData = useMemo(
+        () => (buckets?.buckets ?? []).map((b) => ({ label: `${b.from}–${b.to}`, value: b.count })),
+        [buckets]
+    );
+
+    const roomsData = useMemo(
+        () => rooms.map((r) => ({ label: String(r.rooms), value: r.cnt })),
+        [rooms]
+    );
+
+    const resetFilters = () => {
+        setFilters({
+            date_from: '',
+            date_to: '',
+            interval: 'week',
+            offer_type: [],
+            moderation_status: [],
+            type_id: [],
+            location_id: [],
+            agent_id: [],
+        });
+        setPriceMetric('sum');
+    };
+
+    // Значения карточек (без any)
+    const summaryPriceValue = useMemo(() => {
+        if (!summary) return null;
+        const s = summary as SummaryUnion;
+        return priceMetric === 'sum' ? s.sum_price ?? null : s.avg_price ?? null;
+    }, [summary, priceMetric]);
+
+    const summaryAreaValue = useMemo(() => {
+        if (!summary) return null;
+        const s = summary as SummaryUnion;
+        return priceMetric === 'sum' ? s.sum_total_area ?? null : s.avg_total_area ?? null;
+    }, [summary, priceMetric]);
+
+    // Хендлеры без any
+    const handleIntervalChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        const value = e.target.value as FilterState['interval'];
+        setFilters((s) => ({ ...s, interval: value }));
+    };
+
+    return (
+        <div className="p-6 space-y-6">
+            <h1 className="text-2xl font-semibold">Отчёты по объектам</h1>
+
+            {/* Фильтры */}
+            <div className="bg-white rounded-2xl shadow p-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <Input
+                        type="date"
+                        label="Дата с"
+                        name="date_from"
+                        value={filters.date_from}
+                        onChange={(e) => setFilters((s) => ({ ...s, date_from: e.target.value }))}
+                    />
+                    <Input
+                        type="date"
+                        label="Дата по"
+                        name="date_to"
+                        value={filters.date_to}
+                        onChange={(e) => setFilters((s) => ({ ...s, date_to: e.target.value }))}
+                    />
+
+                    <div>
+                        <label className="block mb-2 text-sm text-[#666F8D]">Интервал</label>
+                        <select
+                            value={filters.interval}
+                            onChange={handleIntervalChange}
+                            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                        >
+                            <option value="day">День</option>
+                            <option value="week">Неделя</option>
+                            <option value="month">Месяц</option>
+                        </select>
+                    </div>
+
+                    <MultiSelect
+                        label="Тип объявления"
+                        value={filters.offer_type}
+                        options={OFFER_OPTIONS}
+                        onChange={(arr) => setFilters((s) => ({ ...s, offer_type: arr }))}
+                    />
+                </div>
+
+                <div className="mt-4">
+                    <MultiSelect
+                        label="Статусы"
+                        value={filters.moderation_status}
+                        options={STATUS_OPTIONS}
+                        onChange={(arr) => setFilters((s) => ({ ...s, moderation_status: arr }))}
+                    />
+                </div>
+
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-5 gap-4">
+                    {/* Переключатель метрики цены */}
+                    <div className="flex flex-col gap-2">
+                        <span className="block mb-2 text-sm text-[#666F8D]">Метрика цены</span>
+                        <div className="flex items-center gap-4">
+                            <label className="inline-flex items-center gap-2">
+                                <input
+                                    type="radio"
+                                    name="price_metric"
+                                    value="sum"
+                                    checked={priceMetric === 'sum'}
+                                    onChange={() => setPriceMetric('sum')}
+                                />
+                                <span>Сумма</span>
+                            </label>
+                            <label className="inline-flex items-center gap-2">
+                                <input
+                                    type="radio"
+                                    name="price_metric"
+                                    value="avg"
+                                    checked={priceMetric === 'avg'}
+                                    onChange={() => setPriceMetric('avg')}
+                                />
+                                <span>Средняя</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex gap-3 mt-4">
+                    <Button onClick={load} loading={loading}>
+                        Применить
+                    </Button>
+                    <Button variant="secondary" onClick={resetFilters}>
+                        Сбросить
+                    </Button>
+                </div>
+            </div>
+
+            {/* Карточки сводки */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="p-4 bg-white rounded-2xl shadow">
+                    <div className="text-sm text-gray-500">Всего объектов</div>
+                    <div className="text-2xl font-semibold">{summary?.total ?? '—'}</div>
+                </div>
+
+                <div className="p-4 bg-white rounded-2xl shadow">
+                    <div className="text-sm text-gray-500">
+                        {priceMetric === 'sum' ? 'Сумма цен' : 'Средняя цена'}
+                    </div>
+                    <div className="text-2xl font-semibold">
+                        {summaryPriceValue !== null && summaryPriceValue !== undefined
+                            ? Number(summaryPriceValue).toLocaleString()
+                            : '—'}
+                    </div>
+                </div>
+
+                <div className="p-4 bg-white rounded-2xl shadow">
+                    <div className="text-sm text-gray-500">
+                        {priceMetric === 'sum' ? 'Суммарная площадь' : 'Средняя площадь'}
+                    </div>
+                    <div className="text-2xl font-semibold">
+                        {summaryAreaValue !== null && summaryAreaValue !== undefined
+                            ? priceMetric === 'sum'
+                                ? Number(summaryAreaValue).toLocaleString()
+                                : Number(summaryAreaValue).toFixed(2)
+                            : '—'}
+                    </div>
+                </div>
+
+                <div className="p-4 bg-white rounded-2xl shadow">
+                    <div className="text-sm text-gray-500">Продажа/Аренда</div>
+                    <div className="text-2xl font-semibold">
+                        {(summary?.by_offer_type ?? [])
+                            .map((x) => `${x.offer_type}:${x.cnt}`)
+                            .join('  ') || '—'}
+                    </div>
+                </div>
+            </div>
+
+            {/* Графики */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <PieStatus data={statusData} />
+                <BarOffer data={offerData} />
+                <LineTimeSeries data={seriesData} />
+                <BarBuckets data={bucketData} />
+                <BarRooms data={roomsData} />
+            </div>
+
+            {/* Таблицы: эффективность и лидерборд */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
+                    <h3 className="font-semibold mb-3">Эффективность агентов</h3>
+                    <table className="min-w-full text-sm">
+                        <thead>
+                        <tr className="text-left text-gray-500">
+                            <th className="py-2 pr-4">Агент</th>
+                            <th className="py-2 pr-4">Всего</th>
+                            <th className="py-2 pr-4">Одобрено</th>
+                            <th className="py-2 pr-4">Закрыто</th>
+                            <th className="py-2 pr-4">Закрыто %</th>
+                            <th className="py-2 pr-4">{priceMetric === 'sum' ? 'Сумма' : 'Ср. цена'}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {managers.map((m, i) => {
+                            const metricValue =
+                                priceMetric === 'sum'
+                                    ? (m as WithMetrics).sum_price
+                                    : (m as WithMetrics).avg_price;
+                            return (
+                                <tr key={i} className="border-t">
+                                    <td className="py-2 pr-4">{m.name}</td>
+                                    <td className="py-2 pr-4">{m.total}</td>
+                                    <td className="py-2 pr-4">{m.approved}</td>
+                                    <td className="py-2 pr-4">{m.closed}</td>
+                                    <td className="py-2 pr-4">{m.close_rate}%</td>
+                                    <td className="py-2 pr-4">{Number(metricValue ?? 0).toLocaleString()}</td>
+                                </tr>
+                            );
+                        })}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
+                    <h3 className="font-semibold mb-3">Топ агентов (закрытые)</h3>
+                    <table className="min-w-full text-sm">
+                        <thead>
+                        <tr className="text-left text-gray-500">
+                            <th className="py-2 pr-4">Агент</th>
+                            <th className="py-2 pr-4">Закрыто</th>
+                            <th className="py-2 pr-4">Всего</th>
+                            <th className="py-2 pr-4">{priceMetric === 'sum' ? 'Сумма' : 'Ср. цена'}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {leaders.map((r, i) => {
+                            const metricValue =
+                                priceMetric === 'sum'
+                                    ? (r as WithMetrics).sum_price
+                                    : (r as WithMetrics).avg_price;
+                            return (
+                                <tr key={i} className="border-t">
+                                    <td className="py-2 pr-4">{r.agent_name}</td>
+                                    <td className="py-2 pr-4">{r.closed}</td>
+                                    <td className="py-2 pr-4">{r.total}</td>
+                                    <td className="py-2 pr-4">{Number(metricValue ?? 0).toLocaleString()}</td>
+                                </tr>
+                            );
+                        })}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {error && (
+                <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl">
+                    {error}
+                </div>
+            )}
+        </div>
+    );
+}

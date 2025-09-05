@@ -69,6 +69,11 @@ export const Sidebar = () => {
         <nav className="flex flex-col gap-3">
           {[
             {
+              href: '/profile/reports',
+              icon: <ListingIcon className="w-6 h-6" />,
+              label: 'Отчеты',
+            },
+            {
               href: '/profile',
               icon: <UserIcon className="w-6 h-6" />,
               label: 'Профиль',
