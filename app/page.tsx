@@ -9,6 +9,7 @@ import PersonalRealtorCta from './_components/personal-realtor';
 import Promo from './_components/promo';
 import Services from './_components/services';
 import TopListings from './_components/top-listing/top-listings';
+import Head from "next/head";
 
 export default function Home() {
     const router = useRouter();
@@ -26,6 +27,24 @@ export default function Home() {
 
     return (
         <>
+            <Head>
+                <title>Недвижимость в Душанбе и Таджикистане – Продажа и аренда квартир, домов, участков | Ваше агентство</title>
+                <meta
+                    name="description"
+                    content="Агентство недвижимости в Душанбе. Продажа и аренда квартир, домов, земельных участков и коммерческой недвижимости по всему Таджикистану. Срочные и VIP объявления."
+                />
+                <meta
+                    name="keywords"
+                    content="недвижимость Таджикистан, квартиры Душанбе, аренда квартир Душанбе, купить квартиру Душанбе, дома Душанбе, продажа домов Таджикистан, агентство недвижимости Душанбе, срочные объявления недвижимость, VIP недвижимость Душанбе, новостройки Душанбе, квартиры Худжанд, аренда квартир Худжанд, купить квартиру Худжанд, дома Худжанд, продажа домов Худжанд, агентство недвижимости Худжанд"
+                />
+                <meta property="og:title" content="Недвижимость в Душанбе и Таджикистане | Aura Estate" />
+                <meta property="og:description" content="Продажа и аренда недвижимости в Душанбе и по всему Таджикистану. Квартиры, дома, участки, коммерческая недвижимость. Срочные и VIP объявления." />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://aura.tj/" />
+                <meta property="og:image" content="https://aura.tj/aura.svg" />
+                <link rel="canonical" href="https://aura.tj/" />
+            </Head>
+
             <MainBanner title="Недвижимость в Таджикистане"/>
             <div className="lg:mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 mx-auto mb-10 md:mb-20">
                 <Services/>
