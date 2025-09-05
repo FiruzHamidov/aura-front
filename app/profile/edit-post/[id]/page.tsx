@@ -63,6 +63,7 @@ export default function EditPost() {
             owner_phone: propertyData.owner_phone,
             offer_type: propertyData.offer_type,
             photos: propertyData.photos,
+            moderation_status: propertyData.moderation_status,
         }
         : undefined;
 
@@ -146,6 +147,8 @@ export default function EditPost() {
 
             {currentStep === 1 && (
                 <PropertySelectionStep
+                    selectedModerationStatus={formData.selectedModerationStatus}
+                    setSelectedModerationStatus={formData.setSelectedModerationStatus}
                     selectedOfferType={formData.selectedOfferType}
                     setSelectedOfferType={formData.setSelectedOfferType}
                     selectedListingType={formData.selectedListingType}

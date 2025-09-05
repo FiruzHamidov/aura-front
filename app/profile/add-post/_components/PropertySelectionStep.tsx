@@ -5,6 +5,8 @@ import {Button} from '@/ui-components/Button';
 import {SelectOption} from '@/services/add-post/types';
 
 interface PropertySelectionStepProps {
+    selectedModerationStatus: string;
+    setSelectedModerationStatus: (type: string) => void;
     selectedOfferType: string;
     setSelectedOfferType: (type: string) => void;
     selectedListingType: string;
@@ -21,6 +23,8 @@ interface PropertySelectionStepProps {
 }
 
 export function PropertySelectionStep({
+                                          selectedModerationStatus,
+                                          setSelectedModerationStatus,
                                           selectedOfferType,
                                           setSelectedOfferType,
                                           selectedListingType,
@@ -82,6 +86,21 @@ export function PropertySelectionStep({
                 }))}
                 selected={selectedRooms}
                 setSelected={setSelectedRooms}
+            />
+
+            <SelectToggle
+                title="Статус модерации"
+                options={[
+                    { id: 'pending', name: 'На модерации' },
+                    { id: 'approved', name: 'Одобрено' },
+                    { id: 'rejected', name: 'Отклонено' },
+                    { id: 'draft', name: 'Черновик' },
+                    { id: 'deleted', name: 'Удалено' },
+                    { id: 'sold', name: 'Продано' },
+                    { id: 'rented', name: 'Арендовано' },
+                ]}
+                selected={selectedModerationStatus}
+                setSelected={setSelectedModerationStatus}
             />
 
             <div className="flex justify-end">

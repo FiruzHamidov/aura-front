@@ -92,7 +92,7 @@ export const addPostApi = {
     formData.append("type_id", propertyData.type_id.toString());
     formData.append("status_id", propertyData.status_id.toString());
     formData.append("location_id", propertyData.location_id);
-
+    formData.append("moderation_status", propertyData.moderation_status);
     formData.append("repair_type_id", propertyData.repair_type_id);
     formData.append("district", propertyData.district);
     formData.append("address", propertyData.address);
@@ -167,6 +167,7 @@ export const addPostApi = {
     formData.append("description", propertyData.description);
     formData.append("type_id", String(propertyData.type_id));
     formData.append("status_id", String(propertyData.status_id));
+    formData.append("moderation_status", String(propertyData.moderation_status));
     formData.append("address", propertyData.address);
     formData.append("district", propertyData.district);
     formData.append("location_id", propertyData.location_id);

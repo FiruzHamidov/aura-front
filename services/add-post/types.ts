@@ -58,6 +58,7 @@ export interface FormState {
     heating_type_id: string;
     parking_type_id: string;
     contract_type_id: string;
+    moderation_status: string;
     owner_phone: string;
     price: string;
     currency: string;
@@ -89,6 +90,7 @@ export interface CreatePropertyRequest {
     location_id: string;
     address: string;
     district: string;
+    moderation_status: string;
     repair_type_id: string;
     heating_type_id: string;
     parking_type_id: string;

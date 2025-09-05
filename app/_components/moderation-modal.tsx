@@ -118,6 +118,8 @@ const ModerationModal: FC<ModerationModalProps> = ({
                                 { id: 'rejected', name: 'Отклонено' },
                                 { id: 'draft', name: 'Черновик' },
                                 { id: 'deleted', name: 'Удалено' },
+                                { id: 'sold', name: 'Продано' },
+                                { id: 'rented', name: 'Арендовано' },
                             ]}
                             selected={selectedModerationStatus}
                             setSelected={setSelectedModerationStatus}

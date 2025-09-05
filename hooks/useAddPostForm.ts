@@ -19,6 +19,7 @@ const initialFormState: FormState = {
   title: "",
   description: "",
   location_id: "",
+  moderation_status: "approved",
   repair_type_id: "",
   heating_type_id: "",
   parking_type_id: "",
@@ -71,6 +72,7 @@ export function useAddPostForm({
   // Form state
   const [form, setForm] = useState<FormState>(initialFormState);
   const [selectedOfferType, setSelectedOfferType] = useState<string>("sale");
+  const [selectedModerationStatus, setSelectedModerationStatus] = useState<string>("approved")
   const [selectedPropertyType, setSelectedPropertyType] = useState<
     number | null
   >(null);
@@ -94,6 +96,7 @@ export function useAddPostForm({
         heating_type_id: propertyData.heating_type_id?.toString() || "",
         parking_type_id: propertyData.parking_type_id?.toString() || "",
         contract_type_id: propertyData.contract_type_id?.toString() || "",
+        moderation_status: propertyData.moderation_status?.toString() || "",
         price: propertyData.price || "",
         currency: propertyData.currency || "TJS",
         total_area: propertyData.total_area || "",
@@ -119,6 +122,7 @@ export function useAddPostForm({
       });
 
       setSelectedOfferType(propertyData.offer_type || "sale");
+      setSelectedModerationStatus(propertyData.moderation_status || "approved");
       setSelectedPropertyType(propertyData.type_id || null);
       setSelectedListingType(propertyData.listing_type || "regular");
       setSelectedBuildingType(propertyData.status_id || null);
@@ -154,6 +158,7 @@ export function useAddPostForm({
   const resetForm = () => {
     setForm(initialFormState);
     setSelectedOfferType("sale");
+    setSelectedModerationStatus("approved");
     setSelectedPropertyType(null);
     setSelectedBuildingType(null);
     setSelectedRooms(null);
@@ -193,6 +198,7 @@ export function useAddPostForm({
       price: form.price,
       currency: form.currency,
       offer_type: selectedOfferType,
+      moderation_status: selectedModerationStatus,
       listing_type: selectedListingType,
       rooms: selectedRooms!,
       total_area: form.total_area,
@@ -252,6 +258,7 @@ export function useAddPostForm({
     selectedPropertyType,
     selectedBuildingType,
     selectedListingType,
+    selectedModerationStatus,
     selectedRooms,
 
     // Setters
@@ -259,6 +266,7 @@ export function useAddPostForm({
     setSelectedListingType,
     setSelectedPropertyType,
     setSelectedBuildingType,
+    setSelectedModerationStatus,
     setSelectedRooms,
 
     // Handlers

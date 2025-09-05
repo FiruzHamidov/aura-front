@@ -36,6 +36,8 @@ export default function AddPost() {
 
       {currentStep === 1 && (
         <PropertySelectionStep
+          selectedModerationStatus={formData.selectedModerationStatus}
+          setSelectedModerationStatus={formData.setSelectedModerationStatus}
           selectedOfferType={formData.selectedOfferType}
           setSelectedOfferType={formData.setSelectedOfferType}
           selectedListingType={formData.selectedListingType}
