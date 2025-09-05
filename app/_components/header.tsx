@@ -134,6 +134,9 @@ const Header: FC = () => {
               Профиль
             </button>
           </Link>
+
+
+
           <button
             onClick={handleLogout}
             disabled={logoutMutation.isPending}
@@ -183,6 +186,16 @@ const Header: FC = () => {
             <Link href="/profile" onClick={() => setIsUserMenuOpen(false)}>
               <button className="cursor-pointer w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors">
                 Профиль
+              </button>
+            </Link>
+            <Link href="/profile/my-listings" onClick={() => setIsMobileMenuOpen(false)}>
+              <button className="cursor-pointer w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors">
+                Мои объявления
+              </button>
+            </Link>
+            <Link href="/profile/favorites" onClick={() => setIsMobileMenuOpen(false)}>
+              <button className="cursor-pointer w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors">
+                Избранное
               </button>
             </Link>
             <button
