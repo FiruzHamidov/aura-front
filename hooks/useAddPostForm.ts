@@ -14,6 +14,7 @@ import {
 } from "@/services/add-post";
 import { showToast } from "@/ui-components/Toast";
 import { Property } from "@/services/properties/types";
+import {extractValidationMessages} from "@/utils/validationErrors";
 
 const initialFormState: FormState = {
   title: "",
@@ -179,9 +180,8 @@ export function useAddPostForm({
 
     if (!validateForm()) return;
 
-    // Only send File objects to the API, not existing photos
     const newPhotos = form.photos.filter(
-      (photo): photo is File => photo instanceof File
+        (photo): photo is File => photo instanceof File
     );
 
     const propertyDataToSubmit = {
@@ -218,7 +218,7 @@ export function useAddPostForm({
       latitude: form.latitude,
       longitude: form.longitude,
       agent_id: form.agent_id,
-      photos: newPhotos, // Only send new File objects
+      photos: newPhotos,
     };
 
     try {
@@ -234,12 +234,22 @@ export function useAddPostForm({
         resetForm();
       }
     } catch (err) {
+      const messages = extractValidationMessages(err);
+
+      if (messages) {
+        // Формируем человеко-понятный список: • пунктами, с переносами строк
+        const text = `Исправьте ошибки:\n• ${messages.join("\n• ")}`;
+        showToast("error", text);
+        // НИЧЕГО не сбрасываем — пусть пользователь поправит поля
+        return;
+      }
+
       console.error(err);
       showToast(
-        "error",
-        editMode
-          ? "Ошибка при обновлении объявления"
-          : "Ошибка при добавлении объявления"
+          "error",
+          editMode
+              ? "Ошибка при обновлении объявления"
+              : "Ошибка при добавлении объявления"
       );
     }
   };
