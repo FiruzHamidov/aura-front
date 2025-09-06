@@ -1,7 +1,3 @@
-// services/add-post/api.ts
-// Клиент на axios, поддерживает и FormData, и JSON payload’ы.
-// Встроены комменты к tricky местам.
-
 import { axios } from '@/utils/axios';
 import type {
   BuildingType,
@@ -67,19 +63,13 @@ const buildFormDataFromJson = (payload: CreatePropertyRequest) => {
   appendIfFilled(fd, 'is_from_developer', payload.is_from_developer);
   appendIfFilled(fd, 'landmark', payload.landmark);
 
-  // Опциональные
   appendIfFilled(fd, 'owner_phone', payload.owner_phone);
   appendIfFilled(fd, 'youtube_link', payload.youtube_link);
   appendIfFilled(fd, 'latitude', payload.latitude);
   appendIfFilled(fd, 'longitude', payload.longitude);
   appendIfFilled(fd, 'agent_id', payload.agent_id);
 
-  // Новые фото (если есть)
-  (payload.photos ?? []).forEach((file) => {
-    fd.append('photos[]', file);
-  });
-
-  // Управление существующими фото (если используется на апдейте JSON->multipart)
+  (payload.photos ?? []).forEach((file) => fd.append('photos[]', file));
   (payload.photos_keep ?? []).forEach((id) => fd.append('photos_keep[]', String(id)));
   (payload.remove_ids ?? []).forEach((id) => fd.append('remove_ids[]', String(id)));
   if (payload.cover_id) fd.append('cover_id', String(payload.cover_id));
@@ -88,83 +78,45 @@ const buildFormDataFromJson = (payload: CreatePropertyRequest) => {
 };
 
 export const addPostApi = {
-  // --------- справочники ----------
-  getPropertyTypes: async (): Promise<PropertyType[]> => {
-    const { data } = await axios.get<PropertyType[]>(ADD_POST_ENDPOINTS.GET_PROPERTY_TYPES);
-    return data;
-  },
-  getBuildingTypes: async (): Promise<BuildingType[]> => {
-    const { data } = await axios.get<BuildingType[]>(ADD_POST_ENDPOINTS.GET_BUILDING_TYPES);
-    return data;
-  },
-  getLocations: async (): Promise<Location[]> => {
-    const { data } = await axios.get<Location[]>(ADD_POST_ENDPOINTS.GET_LOCATIONS);
-    return data;
-  },
-  getRepairTypes: async (): Promise<RepairType[]> => {
-    const { data } = await axios.get<RepairType[]>(ADD_POST_ENDPOINTS.GET_REPAIR_TYPES);
-    return data;
-  },
-  getHeatingTypes: async (): Promise<HeatingType[]> => {
-    const { data } = await axios.get<HeatingType[]>(ADD_POST_ENDPOINTS.GET_HEATING_TYPES);
-    return data;
-  },
-  getParkingTypes: async (): Promise<ParkingType[]> => {
-    const { data } = await axios.get<ParkingType[]>(ADD_POST_ENDPOINTS.GET_PARKING_TYPES);
-    return data;
-  },
-  getContractTypes: async (): Promise<ContractType[]> => {
-    const { data } = await axios.get<ContractType[]>(ADD_POST_ENDPOINTS.GET_CONTRACT_TYPES);
-    return data;
-  },
+  // ---- справочники ----
+  getPropertyTypes: async (): Promise<PropertyType[]> => (await axios.get(ADD_POST_ENDPOINTS.GET_PROPERTY_TYPES)).data,
+  getBuildingTypes: async (): Promise<BuildingType[]> => (await axios.get(ADD_POST_ENDPOINTS.GET_BUILDING_TYPES)).data,
+  getLocations: async (): Promise<Location[]> => (await axios.get(ADD_POST_ENDPOINTS.GET_LOCATIONS)).data,
+  getRepairTypes: async (): Promise<RepairType[]> => (await axios.get(ADD_POST_ENDPOINTS.GET_REPAIR_TYPES)).data,
+  getHeatingTypes: async (): Promise<HeatingType[]> => (await axios.get(ADD_POST_ENDPOINTS.GET_HEATING_TYPES)).data,
+  getParkingTypes: async (): Promise<ParkingType[]> => (await axios.get(ADD_POST_ENDPOINTS.GET_PARKING_TYPES)).data,
+  getContractTypes: async (): Promise<ContractType[]> => (await axios.get(ADD_POST_ENDPOINTS.GET_CONTRACT_TYPES)).data,
 
-  // --------- CREATE ----------
-  // Принимаем union: FormData | CreatePropertyRequest
+  // ---- create ----
   async createProperty(payload: CreatePropertyPayload): Promise<CreatePropertyResponse> {
-    // Если пришёл FormData — шлём как есть (браузер сам проставит boundary)
     if (payload instanceof FormData) {
-      const { data } = await axios.post<CreatePropertyResponse>(
-          ADD_POST_ENDPOINTS.CREATE_PROPERTY,
-          payload,
-          { headers: { 'Content-Type': 'multipart/form-data' } }
-      );
-      return data;
+      return (await axios.post(ADD_POST_ENDPOINTS.CREATE_PROPERTY, payload, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })).data;
     }
-
-    // Если пришёл JSON — конвертируем в FormData (так проще поддерживать файлы)
     const fd = buildFormDataFromJson(payload);
-    const { data } = await axios.post<CreatePropertyResponse>(
-        ADD_POST_ENDPOINTS.CREATE_PROPERTY,
-        fd,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
-    );
-    return data;
+    return (await axios.post(ADD_POST_ENDPOINTS.CREATE_PROPERTY, fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })).data;
   },
 
-  // --------- UPDATE ----------
-  // Две ветки: multipart (formData) или JSON-патч
+  // ---- update ----
   async updateProperty(payload: UpdatePropertyPayload): Promise<CreatePropertyResponse> {
     const { id } = payload;
-
     if ('formData' in payload) {
       const fd = payload.formData;
-
-      // Для Laravel обычно стабильнее PATCH как POST + _method=PATCH
-      if (!fd.has('_method')) fd.append('_method', 'PATCH');
-
-      const { data } = await axios.post<CreatePropertyResponse>(
-          `${ADD_POST_ENDPOINTS.CREATE_PROPERTY}/${id}`,
-          fd,
-          { headers: { 'Content-Type': 'multipart/form-data' } }
-      );
-      return data;
+      if (!fd.has('_method')) fd.append('_method', 'PUT');
+      return (await axios.post(`${ADD_POST_ENDPOINTS.CREATE_PROPERTY}/${id}`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })).data;
     }
+    return (await axios.put(`${ADD_POST_ENDPOINTS.CREATE_PROPERTY}/${id}`, payload.json)).data;
+  },
 
-    // JSON-патч (без файлов)
-    const { data } = await axios.patch<CreatePropertyResponse>(
-        `${ADD_POST_ENDPOINTS.CREATE_PROPERTY}/${id}`,
-        payload.json
-    );
-    return data;
+  // ---- reorder photos (ВЫНЕСЕНО СЮДА) ----
+  async reorderPhotos(propertyId: number | string, orderedPhotoIds: number[]): Promise<void> {
+    await axios.put(`${ADD_POST_ENDPOINTS.CREATE_PROPERTY}/${propertyId}/photos/reorder`, {
+      photo_order: orderedPhotoIds,
+    });
   },
 };

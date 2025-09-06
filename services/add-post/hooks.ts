@@ -58,3 +58,15 @@ export const useUpdatePropertyMutation = () => {
     },
   });
 };
+
+export const useReorderPropertyPhotosMutation = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, order }: { id: number | string; order: number[] }) =>
+        addPostApi.reorderPhotos(id, order),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['get-properties'] });
+      qc.invalidateQueries({ queryKey: ['get-property-by-id'] });
+    },
+  });
+};

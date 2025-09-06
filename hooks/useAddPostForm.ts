@@ -1,7 +1,7 @@
 // src/hooks/useAddPostForm.ts
 'use client';
 
-import {ChangeEvent, FormEvent, useEffect, useRef, useState} from 'react';
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react';
 import {
     useCreatePropertyMutation,
     useGetBuildingTypesQuery,
@@ -12,16 +12,13 @@ import {
     useGetPropertyTypesQuery,
     useGetRepairTypesQuery,
     useUpdatePropertyMutation,
+    useReorderPropertyPhotosMutation, // ⬅️ reorder вынесен в API и даётся отдельным mutation-хуком
 } from '@/services/add-post';
-import {showToast} from '@/ui-components/Toast';
-import {Property} from '@/services/properties/types';
-import {extractValidationMessages} from '@/utils/validationErrors';
+import { showToast } from '@/ui-components/Toast';
+import { Property } from '@/services/properties/types';
+import { extractValidationMessages } from '@/utils/validationErrors';
 
-// ⚠️ ВАЖНО: эти типы должны быть экспортированы в "@/services/add-post/types"
-//  - CreatePropertyPayload: FormData | CreatePropertyRequest
-//  - UpdatePropertyPayload:
-//       | { id: string; formData: FormData }
-//       | { id: string; json: Partial<CreatePropertyRequest> }
+// импортируем типы из сервиса
 import type {
     CreatePropertyPayload,
     FormState as RawFormState,
@@ -29,29 +26,23 @@ import type {
     UpdatePropertyPayload,
 } from '@/services/add-post/types';
 
-// Подменяем только поле photos — в UI всегда работаем с PhotoItem[]
+// ---------- Локальная форма: заменяем только тип photos ----------
 type FormState = Omit<RawFormState, 'photos'> & { photos: PhotoItem[] };
 
-/** Генератор стабильного client-id для DnD */
+// ---------- Хелперы ----------
 const cid = () =>
     typeof crypto !== 'undefined' && crypto.randomUUID
         ? crypto.randomUUID()
         : `${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
-/** Мини-хелпер: PATCH /properties/{id}/photos/reorder
- *  Отдельная ручка фиксации порядка существующих фото.
- *  На бэке это реализовано через applyOrder() + normalizePositions().
- */
-async function reorderPropertyPhotos(propertyId: number | string, photoOrder: number[]) {
-    const res = await fetch(`/api/properties/${propertyId}/photos/reorder`, {
-        method: 'PATCH',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({photo_order: photoOrder}),
-    });
-    if (!res.ok) throw new Error(`Reorder failed: ${res.status} ${await res.text()}`);
-}
+// тип минимального объекта фото с бэка (чтобы убрать any)
+type PropertyPhotoFromServer = {
+    id: number;
+    file_path?: string | null;
+    url?: string | null;
+};
 
-/** Начальное состояние формы */
+// ---------- Начальное состояние ----------
 const initialFormState: FormState = {
     title: '',
     description: '',
@@ -79,7 +70,7 @@ const initialFormState: FormState = {
     latitude: '',
     longitude: '',
     agent_id: '',
-    photos: [], // ⚙️ В UI это всегда массив PhotoItem (см. тип выше)
+    photos: [],
     owner_phone: '',
     district: '',
     address: '',
@@ -90,19 +81,20 @@ interface UseAddPostFormProps {
     propertyData?: Property;
 }
 
-export function useAddPostForm({editMode = false, propertyData}: UseAddPostFormProps = {}) {
+export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFormProps = {}) {
     // --- Справочники (селекты) ---
-    const {data: propertyTypes = []} = useGetPropertyTypesQuery();
-    const {data: buildingTypes = []} = useGetBuildingTypesQuery();
-    const {data: locations = []} = useGetLocationsQuery();
-    const {data: repairTypes = []} = useGetRepairTypesQuery();
-    const {data: heatingTypes = []} = useGetHeatingTypesQuery();
-    const {data: parkingTypes = []} = useGetParkingTypesQuery();
-    const {data: contractTypes = []} = useGetContractTypesQuery();
+    const { data: propertyTypes = [] } = useGetPropertyTypesQuery();
+    const { data: buildingTypes = [] } = useGetBuildingTypesQuery();
+    const { data: locations = [] } = useGetLocationsQuery();
+    const { data: repairTypes = [] } = useGetRepairTypesQuery();
+    const { data: heatingTypes = [] } = useGetHeatingTypesQuery();
+    const { data: parkingTypes = [] } = useGetParkingTypesQuery();
+    const { data: contractTypes = [] } = useGetContractTypesQuery();
 
     // --- Мутации ---
     const createPropertyMutation = useCreatePropertyMutation();
     const updatePropertyMutation = useUpdatePropertyMutation();
+    const reorderPhotosMutation = useReorderPropertyPhotosMutation(); // ⬅️ для фиксации порядка существующих фото
 
     // --- Локальный стейт формы ---
     const [form, setForm] = useState<FormState>(initialFormState);
@@ -114,6 +106,19 @@ export function useAddPostForm({editMode = false, propertyData}: UseAddPostFormP
     const [selectedRooms, setSelectedRooms] = useState<number | null>(null);
 
     const isInitialized = useRef(false);
+
+    // аккуратный мап серверных фото в единый тип PhotoItem (без any)
+    const mapServerPhotos = (photos: Property['photos'] | undefined | null): PhotoItem[] => {
+        if (!photos) return [];
+        return photos.map((p): PhotoItem => {
+            const src = (p as unknown as PropertyPhotoFromServer);
+            return {
+                id: cid(),
+                url: (src.file_path && String(src.file_path)) || (src.url && String(src.url)) || '',
+                serverId: src.id,
+            };
+        });
+    };
 
     // --- Инициализация формы из propertyData (edit mode) ---
     useEffect(() => {
@@ -145,12 +150,7 @@ export function useAddPostForm({editMode = false, propertyData}: UseAddPostFormP
                 latitude: propertyData.latitude || '',
                 longitude: propertyData.longitude || '',
                 agent_id: propertyData.agent_id?.toString() || '',
-                // ⤵️ серверные фото приводим к единому типу PhotoItem
-                photos: (propertyData.photos ?? []).map((p: any) => ({
-                    id: cid(),                     // генерируем клиентский id для DnD
-                    url: p.file_path || p.url,     // относительный путь из БД (добавь CDN-префикс при выводе)
-                    serverId: p.id,                // id фото в таблице property_photos
-                })),
+                photos: mapServerPhotos(propertyData.photos),
                 owner_phone: propertyData.owner_phone || '',
                 district: propertyData.district || '',
                 address: propertyData.address || '',
@@ -165,37 +165,35 @@ export function useAddPostForm({editMode = false, propertyData}: UseAddPostFormP
 
             isInitialized.current = true;
         }
-    }, [editMode, propertyData?.id]);
+    }, [editMode, propertyData?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // --- Общий onChange полей формы ---
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const {name, type, value} = e.target;
+        const { name, type, value } = e.target;
         const input = e.target as HTMLInputElement;
         const newValue = type === 'checkbox' ? input.checked : value;
-        setForm((prev) => ({...prev, [name]: newValue}));
+        setForm((prev) => ({ ...prev, [name]: newValue }));
     };
 
-    // --- Добавление новых файлов ---
-    //   File -> PhotoItem (id + objectURL) чтобы поддержать превью и DnD.
+    // --- Добавление новых файлов (File -> PhotoItem) ---
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
         const additions: PhotoItem[] = Array.from(e.target.files).map((f) => ({
             id: cid(),
-            url: URL.createObjectURL(f), // objectURL только для превью на клиенте
-            file: f,                     // признак "новое фото"
+            url: URL.createObjectURL(f),
+            file: f,
         }));
-        setForm((prev) => ({...prev, photos: [...prev.photos, ...additions]}));
+        setForm((prev) => ({ ...prev, photos: [...prev.photos, ...additions] }));
     };
 
-    // --- Удаление фото по индексу (только из UI массива) ---
-    //   Для удаления с сервера отправляй отдельный список delete_photo_ids на бэк, если нужно.
+    // --- Удаление фото по индексу (только UI) ---
     const removePhoto = (index: number) => {
-        setForm((prev) => ({...prev, photos: prev.photos.filter((_, i) => i !== index)}));
+        setForm((prev) => ({ ...prev, photos: prev.photos.filter((_, i) => i !== index) }));
     };
 
-    // --- Применение нового порядка от PhotoUpload (DnD) ---
+    // --- Применение нового порядка от DnD ---
     const handleReorder = (next: PhotoItem[]) => {
-        setForm((prev) => ({...prev, photos: next}));
+        setForm((prev) => ({ ...prev, photos: next }));
     };
 
     // --- Сброс формы ---
@@ -220,8 +218,6 @@ export function useAddPostForm({editMode = false, propertyData}: UseAddPostFormP
     };
 
     // --- Сабмит с сохранением порядка ---
-    //   Создание: отправляем FormData (photos[] + photo_positions[]).
-    //   Обновление: тоже FormData для дозагрузки, затем PATCH /photos/reorder с serverId в текущем порядке.
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (!validateForm()) return;
@@ -229,7 +225,7 @@ export function useAddPostForm({editMode = false, propertyData}: UseAddPostFormP
         // 1) Плоские поля (без массива photos)
         const propertyDataToSubmit = {
             description: form.description,
-            type_id: selectedPropertyType!,   // гарантируем, что validateForm() это проверил
+            type_id: selectedPropertyType!,
             status_id: selectedBuildingType!,
             location_id: form.location_id,
             repair_type_id: form.repair_type_id,
@@ -263,6 +259,7 @@ export function useAddPostForm({editMode = false, propertyData}: UseAddPostFormP
             agent_id: form.agent_id,
         };
 
+        // 2) Сборка FormData (строго нормализуем булевы)
         const buildFormData = () => {
             const fd = new FormData();
 
@@ -272,7 +269,6 @@ export function useAddPostForm({editMode = false, propertyData}: UseAddPostFormP
                     fd.append(key, value ? '1' : '0');
                     return;
                 }
-                // Страховка на случай, если где-то просочилась строка 'true'/'false'
                 if (value === 'true' || value === 'false') {
                     fd.append(key, value === 'true' ? '1' : '0');
                     return;
@@ -282,7 +278,6 @@ export function useAddPostForm({editMode = false, propertyData}: UseAddPostFormP
                 fd.append(key, s);
             };
 
-            // Плоские поля — используем appendKV вместо String(...)
             Object.entries(propertyDataToSubmit).forEach(([k, v]) => appendKV(k, v));
 
             // Новые фото и их позиции (позиция = индекс карточки в UI)
@@ -298,42 +293,37 @@ export function useAddPostForm({editMode = false, propertyData}: UseAddPostFormP
             return fd;
         };
 
-        // 3) Список id существующих фото (из БД) в текущем UI-порядке — для reorder
+        // 3) Текущий порядок существующих фото (по id из БД)
         const existingPhotoOrder = form.photos
             .filter((p): p is PhotoItem & { serverId: number } => typeof p.serverId === 'number')
             .map((p) => p.serverId);
 
         try {
             if (editMode && propertyData?.id) {
-                // ------ UPDATE ------
+                // UPDATE: дозагрузка новых фото + обновление полей
                 const fd = buildFormData();
+                if (!fd.has('_method')) fd.append('_method', 'PUT');
 
-                // Для Laravel часто стабильней отправлять PATCH как POST c _method=PATCH
-                if (!fd.has('_method')) fd.append('_method', 'PATCH');
-
-                // Готовим строго типизированный payload под хук:
                 const updatePayload: UpdatePropertyPayload = {
                     id: propertyData.id.toString(),
-                    formData: fd, // <— FormData-ветка union-типа
+                    formData: fd,
                 };
-
                 await updatePropertyMutation.mutateAsync(updatePayload);
 
-                // Фиксируем порядок существующих фото (без перезаливки)
+                // фиксация порядка существующих фото (без перезаливки) — ВЫЗОВ API
                 if (existingPhotoOrder.length) {
-                    await reorderPropertyPhotos(propertyData.id, existingPhotoOrder);
+                    await reorderPhotosMutation.mutateAsync({
+                        id: propertyData.id,
+                        order: existingPhotoOrder,
+                    });
                 }
 
                 showToast('success', 'Объявление успешно обновлено!');
             } else {
-                // ------ CREATE ------
+                // CREATE
                 const fd = buildFormData();
-
-                // Строго типизированный payload: FormData | CreatePropertyRequest
                 const createPayload: CreatePropertyPayload = fd;
-
                 await createPropertyMutation.mutateAsync(createPayload);
-
                 showToast('success', 'Объявление успешно добавлено!');
                 resetForm();
             }
