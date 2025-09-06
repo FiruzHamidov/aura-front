@@ -172,7 +172,6 @@ export default function ReportsPage() {
         setPriceMetric('sum');
     };
 
-    // Значения карточек (без any)
     const summaryPriceValue = useMemo(() => {
         if (!summary) return null;
         const s = summary as SummaryUnion;
@@ -185,7 +184,6 @@ export default function ReportsPage() {
         return priceMetric === 'sum' ? s.sum_total_area ?? null : s.avg_total_area ?? null;
     }, [summary, priceMetric]);
 
-    // Хендлеры без any
     const handleIntervalChange = (e: ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value as FilterState['interval'];
         setFilters((s) => ({ ...s, interval: value }));

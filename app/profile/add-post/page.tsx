@@ -66,6 +66,7 @@ export default function AddPost() {
           onChange={formData.handleChange}
           onPhotoChange={formData.handleFileChange}
           onPhotoRemove={formData.removePhoto}
+          onReorder={formData.handleReorder}
           isSubmitting={formData.isSubmitting}
           onBack={prevStep}
         />

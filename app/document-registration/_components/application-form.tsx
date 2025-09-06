@@ -30,7 +30,6 @@ export const ApplicationForm = ({ title, description }: ApplicationFormProps) =>
 
     setFormData((prev) => ({ ...prev, [field]: value }));
 
-    // без any и без no-unused-vars
     setErrors((prev) => {
       const next: FormErrors = { ...prev };
       if (field in next) delete next[field];

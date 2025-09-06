@@ -51,7 +51,6 @@ export const ApplicationForm = ({id, title}: ApplicationFormProps) => {
 
         setFormData((prev) => ({ ...prev, [field]: value }));
 
-        // Снимаем ошибку по мере ввода — без any
         setErrors((prev) => {
             const clone: FormErrors = { ...prev };
             delete clone[field];

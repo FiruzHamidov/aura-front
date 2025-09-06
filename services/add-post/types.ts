@@ -1,55 +1,26 @@
-import {Property} from "../properties/types";
+// services/add-post/types.ts
 
-export interface SelectOption {
-    id: number;
-    name: string;
-    city?: string;
-    slug?: string;
-}
+import { Property } from '../properties/types';
 
-export interface PropertyType {
-    id: number;
-    name: string;
-    slug?: string;
-}
+/** Справочники */
+export interface SelectOption { id: number; name: string; city?: string; slug?: string }
+export interface PropertyType { id: number; name: string; slug?: string }
+export interface BuildingType { id: number; name: string; slug?: string }
+export interface Location { id: number; name: string; city: string; slug?: string }
+export interface RepairType { id: number; name: string; slug?: string }
+export interface HeatingType { id: number; name: string; slug?: string }
+export interface ParkingType { id: number; name: string; slug?: string }
+export interface ContractType { id: number; name: string; slug?: string }
 
-export interface BuildingType {
-    id: number;
-    name: string;
-    slug?: string;
-}
+/** Единый клиентский тип фото для UI (превью + DnD) */
+export type PhotoItem = {
+    id: string;       // стабильный client-id для key и сортировки
+    url: string;      // objectURL (для новых файлов) или url CDN/Storage (для серверных)
+    file?: File;      // есть только у новых фото
+    serverId?: number;// есть только у серверных фото
+};
 
-export interface Location {
-    id: number;
-    name: string;
-    city: string;
-    slug?: string;
-}
-
-export interface RepairType {
-    id: number;
-    name: string;
-    slug?: string;
-}
-
-export interface HeatingType {
-    id: number;
-    name: string;
-    slug?: string;
-}
-
-export interface ParkingType {
-    id: number;
-    name: string;
-    slug?: string;
-}
-
-export interface ContractType {
-    id: number;
-    name: string;
-    slug?: string;
-}
-
+/** «Сырой» тип формы, используемый в проекте (оставляем как есть) */
 export interface FormState {
     title: string;
     description: string;
@@ -80,9 +51,12 @@ export interface FormState {
     agent_id: string;
     district: string;
     address: string;
+
+    // Текущая форма проекта (новые File + серверные объекты)
     photos: (File | { id: number; file_path: string; type: string })[];
 }
 
+/** JSON-DTO (редко нужен при наличии фото; обычно шлём FormData) */
 export interface CreatePropertyRequest {
     description: string;
     type_id: number;
@@ -117,6 +91,8 @@ export interface CreatePropertyRequest {
     latitude?: string;
     longitude?: string;
     agent_id?: string;
+
+    // ниже — опциональные поля для сценария JSON-апдейта
     photos: File[];
     photos_keep?: number[];
     remove_ids?: number[];
@@ -128,3 +104,11 @@ export interface CreatePropertyResponse {
     message: string;
     property?: Property;
 }
+
+/** ✅ Payload-union для CREATE: принимаем либо FormData, либо JSON */
+export type CreatePropertyPayload = FormData | CreatePropertyRequest;
+
+/** ✅ Payload-union для UPDATE: либо multipart, либо JSON-patch */
+export type UpdatePropertyPayload =
+    | { id: string; formData: FormData }                           // multipart (дозагрузка фото и поля)
+    | { id: string; json: Partial<CreatePropertyRequest> };        // JSON-патч (без файлов)

@@ -6,10 +6,13 @@ import {Input} from '@/ui-components/Input';
 import {Select} from '@/ui-components/Select';
 import {PhotoUpload} from '@/ui-components/PhotoUpload';
 import {Button} from '@/ui-components/Button';
-import {FormState, SelectOption} from '@/services/add-post/types';
+import type {FormState as RawFormState, PhotoItem, SelectOption} from '@/services/add-post/types';
+
+type FormWithPhotos = Omit<RawFormState, 'photos'> & { photos: PhotoItem[] };
+
 
 interface PropertyDetailsStepProps {
-    form: FormState;
+    form: FormWithPhotos;
     locations: SelectOption[];
     repairTypes: SelectOption[];
     heatingTypes: SelectOption[];
@@ -21,6 +24,7 @@ interface PropertyDetailsStepProps {
     ) => void;
     onPhotoChange: (e: ChangeEvent<HTMLInputElement>) => void;
     onPhotoRemove: (index: number) => void;
+    onReorder: (next: PhotoItem[]) => void;
     isSubmitting: boolean;
     onBack?: () => void;
 }
@@ -36,6 +40,7 @@ export function PropertyDetailsStep({
                                         onChange,
                                         onPhotoChange,
                                         onPhotoRemove,
+                                        onReorder,
                                         isSubmitting,
                                         onBack,
                                     }: PropertyDetailsStepProps) {
@@ -295,6 +300,7 @@ export function PropertyDetailsStep({
                 photos={form.photos}
                 onPhotoChange={onPhotoChange}
                 onPhotoRemove={onPhotoRemove}
+                onReorder={onReorder}
                 className="mt-6"
             />
 
