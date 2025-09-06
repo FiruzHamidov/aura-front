@@ -263,19 +263,29 @@ export function useAddPostForm({editMode = false, propertyData}: UseAddPostFormP
             agent_id: form.agent_id,
         };
 
-        // 2) Сборка FormData:
-        //   — все простые поля добавляем строками
-        //   — новые фото кладём в photos[]
-        //   — параллельно отдаём photo_positions[i] = индекс карточки в текущем UI-порядке
         const buildFormData = () => {
             const fd = new FormData();
 
-            // Плоские поля
-            Object.entries(propertyDataToSubmit).forEach(([k, v]) => {
-                if (v !== undefined && v !== null) fd.append(k, String(v));
-            });
+            const appendKV = (key: string, value: unknown) => {
+                if (value === null || value === undefined) return;
+                if (typeof value === 'boolean') {
+                    fd.append(key, value ? '1' : '0');
+                    return;
+                }
+                // Страховка на случай, если где-то просочилась строка 'true'/'false'
+                if (value === 'true' || value === 'false') {
+                    fd.append(key, value === 'true' ? '1' : '0');
+                    return;
+                }
+                const s = String(value);
+                if (s === '') return;
+                fd.append(key, s);
+            };
 
-            // Новые фото и их позиции (позиция = индекс на клиенте)
+            // Плоские поля — используем appendKV вместо String(...)
+            Object.entries(propertyDataToSubmit).forEach(([k, v]) => appendKV(k, v));
+
+            // Новые фото и их позиции (позиция = индекс карточки в UI)
             let fileIndex = 0;
             form.photos.forEach((p, uiIndex) => {
                 if (p.file) {

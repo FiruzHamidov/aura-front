@@ -65,10 +65,6 @@ const buildFormDataFromJson = (payload: CreatePropertyRequest) => {
   appendIfFilled(fd, 'has_parking', payload.has_parking);
   appendIfFilled(fd, 'is_mortgage_available', payload.is_mortgage_available);
   appendIfFilled(fd, 'is_from_developer', payload.is_from_developer);
-  // appendIfFilled(fd, 'has_garden', "false");
-  // appendIfFilled(fd, 'has_parking', "false");
-  // appendIfFilled(fd, 'is_mortgage_available', "false");
-  // appendIfFilled(fd, 'is_from_developer', "false");
   appendIfFilled(fd, 'landmark', payload.landmark);
 
   // Опциональные
