@@ -1,4 +1,3 @@
-// src/hooks/useAddPostForm.ts
 'use client';
 
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react';
@@ -12,13 +11,12 @@ import {
     useGetPropertyTypesQuery,
     useGetRepairTypesQuery,
     useUpdatePropertyMutation,
-    useReorderPropertyPhotosMutation, // ⬅️ reorder вынесен в API и даётся отдельным mutation-хуком
+    useReorderPropertyPhotosMutation,
 } from '@/services/add-post';
 import { showToast } from '@/ui-components/Toast';
 import { Property } from '@/services/properties/types';
 import { extractValidationMessages } from '@/utils/validationErrors';
 
-// импортируем типы из сервиса
 import type {
     CreatePropertyPayload,
     FormState as RawFormState,
@@ -26,16 +24,13 @@ import type {
     UpdatePropertyPayload,
 } from '@/services/add-post/types';
 
-// ---------- Локальная форма: заменяем только тип photos ----------
 type FormState = Omit<RawFormState, 'photos'> & { photos: PhotoItem[] };
 
-// ---------- Хелперы ----------
 const cid = () =>
     typeof crypto !== 'undefined' && crypto.randomUUID
         ? crypto.randomUUID()
         : `${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
-// тип минимального объекта фото с бэка (чтобы убрать any)
 type PropertyPhotoFromServer = {
     id: number;
     file_path?: string | null;
@@ -82,7 +77,7 @@ interface UseAddPostFormProps {
 }
 
 export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFormProps = {}) {
-    // --- Справочники (селекты) ---
+
     const { data: propertyTypes = [] } = useGetPropertyTypesQuery();
     const { data: buildingTypes = [] } = useGetBuildingTypesQuery();
     const { data: locations = [] } = useGetLocationsQuery();
@@ -91,12 +86,10 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
     const { data: parkingTypes = [] } = useGetParkingTypesQuery();
     const { data: contractTypes = [] } = useGetContractTypesQuery();
 
-    // --- Мутации ---
     const createPropertyMutation = useCreatePropertyMutation();
     const updatePropertyMutation = useUpdatePropertyMutation();
     const reorderPhotosMutation = useReorderPropertyPhotosMutation(); // ⬅️ для фиксации порядка существующих фото
 
-    // --- Локальный стейт формы ---
     const [form, setForm] = useState<FormState>(initialFormState);
     const [selectedOfferType, setSelectedOfferType] = useState('sale');
     const [selectedModerationStatus, setSelectedModerationStatus] = useState('approved');
@@ -107,7 +100,6 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
 
     const isInitialized = useRef(false);
 
-    // аккуратный мап серверных фото в единый тип PhotoItem (без any)
     const mapServerPhotos = (photos: Property['photos'] | undefined | null): PhotoItem[] => {
         if (!photos) return [];
         return photos.map((p): PhotoItem => {
