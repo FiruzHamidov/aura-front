@@ -2,40 +2,34 @@ import { ReactNode, Suspense } from 'react';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ToastContainer } from 'react-toastify';
-import Script from 'next/script'; // ⬅️ добавили
+import Script from 'next/script'; // ← уже было добавлено
 import './globals.css';
 import Footer from './_components/footer';
 import Header from './_components/header';
 import MobileBottomNavigation from './_components/MobileBottomNavigation';
 import { QueryProvider } from '@/utils/providers';
-
 import 'react-toastify/dist/ReactToastify.css';
 import YandexMetrikaClient from "@/yandex-metrika-client";
 
-const interFont = Inter({
-  variable: '--font-inter',
-  subsets: ['latin'],
-});
+const interFont = Inter({ variable: '--font-inter', subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Aura Estate',
-  description: 'made with love by Aura',
+    title: 'Aura Estate',
+    description: 'made with love by Aura',
 };
 
-const YM_ID = Number(process.env.NEXT_PUBLIC_YM_ID ?? 104117823); // можно вынести в .env
+const YM_ID = Number(process.env.NEXT_PUBLIC_YM_ID ?? 104117823);
 
-export default function RootLayout({
-                                     children,
-                                   }: Readonly<{ children: ReactNode }>) {
-  return (
-      <html lang="ru">
-      <body className={`${interFont.variable} antialiased`}>
-      {/* Yandex.Metrika loader */}
-      <Script
-          id="ym-loader"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
+export default function RootLayout({ children }: { children: ReactNode }) {
+    return (
+        <html lang="ru">
+        <body className={`${interFont.variable} antialiased`}>
+        {/* Yandex.Metrika loader */}
+        <Script
+            id="ym-loader"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+                __html: `
 (function(m,e,t,r,i,k,a){
   m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
   m[i].l=1*new Date();
@@ -51,36 +45,38 @@ ym(${YM_ID}, 'init', {
   accurateTrackBounce: true,
   trackLinks: true
 });
-            `,
-          }}
-      />
-      {/* /Yandex.Metrika loader */}
+          `,
+            }}
+        />
+        {/* /Yandex.Metrika loader */}
 
-      <Suspense>
-        <QueryProvider>
-          <Header />
-          <main>{children}</main>
-          <MobileBottomNavigation />
-          <Footer />
-        </QueryProvider>
-      </Suspense>
+        {/* ВАЖНО: Клиентскую Метрику держим ВНУТРИ Suspense */}
+        <Suspense fallback={null}>
+            <QueryProvider>
+                <Header />
+                <main>{children}</main>
+                <MobileBottomNavigation />
+                <Footer />
+            </QueryProvider>
 
-      {/* SPA-хиты при изменении маршрута */}
-      <YandexMetrikaClient ymId={YM_ID} />
+            {/* SPA-хиты */}
+            <YandexMetrikaClient ymId={YM_ID} />
+        </Suspense>
 
-      <ToastContainer />
+        <ToastContainer />
 
-      {/* noscript-пиксель */}
-      <noscript>
-        <div>
-          <img
-              src={`https://mc.yandex.ru/watch/${YM_ID}`}
-              style={{ position: 'absolute', left: '-9999px' }}
-              alt=""
-          />
-        </div>
-      </noscript>
-      </body>
-      </html>
-  );
+        {/* noscript-пиксель */}
+        <noscript>
+            <div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                    src={`https://mc.yandex.ru/watch/${YM_ID}`}
+                    style={{ position: 'absolute', left: '-9999px' }}
+                    alt=""
+                />
+            </div>
+        </noscript>
+        </body>
+        </html>
+    );
 }
