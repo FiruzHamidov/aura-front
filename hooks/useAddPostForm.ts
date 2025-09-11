@@ -11,7 +11,7 @@ import {
     useGetPropertyTypesQuery,
     useGetRepairTypesQuery,
     useUpdatePropertyMutation,
-    useReorderPropertyPhotosMutation,
+    useReorderPropertyPhotosMutation, useDeletePropertyPhotoMutation,
 } from '@/services/add-post';
 import { showToast } from '@/ui-components/Toast';
 import { Property } from '@/services/properties/types';
@@ -88,7 +88,8 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
 
     const createPropertyMutation = useCreatePropertyMutation();
     const updatePropertyMutation = useUpdatePropertyMutation();
-    const reorderPhotosMutation = useReorderPropertyPhotosMutation(); // ⬅️ для фиксации порядка существующих фото
+    const deletePhotoMutation = useDeletePropertyPhotoMutation();
+    const reorderPhotosMutation = useReorderPropertyPhotosMutation();
 
     const [form, setForm] = useState<FormState>(initialFormState);
     const [selectedOfferType, setSelectedOfferType] = useState('sale');
@@ -179,8 +180,42 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
     };
 
     // --- Удаление фото по индексу (только UI) ---
-    const removePhoto = (index: number) => {
-        setForm((prev) => ({ ...prev, photos: prev.photos.filter((_, i) => i !== index) }));
+    const removePhoto = async (index: number) => {
+        const target = form.photos[index];
+        if (!target) return;
+
+        // 1) Оптимистично убираем из UI
+        const prev = form.photos;
+        const next = prev.filter((_, i) => i !== index);
+        setForm((p) => ({ ...p, photos: next }));
+
+        // 2) Если это серверное фото и мы в editMode — зовём DELETE
+        if (editMode && target.serverId && propertyData?.id) {
+            try {
+                await deletePhotoMutation.mutateAsync({
+                    propertyId: propertyData.id,
+                    photoId: target.serverId,
+                });
+
+                // 3) (опционально) Подтвердим новый порядок оставшихся серверных фото
+                const remainingServerIds = next
+                    .filter((x): x is PhotoItem & { serverId: number } => typeof x.serverId === 'number')
+                    .map((x) => x.serverId);
+
+                if (remainingServerIds.length) {
+                    await reorderPhotosMutation.mutateAsync({
+                        id: propertyData.id,
+                        order: remainingServerIds,
+                    });
+                }
+            } catch (e) {
+                // Откат UI при ошибке
+                setForm((p) => ({ ...p, photos: prev }));
+                showToast('error', 'Не удалось удалить фото. Проверьте доступ и повторите.');
+                console.error(e);
+            }
+        }
+        // Для локальных (новых) фото — API не нужен, удаление уже произошло в UI
     };
 
     // --- Применение нового порядка от DnD ---
@@ -340,7 +375,6 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
         parkingTypes,
         contractTypes,
 
-        // форма и выборы
         form,
         selectedOfferType,
         selectedPropertyType,
@@ -348,24 +382,18 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
         selectedListingType,
         selectedModerationStatus,
         selectedRooms,
-
-        // сеттеры
         setSelectedOfferType,
         setSelectedListingType,
         setSelectedPropertyType,
         setSelectedBuildingType,
         setSelectedModerationStatus,
         setSelectedRooms,
-
-        // хендлеры
         handleChange,
         handleFileChange,
         removePhoto,
         handleReorder,
         handleSubmit,
         resetForm,
-
-        // статус
         isSubmitting: editMode ? updatePropertyMutation.isPending : createPropertyMutation.isPending,
         editMode,
     };

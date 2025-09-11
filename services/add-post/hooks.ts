@@ -70,3 +70,16 @@ export const useReorderPropertyPhotosMutation = () => {
     },
   });
 };
+
+export const useDeletePropertyPhotoMutation = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ propertyId, photoId }: { propertyId: number | string; photoId: number }) =>
+        addPostApi.deletePropertyPhoto(propertyId, photoId),
+    onSuccess: () => {
+      // Обновим списки/детали, чтобы серверное состояние совпало с UI
+      qc.invalidateQueries({ queryKey: ['get-properties'] });
+      qc.invalidateQueries({ queryKey: ['get-property-by-id'] });
+    },
+  });
+};
