@@ -137,7 +137,7 @@ function SortablePhotoCard({
         <button
             type="button"
             onClick={onRemove}
-            className="absolute -top-2 -right-2 w-6 h-6 text-white bg-red-500 rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+            className="absolute top-0 right-0 w-6 h-6 text-white bg-red-500 rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors cursor-pointer"
             aria-label="Удалить"
             title="Удалить"
         >
