@@ -255,8 +255,8 @@ const BuyCard: FC<BuyCardProps> = ({ listing, user, isLarge = false }) => {
           </h3>
         </Link>
 
-        <div className="flex items-center space-x-3 text-sm text-[#666F8D] mb-2">
-          <LocationIcon className="mr-1 w-[18px] h-[18px]" />
+        <div className="flex items-start space-x-3 text-sm text-[#666F8D] mb-2">
+          <LocationIcon className="mr-1 mt-1 w-[18px] h-[18px] min-w-[18px]" />
           <span>
             {listing.address} {listing.landmark && `(${listing.landmark})`}
           </span>
