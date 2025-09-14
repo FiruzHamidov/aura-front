@@ -9,7 +9,10 @@ import { MainBanner } from '../_components/banner';
 import { useGetPropertiesQuery } from '@/services/properties/hooks';
 
 export default function Rent() {
-  const { data: properties, isLoading } = useGetPropertiesQuery();
+  const { data: properties, isLoading } = useGetPropertiesQuery({
+    listing_type: '',
+    offer_type: 'rent',
+  });
 
   const { data: vipProperties, isLoading: isVipLoading } =
     useGetPropertiesQuery({
