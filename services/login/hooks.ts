@@ -111,7 +111,8 @@ export const useLoginMutation = () => {
       if (data.token && data.user) {
         setAuthCookies(data.token, data.user);
         queryClient.setQueryData(["user"], data.user);
-        router.push("/");
+        router.replace("/");
+        router.refresh();
       }
     },
   });

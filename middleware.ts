@@ -7,6 +7,8 @@ export function middleware(request: NextRequest) {
 
   const authToken = cookies.get("auth_token")?.value;
 
+
+
   const isProtected = AUTH_REQUIRED_ROUTES.some((path) =>
     nextUrl.pathname.startsWith(path)
   );
@@ -17,6 +19,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+
+  console.log("authToken in middleware", authToken, isProtected, isProtected && !authToken)
   return NextResponse.next();
 }
 
