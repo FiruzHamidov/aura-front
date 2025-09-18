@@ -19,8 +19,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-
-  console.log("authToken in middleware", authToken, isProtected, isProtected && !authToken)
+  // console.log("authToken in middleware", authToken, isProtected, isProtected && !authToken)
   return NextResponse.next();
 }
 

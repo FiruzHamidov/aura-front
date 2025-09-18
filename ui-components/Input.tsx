@@ -13,49 +13,70 @@ interface InputProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  error?: string; // <— добавили
 }
 
 export function Input({
-  label,
-  name,
-  value,
-  onChange,
-  type = 'text',
-  textarea = false,
-  required = false,
-  disabled = false,
-  placeholder,
-  className = '',
-}: InputProps) {
+                        label,
+                        name,
+                        value,
+                        onChange,
+                        type = 'text',
+                        textarea = false,
+                        required = false,
+                        disabled = false,
+                        placeholder,
+                        className = '',
+                        error, // <— добавили
+                      }: InputProps) {
+  const describedById = error ? `${name}-error` : undefined;
+  const baseFieldClass =
+      'w-full px-4 py-3 rounded-lg border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:border-transparent';
+  const okClass = 'border-[#BAC0CC] focus:ring-[#0036A5]';
+  const errClass = 'border-red-500 focus:ring-red-500';
+
   return (
-    <div className={className}>
-      <label className="block mb-2 text-sm  text-[#666F8D]">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </label>
-      {textarea ? (
-        <textarea
-          name={name}
-          value={value}
-          onChange={onChange}
-          required={required}
-          placeholder={placeholder}
-          rows={4}
-          disabled={disabled}
-          className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 resize-vertical focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
-        />
-      ) : (
-        <input
-          name={name}
-          value={value}
-          type={type}
-          onChange={onChange}
-          required={required}
-          placeholder={placeholder}
-          disabled={disabled}
-          className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
-        />
-      )}
-    </div>
+      <div className={className}>
+        <label className="block mb-2 text-sm text-[#666F8D]" htmlFor={name}>
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+
+        {textarea ? (
+            <textarea
+                id={name}
+                name={name}
+                value={value}
+                onChange={onChange}
+                required={required}
+                placeholder={placeholder}
+                rows={4}
+                disabled={disabled}
+                aria-invalid={!!error}
+                aria-describedby={describedById}
+                className={`${baseFieldClass} resize-vertical ${error ? errClass : okClass}`}
+            />
+        ) : (
+            <input
+                id={name}
+                name={name}
+                value={value}
+                type={type}
+                onChange={onChange}
+                required={required}
+                placeholder={placeholder}
+                disabled={disabled}
+                aria-invalid={!!error}
+                aria-describedby={describedById}
+                className={`${baseFieldClass} ${error ? errClass : okClass}`}
+            />
+        )}
+
+        {error && (
+            <p id={describedById} className="mt-1 text-xs text-red-600">
+              {error}
+            </p>
+        )}
+      </div>
   );
 }

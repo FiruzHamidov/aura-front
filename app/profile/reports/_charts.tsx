@@ -88,24 +88,24 @@ export function LineTimeSeries({ data }: { data: { x: string; total: number; clo
     );
 }
 
-export function BarBuckets({ data }: { data: { label: string; value: number }[] }) {
-    return (
-        <div className="p-4 bg-white rounded-2xl shadow">
-            <h3 className="font-semibold mb-3">Распределение по ценовым корзинам</h3>
-            <Bar
-                data={{
-                    labels: data.map(d => d.label),
-                    datasets: [{
-                        label: 'Объекты',
-                        data: data.map(d => d.value),
-                        backgroundColor: data.map((_, i) => COLORS[i % COLORS.length]),
-                    }],
-                }}
-                options={{ responsive: true, plugins: { legend: { display: false } } }}
-            />
-        </div>
-    );
-}
+// export function BarBuckets({ data }: { data: { label: string; value: number }[] }) {
+//     return (
+//         <div className="p-4 bg-white rounded-2xl shadow">
+//             <h3 className="font-semibold mb-3">Распределение по ценовым корзинам</h3>
+//             <Bar
+//                 data={{
+//                     labels: data.map(d => d.label),
+//                     datasets: [{
+//                         label: 'Объекты',
+//                         data: data.map(d => d.value),
+//                         backgroundColor: data.map((_, i) => COLORS[i % COLORS.length]),
+//                     }],
+//                 }}
+//                 options={{ responsive: true, plugins: { legend: { display: false } } }}
+//             />
+//         </div>
+//     );
+// }
 
 export function BarRooms({ data }: { data: { label: string; value: number }[] }) {
     return (

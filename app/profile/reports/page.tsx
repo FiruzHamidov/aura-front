@@ -4,14 +4,14 @@ import { useEffect, useMemo, useState, ChangeEvent } from 'react';
 import {
     AgentsLeaderboardRow,
     ManagerEfficiencyRow,
-    PriceBucketsResponse,
+    // PriceBucketsResponse,
     ReportsQuery,
     reportsApi,
     RoomsRow,
     SummaryResponse,
     TimeSeriesRow,
 } from '@/services/reports/api';
-import { BarOffer, BarRooms, LineTimeSeries, PieStatus, BarBuckets } from './_charts';
+import { BarOffer, BarRooms, LineTimeSeries, PieStatus } from './_charts';
 import { MultiSelect } from '@/ui-components/MultiSelect';
 import { Button } from '@/ui-components/Button';
 import { Input } from '@/ui-components/Input';
@@ -65,7 +65,7 @@ export default function ReportsPage() {
     const [loading, setLoading] = useState(false);
     const [summary, setSummary] = useState<SummaryResponse | null>(null);
     const [series, setSeries] = useState<TimeSeriesRow[]>([]);
-    const [buckets, setBuckets] = useState<PriceBucketsResponse | null>(null);
+    // const [buckets, setBuckets] = useState<PriceBucketsResponse | null>(null);
     const [rooms, setRooms] = useState<RoomsRow[]>([]);
     const [managers, setManagers] = useState<ManagerEfficiencyRow[]>([]);
     const [leaders, setLeaders] = useState<AgentsLeaderboardRow[]>([]);
@@ -91,17 +91,17 @@ export default function ReportsPage() {
         setLoading(true);
         setError(null);
         try {
-            const [s, ts, pb, rh, me, lb] = await Promise.all([
+            const [s, ts, rh, me, lb] = await Promise.all([
                 reportsApi.summary(query),
                 reportsApi.timeSeries(query),
-                reportsApi.priceBuckets({ ...query, buckets: 10 }),
+                // reportsApi.priceBuckets({ ...query, buckets: 10 }),
                 reportsApi.roomsHist(query),
                 reportsApi.managerEfficiency({ ...query, group_by: 'agent_id' }),
                 reportsApi.agentsLeaderboard({ ...query, limit: 10 }),
             ]);
             setSummary(s);
             setSeries(ts);
-            setBuckets(pb);
+            // setBuckets(pb);
             setRooms(rh);
             setManagers(me);
             setLeaders(lb);
@@ -148,10 +148,10 @@ export default function ReportsPage() {
     );
 
     // Вернули корзины цен — теперь переменная buckets используется
-    const bucketData = useMemo(
-        () => (buckets?.buckets ?? []).map((b) => ({ label: `${b.from}–${b.to}`, value: b.count })),
-        [buckets]
-    );
+    // const bucketData = useMemo(
+    //     () => (buckets?.buckets ?? []).map((b) => ({ label: `${b.from}–${b.to}`, value: b.count })),
+    //     [buckets]
+    // );
 
     const roomsData = useMemo(
         () => rooms.map((r) => ({ label: String(r.rooms), value: r.cnt })),
@@ -326,7 +326,7 @@ export default function ReportsPage() {
                 <PieStatus data={statusData} />
                 <BarOffer data={offerData} />
                 <LineTimeSeries data={seriesData} />
-                <BarBuckets data={bucketData} />
+                {/*<BarBuckets data={bucketData} />*/}
                 <BarRooms data={roomsData} />
             </div>
 
