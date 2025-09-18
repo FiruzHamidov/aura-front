@@ -45,7 +45,6 @@ function firstPhotoUrl(a: Apartment): string | undefined {
   return fp ? `${STORAGE_URL}/${fp}` : undefined;
 }
 
-// ✅ params как Promise и распаковка через await
 export async function generateMetadata(
     { params }: { params: Promise<{ slug: string }> }
 ): Promise<Metadata> {
@@ -57,7 +56,7 @@ export async function generateMetadata(
 
   const title =
       apt.title?.trim() ||
-      `Недвижимость: ${apt.rooms ? apt.rooms + "-к" : ""} ${apt.total_area ? apt.total_area + " м²" : ""} — Aura`;
+      `Купить: ${apt.rooms ? apt.rooms + "-комнатную" : ""} ${apt.total_area ? apt.total_area + " м²" : ""} — Aura Estate`;
 
   const description = shortDesc(apt).slice(0, 160);
   const url = `${SITE_URL}/apartment/${slug}`;
@@ -89,7 +88,6 @@ export async function generateMetadata(
   };
 }
 
-// ✅ Page тоже принимает Promise и распаковывает
 export default async function Page(
     { params }: { params: Promise<{ slug: string }> }
 ) {

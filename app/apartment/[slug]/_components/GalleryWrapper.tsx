@@ -1,18 +1,19 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import {useEffect, useRef, useState} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { YMaps, Placemark, Map } from '@pbe/react-yandex-maps';
+import {Map, Placemark, YMaps} from '@pbe/react-yandex-maps';
 import SettingsIcon from '@/icons/SettingsIcon';
 import HeartIcon from '@/icons/HeartIcon';
-import { Property } from '@/services/properties/types';
-import { useProfile } from '@/services/login/hooks';
+import {Property} from '@/services/properties/types';
+import {useProfile} from '@/services/login/hooks';
 import MortgageCalculator from '../_components/MortgageCalculator';
 import PhotoGalleryModal from '@/ui-components/PhotoGalleryModal';
 import BookingSidebarForm from '@/app/apartment/[slug]/_components/BookingSidebarForm';
 import FooterPhoneIcon from "@/icons/FooterPhoneIcon";
 import WhatsappInlineIcon from "@/icons/WhatsappInlineIcon";
+import {ArrowUpDown, Bath, Building2, Flame, Hammer, Home, MapPin, ParkingSquare, Ruler} from "lucide-react";
 
 interface Props {
     apartment: Property;
@@ -53,49 +54,49 @@ export default function GalleryWrapper({apartment, photos}: Props) {
     }
 
 
-  const [coordinates, setCoordinates] = useState<[number, number] | null>(
-    apartment.latitude && apartment.longitude
-      ? [parseFloat(apartment.latitude), parseFloat(apartment.longitude)]
-      : null
-  );
+    const [coordinates, setCoordinates] = useState<[number, number] | null>(
+        apartment.latitude && apartment.longitude
+            ? [parseFloat(apartment.latitude), parseFloat(apartment.longitude)]
+            : null
+    );
 
-  const [addressCaption, setAddressCaption] = useState<string>('');
+    const [addressCaption, setAddressCaption] = useState<string>('');
 
-  const mapRef = useRef(undefined);
-  const ymapsRef = useRef(null);
+    const mapRef = useRef(undefined);
+    const ymapsRef = useRef(null);
 
-  // eslint-disable-next-line
-  const handleMapClick = (e: any) => {
-    const coords = e.get('coords');
-    setCoordinates([coords[0], coords[1]]);
+    // eslint-disable-next-line
+    const handleMapClick = (e: any) => {
+        const coords = e.get('coords');
+        setCoordinates([coords[0], coords[1]]);
 
-    if (ymapsRef.current) {
-      try {
-        // @ts-expect-error type error disabling
-        const geocoder = ymapsRef.current.geocode(coords);
-        geocoder
-          // eslint-disable-next-line
-          .then((res: { geoObjects: { get: (index: number) => any } }) => {
-            const firstGeoObject = res.geoObjects.get(0);
-            if (firstGeoObject) {
-              const address = firstGeoObject.getAddressLine();
-              setAddressCaption(address);
+        if (ymapsRef.current) {
+            try {
+                // @ts-expect-error type error disabling
+                const geocoder = ymapsRef.current.geocode(coords);
+                geocoder
+                    // eslint-disable-next-line
+                    .then((res: { geoObjects: { get: (index: number) => any } }) => {
+                        const firstGeoObject = res.geoObjects.get(0);
+                        if (firstGeoObject) {
+                            const address = firstGeoObject.getAddressLine();
+                            setAddressCaption(address);
+                        }
+                    })
+                    .catch((error: Error) => {
+                        console.error('Geocoding error:', error);
+                    });
+            } catch (error) {
+                console.error('Error initializing geocoder:', error);
             }
-          })
-          .catch((error: Error) => {
-            console.error('Geocoding error:', error);
-          });
-      } catch (error) {
-        console.error('Error initializing geocoder:', error);
-      }
-    }
-  };
+        }
+    };
 
-  const canEdit =
-    (user && user.role?.slug === 'admin') ||
-    (apartment.creator &&
-      (user?.id === apartment.creator.id ||
-        (apartment.agent_id && user?.id === apartment.agent_id)));
+    const canEdit =
+        (user && user.role?.slug === 'admin') ||
+        (apartment.creator &&
+            (user?.id === apartment.creator.id ||
+                (apartment.agent_id && user?.id === apartment.agent_id)));
 
     return (
         <>
@@ -302,76 +303,104 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                 </button>
 
                                 <div className="flex gap-8 flex-col md:flex-row mb-10">
+                                    {/* О квартире */}
                                     <div className="w-[317px]">
                                         <h2 className="text-2xl font-bold mb-4">О квартире</h2>
                                         <div className="space-y-0.5 text-sm">
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                                                <span className="text-[#666F8D]">Тип жилья</span>
+            <span className="text-[#666F8D] flex items-center gap-2">
+              <Home size={16}/> Тип жилья
+            </span>
                                                 <span className="font-medium">
-                          {apartment.type?.name || 'Вторичка'}
-                        </span>
+              {apartment.type?.name || "Вторичка"}
+            </span>
                                             </div>
+
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                                                <span className="text-[#666F8D]">Общая площадь</span>
+            <span className="text-[#666F8D] flex items-center gap-2">
+              <Ruler size={16}/> Общая площадь
+            </span>
                                                 <span className="font-medium">
-                          {apartment.total_area || '-'} м²
-                        </span>
+              {apartment.total_area || "-"} м²
+            </span>
                                             </div>
+
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                                                <span className="text-[#666F8D]">Санузел</span>
+            <span className="text-[#666F8D] flex items-center gap-2">
+              <Bath size={16}/> Санузел
+            </span>
                                                 <span className="font-medium">
-                          {apartment.bathroom_count || '1'}
-                        </span>
+              {apartment.bathroom_count || "1"}
+            </span>
                                             </div>
+
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                                                <span className="text-[#666F8D]">Ремонт</span>
+            <span className="text-[#666F8D] flex items-center gap-2">
+              <Hammer size={16}/> Ремонт
+            </span>
                                                 <span className="font-medium">
-                          {apartment.repair_type?.name || 'Косметический'}
-                        </span>
+              {apartment.repair_type?.name || "Косметический"}
+            </span>
                                             </div>
+
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                                                <span className="text-[#666F8D]">Район</span>
+            <span className="text-[#666F8D] flex items-center gap-2">
+              <MapPin size={16}/> Район
+            </span>
                                                 <span className="font-medium">
-                          {apartment.district || '-'}
-                        </span>
+              {apartment.district || "-"}
+            </span>
                                             </div>
                                         </div>
                                     </div>
 
+                                    {/* О доме */}
                                     <div className="w-[317px]">
                                         <h2 className="text-2xl font-bold mb-4">О доме</h2>
                                         <div className="space-y-0.5 text-sm">
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                                                <span className="text-[#666F8D]">Год постройки</span>
+            <span className="text-[#666F8D] flex items-center gap-2">
+              <Building2 size={16}/> Год постройки
+            </span>
                                                 <span className="font-medium">
-                          {apartment.year_built || '-'}
-                        </span>
+              {apartment.year_built || "-"}
+            </span>
                                             </div>
+
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="text-[#666F8D]">
-                          Количество лифтов
-                        </span>
+            <span className="text-[#666F8D] flex items-center gap-2">
+              <ArrowUpDown size={16}/> Количество лифтов
+            </span>
                                                 <span className="font-medium">
-                          {apartment.elevator_count || '2'}
-                        </span>
+              {apartment.elevator_count || "2"}
+            </span>
                                             </div>
+
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                                                <span className="text-[#666F8D]">Тип дома</span>
+            <span className="text-[#666F8D] flex items-center gap-2">
+              <Building2 size={16}/> Тип дома
+            </span>
                                                 <span className="font-medium">
-                          {apartment.building_type || 'Панельный'}
-                        </span>
+              {apartment.building_type || "Панельный"}
+            </span>
                                             </div>
+
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                                                <span className="text-[#666F8D]">Парковка</span>
+            <span className="text-[#666F8D] flex items-center gap-2">
+              <ParkingSquare size={16}/> Парковка
+            </span>
                                                 <span className="font-medium">
-                          {apartment.has_parking ? 'Да' : 'Открытая'}
-                        </span>
+              {apartment.has_parking ? "Да" : "Открытая"}
+            </span>
                                             </div>
+
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                                                <span className="text-[#666F8D]">Отопление</span>
+            <span className="text-[#666F8D] flex items-center gap-2">
+              <Flame size={16}/> Отопление
+            </span>
                                                 <span className="font-medium">
-                          {apartment.heating_type?.name || 'Центральное'}
-                        </span>
+              {apartment.heating_type?.name || "Центральное"}
+            </span>
                                             </div>
                                         </div>
                                     </div>
@@ -387,14 +416,14 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                         </div>
                     </div>
 
-          <div className="">
-            <div className="bg-white rounded-[22px] md:py-[30px] md:px-[22px] px-4 py-5 mb-6">
-              <div className="text-[#666F8D] text-lg mb-1.5">Цена</div>
-              <div className="text-[32px] font-bold text-[#0036A5]">
-                {Number(apartment.price).toLocaleString('ru-RU')}{' '}
-                {apartment.currency}
-              </div>
-            </div>
+                    <div className="">
+                        <div className="bg-white rounded-[22px] md:py-[30px] md:px-[22px] px-4 py-5 mb-6">
+                            <div className="text-[#666F8D] text-lg mb-1.5">Цена</div>
+                            <div className="text-[32px] font-bold text-[#0036A5]">
+                                {Number(apartment.price).toLocaleString('ru-RU')}{' '}
+                                {apartment.currency}
+                            </div>
+                        </div>
 
                         {apartment.creator && (
                             <div className="bg-white rounded-[22px] md:px-[26px] px-4 py-5 md:py-8">
@@ -425,55 +454,55 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                             </div>
                         )}
 
-            {user &&
-              (user.role?.slug === 'agent' || user.role?.slug === 'admin') && (
-                <BookingSidebarForm
-                  propertyId={apartment.id}
-                  defaultAgentId={user.id}
-                />
-              )}
-          </div>
-        </div>
+                        {user &&
+                            (user.role?.slug === 'agent' || user.role?.slug === 'admin') && (
+                                <BookingSidebarForm
+                                    propertyId={apartment.id}
+                                    defaultAgentId={user.id}
+                                />
+                            )}
+                    </div>
+                </div>
 
-        <div className="bg-white px-4 py-5 md:px-9 md:py-10 rounded-[14px] md:rounded-[22px] mt-4">
-          <div className="text-lg md:text-2xl mb-3 md:mb-6 font-bold">
-            Расположение на карте
-          </div>
-          <div className="h-[145px] md:h-[500px] w-full rounded-[12px] overflow-hidden">
-            <YMaps
-              query={{
-                lang: 'ru_RU',
-                apikey: 'dbdc2ae1-bcbd-4f76-ab38-94ca88cf2a6f',
-              }}
-            >
-              <Map
-                defaultState={{ center: [38.5597722, 68.7870384], zoom: 9 }}
-                width="100%"
-                height="100%"
-                onClick={handleMapClick}
-                instanceRef={mapRef}
-                modules={['geocode']}
-                onLoad={(ymaps) => {
-                  // @ts-expect-error type error disabling
-                  ymapsRef.current = ymaps;
-                }}
-              >
-                {coordinates && (
-                  <Placemark
-                    geometry={coordinates}
-                    options={{
-                      preset: 'islands#blueHomeIcon',
-                      draggable: true,
-                    }}
-                    properties={{
-                      iconCaption: addressCaption || 'Определение адреса...',
-                    }}
-                  />
-                )}
-              </Map>
-            </YMaps>
-          </div>
-        </div>
+                <div className="bg-white px-4 py-5 md:px-9 md:py-10 rounded-[14px] md:rounded-[22px] mt-4">
+                    <div className="text-lg md:text-2xl mb-3 md:mb-6 font-bold">
+                        Расположение на карте
+                    </div>
+                    <div className="h-[145px] md:h-[500px] w-full rounded-[12px] overflow-hidden">
+                        <YMaps
+                            query={{
+                                lang: 'ru_RU',
+                                apikey: 'dbdc2ae1-bcbd-4f76-ab38-94ca88cf2a6f',
+                            }}
+                        >
+                            <Map
+                                defaultState={{center: [38.5597722, 68.7870384], zoom: 9}}
+                                width="100%"
+                                height="100%"
+                                onClick={handleMapClick}
+                                instanceRef={mapRef}
+                                modules={['geocode']}
+                                onLoad={(ymaps) => {
+                                    // @ts-expect-error type error disabling
+                                    ymapsRef.current = ymaps;
+                                }}
+                            >
+                                {coordinates && (
+                                    <Placemark
+                                        geometry={coordinates}
+                                        options={{
+                                            preset: 'islands#blueHomeIcon',
+                                            draggable: true,
+                                        }}
+                                        properties={{
+                                            iconCaption: addressCaption || 'Определение адреса...',
+                                        }}
+                                    />
+                                )}
+                            </Map>
+                        </YMaps>
+                    </div>
+                </div>
 
                 <MortgageCalculator propertyPrice={apartment.price}/>
             </div>
