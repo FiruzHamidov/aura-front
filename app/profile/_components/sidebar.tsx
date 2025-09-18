@@ -35,7 +35,7 @@ const ALL_ITEMS: Record<string, MenuItem> = {
   allList:   { href: '/profile/all-listings', label: 'Все объявления',   icon: <ListIcon className="w-6 h-6" /> },
   booking:   { href: '/profile/my-booking',   label: 'Мои показы',       icon: <CalendarIcon className="w-6 h-6" /> },
   addPost:   { href: '/profile/add-post',     label: 'Добавить объявление', icon: <PlusIcon className="w-6 h-6" /> },
-  users:     { href: '/profile/users',        label: 'Пользователи',     icon: <UsersIcon className="w-6 h-6" /> },
+  users:     { href: '/admin/users',        label: 'Пользователи',     icon: <UsersIcon className="w-6 h-6" /> },
 };
 
 const roleMenus: Record<RoleSlug, Array<keyof typeof ALL_ITEMS>> = {

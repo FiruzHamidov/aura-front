@@ -16,6 +16,8 @@ export const AUTH_REQUIRED_ROUTES = [
   "/profile/my-listings",
   "/profile/add-post",
   "/dashboard",
+  "/admin",
+  "/admin/users",
 ];
 
 export const AGENT_ONLY_ROUTES = [
