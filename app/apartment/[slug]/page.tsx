@@ -56,7 +56,7 @@ export async function generateMetadata(
 
   const title =
       apt.title?.trim() ||
-      `Купить: ${apt.rooms ? apt.rooms + "-комнатную" : ""} ${apt.total_area ? apt.total_area + " м²" : ""} — Aura Estate`;
+      `Купить ${apt.rooms ? apt.rooms + "-комнатную" : ""} ${apt.total_area ? apt.total_area + " м²" : ""} — Aura Estate`;
 
   const description = shortDesc(apt).slice(0, 160);
   const url = `${SITE_URL}/apartment/${slug}`;

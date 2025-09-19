@@ -1,33 +1,141 @@
-import {ReactNode, Suspense} from 'react';
-import type {Metadata} from 'next';
-import {Inter} from 'next/font/google';
-import {ToastContainer} from 'react-toastify';
+// app/layout.tsx
+import { ReactNode, Suspense } from 'react';
+import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import Footer from './_components/footer';
 import Header from './_components/header';
 import MobileBottomNavigation from './_components/MobileBottomNavigation';
-import {QueryProvider} from '@/utils/providers';
-import 'react-toastify/dist/ReactToastify.css';
-import YandexMetrikaClient from "@/yandex-metrika-client";
-import {Sidebar} from "@/app/profile/_components/sidebar";
-import {cookies} from "next/headers";
+import { QueryProvider } from '@/utils/providers';
+import YandexMetrikaClient from '@/yandex-metrika-client';
+import { Sidebar } from '@/app/profile/_components/sidebar';
+import { cookies } from 'next/headers';
 
-const interFont = Inter({variable: '--font-inter', subsets: ['latin']});
+const interFont = Inter({ variable: '--font-inter', subsets: ['latin', 'cyrillic'] });
 
-export const metadata: Metadata = {
-    title: 'Aura Estate',
-    description: 'made with love by Aura',
-};
-
+const SITE_URL = 'https://aura.tj';
 const YM_ID = Number(process.env.NEXT_PUBLIC_YM_ID ?? 104117823);
 
-export default async function RootLayout({children}: { children: ReactNode }) {
+export const metadata: Metadata = {
+    metadataBase: new URL(SITE_URL),
+    title: {
+        default: 'Aura Estate — Недвижимость в Таджикистане',
+        template: '%s — Aura Estate',
+    },
+    description:
+        'Aura Estate — поиск, покупка и аренда недвижимости в Таджикистане. Умные фильтры, карта объектов, отзывы риелторов.',
+    applicationName: 'Aura Estate',
+    keywords: [
+        'недвижимость',
+        'квартиры',
+        'аренда',
+        'покупка',
+        'Душанбе',
+        'Таджикистан',
+        'Aura Estate',
+    ],
+    authors: [{ name: 'Aura' }],
+    openGraph: {
+        type: 'website',
+        url: SITE_URL,
+        siteName: 'Aura Estate',
+        title: 'Aura Estate — Недвижимость в Таджикистане',
+        description:
+            'Поиск, покупка и аренда недвижимости в Таджикистане. Удобные фильтры, карта и отзывы.',
+        images: [
+            {
+                url: '/icons/web-app-manifest-512x512.png', // положи картинку 1200x630
+                width: 1200,
+                height: 630,
+                alt: 'Aura Estate',
+            },
+        ],
+        locale: 'ru_RU',
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Aura Estate — Недвижимость в Таджикистане',
+        description:
+            'Поиск, покупка и аренда недвижимости в Таджикистане. Удобные фильтры, карта и отзывы.',
+        images: ['/icons/web-app-manifest-512x512.png'],
+    },
+    alternates: {
+        canonical: '/',
+        languages: {
+            ru: '/',
+        },
+    },
+    icons: {
+        icon: [
+            { url: '/icons/favicon.ico' },
+            { url: '/icons/web-app-manifest-192x192.png', sizes: '32x32', type: 'image/png' },
+            { url: '/icons/web-app-manifest-192x192.png', sizes: '192x192', type: 'image/png' },
+            { url: '/icons/web-app-manifest-512x512.png', sizes: '512x512', type: 'image/png' },
+        ],
+        apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
+    },
+    manifest: '/site.webmanifest', // PWA манифест, если используешь
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+            'max-image-preview': 'large',
+            'max-snippet': -1,
+            'max-video-preview': -1,
+        },
+    },
+    appleWebApp: {
+        statusBarStyle: 'default',
+        title: 'Aura Estate',
+        capable: true,
+    },
+};
+
+export const viewport: Viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    themeColor: 'transparent', // делает нижнюю панель Safari прозрачной
+    colorScheme: 'light dark',
+};
+
+export default async function RootLayout({ children }: { children: ReactNode }) {
     const cookieStore = await cookies();
     const token = cookieStore.get('auth_token')?.value;
 
     return (
         <html lang="ru">
+        <head>
+            {/* На iOS/Safari иногда надёжнее продублировать вручную */}
+            <meta name="theme-color" content="transparent" />
+            <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+            {/* JSON-LD: WebSite + Organization */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        '@context': 'https://schema.org',
+                        '@type': 'WebSite',
+                        name: 'Aura Estate',
+                        url: SITE_URL,
+                        potentialAction: {
+                            '@type': 'SearchAction',
+                            target: `${SITE_URL}/search?query={query}`,
+                            'query-input': 'required name=query',
+                        },
+                        publisher: {
+                            '@type': 'Organization',
+                            name: 'Aura',
+                            url: SITE_URL,
+                            logo: `${SITE_URL}/icons/icon-512.png`,
+                        },
+                    }),
+                }}
+            />
+        </head>
         <body className={`${interFont.variable} antialiased`}>
         {/* Yandex.Metrika loader */}
         <Script
@@ -35,43 +143,37 @@ export default async function RootLayout({children}: { children: ReactNode }) {
             strategy="afterInteractive"
             dangerouslySetInnerHTML={{
                 __html: `
-                    (function(m,e,t,r,i,k,a){
-                      m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-                      m[i].l=1*new Date();
-                      for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
-                      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-                    })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=${YM_ID}', 'ym');
-                    
-                    ym(${YM_ID}, 'init', {
-                      ssr: true,
-                      webvisor: true,
-                      clickmap: true,
-                      ecommerce: "dataLayer",
-                      accurateTrackBounce: true,
-                      trackLinks: true
-                    });
+              (function(m,e,t,r,i,k,a){
+                m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+                m[i].l=1*new Date();
+                for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
+                k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+              })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=${YM_ID}', 'ym');
+              
+              ym(${YM_ID}, 'init', {
+                ssr: true,
+                webvisor: true,
+                clickmap: true,
+                ecommerce: "dataLayer",
+                accurateTrackBounce: true,
+                trackLinks: true
+              });
           `,
             }}
         />
-        {/* /Yandex.Metrika loader */}
 
-        {/* ВАЖНО: Клиентскую Метрику держим ВНУТРИ Suspense */}
         <Suspense fallback={null}>
             <QueryProvider>
-                <Header/>
-                {token && (
-                    <Sidebar/>
-                )}
+                <Header />
+                {token && <Sidebar />}
                 <main>{children}</main>
-                <MobileBottomNavigation/>
-                <Footer/>
+                <MobileBottomNavigation />
+                <Footer />
             </QueryProvider>
 
             {/* SPA-хиты */}
-            <YandexMetrikaClient ymId={YM_ID}/>
+            <YandexMetrikaClient ymId={YM_ID} />
         </Suspense>
-
-        <ToastContainer/>
 
         {/* noscript-пиксель */}
         <noscript>
@@ -79,7 +181,7 @@ export default async function RootLayout({children}: { children: ReactNode }) {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                     src={`https://mc.yandex.ru/watch/${YM_ID}`}
-                    style={{position: 'absolute', left: '-9999px'}}
+                    style={{ position: 'absolute', left: '-9999px' }}
                     alt=""
                 />
             </div>
