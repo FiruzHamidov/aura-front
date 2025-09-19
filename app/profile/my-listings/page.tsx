@@ -1,24 +1,27 @@
 'use client';
 
-import {useEffect, useMemo, useState} from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import BuyCard from '@/app/_components/buy/buy-card';
 import BuyCardSkeleton from '@/ui-components/BuyCardSkeleton';
-import {useGetMyPropertiesQuery} from '@/services/properties/hooks';
-import {Property} from '@/services/properties/types';
-import {useProfile} from '@/services/login/hooks';
+import { useGetMyPropertiesQuery } from '@/services/properties/hooks';
+import { Property } from '@/services/properties/types';
+import { useProfile } from '@/services/login/hooks';
+import HorizontalTabs from '@/app/profile/_components/HorizontalTabs';
 
 const TABS = [
-    {key: 'pending', label: 'На модерации'},
-    {key: 'approved', label: 'Активные'},
-    {key: 'rejected', label: 'Отклонённые'},
-    {key: 'draft', label: 'Черновики'},
-    {key: 'deleted', label: 'Удаленные'},
+    { key: 'pending',  label: 'На модерации' },
+    { key: 'approved', label: 'Активные' },
+    { key: 'rejected', label: 'Отклонённые' },
+    { key: 'draft',    label: 'Черновики' },
+    { key: 'deleted',  label: 'Удаленные' },
+    { key: 'sold',     label: 'Проданные' },
+    { key: 'rented',   label: 'Арендованные' },
 ] as const;
 
 type TabKey = typeof TABS[number]['key'];
 
 export default function MyListings() {
-    const {data: user} = useProfile();
+    const { data: user } = useProfile();
 
     const [selectedTab, setSelectedTab] = useState<TabKey>('approved');
     const [page, setPage] = useState(1);
@@ -30,56 +33,39 @@ export default function MyListings() {
         isLoading,
         isFetching,
     } = useGetMyPropertiesQuery(
-        {
-            listing_type: '',
-            page,
-            per_page: perPage,
-            moderation_status: selectedTab,
-        },
-        true // <-- второй аргумент этого хука — boolean (enable)
+        { listing_type: '', page, per_page: perPage, moderation_status: selectedTab },
+        true
     );
 
-    useEffect(() => {
-        setPage(1);
-    }, [selectedTab]);
+    // При смене вкладки возвращаемся на первую страницу
+    useEffect(() => { setPage(1); }, [selectedTab]);
 
     // Лёгкие запросы для тоталов по всем вкладкам (per_page: 1)
-    const {data: pendingMeta} = useGetMyPropertiesQuery(
-        {listing_type: '', page: 1, per_page: 1, moderation_status: 'pending'},
-        true
-    );
-    const {data: approvedMeta} = useGetMyPropertiesQuery(
-        {listing_type: '', page: 1, per_page: 1, moderation_status: 'approved'},
-        true
-    );
-    const {data: rejectedMeta} = useGetMyPropertiesQuery(
-        {listing_type: '', page: 1, per_page: 1, moderation_status: 'rejected'},
-        true
-    );
-    const {data: draftMeta} = useGetMyPropertiesQuery(
-        {listing_type: '', page: 1, per_page: 1, moderation_status: 'draft'},
-        true
-    );
-    const {data: deletedMeta} = useGetMyPropertiesQuery(
-        {listing_type: '', page: 1, per_page: 1, moderation_status: 'deleted'},
-        true
-    );
+    const { data: pendingMeta  } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'pending'  }, true);
+    const { data: approvedMeta } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'approved' }, true);
+    const { data: rejectedMeta } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'rejected' }, true);
+    const { data: draftMeta    } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'draft'    }, true);
+    const { data: deletedMeta  } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'deleted'  }, true);
+    const { data: soldMeta     } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'sold'     }, true);
+    const { data: rentedMeta   } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'rented'   }, true);
 
     // Данные активной вкладки
     const serverData: Property[] = myProperties?.data ?? [];
-    const totalItems = myProperties?.total ?? 0;
-    const totalPages = myProperties?.last_page ?? 1;
+    const totalItems  = myProperties?.total ?? 0;
+    const totalPages  = myProperties?.last_page ?? 1;
     const currentPage = myProperties?.current_page ?? page;
-    const from = myProperties?.from ?? 0;
-    const to = myProperties?.to ?? 0;
+    const from        = myProperties?.from ?? 0;
+    const to          = myProperties?.to ?? 0;
 
     // Тоталы для заголовков вкладок
     const tabTotals: Record<TabKey, number | undefined> = {
-        pending: pendingMeta?.total,
+        pending : pendingMeta?.total,
         approved: approvedMeta?.total,
         rejected: rejectedMeta?.total,
-        draft: draftMeta?.total,
-        deleted: deletedMeta?.total,
+        draft   : draftMeta?.total,
+        deleted : deletedMeta?.total,
+        sold    : soldMeta?.total,
+        rented  : rentedMeta?.total,
     };
 
     function changeTab(tab: TabKey) {
@@ -96,75 +82,54 @@ export default function MyListings() {
         const delta = 1;
         const numbers: number[] = [];
         const fromPage = Math.max(1, currentPage - delta);
-        const toPage = Math.min(totalPages, currentPage + delta);
+        const toPage   = Math.min(totalPages, currentPage + delta);
         for (let i = fromPage; i <= toPage; i++) numbers.push(i);
         if (numbers[0] !== 1) numbers.unshift(1);
         if (numbers[numbers.length - 1] !== totalPages) numbers.push(totalPages);
         return [...new Set(numbers)];
     }, [currentPage, totalPages]);
 
+    // Скелетоны + tabs
     if (isLoading && !myProperties) {
         return (
-            <div>
-                <div className="mb-6">
-                    <div className="flex space-x-4 border-b">
-                        {TABS.map((tabDef) => (
-                            <button
-                                key={tabDef.key}
-                                className={`pb-2 px-4 border-b-2 font-medium ${
-                                    selectedTab === tabDef.key
-                                        ? 'border-blue-500 text-blue-600'
-                                        : 'border-transparent text-gray-500'
-                                }`}
-                                onClick={() => changeTab(tabDef.key)}
-                            >
-                                {tabDef.label}
-                                {typeof tabTotals[tabDef.key] === 'number' ? ` (${tabTotals[tabDef.key]})` : ''}
-                            </button>
-                        ))}
-                    </div>
+            <div className="w-auto">
+                <div className="mb-6 border-b pb-2">
+                    <HorizontalTabs
+                        tabs={TABS}
+                        selectedKey={selectedTab}
+                        totals={tabTotals}
+                        onChange={(k) => changeTab(k as TabKey)}
+                        loading
+                    />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
-                    {Array.from({length: 6}).map((_, index) => (
-                        <BuyCardSkeleton key={index}/>
-                    ))}
+                    {Array.from({ length: 6 }).map((_, i) => <BuyCardSkeleton key={i} />)}
                 </div>
             </div>
         );
     }
 
     return (
-        <div>
+        <div className="w-auto">
             <div className="mb-6">
                 <div className="flex flex-wrap items-end justify-between gap-3 border-b pb-2">
-                    <div className="flex space-x-4">
-                        {TABS.map((tabDef) => (
-                            <button
-                                key={tabDef.key}
-                                className={`pb-2 px-4 border-b-2 font-medium ${
-                                    selectedTab === tabDef.key
-                                        ? 'border-blue-500 text-blue-600'
-                                        : 'border-transparent text-gray-500'
-                                }`}
-                                onClick={() => changeTab(tabDef.key)}
-                            >
-                                {tabDef.label}{' '}
-                                {typeof tabTotals[tabDef.key] === 'number'
-                                    ? `(${tabTotals[tabDef.key]})`
-                                    : '(…)'}
-                            </button>
-                        ))}
+                    <div className="w-full">
+                        <HorizontalTabs
+                            tabs={TABS}
+                            selectedKey={selectedTab}
+                            totals={tabTotals}
+                            onChange={(k) => changeTab(k as TabKey)}
+                            loading={isFetching}
+                        />
                     </div>
 
                     <div className="text-sm text-gray-500">
-                        {totalItems > 0 ? (
+                        {totalItems > 0 && (
                             <>
                                 Показываю <span className="font-medium">{from}–{to}</span> из{' '}
                                 <span className="font-medium">{totalItems}</span>
                             </>
-                        ) : (
-                            ''
                         )}
                         {isFetching && <span className="ml-2 text-gray-400">Обновление…</span>}
                     </div>
@@ -179,7 +144,7 @@ export default function MyListings() {
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                         {serverData.map((listing: Property) => (
-                            <BuyCard listing={listing} user={user} key={listing.id}/>
+                            <BuyCard listing={listing} user={user} key={listing.id} isEditRoute />
                         ))}
                     </div>
 
@@ -193,8 +158,7 @@ export default function MyListings() {
                         </button>
 
                         {pageNumbers.map((pageNumber, index) => {
-                            const needEllipsis =
-                                index > 0 && pageNumber - pageNumbers[index - 1] > 1;
+                            const needEllipsis = index > 0 && pageNumber - pageNumbers[index - 1] > 1;
                             return (
                                 <span key={`${pageNumber}-${index}`} className="flex">
                   {needEllipsis && <span className="px-1 text-gray-400">…</span>}
@@ -202,7 +166,7 @@ export default function MyListings() {
                                         onClick={() => goTo(pageNumber)}
                                         className={`px-3 py-2 rounded-xl border text-sm mx-0.5 ${
                                             pageNumber === currentPage
-                                                ? 'bg-blue-600 text-white border-blue-600'
+                                                ? 'bg-[#0036A5] text-white border-[#0036A5]'
                                                 : 'hover:bg-gray-50'
                                         }`}
                                     >

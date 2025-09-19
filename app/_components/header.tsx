@@ -299,7 +299,7 @@ const Header: FC = () => {
               <div key={item.name} className="relative">
                 <Link
                   href={item.href}
-                  className={`hover:text-blue-600 whitespace-nowrap transition-colors text-sm lg:text-base ${
+                  className={`hover:text-[#0036A5] whitespace-nowrap transition-colors text-sm lg:text-base ${
                     pathname === item.href ? 'text-[#0036A5]' : ''
                   }`}
                 >

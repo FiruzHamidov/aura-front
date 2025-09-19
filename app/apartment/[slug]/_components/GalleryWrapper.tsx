@@ -565,7 +565,7 @@ function Thumbs({
                         onClick={() => onSelect(i)}
                         className={`relative flex-none overflow-hidden rounded-lg border-2 transition ${
                             i === selectedIndex
-                                ? 'border-blue-600'
+                                ? 'border-blue-[#0036A5]'
                                 : 'border-transparent hover:border-blue-300'
                         }`}
                         style={{width: THUMB, height: THUMB}}
@@ -600,7 +600,7 @@ function Thumbs({
                     onClick={() => onSelect(i)}
                     className={`relative overflow-hidden rounded-lg border-2 transition ${
                         i === selectedIndex
-                            ? 'border-blue-600'
+                            ? 'border-blue-[#0036A5]'
                             : 'border-transparent hover:border-blue-300'
                     }`}
                     style={{width: THUMB, height: THUMB}}

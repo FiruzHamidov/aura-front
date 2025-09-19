@@ -140,7 +140,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={resetSmsFlow}
-                    className="text-blue-600 hover:text-blue-800 transition-colors"
+                    className="text-[#0036A5] hover:text-blue-800 transition-colors"
                   >
                     Изменить номер
                   </button>

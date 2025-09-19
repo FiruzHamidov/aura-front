@@ -151,7 +151,7 @@ export default function UsersPage() {
                             <li
                                 key={u.id}
                                 className="px-5 py-4 md:grid md:grid-cols-[72px_1.2fr_1fr_1fr_1fr_72px] flex flex-col gap-2 md:gap-0 items-start md:items-center
-                           transition hover:bg-gray-50 rounded-xl md:rounded-none"
+                           transition hover:bg-gray-50 rounded-xl md:rounded-none border-b"
                             >
                                 <div className="text-gray-900">{u.id}</div>
                                 <div className="text-gray-900">{u.name}</div>
@@ -204,13 +204,13 @@ export default function UsersPage() {
                         <motion.div
                             role="dialog"
                             aria-modal="true"
-                            className="fixed right-0 top-0 h-full w-full max-w-[560px] bg-white z-50 shadow-xl"
+                            className="fixed right-0 top-0 h-full w-full max-w-[560px] bg-white z-50 shadow-xl md:rounded-l-3xl"
                             initial={{ x: '100%' }}
                             animate={{ x: 0 }}
                             exit={{ x: '100%' }}
                             transition={{ type: 'spring', stiffness: 260, damping: 28 }}
                         >
-                            <div className="h-full flex flex-col p-6 overflow-y-auto">
+                            <div className="h-full flex flex-col p-6 overflow-y-auto pb-30 md:pb-0">
                                 <div className="flex items-center justify-between mb-4">
                                     <h2 className="text-xl font-semibold">
                                         {mode === 'create' ? 'Создать пользователя' : `Редактировать: ${selected?.name ?? ''}`}

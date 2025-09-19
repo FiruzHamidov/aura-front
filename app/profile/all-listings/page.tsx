@@ -3,9 +3,10 @@
 import {useEffect, useMemo, useState} from 'react';
 import BuyCard from '@/app/_components/buy/buy-card';
 import BuyCardSkeleton from '@/ui-components/BuyCardSkeleton';
-import {useGetAllPropertiesQuery} from '@/services/properties/hooks';
+import {useGetAllPropertiesQuery, useGetMyPropertiesQuery} from '@/services/properties/hooks';
 import {Property} from '@/services/properties/types';
 import {useProfile} from '@/services/login/hooks';
+import HorizontalTabs from "@/app/profile/_components/HorizontalTabs";
 
 const TABS = [
     {key: 'pending', label: 'На модерации'},
@@ -13,6 +14,9 @@ const TABS = [
     {key: 'rejected', label: 'Отклонённые'},
     {key: 'draft', label: 'Черновики'},
     {key: 'deleted', label: 'Удаленные'},
+    {key: 'sold', label: 'Проданные'},
+    {key: 'rented', label: 'Арендованные'},
+
 ] as const;
 
 type TabKey = typeof TABS[number]['key'];
@@ -64,6 +68,16 @@ export default function MyListings() {
         true
     );
 
+    const {data: soldMeta} = useGetMyPropertiesQuery(
+        {listing_type: '', page: 1, per_page: 1, moderation_status: 'sold'},
+        true
+    );
+
+    const {data: rentedMeta} = useGetMyPropertiesQuery(
+        {listing_type: '', page: 1, per_page: 1, moderation_status: 'rented'},
+        true
+    );
+
     // Данные активной вкладки
     const serverData: Property[] = myProperties?.data ?? [];
     const totalItems = myProperties?.total ?? 0;
@@ -72,13 +86,14 @@ export default function MyListings() {
     const from = myProperties?.from ?? 0;
     const to = myProperties?.to ?? 0;
 
-    // Тоталы для заголовков вкладок
     const tabTotals: Record<TabKey, number | undefined> = {
         pending: pendingMeta?.total,
         approved: approvedMeta?.total,
         rejected: rejectedMeta?.total,
         draft: draftMeta?.total,
         deleted: deletedMeta?.total,
+        sold: soldMeta?.total,
+        rented: rentedMeta?.total,
     };
 
     function changeTab(tab: TabKey) {
@@ -104,26 +119,20 @@ export default function MyListings() {
 
     if (isLoading && !myProperties) {
         return (
-            <div>
-                <div className="mb-6">
-                    <div className="flex space-x-4 border-b">
-                        {TABS.map((tabDef) => (
-                            <button
-                                key={tabDef.key}
-                                className={`pb-2 px-4 border-b-2 font-medium ${
-                                    selectedTab === tabDef.key
-                                        ? 'border-blue-500 text-blue-600'
-                                        : 'border-transparent text-gray-500'
-                                }`}
-                                onClick={() => changeTab(tabDef.key)}
-                            >
-                                {tabDef.label}
-                                {typeof tabTotals[tabDef.key] === 'number' ? ` (${tabTotals[tabDef.key]})` : ''}
-                            </button>
-                        ))}
+            <div className='w-auto'>
+                <div className="mb-6 border-b pb-2">
+                    <div className="w-full">
+                        <HorizontalTabs
+                            tabs={TABS}
+                            selectedKey={selectedTab}
+                            totals={tabTotals}
+                            onChange={(k) => changeTab(k as TabKey)}
+                            loading
+                        />
                     </div>
                 </div>
 
+                {/* скелетоны */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                     {Array.from({length: 6}).map((_, index) => (
                         <BuyCardSkeleton key={index}/>
@@ -134,26 +143,17 @@ export default function MyListings() {
     }
 
     return (
-        <div>
+        <div className='w-auto'>
             <div className="mb-6">
-                <div className="flex flex-wrap items-end justify-between gap-3 border-b pb-2">
-                    <div className="flex space-x-4">
-                        {TABS.map((tabDef) => (
-                            <button
-                                key={tabDef.key}
-                                className={`pb-2 px-4 border-b-2 font-medium ${
-                                    selectedTab === tabDef.key
-                                        ? 'border-blue-500 text-blue-600'
-                                        : 'border-transparent text-gray-500'
-                                }`}
-                                onClick={() => changeTab(tabDef.key)}
-                            >
-                                {tabDef.label}{' '}
-                                {typeof tabTotals[tabDef.key] === 'number'
-                                    ? `(${tabTotals[tabDef.key]})`
-                                    : '(…)'}
-                            </button>
-                        ))}
+                <div className="flex flex-wrap items-end justify-between gap-3 border-b pb-2 overflow-x w-full">
+                    <div className="w-full">
+                        <HorizontalTabs
+                            tabs={TABS}
+                            selectedKey={selectedTab}
+                            totals={tabTotals}
+                            onChange={(k) => changeTab(k as TabKey)}
+                            loading={isFetching}
+                        />
                     </div>
 
                     <div className="text-sm text-gray-500">
@@ -162,9 +162,7 @@ export default function MyListings() {
                                 Показываю <span className="font-medium">{from}–{to}</span> из{' '}
                                 <span className="font-medium">{totalItems}</span>
                             </>
-                        ) : (
-                            ''
-                        )}
+                        ) : ('')}
                         {isFetching && <span className="ml-2 text-gray-400">Обновление…</span>}
                     </div>
                 </div>
@@ -178,7 +176,7 @@ export default function MyListings() {
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                         {serverData.map((listing: Property) => (
-                            <BuyCard listing={listing} user={user} key={listing.id}/>
+                            <BuyCard listing={listing} user={user} key={listing.id} isEditRoute={true}/>
                         ))}
                     </div>
 
@@ -201,7 +199,7 @@ export default function MyListings() {
                                         onClick={() => goTo(pageNumber)}
                                         className={`px-3 py-2 rounded-xl border text-sm mx-0.5 ${
                                             pageNumber === currentPage
-                                                ? 'bg-blue-600 text-white border-blue-600'
+                                                ? 'bg-[#0036A5] text-white border-[#0036A5]'
                                                 : 'hover:bg-gray-50'
                                         }`}
                                     >

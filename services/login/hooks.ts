@@ -96,6 +96,7 @@ export const useVerifySmsMutation = () => {
         setAuthCookies(data.token, data.user);
         queryClient.setQueryData(["user"], data.user);
         router.push("/");
+        router.refresh();
       }
     },
   });
@@ -128,6 +129,7 @@ export const useLogoutMutation = () => {
       clearAuthCookies();
       queryClient.clear();
       router.push("/");
+      router.refresh();
     },
   });
 };

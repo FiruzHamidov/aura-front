@@ -274,7 +274,7 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
                 });
               }}
             >
-              <FilterSearchIcon className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-blue-600" />
+              <FilterSearchIcon className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-[#0036A5]" />
               <span>Все фильтры</span>
             </button>
 

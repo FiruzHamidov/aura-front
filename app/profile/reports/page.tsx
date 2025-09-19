@@ -190,7 +190,7 @@ export default function ReportsPage() {
     };
 
     return (
-        <div className="p-6 space-y-6">
+        <div className=" space-y-6">
             <h1 className="text-2xl font-semibold">Отчёты по объектам</h1>
 
             {/* Фильтры */}

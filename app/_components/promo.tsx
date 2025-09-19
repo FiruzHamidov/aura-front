@@ -120,21 +120,33 @@ const Promo: FC = () => {
     };
 
     return (
-        <section className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 py-10 md:py-20 px-4 sm:px-6 lg:px-8">
-            {/* Mobile: horizontal scroll with snap; Desktop: 3-column grid */}
+        <section className="sm:mx-auto w-full max-w-auto md:max-w-[1520px] py-10 md:py-20 px-0 sm:px-6 lg:px-8">
             <div
                 ref={scrollerRef}
-                className="overflow-x-auto md:overflow-visible hide-scrollbar snap-x snap-mandatory -mx-4 sm:mx-0"
+                className="
+      overflow-x-auto md:overflow-visible hide-scrollbar snap-x snap-mandatory
+      /* full-bleed на мобиле */
+      w-screen max-w-[100vw] relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]
+      /* визуальные поля по краям и корректный snap */
+      px-4 scroll-px-4
+      /* на md+ возвращаемся в рамки контейнера */
+      md:static md:w-auto md:max-w-none md:ml-0 md:mr-0 md:px-0 md:scroll-px-0
+    "
             >
                 <div
-                    className="grid grid-flow-col auto-cols-[85%] sm:auto-cols-[75%] gap-4 px-4 sm:px-0 md:grid-flow-row md:auto-cols-auto md:grid-cols-3 md:gap-6 lg:gap-8">
-                    {promoData.map((card) => (
+                    className="
+        grid grid-flow-col auto-cols-[95%] sm:auto-cols-[95%] gap-4
+        md:grid-flow-row md:auto-cols-auto md:grid-cols-3 md:gap-6 lg:gap-8
+      "
+                >
+                    {promoData.map(card => (
                         <PromoCard key={card.id} cardData={card}/>
                     ))}
                 </div>
             </div>
 
-            {/* Dots indicator - only show on mobile/tablet */}
+            {/* Dots indicator - only show on mobile/tablet */
+            }
             <div className="flex md:hidden justify-center items-center space-x-2 mt-[18px]">
                 {promoData.map((_, index) => (
                     <button

@@ -11,23 +11,23 @@ import CalendarIcon from '@/icons/CalendarIcon';
 import UserIcon from '@/icons/UserIcon';
 import WhiteSettingsIcon from '@/icons/WhiteSettingsIcon';
 import FavoriteButton from '@/ui-components/favorite-button/favorite-button';
-import { User } from '@/services/login/types';
 import { LISTING_TYPE_META } from '@/services/properties/types';
 import VerifiedIcon from '@/icons/Verified';
 import { addToComparison } from '@/utils/comparison';
 import { Listing } from './types';
+import {useProfile} from "@/services/login/hooks";
+import ModerationModal from "@/app/_components/moderation-modal";
 // import ModerationModal from "@/app/_components/moderation-modal";
 // import {Property} from "@/services/properties/types";
 
 interface ListingCardProps {
   listing: Listing;
   isLarge?: boolean;
-  user?: User;
 }
 
 const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
   const router = useRouter();
-
+  const {data: user} = useProfile();
   const formattedPrice = listing.price.toLocaleString('ru-RU');
 
   const images = listing.images || [
@@ -37,8 +37,10 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  // const userRole =
-  //     user?.role?.slug === 'admin' ? 'admin' : user?.role?.slug === 'agent' ? 'agent' : null;
+  const userRole =
+      user?.role?.slug === 'admin' ? 'admin' : user?.role?.slug === 'agent' ? 'agent' : null;
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCompareClick = (e: MouseEvent) => {
     e.preventDefault();
@@ -125,42 +127,42 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
             isLarge ? 'top-[22px] right-[22px]' : 'top-3 right-3'
           )}
         >
-          <div className="!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-[37px] h-[37px]">
+          <div className="bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-[37px] h-[37px] hover:bg-white/70">
             <FavoriteButton propertyId={listing.id} />
           </div>
           <div
             onClick={handleCompareClick}
             role="button"
             aria-label="Добавить к сравнению"
-            className="!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-[37px] h-[37px]"
+            className="bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-[37px] h-[37px] hover:bg-white/70"
           >
             <WhiteSettingsIcon className="w-[18px] h-[18px]" />
           </div>
 
-          {/*{userRole && (*/}
-          {/*    <div*/}
-          {/*        onClick={(e) => {*/}
-          {/*          e.preventDefault();*/}
-          {/*          e.stopPropagation();*/}
-          {/*          setIsModalOpen(true);*/}
-          {/*        }}*/}
-          {/*        className="!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-9 h-9"*/}
-          {/*        role="button"*/}
-          {/*        aria-label="Открыть модерацию"*/}
-          {/*    >*/}
-          {/*      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">*/}
-          {/*        <path d="M12 20H21" stroke="white" strokeWidth="2" strokeLinecap="round"*/}
-          {/*              strokeLinejoin="round"/>*/}
-          {/*        <path*/}
-          {/*            d="M16.5 3.5C16.8978 3.10218 17.4374 2.87868 18 2.87868C18.2786 2.87868 18.5544 2.93355 18.8118 3.04016C19.0692 3.14676 19.303 3.30301 19.5 3.5C19.697 3.69699 19.8532 3.9308 19.9598 4.18819C20.0665 4.44558 20.1213 4.72142 20.1213 5C20.1213 5.27858 20.0665 5.55442 19.9598 5.81181C19.8532 6.0692 19.697 6.30301 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z"*/}
-          {/*            stroke="white"*/}
-          {/*            strokeWidth="2"*/}
-          {/*            strokeLinecap="round"*/}
-          {/*            strokeLinejoin="round"*/}
-          {/*        />*/}
-          {/*      </svg>*/}
-          {/*    </div>*/}
-          {/*)}*/}
+          {userRole && (
+              <div
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsModalOpen(true);
+                  }}
+                  className="bg-white/30 hover:bg-white/70 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-9 h-9"
+                  role="button"
+                  aria-label="Открыть модерацию"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 20H21" stroke="#0036A5" strokeWidth="2" strokeLinecap="round"
+                        strokeLinejoin="round"/>
+                  <path
+                      d="M16.5 3.5C16.8978 3.10218 17.4374 2.87868 18 2.87868C18.2786 2.87868 18.5544 2.93355 18.8118 3.04016C19.0692 3.14676 19.303 3.30301 19.5 3.5C19.697 3.69699 19.8532 3.9308 19.9598 4.18819C20.0665 4.44558 20.1213 4.72142 20.1213 5C20.1213 5.27858 20.0665 5.55442 19.9598 5.81181C19.8532 6.0692 19.697 6.30301 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z"
+                      stroke="#0036A5"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+          )}
         </div>
 
         <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-1.5">
@@ -253,16 +255,16 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
           </div>
         )}
       </div>
-      {/*{isModalOpen && userRole && (*/}
-      {/*    // <ModerationModal*/}
-      {/*    //     property={listing as Property}*/}
-      {/*    //     onClose={() => setIsModalOpen(false)}*/}
-      {/*    //     onUpdated={(updated) => {*/}
-      {/*    //       Object.assign(listing, updated);*/}
-      {/*    //     }}*/}
-      {/*    //     userRole={userRole}*/}
-      {/*    // />*/}
-      {/*)}*/}
+      {isModalOpen && userRole && (
+          <ModerationModal
+              property={listing as Listing}
+              onClose={() => setIsModalOpen(false)}
+              onUpdated={(updated) => {
+                Object.assign(listing, updated);
+              }}
+              userRole={userRole}
+          />
+      )}
     </div>
   );
 };

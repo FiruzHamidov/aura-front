@@ -19,7 +19,7 @@ export function BankOption({
     <button
       onClick={onSelect}
       className={`flex items-center justify-center w-full md:w-[230px] h-[87px] rounded-full border ${
-        isSelected ? 'border-blue-600' : 'border-[#E3E6EA]'
+        isSelected ? 'border-[#0036A5]' : 'border-[#E3E6EA]'
       } transition-colors hover:border-blue-300`}
     >
       <Image src={logo} alt={name} width={120} height={40} />

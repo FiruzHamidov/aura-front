@@ -17,7 +17,7 @@ interface FavoriteButtonProps {
 const FavoriteButton: FC<FavoriteButtonProps> = ({
   propertyId,
   className = '!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-[37px] h-[37px]',
-  iconClassName = 'w-[18px] h-[18px] text-white',
+  iconClassName = 'w-[18px] h-[18px] text-[#0036A5]',
 }) => {
   const router = useRouter();
   const { data: user } = useMe();
@@ -81,7 +81,7 @@ const FavoriteButton: FC<FavoriteButtonProps> = ({
     <div className={className} onClick={handleClick}>
       <HeartIcon
         className={`${iconClassName} ${
-          isFavorite ? '!text-[#1E3A8A] !fill-[#1E3A8A] !opacity-100' : ''
+          isFavorite ? '!text-[#0036A5] !fill-[#0036A5] !opacity-100' : ''
         } ${isLoading ? 'opacity-50' : ''}`}
       />
     </div>

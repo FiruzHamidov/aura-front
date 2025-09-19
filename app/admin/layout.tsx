@@ -1,15 +1,14 @@
 import { ReactNode } from 'react';
-import { Sidebar } from '../profile/_components/sidebar';
 
-export default function ProfileLayout({
-  children,
-}: Readonly<{
-  children: ReactNode;
-}>) {
+export default function ProfileLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 flex gap-5 pt-8 pb-24">
-      <Sidebar />
-      {children}
-    </div>
+      <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 pt-4 pb-24">
+        {/*<Sidebar />*/}
+
+        {/* Контент */}
+        <main className="mt-1 min-w-0">
+          {children}
+        </main>
+      </div>
   );
 }

@@ -6,9 +6,10 @@ import { Property } from '@/services/properties/types';
 import { toast } from 'react-toastify';
 import { axios } from '@/utils/axios';
 import { SelectToggle } from '@/ui-components/SelectToggle';
+import {Listing} from "@/app/_components/top-listing/types";
 
 interface ModerationModalProps {
-    property: Property;
+    property: Listing | Property;
     onClose: () => void;
     onUpdated: (updated: Partial<Property>) => void;
     userRole: 'admin' | 'agent';
@@ -147,7 +148,7 @@ const ModerationModal: FC<ModerationModalProps> = ({
                         onMouseDown={(e) => e.stopPropagation()}
                         onPointerDown={(e) => e.stopPropagation()}
                         disabled={loading}
-                        className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition disabled:opacity-70"
+                        className="px-4 py-2 rounded bg-[#0036A5] text-white hover:bg-blue-700 transition disabled:opacity-70"
                     >
                         {loading ? 'Сохраняю...' : 'Сохранить'}
                     </button>

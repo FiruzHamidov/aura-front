@@ -10,6 +10,7 @@ import LocationIcon from '@/icons/LocationIcon';
 import CalendarIcon from '@/icons/CalendarIcon';
 import WhiteSettingsIcon from '@/icons/WhiteSettingsIcon';
 import FavoriteButton from '@/ui-components/favorite-button/favorite-button';
+
 import {
   LISTING_TYPE_META,
   Property,
@@ -22,14 +23,16 @@ import ModerationModal from '@/app/_components/moderation-modal';
 import VerifiedIcon from '@/icons/Verified';
 import { addToComparison } from '@/utils/comparison';
 import { toast } from 'react-toastify';
+import {Eye} from "lucide-react";
 
 interface BuyCardProps {
   listing: Property;
   user?: User;
   isLarge?: boolean;
+  isEditRoute?: boolean;
 }
 
-const BuyCard: FC<BuyCardProps> = ({ listing, user, isLarge = false }) => {
+const BuyCard: FC<BuyCardProps> = ({ listing, user, isLarge = false, isEditRoute = false }) => {
   const router = useRouter();
 
   const formattedPrice = Number(listing.price).toLocaleString('ru-RU');
@@ -134,7 +137,7 @@ const BuyCard: FC<BuyCardProps> = ({ listing, user, isLarge = false }) => {
             {displayImages.map((image, index) => (
               <div className="min-w-full relative" key={index}>
                 <Link
-                  href={`/apartment/${listing.id}`}
+                  href={isEditRoute ? `/profile/edit-post/${listing.id}` : ``}
                   onClick={(e) => isModalOpen && e.preventDefault()}
                 >
                   <Image
@@ -166,15 +169,15 @@ const BuyCard: FC<BuyCardProps> = ({ listing, user, isLarge = false }) => {
         <div className="absolute top-2 md:top-[22px] right-2 md:right-[22px] flex flex-col space-y-2">
           <FavoriteButton
             propertyId={listing.id}
-            className="!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-9 h-9"
+            className="bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-9 h-9 hover:bg-white/70"
           />
           <div
             onClick={handleCompareClick}
             role="button"
             aria-label="Добавить к сравнению"
-            className="!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-9 h-9"
+            className="bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-9 h-9 hover:bg-white/70"
           >
-            <WhiteSettingsIcon className="w-[18px] h-[18px] text-white" />
+            <WhiteSettingsIcon className="w-[18px] h-[18px] text-[#0036A5]" />
           </div>
 
           {canModerate && (
@@ -184,21 +187,21 @@ const BuyCard: FC<BuyCardProps> = ({ listing, user, isLarge = false }) => {
                 e.stopPropagation();
                 setIsModalOpen(true);
               }}
-              className="!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-9 h-9"
+              className="bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-9 h-9 hover:bg-white/70"
               role="button"
               aria-label="Открыть модерацию"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path
                   d="M12 20H21"
-                  stroke="white"
+                  stroke="#0036A5"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
                 <path
                   d="M16.5 3.5C16.8978 3.10218 17.4374 2.87868 18 2.87868C18.2786 2.87868 18.5544 2.93355 18.8118 3.04016C19.0692 3.14676 19.303 3.30301 19.5 3.5C19.697 3.69699 19.8532 3.9308 19.9598 4.18819C20.0665 4.44558 20.1213 4.72142 20.1213 5C20.1213 5.27858 20.0665 5.55442 19.9598 5.81181C19.8532 6.0692 19.697 6.30301 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z"
-                  stroke="white"
+                  stroke="#0036A5"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -206,14 +209,20 @@ const BuyCard: FC<BuyCardProps> = ({ listing, user, isLarge = false }) => {
               </svg>
             </div>
           )}
+
+          {isEditRoute && (
+              <Link href={`/apartment/${listing.id}`} className='bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-9 h-9 hover:bg-white/70'>
+                <Eye color="#0036A5" />
+              </Link>
+          )}
         </div>
 
         <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-1.5">
           {displayImages.map((_, index) => (
-            <button
-              key={index}
-              className={`block w-2 h-2 bg-white rounded-full ${
-                index === selectedIndex ? 'opacity-90' : 'opacity-50'
+              <button
+                  key={index}
+                  className={`block w-2 h-2 bg-white rounded-full ${
+                      index === selectedIndex ? 'opacity-90' : 'opacity-50'
               }`}
               onClick={(e) => {
                 e.preventDefault();
@@ -230,7 +239,7 @@ const BuyCard: FC<BuyCardProps> = ({ listing, user, isLarge = false }) => {
         <div className="flex justify-between items-center mb-3">
           <Link
             className="transition-transform duration-200 hover:scale-105"
-            href={`/apartment/${listing.id}`}
+            href={isEditRoute ? `/profile/edit-post/${listing.id}` : `/apartment/${listing.id}`}
             onClick={(e) => isModalOpen && e.preventDefault()}
           >
             <span className="font-bold text-[#0036A5] text-2xl ">
@@ -243,7 +252,7 @@ const BuyCard: FC<BuyCardProps> = ({ listing, user, isLarge = false }) => {
           </div>
         </div>
         <Link
-          href={`/apartment/${listing.id}`}
+          href={isEditRoute ? `/profile/edit-post/${listing.id}` : `/apartment/${listing.id}`}
           onClick={(e) => isModalOpen && e.preventDefault()}
         >
           <h3

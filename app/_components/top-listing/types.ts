@@ -13,6 +13,7 @@ export interface Listing {
     id: number;
     imageUrl?: string;
     imageAlt?: string;
+    moderation_status: string;
     images?: Image[];
     isTop?: boolean;
     price: number;
