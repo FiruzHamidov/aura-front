@@ -124,7 +124,7 @@ const MobileBottomNavigation: FC = () => {
             {/* Bottom Nav */}
             <div
                 className={`
-          md:hidden fixed left-0 right-0 z-40 border-t border-gray-200 bg-white
+          md:hidden fixed left-0 right-0 z-40 border-t border-gray-200 bg-white/10 backdrop-blur supports-[backdrop-filter]:bg-white/10
           transition-transform duration-200
           ${hidden ? 'translate-y-full' : 'translate-y-0'}
           pb-[max(env(safe-area-inset-bottom),0px)]
@@ -136,7 +136,7 @@ const MobileBottomNavigation: FC = () => {
                         const Icon = item.icon;
                         const handleClick: MouseEventHandler<HTMLAnchorElement> = (e) => {
                             if (isAuthed && item.key === 'more') {
-                                e.preventDefault(); // не навигируем
+                                e.preventDefault();
                                 openSheet();
                             }
                         };
@@ -188,12 +188,12 @@ const MobileBottomNavigation: FC = () => {
             {isAuthed && sheetOpen && (
                 <div className="md:hidden fixed inset-0 z-50">
                     {/* overlay */}
-                    <div className="absolute inset-0 bg-black/40" onClick={closeSheet} aria-hidden />
+                    <div className="absolute inset-0" onClick={closeSheet} aria-hidden />
                     {/* FULL-SCREEN SHEET */}
                     <div
                         ref={sheetRef}
                         className={`
-              absolute inset-0 bg-white shadow-2xl
+              absolute inset-0 bg-white/60 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-2xl
               flex flex-col
               animate-[sheetIn_.24s_ease]
             `}
@@ -204,7 +204,7 @@ const MobileBottomNavigation: FC = () => {
                         onTouchEnd={onTouchEnd}
                     >
                         {/* header */}
-                        <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-white">
+                        <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-gray-100">
                             <span className="font-medium text-base">Eще</span>
                             <button
                                 onClick={closeSheet}

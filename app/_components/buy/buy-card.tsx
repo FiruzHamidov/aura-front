@@ -137,7 +137,7 @@ const BuyCard: FC<BuyCardProps> = ({ listing, user, isLarge = false, isEditRoute
             {displayImages.map((image, index) => (
               <div className="min-w-full relative" key={index}>
                 <Link
-                  href={isEditRoute ? `/profile/edit-post/${listing.id}` : ``}
+                  href={isEditRoute ? `/profile/edit-post/${listing.id}` : `/apartment/${listing.id}`}
                   onClick={(e) => isModalOpen && e.preventDefault()}
                 >
                   <Image

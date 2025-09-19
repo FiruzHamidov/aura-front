@@ -123,10 +123,10 @@ export default function UsersPage() {
                 <h1 className="text-2xl font-bold">Пользователи</h1>
                 <button
                     onClick={openCreate}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-[#0036A5] text-white hover:bg-blue-800 transition"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-[#0036A5] text-white hover:bg-blue-800 transition cursor-pointer"
                 >
-                    <Plus className="w-4 h-4" />
-                    Новый пользователь
+                    <Plus className="w-7 h-7" />
+                    <span className='hidden md:block'>Новый пользователь</span>
                 </button>
             </div>
 
@@ -164,7 +164,7 @@ export default function UsersPage() {
                                         onClick={() => openEdit(u)}
                                         title="Редактировать"
                                         aria-label="Редактировать"
-                                        className="p-2 rounded-md hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition"
+                                        className="p-2 rounded-md hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition cursor-pointer"
                                     >
                                         <Pencil className="w-4 h-4" />
                                     </button>
@@ -172,7 +172,7 @@ export default function UsersPage() {
                                         onClick={() => handleDelete(u)}
                                         title="Удалить"
                                         aria-label="Удалить"
-                                        className="p-2 rounded-md hover:bg-red-50 text-red-600 hover:text-red-700 transition"
+                                        className="p-2 rounded-md hover:bg-red-50 text-red-600 hover:text-red-700 transition cursor-pointer"
                                     >
                                         <Trash2 className="w-4 h-4" />
                                     </button>
@@ -204,13 +204,13 @@ export default function UsersPage() {
                         <motion.div
                             role="dialog"
                             aria-modal="true"
-                            className="fixed right-0 top-0 h-full w-full max-w-[560px] bg-white z-50 shadow-xl md:rounded-l-3xl"
+                            className="fixed right-0 top-0 h-full w-full max-w-[560px] bg-white/60 backdrop-blur supports-[backdrop-filter]:bg-white/60 z-50 shadow-xl md:rounded-l-3xl"
                             initial={{ x: '100%' }}
                             animate={{ x: 0 }}
                             exit={{ x: '100%' }}
                             transition={{ type: 'spring', stiffness: 260, damping: 28 }}
                         >
-                            <div className="h-full flex flex-col p-6 overflow-y-auto pb-30 md:pb-0">
+                            <div className="h-full flex flex-col p-6 overflow-y-auto pb-30 md:pb-0 ">
                                 <div className="flex items-center justify-between mb-4">
                                     <h2 className="text-xl font-semibold">
                                         {mode === 'create' ? 'Создать пользователя' : `Редактировать: ${selected?.name ?? ''}`}

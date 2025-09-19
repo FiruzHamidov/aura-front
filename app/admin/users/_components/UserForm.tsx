@@ -53,7 +53,7 @@ export default function UserForm({mode, initial, onSubmit, onCancel, isSubmittin
 
     return (
         <form onSubmit={handleSubmit} className="grid gap-4 max-w-xl">
-            <Input label="Имя" name="name" value={form.name || ''} onChange={(e) => updateField('name', e.target.value)}
+            <Input className='' label="Имя" name="name" value={form.name || ''} onChange={(e) => updateField('name', e.target.value)}
                    required/>
             <Input label="Телефон" name="phone" value={form.phone || ''}
                    onChange={(e) => updateField('phone', e.target.value)} required/>
