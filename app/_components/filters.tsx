@@ -1,198 +1,332 @@
 'use client';
 
-import {FC, FormEvent, useState} from 'react';
-import {FormInput} from '@/ui-components/FormInput';
-import MultiSelectInput, {MultiOption} from '@/ui-components/MultiSelectInput';
-import {PropertyFilters} from '@/services/properties/types';
+import { FC, FormEvent, useState, useEffect } from 'react';
+import { FormInput } from '@/ui-components/FormInput';
+import MultiSelectInput, {
+  MultiOption,
+} from '@/ui-components/MultiSelectInput';
+import { PropertyFilters } from '@/services/properties/types';
 import {
-    useGetBuildingTypesQuery,
-    useGetLocationsQuery,
-    useGetPropertyTypesQuery,
-    useGetRepairTypesQuery,
+  useGetBuildingTypesQuery,
+  useGetLocationsQuery,
+  useGetPropertyTypesQuery,
+  useGetRepairTypesQuery,
 } from '@/services/add-post';
 
 interface Option {
-    id: string | number;
-    slug?: string;
-    name: string;
-    unavailable?: boolean;
+  id: string | number;
+  slug?: string;
+  name: string;
+  unavailable?: boolean;
 }
 
 const districtOptions: Option[] = [
-    {id: 'Сино', name: 'Сино'},
-    {id: 'Шохмансур', name: 'Шохмансур'},
-    {id: 'Фирдавси', name: 'Фирдавси'},
-    {id: 'Сомони', name: 'Сомони'},
+  { id: 'Сино', name: 'Сино' },
+  { id: 'Шохмансур', name: 'Шохмансур' },
+  { id: 'Фирдавси', name: 'Фирдавси' },
+  { id: 'Сомони', name: 'Сомони' },
 ];
 
 interface AllFiltersProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onSearch: (filters: PropertyFilters) => void;
+  isOpen: boolean;
+  onClose: () => void;
+  onSearch: (filters: PropertyFilters) => void;
+  initialFilters?: {
+    propertyTypes?: string[];
+    apartmentTypes?: string[];
+    cities?: string[];
+    districts?: string[];
+    repairs?: string[];
+    priceFrom?: string;
+    priceTo?: string;
+    roomsFrom?: string;
+    roomsTo?: string;
+    areaFrom?: string;
+    areaTo?: string;
+    floorFrom?: string;
+    floorTo?: string;
+  };
 }
 
 export const AllFilters: FC<AllFiltersProps> = ({
-                                                    isOpen,
-                                                    onClose,
-                                                    onSearch,
-                                                }) => {
-    const {data: propertyTypes} = useGetPropertyTypesQuery();
-    const {data: buildingTypes} = useGetBuildingTypesQuery();
-    const {data: locationTypes} = useGetLocationsQuery();
-    const {data: repairTypes} = useGetRepairTypesQuery();
+  isOpen,
+  onClose,
+  onSearch,
+  initialFilters = {},
+}) => {
+  const { data: propertyTypes } = useGetPropertyTypesQuery();
+  const { data: buildingTypes } = useGetBuildingTypesQuery();
+  const { data: locationTypes } = useGetLocationsQuery();
+  const { data: repairTypes } = useGetRepairTypesQuery();
 
-    const propertyTypeOpts: MultiOption[] =
-        (propertyTypes ?? []).map((x: ApiEntity) => ({
-            id: x.id ?? x.slug ?? x.name,
-            name: x.name,
-            slug: x.slug,
-        }));
+  const propertyTypeOpts: MultiOption[] = (propertyTypes ?? []).map(
+    (x: ApiEntity) => ({
+      id: x.id ?? x.slug ?? x.name,
+      name: x.name,
+      slug: x.slug,
+    })
+  );
 
-    const repairTypeOpts: MultiOption[] =
-        (repairTypes ?? []).map((x: ApiEntity) => ({
-            id: x.id ?? x.slug ?? x.name,
-            name: x.name,
-            slug: x.slug,
-        }));
+  const repairTypeOpts: MultiOption[] = (repairTypes ?? []).map(
+    (x: ApiEntity) => ({
+      id: x.id ?? x.slug ?? x.name,
+      name: x.name,
+      slug: x.slug,
+    })
+  );
 
-    const buildingTypeOpts: MultiOption[] =
-        (buildingTypes ?? []).map((x: ApiEntity) => ({
-            id: x.id ?? x.slug ?? x.name,
-            name: x.name,
-            slug: x.slug,
-        }));
+  const buildingTypeOpts: MultiOption[] = (buildingTypes ?? []).map(
+    (x: ApiEntity) => ({
+      id: x.id ?? x.slug ?? x.name,
+      name: x.name,
+      slug: x.slug,
+    })
+  );
 
-    const cityOpts: MultiOption[] =
-        (locationTypes ?? []).map((loc: LocationEntity) => ({
-            id: loc.id ?? loc.city ?? loc.name ?? String(Math.random()),
-            name: loc.city ?? loc.name ?? 'Город',
-        }));
+  const cityOpts: MultiOption[] = (locationTypes ?? []).map(
+    (loc: LocationEntity) => ({
+      id: loc.id ?? loc.city ?? loc.name ?? String(Math.random()),
+      name: loc.city ?? loc.name ?? 'Город',
+    })
+  );
 
-    const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<Array<string | number>>([]);
-    const [selectedApartmentTypes, setSelectedApartmentTypes] = useState<Array<string | number>>([]);
-    const [selectedCities, setSelectedCities] = useState<Array<string | number>>([]);
-    const [districts, setDistricts] = useState<Array<string | number>>([]);
-    const [repairs, setRepairs] = useState<Array<string | number>>([]);
+  const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<
+    Array<string | number>
+  >([]);
+  const [selectedApartmentTypes, setSelectedApartmentTypes] = useState<
+    Array<string | number>
+  >([]);
+  const [selectedCities, setSelectedCities] = useState<Array<string | number>>(
+    []
+  );
+  const [districts, setDistricts] = useState<Array<string | number>>([]);
+  const [repairs, setRepairs] = useState<Array<string | number>>([]);
 
-    // --- Остальные поля ---
-    const [priceFrom, setPriceFrom] = useState('0');
-    const [priceTo, setPriceTo] = useState('0');
-    const [areaFrom, setAreaFrom] = useState('0');
-    const [areaTo, setAreaTo] = useState('0');
-    const [floorFrom, setFloorFrom] = useState('1');
-    const [floorTo, setFloorTo] = useState('3');
-    const [mortgageOption] = useState<'mortgage' | 'developer'>('mortgage');
-    // eslint-disable-next-line
-    const [listingType, setListingType] = useState<'regular' | 'vip'>('regular');
+  const [priceFrom, setPriceFrom] = useState('0');
+  const [priceTo, setPriceTo] = useState('0');
+  const [roomsFrom, setRoomsFrom] = useState('0');
+  const [roomsTo, setRoomsTo] = useState('0');
+  const [areaFrom, setAreaFrom] = useState('0');
+  const [areaTo, setAreaTo] = useState('0');
+  const [floorFrom, setFloorFrom] = useState('1');
+  const [floorTo, setFloorTo] = useState('3');
+  // eslint-disable-next-line
+  const [mortgageOption] = useState<'mortgage' | 'developer'>('mortgage');
+  // eslint-disable-next-line
+  const [listingType, setListingType] = useState<'regular' | 'vip'>('regular');
 
-    const handleSubmit = (e: FormEvent) => {
-        e.preventDefault();
+  useEffect(() => {
+    if (isOpen && initialFilters) {
+      if (initialFilters.propertyTypes) {
+        setSelectedPropertyTypes(
+          Array.isArray(initialFilters.propertyTypes)
+            ? initialFilters.propertyTypes
+            : [initialFilters.propertyTypes]
+        );
+      }
 
-        // Если на бэке ожидают CSV, можете заменить на .join(',')
-        const filters = {
-            // массивы:
-            propertyTypes: selectedPropertyTypes.length ? selectedPropertyTypes.map(String) : undefined,
-            apartmentTypes: selectedApartmentTypes.length ? selectedApartmentTypes.map(String) : undefined,
-            cities: selectedCities.length ? selectedCities.map(String) : undefined,
-            districts: districts.length ? districts.map(String) : undefined,
-            repairs: repairs.length ? repairs.map(String) : undefined,
+      if (initialFilters.apartmentTypes) {
+        setSelectedApartmentTypes(
+          Array.isArray(initialFilters.apartmentTypes)
+            ? initialFilters.apartmentTypes
+            : [initialFilters.apartmentTypes]
+        );
+      }
 
-            // CSV-вариант (на случай, если нужно):
-            // propertyTypes: selectedPropertyTypes.length ? selectedPropertyTypes.join(',') : undefined,
-            // apartmentTypes: selectedApartmentTypes.length ? selectedApartmentTypes.join(',') : undefined,
-            // cities: selectedCities.length ? selectedCities.join(',') : undefined,
-            // districts: districts.length ? districts.join(',') : undefined,
-            // repairs: repairs.length ? repairs.join(',') : undefined,
+      if (initialFilters.cities) {
+        setSelectedCities(
+          Array.isArray(initialFilters.cities)
+            ? initialFilters.cities
+            : [initialFilters.cities]
+        );
+      }
 
-            priceFrom: priceFrom || undefined,
-            priceTo: priceTo || undefined,
-            areaFrom: areaFrom || undefined,
-            areaTo: areaTo || undefined,
-            floorFrom: floorFrom || undefined,
-            floorTo: floorTo || undefined,
-            listing_type: listingType,
-            mortgageOption,
-        };
+      if (initialFilters.districts) {
+        setDistricts(
+          Array.isArray(initialFilters.districts)
+            ? initialFilters.districts
+            : [initialFilters.districts]
+        );
+      }
 
-        onSearch(filters as unknown as PropertyFilters);
+      if (initialFilters.repairs) {
+        setRepairs(
+          Array.isArray(initialFilters.repairs)
+            ? initialFilters.repairs
+            : [initialFilters.repairs]
+        );
+      }
+
+      if (initialFilters.priceFrom) setPriceFrom(initialFilters.priceFrom);
+      if (initialFilters.priceTo) setPriceTo(initialFilters.priceTo);
+      if (initialFilters.roomsFrom) setRoomsFrom(initialFilters.roomsFrom);
+      if (initialFilters.roomsTo) setRoomsTo(initialFilters.roomsTo);
+      if (initialFilters.areaFrom) setAreaFrom(initialFilters.areaFrom);
+      if (initialFilters.areaTo) setAreaTo(initialFilters.areaTo);
+      if (initialFilters.floorFrom) setFloorFrom(initialFilters.floorFrom);
+      if (initialFilters.floorTo) setFloorTo(initialFilters.floorTo);
+    }
+  }, [isOpen, initialFilters]);
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+
+    const filters = {
+      propertyTypes: selectedPropertyTypes.length
+        ? selectedPropertyTypes.map(String)
+        : undefined,
+
+      apartmentTypes: selectedApartmentTypes.length
+        ? selectedApartmentTypes.map(String)
+        : undefined,
+
+      cities: selectedCities.length ? selectedCities.map(String) : undefined,
+
+      districts: districts.length ? districts.map(String) : undefined,
+
+      repairs: repairs.length ? repairs.map(String) : undefined,
+
+      priceFrom: priceFrom && priceFrom !== '0' ? priceFrom : undefined,
+      priceTo: priceTo && priceTo !== '0' ? priceTo : undefined,
+
+      areaFrom: areaFrom && areaFrom !== '0' ? areaFrom : undefined,
+      areaTo: areaTo && areaTo !== '0' ? areaTo : undefined,
+
+      floorFrom:
+        floorFrom && floorFrom !== '0' && floorFrom !== '1'
+          ? floorFrom
+          : undefined,
+      floorTo:
+        floorTo && floorTo !== '0' && floorTo !== '3' ? floorTo : undefined,
+
+      listing_type: listingType === 'regular' ? undefined : listingType,
+      offer_type: 'sale',
     };
 
-    return (
-        <div className={`${isOpen ? 'block' : 'hidden pointer-events-none'}`}>
-            <div
-                className={`mx-auto bg-white px-4 sm:px-8 md:px-12 lg:px-[70px] p-6 transition-transform duration-300 ${
-                    isOpen ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'
-                }`}
-            >
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-2xl font-bold">Все фильтры</h3>
-                    <button
-                        onClick={onClose}
-                        className="w-10 h-10 flex items-center justify-center rounded-full bg-[#0036A5] text-white hover:bg-blue-800 transition-colors cursor-pointer"
-                    >
-                        ✕
-                    </button>
-                </div>
+    const cleanedFilters = Object.fromEntries(
+      // eslint-disable-next-line
+      Object.entries(filters).filter(([_, value]) => value !== undefined)
+    );
 
-                <form onSubmit={handleSubmit}>
-                    {/* верхняя сетка: 4 мульти-селекта */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <MultiSelectInput
-                            label="Тип недвижимости"
-                            options={propertyTypeOpts}
-                            value={selectedPropertyTypes}
-                            onChange={setSelectedPropertyTypes}
-                            placeholder="Выберите типы недвижимости"
-                        />
+    onSearch(cleanedFilters as unknown as PropertyFilters);
+  };
 
-                        <MultiSelectInput
-                            label="Тип квартиры"
-                            options={buildingTypeOpts}
-                            value={selectedApartmentTypes}
-                            onChange={setSelectedApartmentTypes}
-                            placeholder="Выберите типы квартир"
-                        />
+  return (
+    <div className={`${isOpen ? 'block' : 'hidden pointer-events-none'}`}>
+      <div
+        className={`mx-auto bg-white px-4 sm:px-8 md:px-12 lg:px-[70px] p-6 transition-transform duration-300 ${
+          isOpen ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'
+        }`}
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-2xl font-bold">Все фильтры</h3>
+          <button
+            onClick={onClose}
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-[#0036A5] text-white hover:bg-blue-800 transition-colors cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
 
-                        <MultiSelectInput
-                            label="Город"
-                            options={cityOpts}
-                            value={selectedCities}
-                            onChange={setSelectedCities}
-                            placeholder="Выберите города"
-                        />
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <MultiSelectInput
+              label="Тип недвижимости"
+              options={propertyTypeOpts}
+              value={selectedPropertyTypes}
+              onChange={setSelectedPropertyTypes}
+              placeholder="Выберите типы недвижимости"
+            />
 
-                        <MultiSelectInput
-                            label="Район"
-                            options={districtOptions as MultiOption[]}
-                            value={districts}
-                            onChange={setDistricts}
-                            placeholder="Выберите районы"
-                        />
-                    </div>
+            <MultiSelectInput
+              label="Тип квартиры"
+              options={buildingTypeOpts}
+              value={selectedApartmentTypes}
+              onChange={setSelectedApartmentTypes}
+              placeholder="Выберите типы квартир"
+            />
 
-                    {/* числовые поля + ремонт */}
-                    <div className="grid grid-cols-2 lg:grid-cols-2 gap-4 mt-4">
-                        <FormInput label="Цена от" value={priceFrom} onChange={setPriceFrom} placeholder="0с"/>
-                        <FormInput label="Цена до" value={priceTo} onChange={setPriceTo} placeholder="0с"/>
-                        <FormInput label="Площадь от" value={areaFrom} onChange={setAreaFrom} placeholder="0м²"/>
-                        <FormInput label="Площадь до" value={areaTo} onChange={setAreaTo} placeholder="0м²"/>
-                        <FormInput label="Этаж от" value={floorFrom} onChange={setFloorFrom} placeholder="0"/>
-                        <FormInput label="Этаж до" value={floorTo} onChange={setFloorTo} placeholder="0"/>
+            <MultiSelectInput
+              label="Город"
+              options={cityOpts}
+              value={selectedCities}
+              onChange={setSelectedCities}
+              placeholder="Выберите города"
+            />
 
-                        <MultiSelectInput
-                            label="Ремонт"
-                            options={repairTypeOpts}
-                            value={repairs}
-                            onChange={setRepairs}
-                            placeholder="Выберите типы ремонта"
-                        />
+            <MultiSelectInput
+              label="Район"
+              options={districtOptions as MultiOption[]}
+              value={districts}
+              onChange={setDistricts}
+              placeholder="Выберите районы"
+            />
+          </div>
 
-                        <FormInput label="Ориентир" value="Душанбе" onChange={() => {
-                        }}/>
-                    </div>
+          {/* числовые поля + ремонт */}
+          <div className="grid grid-cols-2 lg:grid-cols-2 gap-4 mt-4">
+            <FormInput
+              label="Цена от"
+              value={priceFrom}
+              onChange={setPriceFrom}
+              placeholder="0с"
+            />
+            <FormInput
+              label="Цена до"
+              value={priceTo}
+              onChange={setPriceTo}
+              placeholder="0с"
+            />
+            <FormInput
+              label="Количество комнат от"
+              value={roomsFrom}
+              onChange={setRoomsFrom}
+              placeholder="0"
+            />
+            <FormInput
+              label="Количество комнат до"
+              value={roomsTo}
+              onChange={setRoomsTo}
+              placeholder="0"
+            />
+            <FormInput
+              label="Площадь от"
+              value={areaFrom}
+              onChange={setAreaFrom}
+              placeholder="0м²"
+            />
+            <FormInput
+              label="Площадь до"
+              value={areaTo}
+              onChange={setAreaTo}
+              placeholder="0м²"
+            />
+            <FormInput
+              label="Этаж от"
+              value={floorFrom}
+              onChange={setFloorFrom}
+              placeholder="0"
+            />
+            <FormInput
+              label="Этаж до"
+              value={floorTo}
+              onChange={setFloorTo}
+              placeholder="0"
+            />
 
-                    {/* переключатели (по желанию) */}
-                    {/*
+            <MultiSelectInput
+              label="Ремонт"
+              options={repairTypeOpts}
+              value={repairs}
+              onChange={setRepairs}
+              placeholder="Выберите типы ремонта"
+            />
+
+            <FormInput label="Ориентир" value="Душанбе" onChange={() => {}} />
+          </div>
+
+          {/* переключатели (по желанию) */}
+          {/*
           <div className="mt-6 flex gap-8">
             <Field className="flex items-center">
               <Switch
@@ -228,28 +362,28 @@ export const AllFilters: FC<AllFiltersProps> = ({
           </div>
           */}
 
-                    <div className="flex justify-end mt-8">
-                        <button
-                            type="submit"
-                            className="bg-[#0036A5] text-white py-3 px-6 rounded-lg hover:bg-blue-800 cursor-pointer"
-                        >
-                            Найти объекты
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
+          <div className="flex justify-end mt-8">
+            <button
+              type="submit"
+              className="bg-[#0036A5] text-white py-3 px-6 rounded-lg hover:bg-blue-800 cursor-pointer"
+            >
+              Найти объекты
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 interface ApiEntity {
-    id: string | number;
-    name: string;
-    slug?: string;
+  id: string | number;
+  name: string;
+  slug?: string;
 }
 
 interface LocationEntity {
-    id: string | number;
-    city?: string;
-    name?: string;
+  id: string | number;
+  city?: string;
+  name?: string;
 }

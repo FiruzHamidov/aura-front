@@ -1,16 +1,16 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import { useSearchParams, useRouter } from 'next/navigation';
+import clsx from 'clsx';
 import Buy from '@/app/_components/buy/buy';
 import { useGetPropertiesInfiniteQuery } from '@/services/properties/hooks';
-import dynamic from 'next/dynamic';
 import FilterSearchIcon from '@/icons/FilterSearchIcon';
 import { AllFilters } from '@/app/_components/filters';
 import { PropertyFilters } from '@/services/properties/types';
 import BuyCardSkeleton from '@/ui-components/BuyCardSkeleton';
 import { Tabs } from '@/ui-components/tabs/tabs';
-import clsx from 'clsx';
 
 type FilterType = 'list' | 'map';
 
@@ -32,15 +32,26 @@ export const BuyContent = () => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('list');
   const [isAllFiltersOpen, setIsAllFiltersOpen] = useState(false);
 
-  // Room categories for quick filters
-  const roomCategories = [
-    { label: 'Студии', count: 20, value: '0' },
-    { label: '1 комнатные', count: 110, value: '1' },
-    { label: '2 комнатные', count: 321, value: '2' },
-    { label: '3 комнатные', count: 444, value: '3' },
-    { label: '4 комнатные', count: 68, value: '4' },
-    { label: '5 комнатные', count: 22, value: '5' },
-  ];
+  const currentFilters = useMemo(() => {
+    return {
+      propertyTypes:
+        searchParams.get('propertyTypes')?.split(',') ||
+        (searchParams.get('propertyType')
+          ? [searchParams.get('propertyType')!]
+          : undefined),
+      apartmentTypes:
+        searchParams.get('apartmentTypes')?.split(',') || undefined,
+      cities: searchParams.get('cities')?.split(',') || undefined,
+      districts: searchParams.get('districts')?.split(',') || undefined,
+      repairs: searchParams.get('repairs')?.split(',') || undefined,
+      priceFrom: searchParams.get('priceFrom') || undefined,
+      priceTo: searchParams.get('priceTo') || undefined,
+      areaFrom: searchParams.get('areaFrom') || undefined,
+      areaTo: searchParams.get('areaTo') || undefined,
+      floorFrom: searchParams.get('floorFrom') || undefined,
+      floorTo: searchParams.get('floorTo') || undefined,
+    };
+  }, [searchParams]);
 
   const filters = {
     priceFrom: searchParams.get('priceFrom') || undefined,
@@ -71,6 +82,96 @@ export const BuyContent = () => {
     isFetching,
   } = useGetPropertiesInfiniteQuery(filters);
 
+  const [roomCategories, setRoomCategories] = useState([
+    { label: '1 комнатные', count: '...', value: '1', isLoading: true },
+    { label: '2 комнатные', count: '...', value: '2', isLoading: true },
+    { label: '3 комнатные', count: '...', value: '3', isLoading: true },
+    { label: '4 комнатные', count: '...', value: '4', isLoading: true },
+    { label: '5 комнатные', count: '...', value: '5', isLoading: true },
+  ]);
+
+  const { data: oneRoom } = useGetPropertiesInfiniteQuery({
+    ...filters,
+    roomsFrom: '1',
+    roomsTo: '1',
+    per_page: 1000,
+  });
+
+  const { data: twoRooms } = useGetPropertiesInfiniteQuery({
+    ...filters,
+    roomsFrom: '2',
+    roomsTo: '2',
+    per_page: 1000,
+  });
+
+  const { data: threeRooms } = useGetPropertiesInfiniteQuery({
+    ...filters,
+    roomsFrom: '3',
+    roomsTo: '3',
+    per_page: 1000,
+  });
+
+  const { data: fourRooms } = useGetPropertiesInfiniteQuery({
+    ...filters,
+    roomsFrom: '4',
+    roomsTo: '4',
+    per_page: 1000,
+  });
+
+  const { data: fiveRooms } = useGetPropertiesInfiniteQuery({
+    ...filters,
+    roomsFrom: '5',
+    roomsTo: '5',
+    per_page: 1000,
+  });
+
+  useEffect(() => {
+    const updatedCategories = [...roomCategories];
+
+    if (oneRoom) {
+      updatedCategories[0] = {
+        ...updatedCategories[0],
+        count: oneRoom.pages[0].total.toString(),
+        isLoading: false,
+      };
+    }
+
+    if (twoRooms) {
+      updatedCategories[1] = {
+        ...updatedCategories[1],
+        count: twoRooms.pages[0].total.toString(),
+        isLoading: false,
+      };
+    }
+
+    if (threeRooms) {
+      updatedCategories[2] = {
+        ...updatedCategories[2],
+        count: threeRooms.pages[0].total.toString(),
+        isLoading: false,
+      };
+    }
+
+    if (fourRooms) {
+      updatedCategories[3] = {
+        ...updatedCategories[3],
+        count: fourRooms.pages[0].total.toString(),
+        isLoading: false,
+      };
+    }
+
+    if (fiveRooms) {
+      updatedCategories[4] = {
+        ...updatedCategories[4],
+        count: fiveRooms.pages[0].total.toString(),
+        isLoading: false,
+      };
+    }
+
+    setRoomCategories(updatedCategories);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [oneRoom, twoRooms, threeRooms, fourRooms, fiveRooms]);
+
   const properties = useMemo(
     () => propertiesData?.pages.flatMap((page) => page.data) || [],
     [propertiesData]
@@ -95,14 +196,54 @@ export const BuyContent = () => {
     prev_page_url: null,
   };
 
-  const handleRoomFilterClick = (roomValue: string) => {
-    if (roomValue === '0') {
-      // For studio apartments set roomsFrom and roomsTo to 0
-      router.push(`/buy?roomsFrom=0&roomsTo=0`);
-    } else {
-      // For other rooms set exact value
-      router.push(`/buy?roomsFrom=${roomValue}&roomsTo=${roomValue}`);
+  const [selectedRooms, setSelectedRooms] = useState<string[]>(() => {
+    const roomsFrom = searchParams.get('roomsFrom');
+    const roomsTo = searchParams.get('roomsTo');
+
+    if (roomsFrom && roomsTo) {
+      const minRoom = parseInt(roomsFrom, 10);
+      const maxRoom = parseInt(roomsTo, 10);
+
+      if (!isNaN(minRoom) && !isNaN(maxRoom)) {
+        const selectedRoomValues = [];
+        for (let i = minRoom; i <= maxRoom; i++) {
+          selectedRoomValues.push(i.toString());
+        }
+        return selectedRoomValues;
+      } else if (roomsFrom === roomsTo) {
+        return [roomsFrom];
+      }
     }
+    return [];
+  });
+
+  const handleRoomFilterClick = (roomValue: string) => {
+    const newSelectedRooms = [...selectedRooms];
+    const roomIndex = newSelectedRooms.indexOf(roomValue);
+
+    if (roomIndex > -1) {
+      newSelectedRooms.splice(roomIndex, 1);
+    } else {
+      newSelectedRooms.push(roomValue);
+    }
+
+    setSelectedRooms(newSelectedRooms);
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (newSelectedRooms.length === 0) {
+      params.delete('roomsFrom');
+      params.delete('roomsTo');
+    } else {
+      const roomValues = newSelectedRooms.map((r) => parseInt(r, 10));
+      const minRoom = Math.min(...roomValues);
+      const maxRoom = Math.max(...roomValues);
+
+      params.set('roomsFrom', minRoom.toString());
+      params.set('roomsTo', maxRoom.toString());
+    }
+
+    router.push(`/buy?${params.toString()}`);
   };
 
   const handleAdvancedSearch = (filters: PropertyFilters) => {
@@ -137,10 +278,9 @@ export const BuyContent = () => {
 
   return (
     <div className="mb-[60px]">
-      {/* Header with filter buttons - Styled like in the image */}
       <div
         className={clsx(
-          'bg-white rounded-[22px] mx-auto w-full max-w-[1520px] mt-8',
+          'bg-white rounded-[22px] container mt-8',
           isAllFiltersOpen && 'rounded-b-none'
         )}
       >
@@ -157,10 +297,10 @@ export const BuyContent = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-2 mt-4 md:mt-0">
+            <div className="md:flex items-center gap-2 mt-4 md:mt-0 w-full md:w-auto [&>div]:w-full md:[&>div]:w-auto">
               <button
                 onClick={() => setIsAllFiltersOpen(true)}
-                className="flex items-center gap-2 bg-[#F0F2F5] hover:bg-gray-200 px-[19px] py-[21px] rounded-full mr-[18px]"
+                className="flex items-center gap-2 bg-[#F0F2F5] hover:bg-gray-200 px-[19px] py-[21px] rounded-full mr-[18px] mb-4 md:mb-0 w-full md:w-auto"
               >
                 <FilterSearchIcon className="h-6 w-6 text-[#0036A5]" />
                 <span>Все фильтры</span>
@@ -175,28 +315,42 @@ export const BuyContent = () => {
           </div>
         </div>
       </div>
-      <div className="mx-auto w-full max-w-[1520px] mb-6">
+      <div className="container px-0 mb-6">
         <AllFilters
           isOpen={isAllFiltersOpen}
           onClose={() => setIsAllFiltersOpen(false)}
           onSearch={handleAdvancedSearch}
+          initialFilters={currentFilters}
         />
       </div>
 
       {/* Room filter chips */}
-      <div className="mx-auto w-full max-w-[1520px] mt-4 mb-6">
+      <div className="mt-4 mb-6 container px-0">
         <div className="overflow-x-auto hide-scrollbar">
           <div className="flex gap-2 py-2">
-            {roomCategories.map((category, index) => (
-              <button
-                key={index}
-                onClick={() => handleRoomFilterClick(category.value)}
-                className="shrink-0 whitespace-nowrap px-6 py-3 rounded-full bg-white border border-gray-200 hover:bg-gray-50 transition-all"
-              >
-                <span className="font-medium">{category.label}</span>
-                <span className="ml-1 text-[#666F8D]">{category.count}</span>
-              </button>
-            ))}
+            {roomCategories.map((category, index) => {
+              const isSelected = selectedRooms.includes(category.value);
+              return (
+                <button
+                  key={index}
+                  onClick={() => handleRoomFilterClick(category.value)}
+                  className={`cursor-pointer shrink-0 whitespace-nowrap px-6 py-3 rounded-full transition-all ${
+                    isSelected
+                      ? 'bg-[#0036A5] text-white border border-[#0036A5]'
+                      : 'bg-white border border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="font-medium">{category.label}</span>
+                  <span
+                    className={`ml-1 ${
+                      isSelected ? 'text-white' : 'text-[#666F8D]'
+                    }`}
+                  >
+                    {category.isLoading ? '...' : category.count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
