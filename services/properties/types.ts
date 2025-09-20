@@ -124,7 +124,7 @@ export interface PropertyFilters {
   priceFrom?: string;
   priceTo?: string;
   city?: string;
-  repairType?: string;
+  repair_type_id?: string;
   propertyType?: string;
   rooms?: string;
   offer_type?: string;
