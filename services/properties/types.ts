@@ -120,6 +120,38 @@ export interface PropertyStatus {
   updated_at: string;
 }
 
+export interface MapBounds {
+  south: number;
+  west: number;
+  north: number;
+  east: number;
+}
+
+export interface MapPointProperties {
+  id: number;
+  title: string;
+}
+
+export interface MapClusterProperties {
+  cluster: true;
+  point_count: number;
+}
+
+export interface MapFeature {
+  type: "Feature";
+  geometry: {
+    type: "Point";
+    coordinates: [number, number]; // [lat, lng]
+  };
+  properties: MapPointProperties | MapClusterProperties;
+}
+
+export interface MapResponse {
+  type: "FeatureCollection";
+  features: MapFeature[];
+}
+
+// Update PropertyFilters to include map-specific fields
 export interface PropertyFilters {
   priceFrom?: string;
   priceTo?: string;
@@ -141,6 +173,10 @@ export interface PropertyFilters {
   listing_type: string;
   page?: number;
   per_page?: number;
+  bbox?: string;
+  zoom?: number | string;
+  districts?: string;
+  type_id?: string;
 }
 
 export interface User {

@@ -6,8 +6,9 @@ import {
   getPropertyById,
   getPropertiesInfinite,
   getMyPropertiesInfinite,
+  getPropertiesMapData,
 } from "./api";
-import { PropertyFilters } from "./types";
+import { MapBounds, PropertyFilters } from "./types";
 
 export const useGetPropertiesQuery = (
   filters?: PropertyFilters,
@@ -57,8 +58,8 @@ export const useGetMyPropertiesQuery = (
 };
 
 export const useGetAllPropertiesQuery = (
-    filters?: PropertyFilters,
-    withAuth: boolean = false
+  filters?: PropertyFilters,
+  withAuth: boolean = false
 ) => {
   return useQuery({
     queryKey: [PROPERTY_QUERY_KEYS.PROPERTY, "my", filters, withAuth],
@@ -101,5 +102,35 @@ export const useGetPropertyByIdQuery = (
     queryKey: [PROPERTY_QUERY_KEYS.PROPERTY_DETAIL, id, withAuth],
     queryFn: () => getPropertyById(id, withAuth),
     enabled: !!id,
+  });
+};
+
+/**
+ * Получить данные для карты недвижимости (кластеры или точки)
+ * GET /api/properties/map
+ */
+export const useGetPropertiesMapQuery = (
+  bounds: MapBounds | null,
+  zoom: number,
+  filters?: PropertyFilters,
+  withAuth: boolean = false,
+  enabled: boolean = true
+) => {
+  return useQuery({
+    queryKey: [
+      PROPERTY_QUERY_KEYS.PROPERTY_MAP,
+      bounds,
+      zoom,
+      filters,
+      withAuth,
+    ],
+    queryFn: () => {
+      if (!bounds) {
+        throw new Error("Map bounds are required");
+      }
+      return getPropertiesMapData(bounds, zoom, filters, withAuth);
+    },
+    enabled: !!bounds && enabled,
+    staleTime: 20 * 1000, // 20 seconds as mentioned in API docs
   });
 };
