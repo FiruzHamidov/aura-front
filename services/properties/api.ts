@@ -1,6 +1,12 @@
 import { axios, getAuthToken } from "@/utils/axios";
 import { PROPERTY_ENDPOINTS } from "./constants";
-import { PropertiesResponse, Property, PropertyFilters } from "./types";
+import {
+  MapBounds,
+  MapResponse,
+  PropertiesResponse,
+  Property,
+  PropertyFilters,
+} from "./types";
 
 export const getProperties = async (
   filters?: PropertyFilters,
@@ -144,5 +150,39 @@ export const getPropertyById = async (
       }),
     }
   );
+  return data;
+};
+
+export const getPropertiesMapData = async (
+  bounds: MapBounds,
+  zoom: number,
+  filters?: PropertyFilters,
+  withAuth: boolean = false
+): Promise<MapResponse> => {
+  const bbox = `${bounds.south},${bounds.west},${bounds.north},${bounds.east}`;
+
+  const queryParams = new URLSearchParams();
+  queryParams.append("bbox", bbox);
+  queryParams.append("zoom", zoom.toString());
+
+  if (filters) {
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        queryParams.append(key, String(value));
+      }
+    });
+  }
+
+  const { data } = await axios.get<MapResponse>(
+    `${PROPERTY_ENDPOINTS.PROPERTIES}/map?${queryParams.toString()}`,
+    {
+      ...(withAuth && {
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      }),
+    }
+  );
+
   return data;
 };

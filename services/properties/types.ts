@@ -65,7 +65,6 @@ export interface Property {
   status: PropertyStatus;
   location: PropertyLocation | null;
   photos: PropertyPhoto[];
-  // details table in /slug
   bathroom_count?: string | number;
   elevator_count?: string | number;
   building_type?: string;
@@ -120,6 +119,38 @@ export interface PropertyStatus {
   updated_at: string;
 }
 
+export interface MapBounds {
+  south: number;
+  west: number;
+  north: number;
+  east: number;
+}
+
+export interface MapPointProperties {
+  id: number;
+  title: string;
+}
+
+export interface MapClusterProperties {
+  cluster: true;
+  point_count: number;
+}
+
+export interface MapFeature {
+  type: "Feature";
+  geometry: {
+    type: "Point";
+    coordinates: [number, number];
+  };
+  properties?: MapPointProperties | MapClusterProperties;
+  property?: MapPointProperties | MapClusterProperties;
+}
+
+export interface MapResponse {
+  type: "FeatureCollection";
+  features: MapFeature[];
+}
+
 export interface PropertyFilters {
   priceFrom?: string;
   priceTo?: string;
@@ -141,6 +172,10 @@ export interface PropertyFilters {
   listing_type: string;
   page?: number;
   per_page?: number;
+  bbox?: string;
+  zoom?: number | string;
+  districts?: string;
+  type_id?: string;
 }
 
 export interface User {
