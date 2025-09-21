@@ -18,7 +18,10 @@ import {
   MapClusterProperties,
   MapPointProperties,
 } from '@/services/properties/types';
-import { useGetPropertiesMapQuery } from '@/services/properties/hooks';
+import {
+  useGetPropertiesMapQuery,
+  useGetPropertyByIdQuery,
+} from '@/services/properties/hooks';
 import BuyCard from '@/app/_components/buy/buy-card';
 import { useProfile } from '@/services/login/hooks';
 import { useSearchParams } from 'next/navigation';
@@ -54,6 +57,9 @@ export const BuyMap: FC<Props> = ({ items, offset = { x: 32, y: -468 } }) => {
   const [bounds, setBounds] = useState<MapBounds | null>(null);
   const [zoom, setZoom] = useState<number>(DEFAULT_ZOOM);
   const [useMapApi, setUseMapApi] = useState<boolean>(false);
+  const [selectedApiPointId, setSelectedApiPointId] = useState<number | null>(
+    null
+  );
 
   const points: Point[] = useMemo(() => {
     return (items ?? [])
@@ -98,13 +104,15 @@ export const BuyMap: FC<Props> = ({ items, offset = { x: 32, y: -468 } }) => {
     !!bounds
   );
 
-  const displayPoints = useMemo(() => {
-    if (useMapApi && zoom <= 11 && mapData) {
-      return [];
-    }
+  const { data: selectedProperty, isLoading: isLoadingProperty } =
+    useGetPropertyByIdQuery(
+      selectedApiPointId?.toString() || '',
+      !!selectedApiPointId
+    );
 
+  const displayPoints = useMemo(() => {
     return points;
-  }, [useMapApi, zoom, mapData, points]);
+  }, [points]);
 
   const [hovered, setHovered] = useState<Point | null>(null);
   const [selected, setSelected] = useState<Point | null>(null);
@@ -233,7 +241,7 @@ export const BuyMap: FC<Props> = ({ items, offset = { x: 32, y: -468 } }) => {
             }
             setZoom(mapRef.current.getZoom());
 
-            setUseMapApi(points.length > 100);
+            setUseMapApi(points.length === 0 || points.length > 100);
           } catch (e) {
             console.warn('Error getting initial bounds:', e);
           }
@@ -264,6 +272,52 @@ export const BuyMap: FC<Props> = ({ items, offset = { x: 32, y: -468 } }) => {
     [points]
   );
 
+  useEffect(() => {
+    if (selectedProperty && selectedApiPointId) {
+      const lat = toNum(selectedProperty.latitude);
+      const lng = toNum(selectedProperty.longitude);
+
+      if (lat !== null && lng !== null) {
+        const point: Point = {
+          it: selectedProperty,
+          coords: [lat, lng],
+        };
+
+        setSelected(point);
+        project(point.coords, setSelectPos);
+      }
+
+      setSelectedApiPointId(null);
+    }
+  }, [selectedProperty, selectedApiPointId, project]);
+
+  const handleApiPointClick = useCallback(
+    (propertyId: number, coords: [number, number]) => {
+      setSelectedApiPointId(propertyId);
+
+      project(coords, setSelectPos);
+
+      setSelected(null);
+    },
+    [project]
+  );
+
+  useEffect(() => {
+    if (mapData && mapData?.features?.length > 0 && points.length === 0) {
+      setUseMapApi(true);
+    }
+  }, [mapData, points.length]);
+
+  const handleClusterClick = useCallback((coords: [number, number]) => {
+    if (!mapRef.current) return;
+
+    const newZoom = Math.min(14, Math.max(mapRef.current.getZoom() + 2, 12));
+
+    mapRef.current.setCenter(coords, newZoom, {
+      duration: 500,
+    });
+  }, []);
+
   return (
     <div ref={wrapRef} className="relative rounded-[22px] overflow-hidden">
       <YMaps query={{ apikey: process.env.NEXT_PUBLIC_YANDEX_MAPS_API_KEY }}>
@@ -288,59 +342,74 @@ export const BuyMap: FC<Props> = ({ items, offset = { x: 32, y: -468 } }) => {
           <FullscreenControl options={{ position: { right: 16, top: 240 } }} />
           <TypeSelector />
 
-          {/* API Clusters (when zoom <= 11) */}
-          {useMapApi &&
-            zoom <= 11 &&
-            mapData?.features.map((feature, index) => {
-              const isCluster = 'cluster' in feature.properties;
-              if (isCluster) {
-                const clusterProps = feature.properties as MapClusterProperties;
-                return (
-                  <Placemark
-                    key={`cluster-${index}`}
-                    geometry={feature.geometry.coordinates}
-                    options={{
-                      preset: 'islands#blueClusterIcons',
-                      iconColor: '#0036A5',
-                    }}
-                    properties={{
-                      iconContent: clusterProps.point_count.toString(),
-                      hintContent: `${clusterProps.point_count} объектов`,
-                    }}
-                  />
-                );
-              }
-              return null;
-            })}
+          {mapData && mapData?.features?.length > 0 && zoom <= 11 && (
+            <>
+              {mapData.features.map((feature, index) => {
+                const props = feature.property || feature.properties;
+                const isCluster = props && 'cluster' in props;
 
-          {/* API Points (when zoom > 11) */}
-          {useMapApi &&
-            zoom > 11 &&
-            mapData?.features.map((feature) => {
-              const isPoint = !('cluster' in feature.properties);
-              if (isPoint) {
-                const pointProps = feature.properties as MapPointProperties;
-                return (
-                  <Placemark
-                    key={`point-${pointProps.id}`}
-                    geometry={feature.geometry.coordinates}
-                    options={{
-                      iconLayout: 'default#image',
-                      iconImageHref: '/images/pin.svg',
-                      iconImageSize: [44, 56],
-                      iconImageOffset: [-22, -56],
-                      zIndex: 1000,
-                    }}
-                    properties={{
-                      hintContent: pointProps.title,
-                    }}
-                  />
-                );
-              }
-              return null;
-            })}
+                if (isCluster) {
+                  const clusterProps = props as MapClusterProperties;
+                  return (
+                    <Placemark
+                      key={`cluster-${index}`}
+                      geometry={feature.geometry.coordinates}
+                      options={{
+                        preset: 'islands#blueClusterIcons',
+                        iconColor: '#0036A5',
+                      }}
+                      properties={{
+                        iconContent: clusterProps.point_count.toString(),
+                        hintContent: `${clusterProps.point_count} объектов`,
+                      }}
+                      onClick={() =>
+                        handleClusterClick(feature.geometry.coordinates)
+                      }
+                    />
+                  );
+                }
+                return null;
+              })}
+            </>
+          )}
 
-          {/* Regular clusterer for local data */}
+          {mapData && mapData?.features?.length > 0 && zoom > 11 && (
+            <>
+              {mapData.features.map((feature, index) => {
+                const props = feature.property || feature.properties;
+                const isPoint = props && !('cluster' in props);
+
+                if (isPoint) {
+                  const pointProps = props as MapPointProperties;
+                  return (
+                    <Placemark
+                      key={`point-${pointProps.id}-${index}`}
+                      geometry={feature.geometry.coordinates}
+                      options={{
+                        iconLayout: 'default#image',
+                        iconImageHref: '/images/pin.svg',
+                        iconImageSize: [44, 56],
+                        iconImageOffset: [-22, -56],
+                        zIndex: 1000,
+                      }}
+                      properties={{
+                        hintContent:
+                          pointProps.title || `Объект №${pointProps.id}`,
+                      }}
+                      onClick={() =>
+                        handleApiPointClick(
+                          pointProps.id,
+                          feature.geometry.coordinates
+                        )
+                      }
+                    />
+                  );
+                }
+                return null;
+              })}
+            </>
+          )}
+
           {!useMapApi && (
             <Clusterer
               options={{
@@ -382,7 +451,6 @@ export const BuyMap: FC<Props> = ({ items, offset = { x: 32, y: -468 } }) => {
           )}
         </Map>
 
-        {/* HOVER */}
         {hovered &&
           hoverPos &&
           (!selected || selected.it.id !== hovered.it.id) &&
@@ -401,7 +469,6 @@ export const BuyMap: FC<Props> = ({ items, offset = { x: 32, y: -468 } }) => {
             document.body
           )}
 
-        {/* CLICK */}
         {selected &&
           selectPos &&
           typeof document !== 'undefined' &&
@@ -420,6 +487,26 @@ export const BuyMap: FC<Props> = ({ items, offset = { x: 32, y: -468 } }) => {
                   ✕
                 </button>
                 <BuyCard listing={selected.it} user={user} />
+              </div>
+            </div>,
+            document.body
+          )}
+
+        {isLoadingProperty &&
+          selectPos &&
+          typeof document !== 'undefined' &&
+          createPortal(
+            <div
+              className="fixed z-[2147483647] max-w-[320px]"
+              style={{ left: selectPos.left, top: selectPos.top }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="bg-white p-4 rounded-[12px] shadow-lg">
+                <div className="animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                </div>
               </div>
             </div>,
             document.body

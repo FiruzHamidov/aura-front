@@ -105,10 +105,6 @@ export const useGetPropertyByIdQuery = (
   });
 };
 
-/**
- * Получить данные для карты недвижимости (кластеры или точки)
- * GET /api/properties/map
- */
 export const useGetPropertiesMapQuery = (
   bounds: MapBounds | null,
   zoom: number,
@@ -124,13 +120,27 @@ export const useGetPropertiesMapQuery = (
       filters,
       withAuth,
     ],
-    queryFn: () => {
+    queryFn: async () => {
       if (!bounds) {
         throw new Error("Map bounds are required");
       }
-      return getPropertiesMapData(bounds, zoom, filters, withAuth);
+      const response = await getPropertiesMapData(
+        bounds,
+        zoom,
+        filters,
+        withAuth
+      );
+
+      return {
+        ...response,
+        features: response.features.map((feature) => ({
+          ...feature,
+
+          properties: feature.properties || feature.property,
+        })),
+      };
     },
     enabled: !!bounds && enabled,
-    staleTime: 20 * 1000, // 20 seconds as mentioned in API docs
+    staleTime: 20 * 1000,
   });
 };

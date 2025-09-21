@@ -65,7 +65,6 @@ export interface Property {
   status: PropertyStatus;
   location: PropertyLocation | null;
   photos: PropertyPhoto[];
-  // details table in /slug
   bathroom_count?: string | number;
   elevator_count?: string | number;
   building_type?: string;
@@ -141,9 +140,10 @@ export interface MapFeature {
   type: "Feature";
   geometry: {
     type: "Point";
-    coordinates: [number, number]; // [lat, lng]
+    coordinates: [number, number];
   };
-  properties: MapPointProperties | MapClusterProperties;
+  properties?: MapPointProperties | MapClusterProperties;
+  property?: MapPointProperties | MapClusterProperties;
 }
 
 export interface MapResponse {
@@ -151,7 +151,6 @@ export interface MapResponse {
   features: MapFeature[];
 }
 
-// Update PropertyFilters to include map-specific fields
 export interface PropertyFilters {
   priceFrom?: string;
   priceTo?: string;
