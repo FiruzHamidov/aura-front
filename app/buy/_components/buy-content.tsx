@@ -32,26 +32,21 @@ export const BuyContent = () => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('list');
   const [isAllFiltersOpen, setIsAllFiltersOpen] = useState(false);
 
-  const currentFilters = useMemo(() => {
-    return {
-      propertyTypes:
-        searchParams.get('propertyTypes')?.split(',') ||
-        (searchParams.get('propertyType')
-          ? [searchParams.get('propertyType')!]
-          : undefined),
-      apartmentTypes:
-        searchParams.get('apartmentTypes')?.split(',') || undefined,
-      cities: searchParams.get('cities')?.split(',') || undefined,
-      districts: searchParams.get('districts')?.split(',') || undefined,
-      repairs: searchParams.get('repairs')?.split(',') || undefined,
-      priceFrom: searchParams.get('priceFrom') || undefined,
-      priceTo: searchParams.get('priceTo') || undefined,
-      areaFrom: searchParams.get('areaFrom') || undefined,
-      areaTo: searchParams.get('areaTo') || undefined,
-      floorFrom: searchParams.get('floorFrom') || undefined,
-      floorTo: searchParams.get('floorTo') || undefined,
-    };
-  }, [searchParams]);
+  const formattedInitialFilters = {
+    propertyTypes: searchParams.get('propertyTypes')?.split(',') || undefined,
+    apartmentTypes: searchParams.get('apartmentTypes')?.split(',') || undefined,
+    cities: searchParams.get('cities')?.split(',') || undefined,
+    districts: searchParams.get('districts')?.split(',') || undefined,
+    repairs: searchParams.get('repairs')?.split(',') || undefined,
+    priceFrom: searchParams.get('priceFrom') || undefined,
+    priceTo: searchParams.get('priceTo') || undefined,
+    roomsFrom: searchParams.get('roomsFrom') || undefined,
+    roomsTo: searchParams.get('roomsTo') || undefined,
+    areaFrom: searchParams.get('areaFrom') || undefined,
+    areaTo: searchParams.get('areaTo') || undefined,
+    floorFrom: searchParams.get('floorFrom') || undefined,
+    floorTo: searchParams.get('floorTo') || undefined,
+  };
 
   const filters = {
     priceFrom: searchParams.get('priceFrom') || undefined,
@@ -320,7 +315,7 @@ export const BuyContent = () => {
           isOpen={isAllFiltersOpen}
           onClose={() => setIsAllFiltersOpen(false)}
           onSearch={handleAdvancedSearch}
-          initialFilters={currentFilters}
+          initialFilters={formattedInitialFilters}
         />
       </div>
 

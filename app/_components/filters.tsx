@@ -116,57 +116,28 @@ export const AllFilters: FC<AllFiltersProps> = ({
   const [listingType, setListingType] = useState<'regular' | 'vip'>('regular');
 
   useEffect(() => {
-    if (isOpen && initialFilters) {
-      if (initialFilters.propertyTypes) {
-        setSelectedPropertyTypes(
-          Array.isArray(initialFilters.propertyTypes)
-            ? initialFilters.propertyTypes
-            : [initialFilters.propertyTypes]
-        );
-      }
-
-      if (initialFilters.apartmentTypes) {
-        setSelectedApartmentTypes(
-          Array.isArray(initialFilters.apartmentTypes)
-            ? initialFilters.apartmentTypes
-            : [initialFilters.apartmentTypes]
-        );
-      }
-
-      if (initialFilters.cities) {
-        setSelectedCities(
-          Array.isArray(initialFilters.cities)
-            ? initialFilters.cities
-            : [initialFilters.cities]
-        );
-      }
-
-      if (initialFilters.districts) {
-        setDistricts(
-          Array.isArray(initialFilters.districts)
-            ? initialFilters.districts
-            : [initialFilters.districts]
-        );
-      }
-
-      if (initialFilters.repairs) {
-        setRepairs(
-          Array.isArray(initialFilters.repairs)
-            ? initialFilters.repairs
-            : [initialFilters.repairs]
-        );
-      }
-
-      if (initialFilters.priceFrom) setPriceFrom(initialFilters.priceFrom);
-      if (initialFilters.priceTo) setPriceTo(initialFilters.priceTo);
-      if (initialFilters.roomsFrom) setRoomsFrom(initialFilters.roomsFrom);
-      if (initialFilters.roomsTo) setRoomsTo(initialFilters.roomsTo);
-      if (initialFilters.areaFrom) setAreaFrom(initialFilters.areaFrom);
-      if (initialFilters.areaTo) setAreaTo(initialFilters.areaTo);
-      if (initialFilters.floorFrom) setFloorFrom(initialFilters.floorFrom);
-      if (initialFilters.floorTo) setFloorTo(initialFilters.floorTo);
+    if (initialFilters) {
+      setSelectedPropertyTypes(initialFilters.propertyTypes?.map(Number) || []);
+      setSelectedApartmentTypes(
+        initialFilters.apartmentTypes?.map(Number) || []
+      );
+      setSelectedCities(initialFilters.cities?.map(Number) || []);
+      setRepairs(initialFilters.repairs?.map(Number) || []);
+      setDistricts(initialFilters.districts || []);
+      setPriceFrom(initialFilters.priceFrom || '');
+      setPriceTo(initialFilters.priceTo || '');
+      setRoomsFrom(initialFilters.roomsFrom || '');
+      setRoomsTo(initialFilters.roomsTo || '');
+      setAreaFrom(initialFilters.areaFrom || '');
+      setAreaTo(initialFilters.areaTo || '');
+      setFloorFrom(initialFilters.floorFrom || '');
+      setFloorTo(initialFilters.floorTo || '');
     }
-  }, [isOpen, initialFilters]);
+  }, [initialFilters]);
+
+  console.log({ initialFilters });
+  console.log({ selectedPropertyTypes });
+  console.log({ districts });
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
