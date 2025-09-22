@@ -5,11 +5,13 @@ import FullCalendar from '@fullcalendar/react';
 import { DateSelectArg, EventClickArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import ruLocale from '@fullcalendar/core/locales/ru';
 import { axios } from '@/utils/axios';
 import { formatISO } from 'date-fns';
 import { PropertiesResponse, Property } from '@/services/properties/types';
+import {list} from "postcss";
 
 interface Booking {
   id: number;
@@ -48,7 +50,8 @@ export default function MyListings() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const formatInputDate = (date: Date) => {
-    return date.toISOString().slice(0, 16);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
   };
 
   const handleEventClick = async ({ event }: EventClickArg) => {
@@ -62,6 +65,18 @@ export default function MyListings() {
       console.error('Ошибка при загрузке деталей показа:', error);
     }
   };
+
+  const handleDateClick = useCallback((info: { date: Date }) => {
+    const start = info.date;
+    const end = new Date(start.getTime() + 60 * 60 * 1000); // дефолт +1 час
+    setSelectedRange({ start, end });
+    setSelectedProperty(null);
+    setSelectedAgent(null);
+    setNote('');
+    setClientName('');
+    setClientPhone('');
+    setModalOpen(true);
+  }, []);
 
   const fetchBookings = useCallback(async () => {
     try {
@@ -124,6 +139,16 @@ export default function MyListings() {
     }
   };
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)');
+    const apply = () => setIsMobile(mq.matches);
+    apply();
+    mq.addEventListener?.('change', apply);
+    return () => mq.removeEventListener?.('change', apply);
+  }, []);
+
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     setSelectedRange({ start: selectInfo.start, end: selectInfo.end });
     setSelectedProperty(null);
@@ -169,19 +194,27 @@ export default function MyListings() {
     <>
       <div className="p-4">
         <FullCalendar
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
-          selectable={true}
-          select={handleDateSelect}
-          events={bookings}
-          height="auto"
-          locale={ruLocale}
-          eventClick={handleEventClick}
-          headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay',
-          }}
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+            initialView={isMobile ? 'listWeek' : 'listWeek'}
+            headerToolbar={{
+              left: isMobile ? 'prev,next' : 'prev,next today',
+              center: isMobile ? '' : 'title',
+              right: isMobile ? 'listWeek,dayGridMonth' : 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
+            }}
+            footerToolbar={{
+              center: isMobile ? 'title' : '',
+            }}
+            titleFormat={{ year: 'numeric', month: 'numeric', day: 'numeric' }}
+            height="auto"
+            expandRows
+            dayMaxEventRows={isMobile ? 2 : 4}
+            nowIndicator
+            selectable
+            select={handleDateSelect}
+            dateClick={handleDateClick}
+            events={bookings}
+            locale={ruLocale}
+            eventClick={handleEventClick}
         />
       </div>
 
