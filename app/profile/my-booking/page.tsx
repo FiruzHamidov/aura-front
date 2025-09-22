@@ -11,7 +11,7 @@ import ruLocale from '@fullcalendar/core/locales/ru';
 import { axios } from '@/utils/axios';
 import { formatISO } from 'date-fns';
 import { PropertiesResponse, Property } from '@/services/properties/types';
-import {list} from "postcss";
+
 
 interface Booking {
   id: number;
