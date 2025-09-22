@@ -268,7 +268,7 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
                 setIsAllFiltersOpen((prev) => !prev);
 
                 window.scrollBy({
-                  top: 400,        // на 100px вниз
+                  top: 400, // на 100px вниз
                   left: 0,
                   behavior: 'smooth', // плавная прокрутка
                 });
@@ -294,6 +294,13 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
         isOpen={isAllFiltersOpen}
         onClose={() => setIsAllFiltersOpen(false)}
         onSearch={handleAdvancedSearch}
+        initialFilters={{
+          propertyTypes: propertyType ? [propertyType] : [],
+          roomsFrom,
+          roomsTo,
+          priceFrom,
+          priceTo,
+        }}
       />
     </div>
   );
