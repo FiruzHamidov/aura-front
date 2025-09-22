@@ -117,6 +117,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
 
   useEffect(() => {
     if (initialFilters) {
+      console.log({ initialFilters });
       setSelectedPropertyTypes(initialFilters.propertyTypes?.map(Number) || []);
       setSelectedApartmentTypes(
         initialFilters.apartmentTypes?.map(Number) || []
@@ -133,11 +134,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
       setFloorFrom(initialFilters.floorFrom || '');
       setFloorTo(initialFilters.floorTo || '');
     }
-  }, [initialFilters]);
-
-  console.log({ initialFilters });
-  console.log({ selectedPropertyTypes });
-  console.log({ districts });
+  }, []);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -159,6 +156,8 @@ export const AllFilters: FC<AllFiltersProps> = ({
 
       priceFrom: priceFrom && priceFrom !== '0' ? priceFrom : undefined,
       priceTo: priceTo && priceTo !== '0' ? priceTo : undefined,
+      roomsFrom: roomsFrom && roomsFrom !== '0' ? roomsFrom : undefined,
+      roomsTo: roomsTo && roomsTo !== '0' ? roomsTo : undefined,
 
       areaFrom: areaFrom && areaFrom !== '0' ? areaFrom : undefined,
       areaTo: areaTo && areaTo !== '0' ? areaTo : undefined,
