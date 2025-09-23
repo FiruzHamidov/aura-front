@@ -27,5 +27,5 @@ export interface Listing {
     floorInfo: string;
     agent?: Agent;
     date?: string;
-    type?: "apartment" | "house" | "land" | "commercial";
+    type?: string;
 }

@@ -23,4 +23,6 @@ export interface Listing {
   agent?: Agent;
   date?: string;
   type?: string;
+  moderation_status?: string;
+  listing_type?: string;
 }

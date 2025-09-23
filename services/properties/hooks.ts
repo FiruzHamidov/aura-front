@@ -9,6 +9,7 @@ import {
   getPropertiesMapData,
 } from "./api";
 import { MapBounds, PropertyFilters } from "./types";
+import {addPostApi} from "@/services/add-post";
 
 export const useGetPropertiesQuery = (
   filters?: PropertyFilters,
@@ -19,6 +20,9 @@ export const useGetPropertiesQuery = (
     queryFn: () => getProperties(filters, withAuth),
   });
 };
+
+export const useGetPropertyTypesQuery = () =>
+    useQuery({ queryKey: ['get-property-types'], queryFn: addPostApi.getPropertyTypes });
 
 export const useGetPropertiesInfiniteQuery = (
   filters?: PropertyFilters,
