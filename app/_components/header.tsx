@@ -13,11 +13,12 @@ import { useLogoutMutation, useMe } from '@/services/login/hooks';
 
 const navItems = [
   { name: 'Главная', href: '/' },
+  { name: 'Покупка', href: '/buy' },
   { name: 'Снять', href: '/rent' },
-  { name: 'Аренда', href: '/rent' },
   { name: 'Новостройки', href: '/new-buildings' },
   { name: 'Ипотека', href: '/mortgage' },
   { name: 'Сервисы', href: '/services' },
+  { name: 'О нас', href: '/about' },
   // {name: 'Реклама', href: '/advertising'},
 ];
 

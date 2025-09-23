@@ -28,7 +28,7 @@ const footerLinks: LinkColumn[] = [
     ],
   },
   {
-    title: 'Сервисы',
+    title: 'Услуги',
     links: [
       { name: 'Выкуп недвижимости', href: '/buy-property' },
       { name: 'Ипотека', href: '/mortgage' },

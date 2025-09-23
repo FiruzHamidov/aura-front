@@ -22,7 +22,7 @@ export default function Rent() {
 
   return (
     <>
-      <MainBanner title="Поможем найти и арендовать жилье!" />
+      <MainBanner title="Поможем найти и арендовать жилье!" tab='to_rent'  />
       <div className="mt-10 md:mt-[60px]">
         <TopListings
           title="Снять недвижимость топовые объявления"
@@ -32,7 +32,7 @@ export default function Rent() {
       </div>
       <Promo />
 
-      <Buy properties={properties} isLoading={isLoading} />
+      <Buy properties={properties} isLoading={isLoading} title='Снять'/>
       <div className="lg:mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 mx-auto mt-10 md:mt-20">
         <Services />
       </div>

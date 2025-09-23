@@ -13,19 +13,19 @@ import Link from 'next/link';
 
 type ActiveTab =
   | 'buy'
-  | 'rent'
+  | 'sell'
   | 'to_rent'
   | 'to_rent_out'
   | 'map'
   | 'evaluate'
   | 'fast_buy';
 
-export const MainBanner: FC<{ title: string }> = ({ title }) => {
+export const MainBanner: FC<{ title: string, tab?: ActiveTab }> = ({ title, tab = 'buy' }) => {
   const router = useRouter();
 
   const { data: propertyTypes } = useGetPropertyTypesQuery();
 
-  const [activeTab, setActiveTab] = useState<ActiveTab>('buy');
+  const [activeTab, setActiveTab] = useState<ActiveTab>(tab);
   const [propertyType, setPropertyType] = useState('');
   const [roomsFrom, setRoomsFrom] = useState('');
   const [roomsTo, setRoomsTo] = useState('');
@@ -45,7 +45,7 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
     if (priceTo) searchParams.append('priceTo', priceTo);
 
     const queryString = searchParams.toString();
-    router.push(`/buy${queryString ? `?${queryString}` : ''}`);
+    router.push(`${activeTab == 'to_rent' ? 'rent-offers' : '/buy'}${queryString ? `?${queryString}` : ''}`);
   };
 
   const TAB_ACTIONS: Record<
@@ -53,7 +53,7 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
     { type: 'tab' | 'link'; label: string; href?: string }
   > = {
     buy: { type: 'tab', label: 'Купить' },
-    rent: { type: 'link', label: 'Продать', href: '/sell-property' },
+    sell: { type: 'link', label: 'Продать', href: '/sell-property' },
     to_rent: { type: 'tab', label: 'Снять' },
     to_rent_out: { type: 'link', label: 'Сдать', href: '/rent-property' },
     map: { type: 'tab', label: 'На карте' },
@@ -71,7 +71,7 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
     });
 
     const queryString = searchParams.toString();
-    router.push(`/buy${queryString ? `?${queryString}` : ''}`);
+    router.push(`${activeTab == 'to_rent' ? 'rent-offers' : '/buy'}${queryString ? `?${queryString}` : ''}`);
     setIsAllFiltersOpen(false);
   };
 

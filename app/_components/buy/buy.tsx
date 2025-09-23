@@ -7,8 +7,9 @@ import {useProfile} from "@/services/login/hooks";
 const Buy: FC<{
   properties: PropertiesResponse | undefined;
   hasTitle?: boolean;
+  title?: string;
   isLoading?: boolean;
-}> = ({ properties, hasTitle = true, isLoading = false }) => {
+}> = ({ properties, hasTitle = true, isLoading = false, title = 'Купить' }) => {
   const {data: user} = useProfile();
   const buyListings = useMemo(() => {
     if (!properties?.data) return [];
@@ -22,7 +23,7 @@ const Buy: FC<{
         <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
           {hasTitle && (
             <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">
-              Купить
+              {title}
             </h2>
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[30px]">
@@ -60,7 +61,7 @@ const Buy: FC<{
             </h2>
           )}
           <div className="text-center py-6">
-            Объявления о продаже не найдены
+            Объявления по заданному фильтру не найдены
           </div>
         </div>
       </section>
