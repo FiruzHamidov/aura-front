@@ -15,6 +15,7 @@ import FooterPhoneIcon from "@/icons/FooterPhoneIcon";
 import WhatsappInlineIcon from "@/icons/WhatsappInlineIcon";
 import {ArrowUpDown, Bath, Building2, EyeIcon, Flame, Hammer, Home, MapPin, ParkingSquare, Ruler} from "lucide-react";
 import {axios} from "@/utils/axios";
+import {AxiosError} from "axios";
 
 interface Props {
     apartment: Property;
@@ -68,7 +69,8 @@ export default function GalleryWrapper({apartment, photos}: Props) {
             try {
                 await axios.post(`/properties/${apartment.id}/view`, {}, { signal: controller.signal });
             } catch (e) {
-                // игнорируем отмену/ошибки
+                const error = e as AxiosError<{ message?: string; errors?: Record<string, string[]> }>;
+                console.log(error)
             }
         };
 
