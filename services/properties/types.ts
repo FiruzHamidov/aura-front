@@ -82,6 +82,7 @@ export interface Property {
     id: number;
     name: string;
   };
+  views_count?: number;
 }
 
 export interface PropertyLocation {

@@ -13,7 +13,8 @@ import PhotoGalleryModal from '@/ui-components/PhotoGalleryModal';
 import BookingSidebarForm from '@/app/apartment/[slug]/_components/BookingSidebarForm';
 import FooterPhoneIcon from "@/icons/FooterPhoneIcon";
 import WhatsappInlineIcon from "@/icons/WhatsappInlineIcon";
-import {ArrowUpDown, Bath, Building2, Flame, Hammer, Home, MapPin, ParkingSquare, Ruler} from "lucide-react";
+import {ArrowUpDown, Bath, Building2, EyeIcon, Flame, Hammer, Home, MapPin, ParkingSquare, Ruler} from "lucide-react";
+import {axios} from "@/utils/axios";
 
 interface Props {
     apartment: Property;
@@ -59,6 +60,22 @@ export default function GalleryWrapper({apartment, photos}: Props) {
             ? [parseFloat(apartment.latitude), parseFloat(apartment.longitude)]
             : null
     );
+
+    useEffect(() => {
+        const controller = new AbortController();
+
+        const sendView = async () => {
+            try {
+                await axios.post(`/properties/${apartment.id}/view`, {}, { signal: controller.signal });
+            } catch (e) {
+                // игнорируем отмену/ошибки
+            }
+        };
+
+        sendView();
+
+        return () => controller.abort();
+    }, [apartment.id]);
 
     const [addressCaption, setAddressCaption] = useState<string>('');
 
@@ -111,8 +128,12 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                         {apartment.rooms} ком квартира, {apartment.floor} этаж,{' '}
                                         {apartment.address || 'Адрес не указан'}
                                     </h1>
-                                    <div className="text-[#666F8D] text-lg">
+                                    <div className="text-[#666F8D] text-lg flex">
                                         ID: {apartment.id}
+                                        <div className='flex gap-1 ml-3 items-center'>
+                                            <EyeIcon xlinkTitle='Просмотрено'/>
+                                            {apartment.views_count}
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="flex gap-2 md:mt-0 mt-4">

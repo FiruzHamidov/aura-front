@@ -38,7 +38,6 @@ export const RealtorListings: React.FC<RealtorListingsProps> = ({slug, selectedR
         const base: PropertyFilters = {
             created_by: slug,
             listing_type: '',
-            offer_type: 'sale',
             page, // <-- важное добавление
             // per_page: 12, // опционально, если нужно фиксированное кол-во на странице
         };
