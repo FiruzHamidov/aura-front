@@ -1,26 +1,31 @@
 'use client';
 
-import { FC, useEffect, useMemo, useState } from 'react';
+import {FC, useEffect, useMemo, useState} from 'react';
 import Link from 'next/link';
-import { Tabs } from '@/ui-components/tabs/tabs';
+import {Tabs} from '@/ui-components/tabs/tabs';
 import ListingCard from './listing-card';
 import ListingCardSkeleton from '@/ui-components/ListingCardSkeleton';
-import { PropertiesResponse, Property } from '@/services/properties/types';
-import { STORAGE_URL } from '@/constants/base-url';
-import { useGetPropertyTypesQuery } from '@/services/properties/hooks';
-import type { Listing } from '@/app/_components/top-listing/types';
+import {PropertiesResponse, Property} from '@/services/properties/types';
+import {STORAGE_URL} from '@/constants/base-url';
+import {useGetPropertyTypesQuery} from '@/services/properties/hooks';
+import type {Listing} from '@/app/_components/top-listing/types';
 import {PropertyType} from "@/services/add-post";
+import {ArrowLeft, ArrowRight} from "lucide-react";
 
 type TabItem = { key: string; label: string };
 
 const normalize = (s?: string | null) => (s ?? '').toString().trim().toLowerCase();
 
 const fallbackTabs: ReadonlyArray<TabItem> = [
-    { key: 'apartment', label: 'Квартира' },
-    { key: 'house', label: 'Дом' },
-    { key: 'land', label: 'Земельный участок' },
-    { key: 'commercial', label: 'Коммерческая' },
+    {key: 'apartment', label: 'Квартира'},
+    {key: 'house', label: 'Дом'},
+    {key: 'land', label: 'Земельный участок'},
+    {key: 'commercial', label: 'Коммерческая'},
 ] as const;
+
+const AUTOPLAY_MS = 6000;      // полное заполнение = 6с
+const TICK_MS = 100;           // шаг таймера
+const PROGRESS_MAX = 100;
 
 const PAGE_SIZE = 5;
 
@@ -28,17 +33,18 @@ const TopListings: FC<{
     title?: string;
     isLoading?: boolean;
     properties: PropertiesResponse | undefined;
-}> = ({ title = 'Топовые объявления', properties, isLoading }) => {
-    const { data: propertyTypesData, isLoading: isTypesLoading } = useGetPropertyTypesQuery();
+}> = ({title = 'Топовые объявления', properties, isLoading}) => {
+    const {data: propertyTypesData, isLoading: isTypesLoading} = useGetPropertyTypesQuery();
 
     const tabs: TabItem[] = useMemo(() => {
-
+        const raw =
+            (Array.isArray(propertyTypesData) ? propertyTypesData : []) ?? [];
         const mapped =
-            (propertyTypesData as PropertyType[])
+            (raw as PropertyType[])
                 .map((t) => {
                     const key = normalize(t?.slug) || normalize(t?.name);
                     const label = t?.name ?? t?.slug ?? '';
-                    return key ? { key, label } : null;
+                    return key ? {key, label} : null;
                 })
                 .filter((x): x is TabItem => Boolean(x)) ?? [];
         return mapped.length > 0 ? mapped : [...fallbackTabs];
@@ -47,7 +53,7 @@ const TopListings: FC<{
     const [activeType, setActiveType] = useState<string>(tabs[0]?.key ?? 'apartment');
 
     // Универсалка для строк
-    const str = (v: string | number | boolean | null | undefined, fallback = ''): string => {
+    const str = (v: unknown, fallback = ''): string => {
         if (v === null || v === undefined) return fallback;
         return String(v);
     };
@@ -62,7 +68,7 @@ const TopListings: FC<{
                         url: photo.file_path ? `${STORAGE_URL}/${photo.file_path}` : '/images/no-image.jpg',
                         alt: property.title || 'Фото недвижимости',
                     }))
-                    : [{ url: '/images/no-image.jpg', alt: 'Нет фото' }];
+                    : [{url: '/images/no-image.jpg', alt: 'Нет фото'}];
 
             const locationName =
                 typeof property.location === 'string'
@@ -158,15 +164,15 @@ const TopListings: FC<{
                 <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
                     <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">{title}</h2>
                     <div className="mb-5 md:mb-8 overflow-auto hide-scrollbar">
-                        <Tabs tabs={tabs} activeType={activeType} setActiveType={setActiveType} />
+                        <Tabs tabs={tabs} activeType={activeType} setActiveType={setActiveType}/>
                     </div>
                     <div className="grid md:grid-cols-2 gap-5">
                         <div className="md:h-full md:max-h-[576px]">
-                            <ListingCardSkeleton isLarge />
+                            <ListingCardSkeleton isLarge/>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:max-h-[576px]">
-                            {Array.from({ length: 4 }).map((_, i) => (
-                                <ListingCardSkeleton key={i} />
+                            {Array.from({length: 4}).map((_, i) => (
+                                <ListingCardSkeleton key={i}/>
                             ))}
                         </div>
                     </div>
@@ -185,7 +191,7 @@ const TopListings: FC<{
                 <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">{title}</h2>
 
                 <div className="mb-5 md:mb-8 overflow-auto hide-scrollbar">
-                    <Tabs tabs={tabs} activeType={activeType} setActiveType={setActiveType} />
+                    <Tabs tabs={tabs} activeType={activeType} setActiveType={setActiveType}/>
                 </div>
 
                 {filtered.length === 0 ? (
@@ -198,31 +204,32 @@ const TopListings: FC<{
                             {firstListing && (
                                 <div className="md:h-full md:max-h-[730px]">
                                     <Link href={`/apartment/${firstListing.id}`} className="max-h-[600px]">
-                                        <ListingCard listing={firstListing} isLarge />
+                                        <ListingCard listing={firstListing} isLarge/>
                                     </Link>
                                 </div>
                             )}
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:max-h-[730px]">
                                 {smallListings.map((l) => (
-                                    <Link key={l.id} href={`/apartment/${l.id}`} className="max-h-[350px] min-h-[350px]">
-                                        <ListingCard listing={l} />
+                                    <Link key={l.id} href={`/apartment/${l.id}`}
+                                          className="max-h-[350px] min-h-[350px]">
+                                        <ListingCard listing={l}/>
                                     </Link>
                                 ))}
                             </div>
                         </div>
 
                         {totalSlides > 1 && (
-                            <div className="mt-6 flex items-center justify-between">
+                            <div className="mt-6 flex items-center justify-center gap-3">
                                 <button
                                     onClick={() => setSlide((s) => Math.max(0, s - 1))}
                                     disabled={slide === 0}
-                                    className="px-4 py-2 rounded-lg border disabled:opacity-50">
-                                    ← Предыдущие
+                                    className="w-12 h-12 justify-center items-center flex rounded-full disabled:bg-white disabled:text-gray-400 bg-[#0036A5] text-white">
+                                    <ArrowLeft className="w-6 h-6"/>
                                 </button>
 
                                 <div className="flex items-center gap-2">
-                                    {Array.from({ length: totalSlides }).map((_, i) => (
+                                    {Array.from({length: totalSlides}).map((_, i) => (
                                         <button
                                             key={i}
                                             onClick={() => setSlide(i)}
@@ -235,8 +242,8 @@ const TopListings: FC<{
                                 <button
                                     onClick={() => setSlide((s) => Math.min(totalSlides - 1, s + 1))}
                                     disabled={slide === totalSlides - 1}
-                                    className="px-4 py-2 rounded-lg border disabled:opacity-50">
-                                    Следующие →
+                                    className="w-12 h-12 justify-center items-center flex rounded-full disabled:bg-white disabled:text-gray-400 bg-[#0036A5] text-white">
+                                    <ArrowRight className="w-6 h-6"/>
                                 </button>
                             </div>
                         )}

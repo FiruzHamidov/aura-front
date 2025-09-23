@@ -17,6 +17,7 @@ export default function Rent() {
   const { data: vipProperties, isLoading: isVipLoading } =
     useGetPropertiesQuery({
       listing_type: 'vip',
+        offer_type: 'rent',
     });
 
   return (
