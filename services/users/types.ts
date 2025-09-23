@@ -12,6 +12,13 @@ export interface Agent {
   role: Role;
 }
 
+export type DeleteUserPayload = {
+  id: number;
+  distribute_to_agents: boolean;
+  agent_id?: number | null;
+};
+
+
 export interface Role {
   id: number;
   name: string;

@@ -1,5 +1,5 @@
 import {axios, call} from '@/services/_shared/http';
-import {Agent, CreateUserPayload, UserDto} from "@/services/users/types";
+import {Agent, CreateUserPayload, DeleteUserPayload, UserDto} from "@/services/users/types";
 import {AGENT_ENDPOINTS} from "@/services/users/constants";
 
 
@@ -20,7 +20,15 @@ export const usersApi = {
         call(async () => await axios.post<UserDto>('/user', payload)),
     update: ({id, ...payload}: UpdateUserPayload) =>
         call(async () => await axios.put<UserDto>(`/user/${id}`, payload)),
-    remove: (id: number) => call(async () => await axios.delete<{ message: string }>(`/user/${id}`)),
+    remove: async ({ id, distribute_to_agents, agent_id }: DeleteUserPayload): Promise<{ message: string }> => {
+        const { data } = await axios.delete(`/user/${id}`, {
+            data: {
+                distribute_to_agents,
+                agent_id: distribute_to_agents ? undefined : agent_id,
+            },
+        });
+        return data;
+    },
 
     uploadPhoto: (userId: number, photo: File) =>
         call(async () => {

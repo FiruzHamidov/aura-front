@@ -11,6 +11,7 @@ import { QueryProvider } from '@/utils/providers';
 import YandexMetrikaClient from '@/yandex-metrika-client';
 import { Sidebar } from '@/app/profile/_components/sidebar';
 import { cookies } from 'next/headers';
+import ToastProvider from "@/app/_components/_providers/ToastProvider";
 
 const interFont = Inter({ variable: '--font-inter', subsets: ['latin', 'cyrillic'] });
 
@@ -167,6 +168,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                 <Header />
                 {token && <Sidebar />}
                 <main>{children}</main>
+                <ToastProvider />
                 <MobileBottomNavigation />
                 <Footer />
             </QueryProvider>

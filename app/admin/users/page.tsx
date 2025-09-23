@@ -1,21 +1,27 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { useCreateUser, useDeleteUser, useUpdateUser, useUsers } from '@/services/users/hooks';
-import type { CreateUserPayload, UpdateUserPayload, UserDto } from '@/services/users/types';
+import {useEffect, useMemo, useState} from 'react';
+import {useAgents, useCreateUser, useDeleteUser, useUpdateUser, useUsers} from '@/services/users/hooks';
+import type {CreateUserPayload, DeleteUserPayload, UpdateUserPayload, UserDto} from '@/services/users/types';
 import UserForm from './_components/UserForm';
-import { toast } from 'react-toastify';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
+import {toast} from 'react-toastify';
+import {Eye, Pencil, Plus, Trash2} from 'lucide-react';
+import {AnimatePresence, motion} from 'framer-motion';
+import DeleteUserDialog from "@/app/admin/users/_components/DeleteUserDialog";
+import showAxiosErrorToast from "@/utils/showAxiosErrorToast";
+import Link from "next/link";
 
 export default function UsersPage() {
-    const { data: users, isLoading, error } = useUsers();
+    const {data: users, isLoading, error} = useUsers();
     const createUser = useCreateUser();
     const updateUser = useUpdateUser();
     const deleteUser = useDeleteUser();
-
+    const {data: agents, isLoading: loadingAgents} = useAgents();
     const [mode, setMode] = useState<'none' | 'create' | 'edit'>('none');
     const [selected, setSelected] = useState<UserDto | null>(null);
+
+    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [deleteTarget, setDeleteTarget] = useState<UserDto | null>(null);
 
     const isOpen = mode !== 'none';
 
@@ -70,11 +76,7 @@ export default function UsersPage() {
             toast.success('Пользователь создан');
             closeForm();
         } catch (e) {
-            if (e instanceof Error) {
-                toast.error(e.message);
-            } else {
-                toast.error('Ошибка создания');
-            }
+            showAxiosErrorToast(e, 'Не удалось создать пользователя');
         }
     };
 
@@ -94,26 +96,33 @@ export default function UsersPage() {
             toast.success('Пользователь обновлён');
             closeForm();
         } catch (e) {
-            if (e instanceof Error) {
-                toast.error(e.message);
-            } else {
-                toast.error('Ошибка обновления');
-            }
+            showAxiosErrorToast(e, 'Не удалось обновить пользователя');
         }
     };
 
-    const handleDelete = async (u: UserDto) => {
-        const ok = confirm(`Удалить пользователя "${u.name}"?`);
-        if (!ok) return;
+    const openDeleteDialog = (u: UserDto) => {
+        setDeleteTarget(u);
+        setDeleteOpen(true);
+    };
+
+    const closeDeleteDialog = () => {
+        setDeleteTarget(null);
+        setDeleteOpen(false);
+    };
+
+    /** Сабмит из диалога — отправляем тело в DELETE */
+    const handleDeleteSubmit = async (p: Omit<DeleteUserPayload, 'id'>) => {
+        if (!deleteTarget) return;
         try {
-            await deleteUser.mutateAsync(u.id);
+            await deleteUser.mutateAsync({
+                id: deleteTarget.id,
+                distribute_to_agents: p.distribute_to_agents,
+                agent_id: p.distribute_to_agents ? undefined : p.agent_id ?? undefined,
+            });
             toast.success('Удалено');
+            closeDeleteDialog();
         } catch (e) {
-            if (e instanceof Error) {
-                toast.error(e.message);
-            } else {
-                toast.error('Ошибка удаления');
-            }
+            showAxiosErrorToast(e, 'Не удалось удалить пользователя');
         }
     };
 
@@ -125,7 +134,7 @@ export default function UsersPage() {
                     onClick={openCreate}
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-[#0036A5] text-white hover:bg-blue-800 transition cursor-pointer"
                 >
-                    <Plus className="w-7 h-7" />
+                    <Plus className="w-7 h-7"/>
                     <span className='hidden md:block'>Новый пользователь</span>
                 </button>
             </div>
@@ -136,7 +145,8 @@ export default function UsersPage() {
             {!isLoading && !error && (
                 <div className="bg-white rounded-xl shadow-sm">
                     {/* Заголовки (только на md+) */}
-                    <div className="hidden md:grid grid-cols-[72px_1.2fr_1fr_1fr_1fr_72px] px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    <div
+                        className="hidden md:grid grid-cols-[72px_1.2fr_1fr_1fr_1fr_72px] px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
                         <div>ID</div>
                         <div>Имя</div>
                         <div>Телефон</div>
@@ -160,21 +170,29 @@ export default function UsersPage() {
                                 <div className="text-gray-700">{u.role?.name || u.role_id}</div>
 
                                 <div className="ml-auto md:ml-0 flex items-center justify-end gap-2 w-full md:w-auto">
+                                    <Link
+                                        href={`/admin/users/${u.id}`}
+                                        title="Показать"
+                                        aria-label="Показать"
+                                        className="p-2 rounded-md hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition cursor-pointer"
+                                    >
+                                        <Eye className="w-4 h-4"/>
+                                    </Link>
                                     <button
                                         onClick={() => openEdit(u)}
                                         title="Редактировать"
                                         aria-label="Редактировать"
                                         className="p-2 rounded-md hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition cursor-pointer"
                                     >
-                                        <Pencil className="w-4 h-4" />
+                                        <Pencil className="w-4 h-4"/>
                                     </button>
                                     <button
-                                        onClick={() => handleDelete(u)}
+                                        onClick={() => openDeleteDialog(u)}
                                         title="Удалить"
                                         aria-label="Удалить"
                                         className="p-2 rounded-md hover:bg-red-50 text-red-600 hover:text-red-700 transition cursor-pointer"
                                     >
-                                        <Trash2 className="w-4 h-4" />
+                                        <Trash2 className="w-4 h-4"/>
                                     </button>
                                 </div>
                             </li>
@@ -196,19 +214,19 @@ export default function UsersPage() {
                             aria-label="Закрыть модальное окно"
                             onClick={closeForm}
                             className="fixed inset-0 bg-black/30 z-50"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
+                            initial={{opacity: 0}}
+                            animate={{opacity: 1}}
+                            exit={{opacity: 0}}
                         />
                         {/* панель */}
                         <motion.div
                             role="dialog"
                             aria-modal="true"
                             className="fixed right-0 top-0 h-full w-full max-w-[560px] bg-white/60 backdrop-blur supports-[backdrop-filter]:bg-white/60 z-50 shadow-xl md:rounded-l-3xl"
-                            initial={{ x: '100%' }}
-                            animate={{ x: 0 }}
-                            exit={{ x: '100%' }}
-                            transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+                            initial={{x: '100%'}}
+                            animate={{x: 0}}
+                            exit={{x: '100%'}}
+                            transition={{type: 'spring', stiffness: 260, damping: 28}}
                         >
                             <div className="h-full flex flex-col p-6 overflow-y-auto pb-30 md:pb-0 ">
                                 <div className="flex items-center justify-between mb-4">
@@ -232,6 +250,14 @@ export default function UsersPage() {
                     </>
                 )}
             </AnimatePresence>
+            <DeleteUserDialog
+                open={deleteOpen}
+                onClose={closeDeleteDialog}
+                user={deleteTarget}
+                agents={agents}
+                loadingAgents={loadingAgents}
+                onConfirm={handleDeleteSubmit}
+            />
         </div>
     );
 }

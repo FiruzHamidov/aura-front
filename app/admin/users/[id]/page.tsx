@@ -1,17 +1,22 @@
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
-import { useUser, useUpdateUser, useDeleteUser } from '@/services/users/hooks';
+import {useParams} from 'next/navigation';
+import {useAgents, useDeleteUser, useUpdateUser, useUser} from '@/services/users/hooks';
 import UserForm from '../_components/UserForm';
-import { toast } from 'react-toastify';
-import type { UpdateUserPayload, UserDto } from '@/services/users/types';
+import {toast} from 'react-toastify';
+import type {DeleteUserPayload, UpdateUserPayload, UserDto} from '@/services/users/types';
+import {useState} from "react";
+import showAxiosErrorToast from "@/utils/showAxiosErrorToast";
+import DeleteUserDialog from "@/app/admin/users/_components/DeleteUserDialog";
 
 export default function UserDetails() {
-    const { id } = useParams<{ id: string }>();
-    const router = useRouter();
-    const { data: user, isLoading, error } = useUser(Number(id));
+    const {id} = useParams<{ id: string }>();
+    const {data: user, isLoading, error} = useUser(Number(id));
     const upd = useUpdateUser();
-    const del = useDeleteUser();
+    const {data: agents, isLoading: loadingAgents} = useAgents();
+    const deleteUser = useDeleteUser();
+    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [deleteTarget, setDeleteTarget] = useState<UserDto | null>(null);
 
     if (isLoading) return <div className="p-6">Загрузка…</div>;
     if (error || !user) return <div className="p-6 text-red-500">Ошибка или не найден</div>;
@@ -38,19 +43,29 @@ export default function UserDetails() {
         }
     };
 
-    const onDelete = async () => {
-        const ok = confirm('Удалить пользователя?');
-        if (!ok) return;
+    const handleDeleteSubmit = async (p: Omit<DeleteUserPayload, 'id'>) => {
+        if (!deleteTarget) return;
         try {
-            await del.mutateAsync(user.id);
-            router.push('/admin/users');
-        } catch (err) {
-            if (err instanceof Error) {
-                toast.error(err.message);
-            } else {
-                toast.error('Ошибка удаления');
-            }
+            await deleteUser.mutateAsync({
+                id: deleteTarget.id,
+                distribute_to_agents: p.distribute_to_agents,
+                agent_id: p.distribute_to_agents ? undefined : p.agent_id ?? undefined,
+            });
+            toast.success('Удалено');
+            closeDeleteDialog();
+        } catch (e) {
+            showAxiosErrorToast(e, 'Не удалось удалить пользователя');
         }
+    };
+
+    const openDeleteDialog = (u: UserDto) => {
+        setDeleteTarget(u);
+        setDeleteOpen(true);
+    };
+
+    const closeDeleteDialog = () => {
+        setDeleteTarget(null);
+        setDeleteOpen(false);
     };
 
     return (
@@ -59,7 +74,7 @@ export default function UserDetails() {
                 <h1 className="text-2xl font-bold">Пользователь #{user.id}</h1>
                 <button
                     className="px-3 py-1 rounded-md border border-red-300 text-red-600"
-                    onClick={onDelete}
+                    onClick={() => openDeleteDialog(user)}
                 >
                     Удалить
                 </button>
@@ -70,6 +85,15 @@ export default function UserDetails() {
                 onSubmit={onSubmit}
                 onCancel={() => history.back()}
                 isSubmitting={upd.isPending}
+            />
+
+            <DeleteUserDialog
+                open={deleteOpen}
+                onClose={closeDeleteDialog}
+                user={deleteTarget}
+                agents={agents}
+                loadingAgents={loadingAgents}
+                onConfirm={handleDeleteSubmit}
             />
         </div>
     );

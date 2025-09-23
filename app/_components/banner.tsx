@@ -38,7 +38,7 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
   const handleSearch = () => {
     const searchParams = new URLSearchParams();
 
-    if (propertyType) searchParams.append('propertyType', propertyType);
+    if (propertyType) searchParams.append('propertyTypes', propertyType);
     if (roomsFrom) searchParams.append('roomsFrom', roomsFrom);
     if (roomsTo) searchParams.append('roomsTo', roomsTo);
     if (priceFrom) searchParams.append('priceFrom', priceFrom);
@@ -301,6 +301,7 @@ export const MainBanner: FC<{ title: string }> = ({ title }) => {
           priceFrom,
           priceTo,
         }}
+        propertyTypes={propertyTypes ?? []}
       />
     </div>
   );

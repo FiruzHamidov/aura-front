@@ -11,6 +11,7 @@ import { AllFilters } from '@/app/_components/filters';
 import { PropertyFilters } from '@/services/properties/types';
 import BuyCardSkeleton from '@/ui-components/BuyCardSkeleton';
 import { Tabs } from '@/ui-components/tabs/tabs';
+import {useGetPropertyTypesQuery} from "@/services/add-post";
 
 type FilterType = 'list' | 'map';
 
@@ -31,7 +32,7 @@ export const BuyContent = () => {
   const router = useRouter();
   const [activeFilter, setActiveFilter] = useState<FilterType>('list');
   const [isAllFiltersOpen, setIsAllFiltersOpen] = useState(false);
-
+  const {data: propertyTypesList} = useGetPropertyTypesQuery();
   const formattedInitialFilters = useMemo(
     () => ({
       propertyTypes: searchParams.get('propertyTypes')?.split(',') || undefined,
@@ -57,10 +58,7 @@ export const BuyContent = () => {
     priceTo: searchParams.get('priceTo') || undefined,
     city: searchParams.get('cities') || undefined,
     repair_type_id: searchParams.get('repairs') || undefined,
-    type_id:
-      searchParams.get('propertyType') ||
-      searchParams.get('apartmentTypes') ||
-      undefined,
+    type_id: searchParams.get('propertyTypes') || '',
     roomsFrom: searchParams.get('roomsFrom') || undefined,
     roomsTo: searchParams.get('roomsTo') || undefined,
     districts: searchParams.get('districts') || undefined,
@@ -123,6 +121,21 @@ export const BuyContent = () => {
     roomsTo: '5',
     per_page: 1000,
   });
+
+  const selectedTypeNames = useMemo(() => {
+    const idsParam = searchParams.get('propertyTypes');
+    if (!idsParam || !propertyTypesList) return null;
+
+    const ids = idsParam.split(',').map((n) => Number(n)).filter(Boolean);
+    const names = propertyTypesList
+        .filter((t) => ids.includes(t.id))
+        .map((t) => t.name);
+
+    if (names.length === 0) return null;
+    if (names.length === 1) return names[0];
+    if (names.length === 2) return `${names[0]} и ${names[1]}`;
+    return `${names[0]} и ещё ${names.length - 1}`;
+  }, [searchParams, propertyTypesList]);
 
   useEffect(() => {
     const updatedCategories = [...roomCategories];
@@ -287,12 +300,12 @@ export const BuyContent = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
               <h1 className="text-2xl font-bold text-[#020617] mb-1">
-                Купить квартиру вторичка
+                {selectedTypeNames ? `Купить: ${selectedTypeNames}` : 'Купить недвижимость'}
               </h1>
               <p className="text-[#666F8D]">
                 {isLoading
                   ? 'Загрузка объявлений...'
-                  : `Найдено ${propertiesForBuy.total || 750} объектов`}
+                  : `Найдено ${propertiesForBuy.total || 0} объектов`}
               </p>
             </div>
 
@@ -320,6 +333,7 @@ export const BuyContent = () => {
           onClose={() => setIsAllFiltersOpen(false)}
           onSearch={handleAdvancedSearch}
           initialFilters={formattedInitialFilters}
+          propertyTypes={propertyTypesList ?? []}
         />
       </div>
 
@@ -365,7 +379,7 @@ export const BuyContent = () => {
           {isFetchingNextPage && (
             <section>
               <div className="mx-auto w-full max-w-[1520px]">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-[30px] mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-[30px] mb-4">
                   {Array.from({ length: 4 }).map((_, index) => (
                     <BuyCardSkeleton key={`loading-${index}`} />
                   ))}
