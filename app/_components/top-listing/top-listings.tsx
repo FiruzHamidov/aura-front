@@ -23,10 +23,6 @@ const fallbackTabs: ReadonlyArray<TabItem> = [
     {key: 'commercial', label: 'Коммерческая'},
 ] as const;
 
-const AUTOPLAY_MS = 6000;      // полное заполнение = 6с
-const TICK_MS = 100;           // шаг таймера
-const PROGRESS_MAX = 100;
-
 const PAGE_SIZE = 5;
 
 const TopListings: FC<{
@@ -131,6 +127,12 @@ const TopListings: FC<{
         return map;
     }, [tabs, listings]);
 
+    // Табы только с объявлениями
+    const filteredTabs = useMemo<TabItem[]>(() => {
+        const arr = tabs.filter(t => (countsByType.get(t.key) || 0) > 0);
+        return arr.length ? arr : tabs; // если вдруг все пустые — не ломаем UI
+    }, [tabs, countsByType]);
+
     // Выравниваем activeType: если текущий таб отсутствует или пуст — прыгаем на первый с count>0 (или просто первый)
     useEffect(() => {
         const exists = tabs.some((t) => t.key === activeType);
@@ -149,6 +151,13 @@ const TopListings: FC<{
 
     const [slide, setSlide] = useState(0);
     const totalSlides = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+
+    useEffect(() => {
+        if (!filteredTabs.find(t => t.key === activeType)) {
+            setActiveType(filteredTabs[0]?.key ?? 'apartment');
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filteredTabs]);
 
     useEffect(() => {
         setSlide(0);
