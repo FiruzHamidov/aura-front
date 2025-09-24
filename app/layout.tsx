@@ -1,19 +1,19 @@
 // app/layout.tsx
-import { ReactNode, Suspense } from 'react';
-import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import {ReactNode, Suspense} from 'react';
+import type {Metadata, Viewport} from 'next';
+import {Inter} from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import Footer from './_components/footer';
 import Header from './_components/header';
 import MobileBottomNavigation from './_components/MobileBottomNavigation';
-import { QueryProvider } from '@/utils/providers';
+import {QueryProvider} from '@/utils/providers';
 import YandexMetrikaClient from '@/yandex-metrika-client';
-import { Sidebar } from '@/app/profile/_components/sidebar';
-import { cookies } from 'next/headers';
+import {Sidebar} from '@/app/profile/_components/sidebar';
+import {cookies} from 'next/headers';
 import ToastProvider from "@/app/_components/_providers/ToastProvider";
 
-const interFont = Inter({ variable: '--font-inter', subsets: ['latin', 'cyrillic'] });
+const interFont = Inter({variable: '--font-inter', subsets: ['latin', 'cyrillic']});
 
 const SITE_URL = 'https://aura.tj';
 const YM_ID = Number(process.env.NEXT_PUBLIC_YM_ID ?? 104117823);
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
         'Таджикистан',
         'Aura Estate',
     ],
-    authors: [{ name: 'Aura' }],
+    authors: [{name: 'Aura'}],
     openGraph: {
         type: 'website',
         url: SITE_URL,
@@ -69,12 +69,12 @@ export const metadata: Metadata = {
     },
     icons: {
         icon: [
-            { url: '/icons/favicon.ico' },
-            { url: '/icons/web-app-manifest-192x192.png', sizes: '32x32', type: 'image/png' },
-            { url: '/icons/web-app-manifest-192x192.png', sizes: '192x192', type: 'image/png' },
-            { url: '/icons/web-app-manifest-512x512.png', sizes: '512x512', type: 'image/png' },
+            {url: '/icons/favicon.ico'},
+            {url: '/icons/web-app-manifest-192x192.png', sizes: '32x32', type: 'image/png'},
+            {url: '/icons/web-app-manifest-192x192.png', sizes: '192x192', type: 'image/png'},
+            {url: '/icons/web-app-manifest-512x512.png', sizes: '512x512', type: 'image/png'},
         ],
-        apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
+        apple: [{url: '/icons/apple-touch-icon.png', sizes: '180x180'}],
     },
     manifest: '/site.webmanifest', // PWA манифест, если используешь
     robots: {
@@ -102,7 +102,7 @@ export const viewport: Viewport = {
     colorScheme: 'light dark',
 };
 
-export default async function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({children}: { children: ReactNode }) {
     const cookieStore = await cookies();
     const token = cookieStore.get('auth_token')?.value;
 
@@ -110,8 +110,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <html lang="ru">
         <head>
             {/* На iOS/Safari иногда надёжнее продублировать вручную */}
-            <meta name="theme-color" content="transparent" />
-            <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+            <meta name="theme-color" content="transparent"/>
+            <meta name="apple-mobile-web-app-capable" content="yes"/>
+            <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
 
             {/* JSON-LD: WebSite + Organization */}
             <script
@@ -165,16 +167,16 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 
         <Suspense fallback={null}>
             <QueryProvider>
-                <Header />
-                {token && <Sidebar />}
+                <Header/>
+                {token && <Sidebar/>}
                 <main>{children}</main>
-                <ToastProvider />
-                <MobileBottomNavigation />
-                <Footer />
+                <ToastProvider/>
+                <MobileBottomNavigation/>
+                <Footer/>
             </QueryProvider>
 
             {/* SPA-хиты */}
-            <YandexMetrikaClient ymId={YM_ID} />
+            <YandexMetrikaClient ymId={YM_ID}/>
         </Suspense>
 
         {/* noscript-пиксель */}
@@ -183,7 +185,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                     src={`https://mc.yandex.ru/watch/${YM_ID}`}
-                    style={{ position: 'absolute', left: '-9999px' }}
+                    style={{position: 'absolute', left: '-9999px'}}
                     alt=""
                 />
             </div>
