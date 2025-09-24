@@ -14,7 +14,9 @@ import Head from "next/head";
 export default function Home() {
     const router = useRouter();
 
-    const {data: properties, isLoading} = useGetPropertiesQuery();
+    const {data: properties, isLoading} = useGetPropertiesQuery({
+        listing_type: 'regular',
+        });
     const {data: vipProperties, isLoading: isVipLoading} =
         useGetPropertiesQuery({
             listing_type: 'vip',

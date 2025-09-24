@@ -1,6 +1,7 @@
 'use client';
 
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion, PanInfo } from 'framer-motion';
+import { ReactNode, FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Clusterer,
   FullscreenControl,
@@ -27,6 +28,8 @@ import { useProfile } from '@/services/login/hooks';
 import { useSearchParams } from 'next/navigation';
 import type * as ymaps from 'yandex-maps';
 import { createPortal } from 'react-dom';
+import {Eye, X} from "lucide-react";
+import Link from "next/link";
 
 const DEFAULT_CENTER: [number, number] = [38.559772, 68.787038];
 const DEFAULT_ZOOM = 12;
@@ -114,12 +117,12 @@ export const BuyMap: FC<Props> = ({ items, offset = { x: 32, y: -468 } }) => {
     return points;
   }, [points]);
 
-  const [hovered, setHovered] = useState<Point | null>(null);
+  // const [hovered, setHovered] = useState<Point | null>(null);
   const [selected, setSelected] = useState<Point | null>(null);
-  const [hoverPos, setHoverPos] = useState<{
-    left: number;
-    top: number;
-  } | null>(null);
+  // const [hoverPos, setHoverPos] = useState<{
+  //   left: number;
+  //   top: number;
+  // } | null>(null);
   const [selectPos, setSelectPos] = useState<{
     left: number;
     top: number;
@@ -175,11 +178,11 @@ export const BuyMap: FC<Props> = ({ items, offset = { x: 32, y: -468 } }) => {
     const map = mapRef.current;
     if (!map) return;
     const recalc = () => {
-      project(hovered?.coords ?? null, setHoverPos);
+      // project(hovered?.coords ?? null, setHoverPos);
       project(selected?.coords ?? null, setSelectPos);
     };
-    map.events.add('actiontick', recalc);
-    map.events.add('boundschange', recalc);
+    // map.events.add('actiontick', recalc);
+    // map.events.add('boundschange', recalc);
     const ro = new ResizeObserver(recalc);
     if (wrapRef.current) ro.observe(wrapRef.current);
     recalc();
@@ -188,7 +191,37 @@ export const BuyMap: FC<Props> = ({ items, offset = { x: 32, y: -468 } }) => {
       map.events.remove('boundschange', recalc);
       ro.disconnect();
     };
-  }, [hovered, selected, project]);
+  }, [selected, project]);
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const mq = window.matchMedia('(max-width: 768px)');
+
+    // типобезопасный слушатель
+    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+
+    // установить текущее состояние
+    setIsMobile(mq.matches);
+
+    // современный API
+    if (typeof mq.addEventListener === 'function') {
+      mq.addEventListener('change', onChange);
+    } else if (typeof mq.addListener === 'function') {
+      // совместимость со старыми WebKit
+      mq.addListener(onChange);
+    }
+
+    return () => {
+      if (typeof mq.removeEventListener === 'function') {
+        mq.removeEventListener('change', onChange);
+      } else if (typeof mq.removeListener === 'function') {
+        mq.removeListener(onChange);
+      }
+    };
+  }, []);
 
   const onMapInstance = useCallback(
     (map: ymaps.Map) => {
@@ -333,7 +366,7 @@ export const BuyMap: FC<Props> = ({ items, offset = { x: 32, y: -468 } }) => {
             'control.TypeSelector',
           ]}
           options={{ suppressMapOpenBlock: true }}
-          onClick={() => setHovered(null)}
+          // onClick={() => setHovered(null)}
         >
           <ZoomControl
             options={{ size: 'large', position: { right: 16, top: 16 } }}
@@ -432,15 +465,15 @@ export const BuyMap: FC<Props> = ({ items, offset = { x: 32, y: -468 } }) => {
                     hasHint: false,
                     hasBalloon: false,
                   }}
-                  onMouseEnter={() => {
-                    setHovered(p);
-                    project(p.coords, setHoverPos);
-                  }}
-                  onMouseLeave={() => {
-                    setHovered((prev) =>
-                      prev?.it.id === p.it.id ? null : prev
-                    );
-                  }}
+                  // onMouseEnter={() => {
+                  //   setHovered(p);
+                  //   project(p.coords, setHoverPos);
+                  // }}
+                  // onMouseLeave={() => {
+                  //   setHovered((prev) =>
+                  //     prev?.it.id === p.it.id ? null : prev
+                  //   );
+                  // }}
                   onClick={() => {
                     setSelected(p);
                     project(p.coords, setSelectPos);
@@ -451,46 +484,79 @@ export const BuyMap: FC<Props> = ({ items, offset = { x: 32, y: -468 } }) => {
           )}
         </Map>
 
-        {hovered &&
-          hoverPos &&
-          (!selected || selected.it.id !== hovered.it.id) &&
-          typeof document !== 'undefined' &&
-          createPortal(
-            <div
-              className="pointer-events-none fixed z-[2147483647] max-w-[360px]"
-              style={{ left: hoverPos.left, top: hoverPos.top }}
-            >
-              <div className="scale-[0.95] origin-bottom-left opacity-95">
-                <div className="pointer-events-none">
-                  <BuyCard listing={hovered.it} user={user} />
-                </div>
-              </div>
-            </div>,
-            document.body
-          )}
+        {/*{hovered &&*/}
+        {/*  hoverPos &&*/}
+        {/*  (!selected || selected.it.id !== hovered.it.id) &&*/}
+        {/*  typeof document !== 'undefined' &&*/}
+        {/*  createPortal(*/}
+        {/*    <div*/}
+        {/*      className="pointer-events-none fixed z-[2147483647] max-w-[360px]"*/}
+        {/*      style={{ left: hoverPos.left, top: hoverPos.top }}*/}
+        {/*    >*/}
+        {/*      <div className="scale-[0.95] origin-bottom-left opacity-95">*/}
+        {/*        <div className="pointer-events-none">*/}
+        {/*          <BuyCard listing={hovered.it} user={user} />*/}
+        {/*        </div>*/}
+        {/*      </div>*/}
+        {/*    </div>,*/}
+        {/*    document.body*/}
+        {/*  )}*/}
 
+        {/* ВЫБОР объекта */}
         {selected &&
-          selectPos &&
-          typeof document !== 'undefined' &&
-          createPortal(
-            <div
-              className="fixed z-[2147483647] max-w-[320px]"
-              style={{ left: selectPos.left, top: selectPos.top }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="relative">
-                <button
-                  onClick={() => setSelected(null)}
-                  className="absolute -right-2 -top-2 h-8 w-8 rounded-full bg-black/80 text-white text-sm"
-                  aria-label="Close"
+            typeof document !== 'undefined' &&
+            (isMobile ? (
+                <BottomSheet
+                    open={!!selected}
+                    onClose={() => setSelected(null)}
+                    initialHeight={600}
+                    maxHeightPct={0.92}
+                    showCloseButton
+                    actions={
+                      <div className="flex gap-8 w-full">
+                        {/*<button*/}
+                        {/*    type="button"*/}
+                        {/*    onClick={() => setSelected(null)}*/}
+                        {/*    className="flex-1 h-12 rounded-xl border border-neutral-300 font-medium"*/}
+                        {/*>*/}
+                        {/*  Закрыть*/}
+                        {/*</button>*/}
+
+                        <Link
+                            href={`/apartment/${selected.it.id}`}
+                            className="flex-1 h-12 inline-flex items-center justify-center gap-2 rounded-xl bg-[#0036A5] text-white font-semibold"
+                        >
+                          <Eye className="h-5 w-5" />
+                          Посмотреть объект
+                        </Link>
+                      </div>
+                    }
                 >
-                  ✕
-                </button>
-                <BuyCard listing={selected.it} user={user} />
-              </div>
-            </div>,
-            document.body
-          )}
+                  <BuyCard listing={selected.it} user={user} />
+                </BottomSheet>
+            ) : (
+                selectPos &&
+                createPortal(
+                    <div
+                        className="fixed z-[2147483647] max-w-[320px]"
+                        style={{ left: selectPos.left, top: selectPos.top }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="relative">
+                        <button
+                            onClick={() => setSelected(null)}
+                            className="absolute -right-2 -top-2 h-8 w-8 rounded-full bg-black/80 text-white text-sm"
+                            aria-label="Close"
+                        >
+                          ✕
+                        </button>
+                        <BuyCard listing={selected.it} user={user} />
+                      </div>
+                    </div>,
+                    document.body
+                )
+            ))
+        }
 
         {isLoadingProperty &&
           selectPos &&
@@ -517,3 +583,123 @@ export const BuyMap: FC<Props> = ({ items, offset = { x: 32, y: -468 } }) => {
 };
 
 export default BuyMap;
+
+const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
+
+type BottomSheetProps = {
+  open: boolean;
+  onClose: () => void;
+  children: ReactNode;
+  initialHeight?: number; // px
+  maxHeightPct?: number;  // 0..1
+  showCloseButton?: boolean;
+  actions?: ReactNode;
+};
+
+export function BottomSheet({
+                              open,
+                              onClose,
+                              children,
+                              initialHeight = 600,
+                              maxHeightPct = 0.92,
+                              showCloseButton = false,
+                              actions,
+                            }: BottomSheetProps) {
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [open, onClose]);
+
+  const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
+  const maxH = Math.floor(vh * maxHeightPct);
+  const targetH = clamp(initialHeight, Math.min(360, Math.floor(vh * 0.5)), maxH);
+
+  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const dragged = info.offset.y;
+    const velocity = info.velocity.y;
+    if (dragged > 120 || velocity > 1000) onClose();
+  };
+
+  return (
+      <AnimatePresence>
+        {open && typeof document !== 'undefined' && (
+            <>
+              {createPortal(
+                  <motion.div
+                      className="fixed inset-0 z-[2147483646] bg-black/40"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={onClose}
+                  />,
+                  document.body
+              )}
+
+              {createPortal(
+                  <motion.div
+                      className="fixed left-0 right-0 bottom-0 z-[2147483647] pointer-events-none"
+                      initial={{ y: '100%' }}
+                      animate={{ y: 0 }}
+                      exit={{ y: '100%' }}
+                      transition={{ type: 'spring', stiffness: 280, damping: 30 }}
+                  >
+                    <motion.div
+                        role="dialog"
+                        aria-modal="true"
+                        className="pointer-events-auto mx-auto w-full max-w-[640px]"
+                        style={{ height: targetH }}
+                        drag="y"
+                        dragDirectionLock
+                        dragConstraints={{ top: 0, bottom: 0 }}
+                        onDragEnd={handleDragEnd}
+                    >
+                      <div className="relative rounded-t-2xl bg-white shadow-2xl h-full flex flex-col">
+                        {/* header */}
+                        <div className="flex items-center justify-center pt-2 pb-1 relative">
+                          <div className="h-1.5 w-12 rounded-full bg-neutral-300" />
+                          {showCloseButton && (
+                              <button
+                                  type="button"
+                                  aria-label="Закрыть"
+                                  onClick={onClose}
+                                  className="absolute right-2 top-2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-neutral-100"
+                              >
+                                <X className="h-5 w-5" />
+                              </button>
+                          )}
+                        </div>
+
+                        {/* content */}
+                        <div className="px-3 pb-3 overflow-y-auto flex-1">
+                          {children}
+                          {/* запас под футер, чтобы контент не перекрывался */}
+                          {actions ? <div className="h-6" /> : null}
+                        </div>
+
+                        {/* footer actions */}
+                        {actions && (
+                            <div
+                                className="sticky bottom-0 left-0 right-0 px-3 pb-[max(16px,env(safe-area-inset-bottom))] pt-3 bg-white border-t border-neutral-200"
+                            >
+                              {actions}
+                            </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  </motion.div>,
+                  document.body
+              )}
+            </>
+        )}
+      </AnimatePresence>
+  );
+}

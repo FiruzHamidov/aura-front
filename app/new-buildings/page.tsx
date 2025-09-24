@@ -5,27 +5,27 @@ import clsx from 'clsx';
 import NewBuildingCard from '@/ui-components/new-buildings/new-buildings-card';
 
 const newBuildings = [
-  {
-    id: 1,
-    slug: 'norak-river',
-    title: 'ЖК Норак Ривер',
-    subtitle: 'Квартиры 6-10 этаж готов 4кв 2025',
-    image: {
-      src: '/images/buildings/norak.png',
-      alt: 'ЖК Норак Ривер',
-    },
-    apartmentOptions: [
-      { rooms: 1, area: 58, price: 420000 },
-      { rooms: 1, area: 72, price: 532000 },
-      { rooms: 2, area: 121, price: 800000 },
-    ],
-    location: 'Душанбе, Телман (Кукольный Театр "Лухтак")',
-    developer: {
-      name: 'МБ Бехруз',
-      logo: '/images/developers/behruz.png',
-    },
-    hasInstallmentOption: false,
-  },
+  // {
+  //   id: 1,
+  //   slug: 'norak-river',
+  //   title: 'ЖК Норак Ривер',
+  //   subtitle: 'Квартиры 6-10 этаж готов 4кв 2025',
+  //   image: {
+  //     src: '/images/buildings/norak.png',
+  //     alt: 'ЖК Норак Ривер',
+  //   },
+  //   apartmentOptions: [
+  //     { rooms: 1, area: 58, price: 420000 },
+  //     { rooms: 1, area: 72, price: 532000 },
+  //     { rooms: 2, area: 121, price: 800000 },
+  //   ],
+  //   location: 'Душанбе, Телман (Кукольный Театр "Лухтак")',
+  //   developer: {
+  //     name: 'МБ Бехруз',
+  //     logo: '/images/developers/behruz.png',
+  //   },
+  //   hasInstallmentOption: false,
+  // },
   {
     id: 2,
     slug: 'khonai-orzu',

@@ -279,7 +279,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                 </div>
 
                 {displayAgent && (
-                    <div className="mt-auto pt-3 flex items-center justify-between text-xs gap-1">
+                    <div className="pt-3 flex items-center justify-between text-xs gap-1">
                         <div className="flex items-center justify-center">
                             {displayAgent.photo ? (
                                 <Image
