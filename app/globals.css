@@ -22,12 +22,12 @@
 
 html {
     scroll-behavior: smooth;
-    background: #fff;
+    background: transparent;
 }
 
 body {
     font-family: var(--font-inter);
-    background: #fff;
+    background: transparent;
     color: #020617;
     font-weight: 500;
 }
@@ -52,4 +52,9 @@ body {
 .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+}
+
+#root, main {
+    background: #fff;
+    min-height: 100vh;
 }
