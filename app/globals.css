@@ -22,12 +22,12 @@
 
 html {
     scroll-behavior: smooth;
-    background-color: transparent;
+    background: #fff;
 }
 
 body {
     font-family: var(--font-inter);
-    background-color: transparent;
+    background: #fff;
     color: #020617;
     font-weight: 500;
 }

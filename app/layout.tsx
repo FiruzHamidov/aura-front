@@ -112,8 +112,6 @@ export default async function RootLayout({children}: { children: ReactNode }) {
             {/* На iOS/Safari иногда надёжнее продублировать вручную */}
             <meta name="theme-color" content="transparent"/>
             <meta name="apple-mobile-web-app-capable" content="yes"/>
-            <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-
 
             {/* JSON-LD: WebSite + Organization */}
             <script
