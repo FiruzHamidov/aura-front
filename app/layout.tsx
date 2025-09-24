@@ -99,7 +99,6 @@ export const viewport: Viewport = {
     width: 'device-width',
     initialScale: 1,
     themeColor: 'transparent',
-    colorScheme: 'light dark',
     viewportFit: 'cover',
 };
 
