@@ -98,7 +98,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
     width: 'device-width',
     initialScale: 1,
-    themeColor: 'transparent',
     viewportFit: 'cover',
 };
 
@@ -110,7 +109,8 @@ export default async function RootLayout({children}: { children: ReactNode }) {
         <html lang="ru">
         <head>
             {/* На iOS/Safari иногда надёжнее продублировать вручную */}
-            <meta name="theme-color" content="transparent"/>
+            <meta name="theme-color" media="(prefers-color-scheme: light)" content="#00000000"/>
+            <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#00000000"/>
             <meta name="apple-mobile-web-app-capable" content="yes"/>
 
             {/* JSON-LD: WebSite + Organization */}
