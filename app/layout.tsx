@@ -98,7 +98,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
     width: 'device-width',
     initialScale: 1,
-    themeColor: 'transparent', // делает нижнюю панель Safari прозрачной
+    themeColor: 'transparent',
     colorScheme: 'light dark',
 };
 
