@@ -57,6 +57,8 @@ export interface Property {
   latitude?: string;
   longitude?: string;
   owner_phone?: string;
+  object_key?: string;
+  owner_name?: string;
   listing_type: string;
   district?: string;
   address?: string;

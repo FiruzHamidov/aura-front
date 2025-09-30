@@ -22,7 +22,7 @@ const FavoriteButton: FC<FavoriteButtonProps> = ({
   const router = useRouter();
   const { data: user } = useMe();
 
-  const { data: favorites = [] } = useFavorites(!!user);
+  const { data: favorites = [] } = useFavorites(false);
   const toggleFavorite = useToggleFavorite();
 
   const isFavorite = Array.isArray(favorites) && favorites.some(

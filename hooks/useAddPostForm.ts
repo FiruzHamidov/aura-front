@@ -67,6 +67,8 @@ const initialFormState: FormState = {
     agent_id: '',
     photos: [],
     owner_phone: '',
+    owner_name: '',
+    object_key: '',
     district: '',
     address: '',
 };
@@ -145,6 +147,8 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
                 agent_id: propertyData.agent_id?.toString() || '',
                 photos: mapServerPhotos(propertyData.photos),
                 owner_phone: propertyData.owner_phone || '',
+                owner_name: propertyData.owner_name || '',
+                object_key: propertyData.object_key || '',
                 district: propertyData.district || '',
                 address: propertyData.address || '',
             });

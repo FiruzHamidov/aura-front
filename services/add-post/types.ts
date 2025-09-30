@@ -31,6 +31,8 @@ export interface FormState {
     contract_type_id: string;
     moderation_status: string;
     owner_phone: string;
+    owner_name: string;
+    object_key: string;
     price: string;
     currency: string;
     total_area: string;
@@ -87,6 +89,8 @@ export interface CreatePropertyRequest {
     is_from_developer: boolean;
     landmark: string;
     owner_phone?: string;
+    owner_name?: string;
+    object_key?: string;
     youtube_link?: string;
     latitude?: string;
     longitude?: string;
@@ -105,10 +109,10 @@ export interface CreatePropertyResponse {
     property?: Property;
 }
 
-/** ✅ Payload-union для CREATE: принимаем либо FormData, либо JSON */
+
 export type CreatePropertyPayload = FormData | CreatePropertyRequest;
 
-/** ✅ Payload-union для UPDATE: либо multipart, либо JSON-patch */
+
 export type UpdatePropertyPayload =
     | { id: string; formData: FormData }                           // multipart (дозагрузка фото и поля)
     | { id: string; json: Partial<CreatePropertyRequest> };        // JSON-патч (без файлов)

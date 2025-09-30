@@ -211,6 +211,24 @@ export function PropertyDetailsStep({
                 />
 
                 <Input
+                    label="ФИО владельца"
+                    name="owner_phone"
+                    value={form.owner_name}
+                    onChange={onChange}
+                    type="tel"
+                    placeholder="+992 XX XXX XX XX"
+                />
+
+                <Input
+                    label="Ключ от объекта"
+                    name="owner_phone"
+                    value={form.object_key}
+                    onChange={onChange}
+                    type="tel"
+                    placeholder="+992 XX XXX XX XX"
+                />
+
+                <Input
                     label="Цена"
                     name="price"
                     type="number"
