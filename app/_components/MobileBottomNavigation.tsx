@@ -172,7 +172,7 @@ const MobileBottomNavigation: FC = () => {
                         href="/profile/add-post"
                         className={`
               md:hidden fixed z-50 right-6
-              bottom-[calc(100px+max(env(safe-area-inset-bottom),0px))]
+              bottom-[calc(160px+max(env(safe-area-inset-bottom),0px))]
               bg-[#0036A5] text-white rounded-xl shadow-lg
               w-14 h-14 flex items-center justify-center
               hover:bg-[#002a7a] transition

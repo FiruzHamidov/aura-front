@@ -1,123 +1,230 @@
 'use client';
 
-import {useEffect, useRef, useState} from "react";
-import Image from "next/image";
-import {Home, Loader2, MapPin, MessageSquare, Send, X} from "lucide-react";
-import {fmtPrice, getOrCreateSessionId} from "@/services/chat/helpers";
-import {ChatHistoryResponse, ChatMessage, ChatPostResponse, PropertyCard} from "@/services/chat/types";
+import {useEffect, useRef, useState} from 'react';
+import Image from 'next/image';
+import {Home, Loader2, MapPin, MessageSquareText, Send, X} from 'lucide-react';
+import {fmtPrice, getOrCreateSessionId} from '@/services/chat/helpers';
+import {ChatHistoryResponse, ChatMessage, ChatPostResponse, PropertyCard} from '@/services/chat/types';
+
+type Props = {
+    apiBase: string;
+    title?: string;
+    subtitle?: string;
+};
 
 export default function ChatWidget({
                                        apiBase,
-                                       title = "Aura Assistant",
-                                       subtitle = "ИИ-помощник от Aura Online"
-                                   }: {
-    apiBase: string;
-    title?: string;
-    brandUrl?: string;
-    subtitle?: string;
-}) {
+                                       title = 'Чат с поддержкой',
+                                       subtitle = 'На связи 24/7',
+                                   }: Props) {
     const [open, setOpen] = useState(false);
+
+    // ---- печаталка: одна фраза за загрузку страницы ----
+    const buttonPhrases = [
+        'Поможем с выбором…',
+        'Мы онлайн',
+        'Подберём за минуту',
+        'Есть вопросы по квартире?',
+    ];
+    const TYPE_SPEED = 65;
+    const LS_PHRASE_IDX = 'aura_chat_btn_phrase_idx';
+
+    const SCROLL_DELTA = 8;
+    const SHOW_TOP_OFFSET = 48;
+
+    const [fabHidden, setFabHidden] = useState(false);
+    const lastYRef = useRef(0);
+
+    const [phrase, setPhrase] = useState<string>(buttonPhrases[0]);
+    const [typed, setTyped] = useState<string>('');
+
+    useEffect(() => {
+        const onScroll = () => {
+            const y = window.scrollY || 0;
+            const diff = y - lastYRef.current;
+
+            if (y <= SHOW_TOP_OFFSET) {
+                setFabHidden(false);
+            } else if (diff > SCROLL_DELTA) {
+                // скроллим вниз — прячем
+                setFabHidden(true);
+            } else if (diff < -SCROLL_DELTA) {
+                // скроллим вверх — показываем
+                setFabHidden(false);
+            }
+            lastYRef.current = y;
+        };
+
+        lastYRef.current = window.scrollY || 0;
+        window.addEventListener('scroll', onScroll, {passive: true});
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+
+    useEffect(() => {
+        if (open) setFabHidden(false);
+    }, [open]);
+
+    // выбираем случайную фразу (не равную прошлой, если возможно)
+    useEffect(() => {
+        let idx = Math.floor(Math.random() * buttonPhrases.length);
+
+        if (typeof window !== 'undefined') {
+            const lastIdxRaw = localStorage.getItem(LS_PHRASE_IDX);
+            const lastIdx = lastIdxRaw != null ? parseInt(lastIdxRaw, 10) : NaN;
+            if (!Number.isNaN(lastIdx) && buttonPhrases.length > 1) {
+                // избегаем повтора прошлой фразы
+                if (idx === lastIdx) {
+                    idx = (idx + 1) % buttonPhrases.length;
+                }
+            }
+            localStorage.setItem(LS_PHRASE_IDX, String(idx));
+        }
+
+        setPhrase(buttonPhrases[idx]);
+        setTyped(''); // сброс печати на старте
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // когда окно открыто — сразу показываем полную фразу, без анимации
+    useEffect(() => {
+        if (open) setTyped(phrase);
+    }, [open, phrase]);
+
+    // печать одной фразы без удаления и циклов
+    useEffect(() => {
+        if (open) return; // анимацию не крутим при открытом чате
+        if (typed.length >= phrase.length) return;
+
+        const timer = window.setTimeout(() => {
+            setTyped(phrase.slice(0, typed.length + 1));
+        }, TYPE_SPEED);
+
+        return () => window.clearTimeout(timer);
+    }, [typed, phrase, open]);
+
+    // ---- состояние чата ----
     const [loading, setLoading] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [input, setInput] = useState("");
-    const [sessionId, setSessionId] = useState<string>("");
+    const [input, setInput] = useState('');
+    const [sessionId, setSessionId] = useState<string>('');
     const listRef = useRef<HTMLDivElement>(null);
 
-    // create/persist session id
+    // фразы ожидания
+    const loadingPhrases = [
+        'Думаю над ответом…',
+        'Подбираю лучшие варианты…',
+        'Сверяю детали, секунду…',
+        'Формулирую рекомендацию…',
+        'Проверяю информацию…',
+    ];
+    const [loadingPhrase, setLoadingPhrase] = useState<string>(loadingPhrases[0]);
+
     useEffect(() => {
         setSessionId(getOrCreateSessionId());
     }, []);
 
-    // load history on open
+    // история при открытии
     useEffect(() => {
         const load = async () => {
             if (!open || !sessionId) return;
             try {
                 const res = await fetch(`${apiBase}/chat/history?session_id=${encodeURIComponent(sessionId)}`, {
-                    method: "GET",
-                    headers: { "Accept": "application/json" },
+                    method: 'GET',
+                    headers: {Accept: 'application/json'},
                 });
                 if (!res.ok) throw new Error(await res.text());
                 const json: ChatHistoryResponse = await res.json();
 
-                // Без any: аккуратно приводим тип items
-                const mapped: ChatMessage[] = (json.messages || []).map((m) => ({
-                    id: m.id,
-                    role: m.role,
-                    content: m.content ?? "",
-                    items: Array.isArray((m as {items?: unknown}).items)
-                        ? ((m as {items?: PropertyCard[]}).items as PropertyCard[])
-                        : null,
-                    created_at: m.created_at,
-                }));
+                const mapped: ChatMessage[] = (json.messages ?? []).map((m) => {
+                    const srcItems = (m as { items?: unknown }).items;
+                    const items: PropertyCard[] | null = Array.isArray(srcItems) ? (srcItems as PropertyCard[]) : null;
+                    return {
+                        id: m.id,
+                        role: m.role,
+                        content: m.content ?? '',
+                        items,
+                        created_at: m.created_at,
+                    };
+                });
 
                 setMessages(mapped);
-                // scroll down after history loaded
-                setTimeout(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "auto" }), 50);
+                setTimeout(() => listRef.current?.scrollTo({top: listRef.current.scrollHeight, behavior: 'auto'}), 50);
             } catch (e) {
-                console.error("load history failed", e);
+                console.error('load history failed', e);
             }
         };
         load();
     }, [open, sessionId, apiBase]);
 
-    // auto-scroll on new msg
+    // автоскролл вниз
     useEffect(() => {
-        listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
+        listRef.current?.scrollTo({top: listRef.current.scrollHeight, behavior: 'smooth'});
     }, [messages]);
+
+    // «живая» фраза при ожидании
+    useEffect(() => {
+        if (loading) {
+            setLoadingPhrase(loadingPhrases[Math.floor(Math.random() * loadingPhrases.length)]);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loading]);
 
     const send = async () => {
         const text = input.trim();
         if (!text || !sessionId) return;
-        setInput("");
+        setInput('');
 
-        const localUserMsg: ChatMessage = { role: "user", content: text, created_at: new Date().toISOString() };
-        setMessages(prev => [...prev, localUserMsg]);
+        const localUserMsg: ChatMessage = {role: 'user', content: text, created_at: new Date().toISOString()};
+        setMessages((prev) => [...prev, localUserMsg]);
         setLoading(true);
 
         try {
             const res = await fetch(`${apiBase}/chat`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                },
-                body: JSON.stringify({ message: text, session_id: sessionId }),
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', Accept: 'application/json'},
+                body: JSON.stringify({message: text, session_id: sessionId}),
             });
+
             const json: ChatPostResponse = await res.json();
 
             const assistantMsg: ChatMessage = {
-                role: "assistant",
-                content: json.answer ?? "",
-                items: Array.isArray(json.items) ? json.items : [],
+                role: 'assistant',
+                content: json.answer ?? '',
+                items: Array.isArray(json.items) ? (json.items as PropertyCard[]) : [],
                 created_at: new Date().toISOString(),
             };
-            setMessages(prev => [...prev, assistantMsg]);
+            setMessages((prev) => [...prev, assistantMsg]);
         } catch (e) {
             console.error(e);
-            const err: ChatMessage = { role: "assistant", content: "Упс… не удалось получить ответ. Попробуйте ещё раз.", created_at: new Date().toISOString() };
-            setMessages(prev => [...prev, err]);
+            const err: ChatMessage = {
+                role: 'assistant',
+                content: 'Что-то пошло не так. Давайте попробуем ещё раз.',
+                created_at: new Date().toISOString(),
+            };
+            setMessages((prev) => [...prev, err]);
         } finally {
             setLoading(false);
         }
     };
 
-    const PropertyCardView = ({ it }: { it: PropertyCard }) => (
-        <a href={it.url} target="_blank" rel="noreferrer" className="block rounded-xl p-3 hover:shadow-md transition bg-white">
+    const PropertyCardView = ({it}: { it: PropertyCard }) => (
+        <a href={it.url} target="_blank" rel="noreferrer"
+           className="block rounded-xl p-3 hover:shadow-md transition bg-white">
             <div className="flex gap-3 items-start">
-                <div className="relative w-16 h-16 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
+                <div
+                    className="relative w-16 h-16 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
                     {it.image ? (
-                        <Image alt={it.title} src={it.image} fill className="object-cover" sizes="64px" />
+                        <Image alt={it.title} src={it.image} fill className="object-cover" sizes="64px"/>
                     ) : (
-                        <Home className="w-5 h-5 text-gray-400" />
+                        <Home className="w-5 h-5 text-gray-400"/>
                     )}
                 </div>
                 <div className="min-w-0 flex-1">
                     <div className="font-medium truncate">{it.title}</div>
                     <div className="text-sm text-gray-600 mt-0.5">{fmtPrice(it.price, it.currency)}</div>
                     <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
-                        <MapPin className="w-3.5 h-3.5" />
-                        <span className="truncate">{it.city || it.district || it.address || "Город не указан"}</span>
+                        <MapPin className="w-3.5 h-3.5"/>
+                        <span className="truncate">{it.city || it.district || it.address || 'Город не указан'}</span>
                     </div>
                     {typeof it.type === 'object' && it.type?.name && (
                         <div className="text-xs text-gray-500 mt-1">Тип: {it.type.name}</div>
@@ -127,17 +234,18 @@ export default function ChatWidget({
         </a>
     );
 
-    const Bubble = ({ m }: { m: ChatMessage }) => {
-        const isUser = m.role === "user";
-        const isAssistant = m.role === "assistant";
+    const Bubble = ({m}: { m: ChatMessage }) => {
+        const isUser = m.role === 'user';
+        const isAssistant = m.role === 'assistant';
         return (
-            <div className={`w-full flex ${isUser ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[85%] rounded-2xl px-4 py-3 shadow ${isUser ? "bg-blue-600 text-white" : "bg-white text-gray-900"}`}>
+            <div className={`w-full flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+                <div
+                    className={`max-w-[85%] rounded-2xl px-4 py-3 shadow ${isUser ? 'bg-blue-600 text-white' : 'bg-white text-gray-900'}`}>
                     {m.content && <div className="whitespace-pre-wrap leading-relaxed text-sm">{m.content}</div>}
                     {isAssistant && Array.isArray(m.items) && m.items.length > 0 && (
                         <div className="mt-3 grid gap-3">
                             {m.items.map((it) => (
-                                <PropertyCardView key={it.id} it={it} />
+                                <PropertyCardView key={it.id} it={it}/>
                             ))}
                         </div>
                     )}
@@ -148,77 +256,116 @@ export default function ChatWidget({
 
     return (
         <>
-            {/* Floating button with waves */}
+            {/* Floating button with waves & single-phrase typing */}
             <button
                 onClick={() => setOpen(true)}
-                className="fixed bottom-6 right-6 z-40 group"
-                aria-label="Открыть чат Aura Assistant"
-            >
-                {/* waves */}
-                <span className="absolute inset-0 -z-10 rounded-full w-14 h-14 bg-blue-500/30 blur-md animate-ping" />
-                <span className="absolute inset-0 -z-10 rounded-full w-14 h-14 bg-blue-500/20 blur-md animate-pulse" />
-                <span className="absolute inset-0 -z-10 rounded-full w-14 h-14 bg-blue-500/10" />
-                {/* button core */}
-                <span className="inline-flex items-center gap-2 rounded-full px-5 py-3 shadow-lg bg-blue-600 text-white hover:bg-blue-700 transition">
-          <MessageSquare className="w-5 h-5" />
-          <span className="whitespace-nowrap">Подобрать недвижимость</span>
-        </span>
+                className={`
+                        fixed z-40 group h-14 rounded-full right-6
+                        bottom-[calc(100px+max(env(safe-area-inset-bottom),0px))]
+                        transition-transform duration-200
+                        ${fabHidden ? 'translate-y-6 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}
+                      `}
+                                    aria-label="Открыть чат Aura Assistant"
+                                >
+                                    {/* волны */}
+                                    <span className="absolute inset-0 -z-10 rounded-full w-14 h-14 bg-blue-500/70 blur-md animate-ping"/>
+                                    <span className="absolute inset-0 -z-10 rounded-full w-14 h-14 bg-blue-500/60 blur-md animate-pulse"/>
+                                    <span className="absolute inset-0 -z-10 rounded-full w-14 h-14 bg-blue-500/30"/>
+                                    {/* ядро кнопки */}
+                                    <span
+                                        className="inline-flex items-center gap-2 rounded-full px-5 py-3 shadow-lg text-white hover:bg-blue-900 transition bg-[#0036A5] w-full h-full">
+                        <MessageSquareText className="w-5 h-5"/>
+                        <span className="relative">
+                          <span>{typed}</span>
+                            {!open && typed.length < phrase.length && (
+                                <span className="ml-0.5 inline-block w-[1px] h-[1em] bg-white align-[-0.18em] animate-pulse"/>
+                            )}
+                        </span>
+                      </span>
             </button>
 
             {/* Backdrop */}
-            {open && (
-                <div className="fixed inset-0 z-40 bg-black/20" onClick={() => setOpen(false)} />
-            )}
+            {open && <div className="fixed inset-0 z-40 bg-black/20" onClick={() => setOpen(false)}/>}
 
             {/* Chat window */}
-            <div className={`fixed z-50 bottom-24 right-6 w-[92vw] max-w-md rounded-2xl bg-gray-50 shadow-xl overflow-hidden ${open ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'} transition`}>
+            <div
+                className={`fixed z-50 bottom-40 right-6 w-[92vw] max-w-md rounded-2xl bg-gray-50 shadow-xl overflow-hidden ${
+                    open ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+                } transition`}
+            >
                 {/* Header */}
-                <div className="bg-white shadow-sm px-4 py-3 flex items-center justify-between">
+                <div className="bg-white px-4 py-3 flex items-center justify-between shadow-sm">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="relative w-5 h-5">
-                            <Image src="/favicon.ico" alt="Aura" fill sizes="20px" className="object-contain" />
+                            <Image src="/favicon.ico" alt="Aura" fill sizes="20px" className="object-contain"/>
                         </div>
                         <div className="min-w-0">
                             <div className="font-semibold leading-tight truncate">{title}</div>
-                            <div className="text-[11px] text-gray-500 leading-tight truncate">{subtitle}</div>
+                            <div className="text-[11px] mt-1 text-gray-500 leading-tight truncate">{subtitle}</div>
                         </div>
                     </div>
                     <button onClick={() => setOpen(false)} className="p-1 rounded hover:bg-gray-100 ml-2">
-                        <X className="w-5 h-5 text-gray-500" />
+                        <X className="w-5 h-5 text-gray-500"/>
                     </button>
                 </div>
 
                 {/* Messages list */}
                 <div ref={listRef} className="h-[58vh] overflow-y-auto p-3 space-y-3">
                     {messages.length === 0 && (
-                        <div className="text-center text-sm text-gray-500 mt-6">
-                            Привет! Я помогу найти квартиру, дом или офис на Aura.tj.
+                        <div className="flex flex-col items-center text-center text-sm text-gray-500 mt-6 gap-3">
+                            {/* Анимированный оператор (Lottie через iframe) */}
+                            <div className="flex justify-center">
+                                <iframe
+                                    title="Aura operator"
+                                    className="w-28 h-28"
+                                    src="https://lottie.host/embed/de0a7611-411e-4a9c-9838-5eb958c014dd/3qYVkw53db.lottie"
+                                />
+                            </div>
+                            {/* текст приветствия */}
+                            <div>
+                                <div className="font-medium text-gray-700">Поддержка Aura на связи!</div>
+                                <div className="mt-1 w-80">Привет! Помогу с выбором квартиры, дома или офиса на
+                                    Aura.tj.
+                                </div>
+                            </div>
                         </div>
                     )}
+
                     {messages.map((m, idx) => (
-                        <Bubble key={(m as {id?: string | number}).id ?? idx} m={m} />
+                        <Bubble key={(m as { id?: string | number }).id ?? idx} m={m}/>
                     ))}
+
                     {loading && (
                         <div className="w-full flex justify-start">
-                            <div className="bg-white rounded-2xl px-4 py-3 shadow text-gray-600 text-sm inline-flex items-center gap-2">
-                                <Loader2 className="w-4 h-4 animate-spin" /> Идёт поиск по Aura Estate…
+                            <div
+                                className="bg-white rounded-2xl px-4 py-3 shadow text-gray-700 text-sm inline-flex items-center gap-2">
+                                <Loader2 className="w-4 h-4 animate-spin"/> {loadingPhrase}
                             </div>
                         </div>
                     )}
                 </div>
 
                 {/* Composer */}
-                <div className="bg-white drop-shadow-[0_-2px_4px_rgba(0,0,0,0.06)] p-2">
+                <div className="bg-white p-2 drop-shadow-[0_-2px_4px_rgba(0,0,0,0.06)]">
                     <div className="flex items-center gap-2">
                         <input
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
-                            placeholder="Опишите запрос: город, комнаты, бюджет…"
-                            className="flex-1 rounded-xl px-3 py-2 border-gray-300 border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    send();
+                                }
+                            }}
+                            placeholder="Напишите, что ищете..."
+                            className="flex-1 rounded-xl px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                         />
-                        <button onClick={send} disabled={loading || !input.trim()} className="rounded-xl bg-blue-600 text-white px-3 py-2 disabled:opacity-50 hover:bg-blue-700">
-                            <Send className="w-4 h-4" />
+                        <button
+                            onClick={send}
+                            disabled={loading || !input.trim()}
+                            className="rounded-xl bg-[#0036A5] text-white px-3 py-2 disabled:opacity-50 hover:bg-blue-900"
+                        >
+                            <Send className="w-4 h-4"/>
                         </button>
                     </div>
                 </div>
