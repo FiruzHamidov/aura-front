@@ -12,6 +12,7 @@ import YandexMetrikaClient from '@/yandex-metrika-client';
 import {Sidebar} from '@/app/profile/_components/sidebar';
 import {cookies} from 'next/headers';
 import ToastProvider from "@/app/_components/_providers/ToastProvider";
+import ClientChatMount from "@/app/_components/client-chat-mount";
 
 const interFont = Inter({variable: '--font-inter', subsets: ['latin', 'cyrillic']});
 
@@ -169,6 +170,7 @@ export default async function RootLayout({children}: { children: ReactNode }) {
                 <main>{children}</main>
                 <ToastProvider/>
                 <MobileBottomNavigation/>
+                <ClientChatMount />
                 <Footer/>
             </QueryProvider>
 
