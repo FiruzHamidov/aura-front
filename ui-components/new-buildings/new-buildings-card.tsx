@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { NewBuildingCardProps } from './types';
 import BedIcon from '@/icons/BedIcon';
 import PlanIcon from '@/icons/PlanIcon';
+import { STORAGE_URL } from '@/constants/base-url';
 
 const NewBuildingCard: FC<NewBuildingCardProps> = ({
   id,
@@ -80,7 +81,11 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <div className="w-[60px] h-[60px] relative mr-3 overflow-hidden rounded-full">
-              <Image src={developer.logo} alt={`${developer.name} logo`} fill />
+              <Image
+                src={`${STORAGE_URL}/${developer.logo_path}`}
+                alt={`${developer.name} logo`}
+                fill
+              />
             </div>
             <span className="text-lg">{developer.name}</span>
           </div>

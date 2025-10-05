@@ -3,82 +3,90 @@
 import { useState } from 'react';
 import clsx from 'clsx';
 import NewBuildingCard from '@/ui-components/new-buildings/new-buildings-card';
+import {
+  useNewBuildings,
+  useNewBuildingPhotos,
+} from '@/services/new-buildings/hooks';
+import type { NewBuildingsFilters } from '@/services/new-buildings/types';
 
-const newBuildings = [
-  // {
-  //   id: 1,
-  //   slug: 'norak-river',
-  //   title: 'ЖК Норак Ривер',
-  //   subtitle: 'Квартиры 6-10 этаж готов 4кв 2025',
-  //   image: {
-  //     src: '/images/buildings/norak.png',
-  //     alt: 'ЖК Норак Ривер',
-  //   },
-  //   apartmentOptions: [
-  //     { rooms: 1, area: 58, price: 420000 },
-  //     { rooms: 1, area: 72, price: 532000 },
-  //     { rooms: 2, area: 121, price: 800000 },
-  //   ],
-  //   location: 'Душанбе, Телман (Кукольный Театр "Лухтак")',
-  //   developer: {
-  //     name: 'МБ Бехруз',
-  //     logo: '/images/developers/behruz.png',
-  //   },
-  //   hasInstallmentOption: false,
-  // },
-  {
-    id: 2,
-    slug: 'khonai-orzu',
-    title: 'ЖК Хонаи Орзу',
-    subtitle: 'Квартиры 6-10 этаж готов 4кв 2025',
-    image: {
-      src: '/images/buildings/orzu.png',
-      alt: 'ЖК Хонаи Орзу',
-    },
-    apartmentOptions: [
-      { rooms: 1, area: 58, price: 420000 },
-      { rooms: 1, area: 72, price: 532000 },
-      { rooms: 2, area: 121, price: 800000 },
-    ],
-    location: 'Душанбе, Телман (Кукольный Театр "Лухтак")',
-    developer: {
-      name: 'Хонаи Орзу',
-      logo: '/images/developers/orzu.png',
-    },
-    hasInstallmentOption: true,
-  },
-  {
-    id: 3,
-    slug: 'elite-house',
-    title: 'ЖК ELite House',
-    subtitle: 'Квартиры 6-10 этаж готов 4кв 2025',
-    image: {
-      src: '/images/buildings/elite.png',
-      alt: 'ЖК ELite House',
-    },
-    apartmentOptions: [
-      { rooms: 1, area: 58, price: 420000 },
-      { rooms: 1, area: 72, price: 532000 },
-      { rooms: 2, area: 121, price: 800000 },
-    ],
-    location: 'Душанбе, Телман (Кукольный Театр "Лухтак")',
-    developer: {
-      name: 'Ориф Сохтмон',
-      logo: '/images/developers/orif.png',
-    },
-    hasInstallmentOption: true,
-  },
-];
+// eslint-disable-next-line
+function NewBuildingCardWithPhotos({ building }: { building: any }) {
+  const { data: photos } = useNewBuildingPhotos(building.id);
+
+  return (
+    <NewBuildingCard
+      key={building.id}
+      id={building.id}
+      slug={building.id.toString()}
+      title={building.title}
+      subtitle={building.description || ''}
+      image={{
+        src:
+          photos?.[0]?.url || building.photos?.[0]?.url
+            ? `${process.env.NEXT_PUBLIC_STORAGE_URL}/${
+                photos?.[0]?.url || building.photos?.[0]?.url
+              }`
+            : '/images/placeholder.png',
+        alt: building.title,
+      }}
+      apartmentOptions={[]}
+      location={building.address || 'Душанбе'}
+      developer={
+        building?.developer?.name
+          ? {
+              name: building.developer.name,
+              logo_path: building.developer.logo_path,
+            }
+          : {
+              name: 'Неизвестно',
+              logo_path: '/images/placeholder.png',
+            }
+      }
+      hasInstallmentOption={building.installment_available}
+    />
+  );
+}
 
 export default function NewBuildings() {
   const [showOnlyDifferences, setShowOnlyDifferences] = useState(false);
+  const [filters, setFilters] = useState<NewBuildingsFilters>({
+    page: 1,
+    per_page: 15,
+  });
+
+  const { data, isLoading, error } = useNewBuildings(filters);
+
+  const handlePageChange = (newPage: number) => {
+    setFilters((prev) => ({ ...prev, page: newPage }));
+  };
+
+  if (isLoading) {
+    return (
+      <div className="pt-6 pb-[87px] mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
+        <div className="text-center py-20">Загрузка...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="pt-6 pb-[87px] mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
+        <div className="text-center text-red-500 py-20">
+          Ошибка загрузки данных
+        </div>
+      </div>
+    );
+  }
+
+  const newBuildings = data?.data ?? [];
+  const total = data?.total ?? 0;
 
   return (
     <div className="pt-6 pb-[87px] mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
       <div className="md:flex justify-between items-center mb-10 bg-white rounded-[22px] p-[30px]">
         <div>
           <h1 className="text-2xl font-bold mb-1.5">Новостройки</h1>
-          <p className="text-[#666F8D]">Найдено 750 объектов</p>
+          <p className="text-[#666F8D]">Найдено {total} объектов</p>
         </div>
 
         <div className="md:mt-0 mt-6 flex items-center gap-2 bg-[#F0F2F5] rounded-full px-3 py-2.5">
@@ -107,22 +115,55 @@ export default function NewBuildings() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {newBuildings.map((building) => (
-          <NewBuildingCard
-            key={building.id}
-            id={building.id}
-            slug={building.slug}
-            title={building.title}
-            subtitle={building.subtitle}
-            image={building.image}
-            apartmentOptions={building.apartmentOptions}
-            location={building.location}
-            developer={building.developer}
-            hasInstallmentOption={building.hasInstallmentOption}
-          />
-        ))}
-      </div>
+      {newBuildings.length === 0 ? (
+        <div className="text-center py-20 text-gray-500">
+          Новостройки не найдены
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {newBuildings.map((building) => (
+              <NewBuildingCardWithPhotos
+                key={building.id}
+                building={building}
+              />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {data && data.last_page && data.last_page > 1 && (
+            <div className="flex justify-center gap-2 mt-8">
+              <button
+                onClick={() => handlePageChange(data.current_page - 1)}
+                disabled={data.current_page === 1}
+                className={clsx(
+                  'px-4 py-2 rounded',
+                  data.current_page === 1
+                    ? 'bg-gray-200 cursor-not-allowed'
+                    : 'bg-[#0036A5] text-white hover:bg-[#002b85]'
+                )}
+              >
+                Назад
+              </button>
+              <span className="px-4 py-2">
+                Страница {data.current_page} из {data.last_page}
+              </span>
+              <button
+                onClick={() => handlePageChange(data.current_page + 1)}
+                disabled={data.current_page === data.last_page}
+                className={clsx(
+                  'px-4 py-2 rounded',
+                  data.current_page === data.last_page
+                    ? 'bg-gray-200 cursor-not-allowed'
+                    : 'bg-[#0036A5] text-white hover:bg-[#002b85]'
+                )}
+              >
+                Вперед
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

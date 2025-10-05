@@ -31,7 +31,12 @@ export const authApi = {
   },
 
   logout: async (): Promise<void> => {
-    return Promise.resolve();
+    try {
+      await axios.post("/logout");
+    } catch (error) {
+      console.error("Logout API call failed:", error);
+      throw error;
+    }
   },
 
   getMe: async (): Promise<User> => {
