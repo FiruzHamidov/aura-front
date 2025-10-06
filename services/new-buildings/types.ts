@@ -1,18 +1,64 @@
+export type BuildingApiError = {
+  response?: {
+    data?: {
+      message?: string;
+      [k: string]: unknown;
+    };
+  };
+};
+
 export interface Developer {
   id: number;
   name: string;
+  logo_path?: string | null;
+  description?: string | null;
+  website?: string | null;
+  created_at: string;
+  updated_at: string;
+  built_count?: number;
+  founded_year?: string;
+  phone?: string;
+  instagram?: string | null;
+  facebook?: string | null;
+  telegram?: string | null;
+  total_projects?: number;
+  under_construction_count?: number;
+  moderation_status?: ModerationStatus;
 }
+
+export interface DeveloperPayload {
+  name: string;
+  description?: string | null;
+  phone?: string | null;
+  under_construction_count?: number | null;
+  built_count?: number | null;
+  founded_year?: string | null;
+  total_projects?: number | null;
+  moderation_status?: ModerationStatus;
+  website?: string | null;
+  facebook?: string | null;
+  instagram?: string | null;
+  telegram?: string | null;
+  logo?: File | null;
+}
+
 export interface ConstructionStage {
   id: number;
   name: string;
+  slug: string;
+  created_at: string;
 }
 export interface Material {
   id: number;
   name: string;
+  slug: string;
+  created_at: string;
 }
 export interface Feature {
   id: number;
   name: string;
+  slug: string;
+  created_at: string;
 }
 export interface LocationOption {
   id: number;
