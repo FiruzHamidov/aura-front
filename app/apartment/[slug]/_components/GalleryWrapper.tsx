@@ -38,7 +38,6 @@ export default function GalleryWrapper({apartment, photos}: Props) {
 
     const rawPhone = apartment.creator?.phone ?? '';
 
-// убираем пробелы, дефисы и прочие символы кроме цифр и "+"
     let cleanPhone = rawPhone.replace(/[^\d+]/g, '');
 
     let digits = rawPhone.replace(/\D/g, '');
@@ -67,7 +66,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
 
         const sendView = async () => {
             try {
-                await axios.post(`/properties/${apartment.id}/view`, {}, { signal: controller.signal });
+                await axios.post(`/properties/${apartment.id}/view`, {}, {signal: controller.signal});
             } catch (e) {
                 const error = e as AxiosError<{ message?: string; errors?: Record<string, string[]> }>;
                 console.log(error)
@@ -117,6 +116,70 @@ export default function GalleryWrapper({apartment, photos}: Props) {
             (user?.id === apartment.creator.id ||
                 (apartment.agent_id && user?.id === apartment.agent_id)));
 
+    // === Нормализация типа под человеко-понятное имя ===
+    const getKindName = (p: Property) => {
+        const slug = p.type?.slug;
+        switch (slug) {
+            case 'commercial':
+                return 'Коммерческое помещение';
+            case 'land-plots':
+                return 'Земельный участок';
+            case 'houses':
+                return 'дом';
+            case 'parking':
+                return 'Парковка';
+            case 'secondary':
+            case 'new-buildings':
+            default:
+                return p.apartment_type || 'квартира';
+        }
+    };
+
+// короткие генераторы кусков
+    const areaLabel = (p: Property) => (p.total_area ? `${p.total_area} м²` : '');
+    const floorLabel = (p: Property) => (p.floor ? `${p.floor} этаж` : '');
+    const roomsLabel = (p: Property) => (p.rooms ? `${p.rooms} комн.` : '');
+
+// === Итоговый TITLE без адреса (адрес добавим в JSX) ===
+    const buildPageTitle = (p: Property) => {
+        const kind = getKindName(p);
+        const slug = p.type?.slug;
+
+        if (slug === 'commercial') {
+            // для коммерции не показываем "комнат", фокус на площади и этаже
+            return [kind, areaLabel(p), floorLabel(p)].filter(Boolean).join(', ');
+        }
+        if (slug === 'land-plots') {
+            return [kind, areaLabel(p)].filter(Boolean).join(', ');
+        }
+        if (slug === 'houses') {
+            return [roomsLabel(p), kind, areaLabel(p), floorLabel(p)]
+                .filter(Boolean)
+                .join(', ');
+        }
+        if (slug === 'parking') {
+            return kind;
+        }
+        // квартиры: secondary/new-buildings (и дефолт)
+        return [roomsLabel(p), kind, floorLabel(p), areaLabel(p)]
+            .filter(Boolean)
+            .join(', ');
+    };
+
+// Заголовок секций
+    const aboutSectionTitle = (p: Property) => {
+        const slug = p.type?.slug;
+        if (slug === 'commercial') return 'О помещении';
+        if (slug === 'land-plots') return 'Об участке';
+        if (slug === 'houses') return 'О доме';
+        if (slug === 'parking') return 'О парковке';
+        return 'О квартире';
+    };
+
+// Подпись к типу в характеристиках
+    const typeFieldLabel = (p: Property) =>
+        p.type?.slug === 'commercial' ? 'Тип объекта' : 'Тип жилья';
+
     return (
         <>
             <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 pt-8 pb-12">
@@ -127,8 +190,8 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                             <div className="md:flex justify-between items-start mb-4">
                                 <div>
                                     <h1 className="text-2xl font-bold mb-2">
-                                        {apartment.rooms} ком квартира, {apartment.floor} этаж,{' '}
-                                        {apartment.address || 'Адрес не указан'}
+                                        {buildPageTitle(apartment)}
+                                        {apartment.address ? `, ${apartment.address}` : ', Адрес не указан'}
                                     </h1>
                                     <div className="text-[#666F8D] text-lg flex">
                                         ID: {apartment.id}
@@ -327,52 +390,56 @@ export default function GalleryWrapper({apartment, photos}: Props) {
 
                                 <div className="flex gap-8 flex-col md:flex-row mb-10">
                                     {/* О квартире */}
+                                    {/* Левая колонка характеристик */}
                                     <div className="w-[317px]">
-                                        <h2 className="text-2xl font-bold mb-4">О квартире</h2>
+                                        <h2 className="text-2xl font-bold mb-4">{aboutSectionTitle(apartment)}</h2>
                                         <div className="space-y-0.5 text-sm">
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-            <span className="text-[#666F8D] flex items-center gap-2">
-              <Home size={16}/> Тип жилья
-            </span>
+      <span className="text-[#666F8D] flex items-center gap-2">
+        <Home size={16}/> {typeFieldLabel(apartment)}
+      </span>
                                                 <span className="font-medium">
-              {apartment.type?.name || "Вторичка"}
-            </span>
+        {apartment.type?.name || getKindName(apartment)}
+      </span>
                                             </div>
 
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-            <span className="text-[#666F8D] flex items-center gap-2">
-              <Ruler size={16}/> Общая площадь
-            </span>
+      <span className="text-[#666F8D] flex items-center gap-2">
+        <Ruler size={16}/> Общая площадь
+      </span>
                                                 <span className="font-medium">
-              {apartment.total_area || "-"} м²
-            </span>
+        {apartment.total_area ? `${apartment.total_area} м²` : "-"}
+      </span>
+                                            </div>
+
+                                            {/* Санузел показываем только для квартир/домов */}
+                                            {(['secondary', 'new-buildings', 'houses'].includes(apartment.type?.slug || '')) && (
+                                                <div className="flex justify-between py-2 border-b border-gray-100">
+        <span className="text-[#666F8D] flex items-center gap-2">
+          <Bath size={16}/> Санузел
+        </span>
+                                                    <span className="font-medium">
+          {apartment.bathroom_count ?? '1'}
+        </span>
+                                                </div>
+                                            )}
+
+                                            <div className="flex justify-between py-2 border-b border-gray-100">
+      <span className="text-[#666F8D] flex items-center gap-2">
+        <Hammer size={16}/> Ремонт
+      </span>
+                                                <span className="font-medium">
+        {apartment.repair_type?.name || "Косметический"}
+      </span>
                                             </div>
 
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-            <span className="text-[#666F8D] flex items-center gap-2">
-              <Bath size={16}/> Санузел
-            </span>
+      <span className="text-[#666F8D] flex items-center gap-2">
+        <MapPin size={16}/> Район
+      </span>
                                                 <span className="font-medium">
-              {apartment.bathroom_count || "1"}
-            </span>
-                                            </div>
-
-                                            <div className="flex justify-between py-2 border-b border-gray-100">
-            <span className="text-[#666F8D] flex items-center gap-2">
-              <Hammer size={16}/> Ремонт
-            </span>
-                                                <span className="font-medium">
-              {apartment.repair_type?.name || "Косметический"}
-            </span>
-                                            </div>
-
-                                            <div className="flex justify-between py-2 border-b border-gray-100">
-            <span className="text-[#666F8D] flex items-center gap-2">
-              <MapPin size={16}/> Район
-            </span>
-                                                <span className="font-medium">
-              {apartment.district || "-"}
-            </span>
+        {apartment.district || "-"}
+      </span>
                                             </div>
                                         </div>
                                     </div>
@@ -588,7 +655,7 @@ function Thumbs({
                         onClick={() => onSelect(i)}
                         className={`relative flex-none overflow-hidden rounded-lg border-2 transition ${
                             i === selectedIndex
-                                ? 'border-blue-[#0036A5]'
+                                ? 'border-[#0036A5]'
                                 : 'border-transparent hover:border-blue-300'
                         }`}
                         style={{width: THUMB, height: THUMB}}

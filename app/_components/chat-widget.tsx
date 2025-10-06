@@ -262,7 +262,7 @@ export default function ChatWidget({
                 className={`
                         fixed z-40 group h-14 rounded-full right-6
                         bottom-[calc(100px+max(env(safe-area-inset-bottom),0px))] sm:bottom-4
-                        transition-transform duration-200
+                        transition-transform duration-200 cursor-pointer
                         ${fabHidden ? 'translate-y-6 opacity-0 pointer-events-none sm:translate-y-0 sm:opacity-100' : 'translate-y-0 opacity-100'}
                       `}
                                     aria-label="Открыть чат Aura Assistant"
