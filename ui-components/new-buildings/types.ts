@@ -18,7 +18,7 @@ export interface NewBuildingCardProps {
   location: string;
   developer: {
     name: string;
-    logo: string;
+    logo_path: string;
   };
   hasInstallmentOption?: boolean;
   className?: string;

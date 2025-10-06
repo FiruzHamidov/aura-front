@@ -8,16 +8,14 @@ const COOKIE_MAX_AGE = 7 * 24 * 60 * 60;
 
 function getCookieConfig() {
   const isProduction = process.env.NODE_ENV === "production";
-  const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || ".aura.tj";
-
-  const secure = isProduction;
+  const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN;
 
   return {
-    domain: cookieDomain !== "localhost" ? `; domain=${cookieDomain}` : "",
-    secure: secure ? "; Secure" : "",
-    sameSite: secure ? "; SameSite=None" : "; SameSite=Lax",
     path: "; path=/",
     maxAge: `; max-age=${COOKIE_MAX_AGE}`,
+    sameSite: "; SameSite=Lax",
+    domain: isProduction && cookieDomain ? `; domain=${cookieDomain}` : "",
+    secure: isProduction ? "; Secure" : "",
   };
 }
 
@@ -39,6 +37,11 @@ function setAuthCookies(token: string, user: any) {
 
     document.cookie = authCookieString;
     document.cookie = userCookieString;
+
+    console.log("✅ Cookies set:", {
+      hasToken: document.cookie.includes("auth_token"),
+      hasUserData: document.cookie.includes("user_data"),
+    });
   }
 }
 
@@ -50,9 +53,10 @@ function clearAuthCookies() {
     document.cookie = `auth_token=${expiry}${config.path}${config.domain}`;
     document.cookie = `user_data=${expiry}${config.path}${config.domain}`;
 
-    if (process.env.NEXT_PUBLIC_DEBUG_AUTH === "true") {
-      console.log("🗑️ Auth cookies cleared");
-    }
+    document.cookie = `auth_token=${expiry}; path=/`;
+    document.cookie = `user_data=${expiry}; path=/`;
+
+    console.log("🗑️ Auth cookies cleared");
   }
 }
 
@@ -70,7 +74,7 @@ function getUserFromCookie(): any | null {
         return JSON.parse(decodeURIComponent(userData));
       } catch (error) {
         console.error("Error parsing user cookie:", error);
-        // Clear corrupted cookie
+
         clearAuthCookies();
         return null;
       }
@@ -92,11 +96,16 @@ export const useVerifySmsMutation = () => {
   return useMutation({
     mutationFn: authApi.verifySms,
     onSuccess: (data) => {
+      console.log("✅ SMS verified:", data);
       if (data.token && data.user) {
         setAuthCookies(data.token, data.user);
         queryClient.setQueryData(["user"], data.user);
-        router.push("/");
-        router.refresh();
+
+        // Wait for cookies to be set before navigation
+        setTimeout(() => {
+          router.push("/");
+          router.refresh();
+        }, 100);
       }
     },
   });
@@ -109,11 +118,16 @@ export const useLoginMutation = () => {
   return useMutation({
     mutationFn: authApi.login,
     onSuccess: (data) => {
+      console.log("✅ Login successful:", data);
       if (data.token && data.user) {
         setAuthCookies(data.token, data.user);
         queryClient.setQueryData(["user"], data.user);
-        router.replace("/");
-        router.refresh();
+
+        // Wait for cookies to be set before navigation
+        setTimeout(() => {
+          router.replace("/");
+          router.refresh();
+        }, 100);
       }
     },
   });
@@ -124,12 +138,34 @@ export const useLogoutMutation = () => {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: authApi.logout,
+    mutationFn: async () => {
+      try {
+        // Call the logout API endpoint
+        await authApi.logout();
+      } catch (error) {
+        console.error("Logout API error:", error);
+        // Continue with local logout even if API fails
+      }
+    },
     onSuccess: () => {
+      console.log("🚪 Logging out...");
+      // Clear cookies
+      clearAuthCookies();
+      // Clear all query cache
+      queryClient.clear();
+      // Navigate to home
+      router.push("/");
+      // Force refresh to clear any cached auth state
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 100);
+    },
+    onError: (error) => {
+      console.error("Logout error:", error);
+      // Still clear local state even on error
       clearAuthCookies();
       queryClient.clear();
       router.push("/");
-      router.refresh();
     },
   });
 };
