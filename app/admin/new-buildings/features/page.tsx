@@ -19,7 +19,7 @@ export default function FeaturesIndexPage() {
   const list = features as Paginated<Feature> | undefined;
   const total = list?.total ?? 0;
   const current = list?.current_page ?? 1;
-  const items = list?.data ?? [];
+  const items = useMemo(() => list?.data ?? [], [list]);
 
   const [page, setPage] = useState(1);
   const [perPage] = useState(15);
@@ -34,9 +34,9 @@ export default function FeaturesIndexPage() {
     if (!search) return items;
     const searchLower = search.toLowerCase();
     return items.filter(
-      (item) =>
-        item.name.toLowerCase().includes(searchLower) ||
-        item.slug.toLowerCase().includes(searchLower)
+        (item) =>
+            item.name.toLowerCase().includes(searchLower) ||
+            item.slug.toLowerCase().includes(searchLower)
     );
   }, [items, search]);
 

@@ -21,7 +21,7 @@ export default function MaterialsIndexPage() {
   const list = materials as Paginated<Material> | undefined;
   const total = list?.total ?? 0;
   const current = list?.current_page ?? 1;
-  const items = list?.data ?? [];
+  const items = useMemo(() => list?.data ?? [], [list]);
 
   const [page, setPage] = useState(1);
   const [perPage] = useState(15);
