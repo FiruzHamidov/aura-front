@@ -86,6 +86,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
     const getLabel = (l: Property) => {
         // --- приоритет: moderation_status ---
         if (l?.moderation_status === 'sold') return 'Продан';
+        if (l?.moderation_status === 'sold_by_owner') return 'Продан';
         if (l?.moderation_status === 'rented') return 'Сдано';
 
         // --- обычные типы ---

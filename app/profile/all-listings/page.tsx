@@ -15,6 +15,7 @@ const TABS = [
     {key: 'draft', label: 'Черновики'},
     {key: 'deleted', label: 'Удаленные'},
     {key: 'sold', label: 'Проданные'},
+    {key: 'sold_by_owner', label: 'Проданные владельцем'},
     {key: 'rented', label: 'Арендованные'},
 
 ] as const;
@@ -73,6 +74,11 @@ export default function MyListings() {
         true
     );
 
+    const {data: soldByOwnerMeta} = useGetMyPropertiesQuery(
+        {listing_type: '', page: 1, per_page: 1, moderation_status: 'sold_by_owner'},
+        true
+    );
+
     const {data: rentedMeta} = useGetMyPropertiesQuery(
         {listing_type: '', page: 1, per_page: 1, moderation_status: 'rented'},
         true
@@ -93,6 +99,7 @@ export default function MyListings() {
         draft: draftMeta?.total,
         deleted: deletedMeta?.total,
         sold: soldMeta?.total,
+        sold_by_owner: soldByOwnerMeta?.total,
         rented: rentedMeta?.total,
     };
 
