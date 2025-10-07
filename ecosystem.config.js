@@ -1,5 +1,5 @@
 apps: [{
-    name: 'aura-fro',
+    name: 'aura-front',
     script: 'node_modules/next/dist/bin/next',
     args: 'start -p ' + (process.env.PORT || 3001),
     instances: 'max',
