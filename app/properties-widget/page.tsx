@@ -3,6 +3,7 @@
 import Script from 'next/script';
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {Property} from "@/services/properties/types";
+import Image from "next/image";
 
 // Подключаем SDK Bitrix24, если он ещё не загружен
 function ensureBxScript() {
@@ -29,6 +30,7 @@ declare global {
 }
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || '';
+const STORAGE_BASE = process.env.NEXT_PUBLIC_STORAGE_URL?.replace(/\/$/, '') || '';
 
 type TokenResponse = { token: string };
 
@@ -375,7 +377,7 @@ export default function PropertiesWidget() {
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {items.map((p) => {
                             const cover = p.photos?.[0]?.file_path
-                                ? `${API_BASE}/${p.photos[0].file_path}`
+                                ? `${STORAGE_BASE}/${p.photos[0].file_path}`
                                 : null;
                             const checked = selected.includes(p.id);
                             return (
@@ -384,12 +386,13 @@ export default function PropertiesWidget() {
                                     className="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5 hover:shadow-md transition"
                                 >
                                     {/* Фото */}
-                                    <div className="relative aspect-[4/3] bg-slate-100">
+                                    <div className="relative h-40 bg-slate-100 rounded-t-2xl overflow-hidden">
                                         {cover ? (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img
+                                            <Image
                                                 src={cover}
                                                 alt={p.title ?? `Объект #${p.id}`}
+                                                width={400}
+                                                height={300}
                                                 className="h-full w-full object-cover"
                                                 loading="lazy"
                                             />
@@ -402,7 +405,7 @@ export default function PropertiesWidget() {
 
                                         {/* чекбокс поверх фото */}
                                         <label
-                                            className="absolute top-3 left-3 inline-flex items-center gap-2 bg-white/90 backdrop-blur px-2.5 py-1.5 rounded-xl text-sm shadow">
+                                            className="absolute top-2 left-2 inline-flex items-center gap-2 bg-white/90 backdrop-blur px-2 py-1 rounded-lg text-xs shadow">
                                             <input
                                                 type="checkbox"
                                                 checked={checked}
