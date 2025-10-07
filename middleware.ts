@@ -7,8 +7,6 @@ export function middleware(request: NextRequest) {
 
   const authToken = cookies.get("auth_token")?.value;
 
-
-
   const isProtected = AUTH_REQUIRED_ROUTES.some((path) =>
     nextUrl.pathname.startsWith(path)
   );
@@ -24,5 +22,10 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/profile/:path*", "/favorites", "/dashboard/:path*"],
+  matcher: [
+    "/profile/:path*",
+    "/favorites",
+    "/dashboard/:path*",
+    "/admin/:path*",
+  ],
 };
