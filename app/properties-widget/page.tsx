@@ -157,8 +157,8 @@ export default function PropertiesWidget() {
     const isReady = useMemo(() => Boolean(jwt), [jwt]);
 
     return (
-        <div style={{ padding: 16, fontFamily: 'inherit' }}>
-            <h3 style={{ margin: 0, marginBottom: 12 }}>Подбор объектов</h3>
+        <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 py-6">
+            <h1 style={{ margin: 0, marginBottom: 12 }}>Подбор объектов</h1>
 
             <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                 <button
