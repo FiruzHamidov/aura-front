@@ -1,6 +1,18 @@
 'use client';
 
+import Script from 'next/script';
 import { useEffect, useMemo, useRef, useState } from 'react';
+
+// Подключаем SDK Bitrix24, если он ещё не загружен
+function ensureBxScript() {
+  if (typeof document === 'undefined') return;
+  if (document.getElementById('bx24-sdk')) return;
+  const s = document.createElement('script');
+  s.src = 'https://api.bitrix24.com/api/v1/';
+  s.id = 'bx24-sdk';
+  s.async = true;
+  document.head.appendChild(s);
+}
 
 declare global {
   type BX24Api = {
@@ -73,13 +85,16 @@ export default function PropertiesWidget() {
                 const t = setInterval(() => {
                     const bx = getBX24();
                     if (bx) { clearInterval(t); resolve(); }
-                }, 100);
-                // safety timeout
-                setTimeout(() => { clearInterval(t); resolve(); }, 5000);
+                }, 200);
+                // safety timeout (увеличили до 15с)
+                setTimeout(() => { clearInterval(t); resolve(); }, 15000);
             });
 
         const init = async () => {
             setError(null);
+
+            ensureBxScript();
+
             await waitBx();
 
             const bx = getBX24();
@@ -171,6 +186,8 @@ export default function PropertiesWidget() {
     const isReady = useMemo(() => Boolean(jwt), [jwt]);
 
     return (
+      <>
+        <Script id="bx24-sdk" src="https://api.bitrix24.com/api/v1/" strategy="afterInteractive" />
         <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 py-6">
             <h1 style={{ margin: 0, marginBottom: 12 }}>Подбор объектов</h1>
 
@@ -215,5 +232,6 @@ export default function PropertiesWidget() {
                 ))}
             </ul>
         </div>
+      </>
     );
 }
