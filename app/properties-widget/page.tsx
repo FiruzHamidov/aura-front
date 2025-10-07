@@ -10,7 +10,7 @@ declare global {
     resizeWindow(width: number, height: number): void;
   };
   interface Window {
-    BX24?: BX24Api;
+    BX24?: unknown;
   }
 }
 
@@ -23,6 +23,20 @@ type WidgetProperty = {
 };
 
 type TokenResponse = { token: string };
+
+function getBX24(): BX24Api | undefined {
+  if (typeof window === 'undefined') return undefined;
+  const bx = window.BX24 as unknown;
+  if (bx && typeof bx === 'object'
+      && 'init' in (bx as Record<string, unknown>)
+      && 'placement' in (bx as Record<string, unknown>)
+      && 'getDomain' in (bx as Record<string, unknown>)
+      && 'resizeWindow' in (bx as Record<string, unknown>)
+  ) {
+    return bx as BX24Api;
+  }
+  return undefined;
+}
 
 function normalizePropertiesResponse(input: unknown): WidgetProperty[] {
   if (Array.isArray(input)) {
@@ -53,11 +67,11 @@ export default function PropertiesWidget() {
         const waitBx = () =>
             new Promise<void>((resolve) => {
                 if (typeof window !== 'undefined') {
-                    const bx = window.BX24;
+                    const bx = getBX24();
                     if (bx) return resolve();
                 }
                 const t = setInterval(() => {
-                    const bx = typeof window !== 'undefined' ? window.BX24 : undefined;
+                    const bx = getBX24();
                     if (bx) { clearInterval(t); resolve(); }
                 }, 100);
                 // safety timeout
@@ -68,7 +82,7 @@ export default function PropertiesWidget() {
             setError(null);
             await waitBx();
 
-            const bx = window.BX24;
+            const bx = getBX24();
             if (!bx) {
                 setError('BX24 API недоступен в этом контексте');
                 return;
@@ -112,7 +126,7 @@ export default function PropertiesWidget() {
     const tryResize = () => {
         // Подгоняем высоту iFrame под контент
         try {
-            const bx = typeof window !== 'undefined' ? window.BX24 : undefined;
+            const bx = getBX24();
             if (bx) {
                 const h = Math.min(1400, Math.max(300, document.body.scrollHeight));
                 bx.resizeWindow(document.body.scrollWidth, h);
