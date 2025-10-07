@@ -1,73 +1,69 @@
 'use client';
 
 import Script from 'next/script';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
+import {Property} from "@/services/properties/types";
 
 // Подключаем SDK Bitrix24, если он ещё не загружен
 function ensureBxScript() {
-  if (typeof document === 'undefined') return;
-  if (document.getElementById('bx24-sdk')) return;
-  const s = document.createElement('script');
-  s.src = 'https://api.bitrix24.com/api/v1/';
-  s.id = 'bx24-sdk';
-  s.async = true;
-  document.head.appendChild(s);
+    if (typeof document === 'undefined') return;
+    if (document.getElementById('bx24-sdk')) return;
+    const s = document.createElement('script');
+    s.src = 'https://api.bitrix24.com/api/v1/';
+    s.id = 'bx24-sdk';
+    s.async = true;
+    document.head.appendChild(s);
 }
 
 declare global {
-  type BX24Api = {
-    init(cb: () => void): void;
-    placement: { info(): { options?: { ID?: number | string } } };
-    getDomain(): string;
-    resizeWindow(width: number, height: number): void;
-  };
-  interface Window {
-    BX24?: unknown;
-  }
+    type BX24Api = {
+        init(cb: () => void): void;
+        placement: { info(): { options?: { ID?: number | string } } };
+        getDomain(): string;
+        resizeWindow(width: number, height: number): void;
+    };
+
+    interface Window {
+        BX24?: unknown;
+    }
 }
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || '';
 
-type WidgetProperty = {
-  id: number;
-  title?: string | null;
-  price?: number | null;
-};
-
 type TokenResponse = { token: string };
 
 function getBX24(): BX24Api | undefined {
-  if (typeof window === 'undefined') return undefined;
-  const bx = window.BX24 as unknown;
-  if (bx && typeof bx === 'object'
-      && 'init' in (bx as Record<string, unknown>)
-      && 'placement' in (bx as Record<string, unknown>)
-      && 'getDomain' in (bx as Record<string, unknown>)
-      && 'resizeWindow' in (bx as Record<string, unknown>)
-  ) {
-    return bx as BX24Api;
-  }
-  return undefined;
+    if (typeof window === 'undefined') return undefined;
+    const bx = window.BX24 as unknown;
+    if (bx && typeof bx === 'object'
+        && 'init' in (bx as Record<string, unknown>)
+        && 'placement' in (bx as Record<string, unknown>)
+        && 'getDomain' in (bx as Record<string, unknown>)
+        && 'resizeWindow' in (bx as Record<string, unknown>)
+    ) {
+        return bx as BX24Api;
+    }
+    return undefined;
 }
 
-function normalizePropertiesResponse(input: unknown): WidgetProperty[] {
-  if (Array.isArray(input)) {
-    return input as WidgetProperty[];
-  }
-  if (input && typeof input === 'object') {
-    const maybe = input as { data?: unknown };
-    if (Array.isArray(maybe.data)) {
-      return maybe.data as WidgetProperty[];
+function normalizePropertiesResponse(input: unknown): Property[] {
+    if (Array.isArray(input)) {
+        return input as Property[];
     }
-  }
-  return [];
+    if (input && typeof input === 'object') {
+        const maybe = input as { data?: unknown };
+        if (Array.isArray(maybe.data)) {
+            return maybe.data as Property[];
+        }
+    }
+    return [];
 }
 
 export default function PropertiesWidget() {
     const [jwt, setJwt] = useState<string>('');
-    const [items, setItems] = useState<WidgetProperty[]>([]);
+    const [items, setItems] = useState<Property[]>([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError]   = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const dealIdRef = useRef<number | null>(null);
     const domainRef = useRef<string | null>(null);
@@ -84,10 +80,16 @@ export default function PropertiesWidget() {
                 }
                 const t = setInterval(() => {
                     const bx = getBX24();
-                    if (bx) { clearInterval(t); resolve(); }
+                    if (bx) {
+                        clearInterval(t);
+                        resolve();
+                    }
                 }, 200);
                 // safety timeout (увеличили до 15с)
-                setTimeout(() => { clearInterval(t); resolve(); }, 15000);
+                setTimeout(() => {
+                    clearInterval(t);
+                    resolve();
+                }, 15000);
             });
 
         const init = async () => {
@@ -114,8 +116,8 @@ export default function PropertiesWidget() {
 
                     const tokRes = await fetch(`${API_BASE}/b24/token`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ domain, dealId }),
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({domain, dealId}),
                     });
                     if (!tokRes.ok) {
                         const txt = await tokRes.text().catch(() => '');
@@ -135,7 +137,9 @@ export default function PropertiesWidget() {
         };
 
         init();
-        return () => { mounted = false; };
+        return () => {
+            mounted = false;
+        };
     }, []);
 
     const tryResize = () => {
@@ -146,7 +150,8 @@ export default function PropertiesWidget() {
                 const h = Math.min(1400, Math.max(300, document.body.scrollHeight));
                 bx.resizeWindow(document.body.scrollWidth, h);
             }
-        } catch {}
+        } catch {
+        }
     };
 
     // загрузка объектов по вашему API `/properties`
@@ -154,17 +159,10 @@ export default function PropertiesWidget() {
         setLoading(true);
         setError(null);
         try {
-            const params = new URLSearchParams({
-                offer_type: 'sale',
-                per_page: '20',
-                priceFrom: '300000',
-            }).toString();
+            const params = buildQuery();
 
             const res = await fetch(`${API_BASE}/properties?${params}`, {
-                headers: {
-                    // ключевой момент — b24.jwt middleware ждёт Bearer JWT
-                    Authorization: `Bearer ${jwt}`,
-                },
+                headers: {Authorization: `Bearer ${jwt}`},
             });
             if (!res.ok) {
                 const txt = await res.text().catch(() => '');
@@ -185,53 +183,330 @@ export default function PropertiesWidget() {
 
     const isReady = useMemo(() => Boolean(jwt), [jwt]);
 
+    const [selected, setSelected] = useState<number[]>([]);
+
+    const toggleSelect = (id: number) =>
+        setSelected(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+
+    const createSelection = async () => {
+        if (!selected.length) return;
+        setLoading(true);
+        try {
+            const res = await fetch(`${API_BASE}/selections`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${jwt}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    property_ids: selected,
+                    deal_id: dealIdRef.current,
+                    sync_to_b24: true,
+                }),
+            });
+            const data = await res.json();
+            alert(`Подборка создана!\nСсылка: ${data.selection.selection_url}`);
+        } catch (e) {
+            console.error(e);
+            alert('Ошибка при создании подборки');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    type Filters = {
+        priceFrom?: string;
+        priceTo?: string;
+        roomsFrom?: string;
+        roomsTo?: string;
+        q?: string; // строка для адреса/ориентира
+    };
+
+    const [filters, setFilters] = useState<Filters>({
+        priceFrom: '',
+        priceTo: '',
+        roomsFrom: '',
+        roomsTo: '',
+        q: '',
+    });
+
+    const buildQuery = () => {
+        const qs = new URLSearchParams({
+            offer_type: 'sale',
+            per_page: '20',
+        });
+
+        if (filters.priceFrom) qs.set('priceFrom', filters.priceFrom);
+        if (filters.priceTo) qs.set('priceTo', filters.priceTo);
+        if (filters.roomsFrom) qs.set('roomsFrom', filters.roomsFrom);
+        if (filters.roomsTo) qs.set('roomsTo', filters.roomsTo);
+
+        // Поиск по адресу и ориентиру — бек поддерживает оба поля (like)
+        if (filters.q?.trim()) {
+            qs.set('address', filters.q.trim());
+            qs.set('landmark', filters.q.trim());
+        }
+        return qs.toString();
+    };
+
     return (
-      <>
-        <Script id="bx24-sdk" src="https://api.bitrix24.com/api/v1/" strategy="afterInteractive" />
-        <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 py-6">
-            <h1 style={{ margin: 0, marginBottom: 12 }}>Подбор объектов</h1>
+        <>
+            <Script id="bx24-sdk" src="https://api.bitrix24.com/api/v1/" strategy="afterInteractive"/>
+            <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 py-6">
+                {/* ФИЛЬТРЫ */}
+                <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    {/* Цена от */}
+                    <div className="flex flex-col">
+                        <label className="text-xs text-slate-500 mb-1">Цена от</label>
+                        <input
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            value={filters.priceFrom}
+                            onChange={(e) => setFilters((f) => ({...f, priceFrom: e.target.value.replace(/\D+/g, '')}))}
+                            className="rounded-xl border border-black/10 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[#0036A5]/30"
+                            placeholder="300000"
+                        />
+                    </div>
 
-            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-                <button
-                    disabled={!isReady || loading}
-                    onClick={load}
-                    style={{
-                        padding: '8px 12px',
-                        borderRadius: 8,
-                        border: 'none',
-                        background: '#0036A5',
-                        color: 'white',
-                        cursor: isReady && !loading ? 'pointer' : 'not-allowed',
-                        opacity: isReady && !loading ? 1 : 0.6,
-                    }}
-                >
-                    {loading ? 'Загрузка…' : 'Загрузить'}
-                </button>
+                    {/* Цена до */}
+                    <div className="flex flex-col">
+                        <label className="text-xs text-slate-500 mb-1">Цена до</label>
+                        <input
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            value={filters.priceTo}
+                            onChange={(e) => setFilters((f) => ({...f, priceTo: e.target.value.replace(/\D+/g, '')}))}
+                            className="rounded-xl border border-black/10 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[#0036A5]/30"
+                            placeholder="800000"
+                        />
+                    </div>
 
-                {!isReady && <span style={{ fontSize: 12, color: '#666F8D' }}>получаем доступ…</span>}
-            </div>
+                    {/* Комнат от */}
+                    <div className="flex flex-col">
+                        <label className="text-xs text-slate-500 mb-1">Комнат от</label>
+                        <input
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            value={filters.roomsFrom}
+                            onChange={(e) => setFilters((f) => ({...f, roomsFrom: e.target.value.replace(/\D+/g, '')}))}
+                            className="rounded-xl border border-black/10 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[#0036A5]/30"
+                            placeholder="1"
+                        />
+                    </div>
 
-            {error && (
-                <div style={{
-                    background: '#FFF1F0',
-                    color: '#A8071A',
-                    padding: 10,
-                    borderRadius: 8,
-                    marginBottom: 12,
-                    border: '1px solid #ffccc7'
-                }}>
-                    {error}
+                    {/* Комнат до */}
+                    <div className="flex flex-col">
+                        <label className="text-xs text-slate-500 mb-1">Комнат до</label>
+                        <input
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            value={filters.roomsTo}
+                            onChange={(e) => setFilters((f) => ({...f, roomsTo: e.target.value.replace(/\D+/g, '')}))}
+                            className="rounded-xl border border-black/10 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[#0036A5]/30"
+                            placeholder="5"
+                        />
+                    </div>
+
+                    {/* Адрес / Ориентир (одно поле — ищем и там, и там) */}
+                    <div className="sm:col-span-2 lg:col-span-4">
+                        <label className="text-xs text-slate-500 mb-1">Адрес / Ориентир</label>
+                        <input
+                            value={filters.q}
+                            onChange={(e) => setFilters((f) => ({...f, q: e.target.value}))}
+                            className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[#0036A5]/30"
+                            placeholder="напр. Рудаки, ИСМОИЛИ СОМOНИ, у парка…"
+                        />
+                    </div>
+
+                    {/* Кнопки применить/сбросить */}
+                    <div className="sm:col-span-2 lg:col-span-4 flex items-center gap-8 pt-1">
+                        <button
+                            onClick={load}
+                            disabled={!isReady || loading}
+                            className="px-4 py-2 rounded-xl bg-[#0036A5] text-white disabled:opacity-60"
+                        >
+                            Применить фильтр
+                        </button>
+                        <button
+                            onClick={() => setFilters({priceFrom: '', priceTo: '', roomsFrom: '', roomsTo: '', q: ''})}
+                            className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700"
+                        >
+                            Сбросить
+                        </button>
+                    </div>
                 </div>
-            )}
+                <div className="">
+                    <h1 style={{margin: 0, marginBottom: 12}}>Подбор объектов</h1>
 
-            <ul style={{ margin: 0, paddingLeft: 16 }}>
-                {items.map((p: WidgetProperty) => (
-                    <li key={p.id} style={{ marginBottom: 6 }}>
-                        {p.title || `Объект #${p.id}`} — {p.price ?? '—'}
-                    </li>
-                ))}
-            </ul>
-        </div>
-      </>
-    );
+                    <div style={{display: 'flex', gap: 8, marginBottom: 12}}>
+                        <button
+                            disabled={!isReady || loading}
+                            onClick={load}
+                            style={{
+                                padding: '8px 12px',
+                                borderRadius: 8,
+                                border: 'none',
+                                background: '#0036A5',
+                                color: 'white',
+                                cursor: isReady && !loading ? 'pointer' : 'not-allowed',
+                                opacity: isReady && !loading ? 1 : 0.6,
+                            }}
+                        >
+                            {loading ? 'Загрузка…' : 'Загрузить'}
+                        </button>
+
+                        {!isReady && <span style={{fontSize: 12, color: '#666F8D'}}>получаем доступ…</span>}
+                    </div>
+
+                    {error && (
+                        <div style={{
+                            background: '#FFF1F0',
+                            color: '#A8071A',
+                            padding: 10,
+                            borderRadius: 8,
+                            marginBottom: 12,
+                            border: '1px solid #ffccc7'
+                        }}>
+                            {error}
+                        </div>
+                    )}
+
+                    {/* сетка карточек */}
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {items.map((p) => {
+                            const cover = p.photos?.[0]?.file_path
+                                ? `${API_BASE}/${p.photos[0].file_path}`
+                                : null;
+                            const checked = selected.includes(p.id);
+                            return (
+                                <div
+                                    key={p.id}
+                                    className="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5 hover:shadow-md transition"
+                                >
+                                    {/* Фото */}
+                                    <div className="relative aspect-[4/3] bg-slate-100">
+                                        {cover ? (
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            <img
+                                                src={cover}
+                                                alt={p.title ?? `Объект #${p.id}`}
+                                                className="h-full w-full object-cover"
+                                                loading="lazy"
+                                            />
+                                        ) : (
+                                            <div
+                                                className="h-full w-full flex items-center justify-center text-slate-400 text-sm">
+                                                Нет фото
+                                            </div>
+                                        )}
+
+                                        {/* чекбокс поверх фото */}
+                                        <label
+                                            className="absolute top-3 left-3 inline-flex items-center gap-2 bg-white/90 backdrop-blur px-2.5 py-1.5 rounded-xl text-sm shadow">
+                                            <input
+                                                type="checkbox"
+                                                checked={checked}
+                                                onChange={() => toggleSelect(p.id)}
+                                                className="h-4 w-4 accent-[#0036A5]"
+                                            />
+                                            <span className="text-slate-700">Выбрать</span>
+                                        </label>
+                                    </div>
+
+                                    {/* Описание */}
+                                    <div className="p-3">
+                                        <div className="flex items-start justify-between gap-2">
+                                            <h3 className="font-semibold text-slate-900 line-clamp-1">
+                                                {p.title || `Объект #${p.id}`}
+                                            </h3>
+                                            <span className="text-[#0036A5] font-bold whitespace-nowrap">
+              {new Intl.NumberFormat('ru-RU').format(Number(p.price))} {p.currency}
+            </span>
+                                        </div>
+
+                                        <div className="mt-1 text-sm text-slate-600 line-clamp-2">
+                                            {p.address || p.district || 'Адрес не указан'}
+                                        </div>
+
+                                        <div className="mt-2 flex items-center gap-3 text-xs text-slate-500">
+                                            {p.rooms && <span>{p.rooms} комн.</span>}
+                                            {p.total_area && <span>{p.total_area} м²</span>}
+                                            <span>ID: {p.id}</span>
+                                        </div>
+
+                                        {/* Кнопки действий */}
+                                        <div className="mt-3 flex items-center gap-2">
+                                            <button
+                                                onClick={async () => {
+                                                    const start = new Date();
+                                                    const end = new Date(start.getTime() + 60 * 60 * 1000);
+                                                    try {
+                                                        const resp = await fetch(`${API_BASE}/showings`, {
+                                                            method: 'POST',
+                                                            headers: {
+                                                                Authorization: `Bearer ${jwt}`,
+                                                                'Content-Type': 'application/json',
+                                                            },
+                                                            body: JSON.stringify({
+                                                                property_id: p.id,
+                                                                deal_id: dealIdRef.current,
+                                                                start_time: start.toISOString(),
+                                                                end_time: end.toISOString(),
+                                                                note: 'Показ из виджета B24',
+                                                            }),
+                                                        });
+                                                        if (!resp.ok) {
+                                                            const txt = await resp.text().catch(() => '');
+                                                            throw new Error(`Ошибка показа: ${resp.status} ${txt}`);
+                                                        }
+                                                        alert('Показ зарегистрирован');
+                                                    } catch (e) {
+                                                        console.error(e);
+                                                        alert('Не удалось записать показ');
+                                                    }
+                                                }}
+                                                className="px-3 py-2 rounded-xl bg-[#0036A5] text-white text-sm"
+                                            >
+                                                Показ
+                                            </button>
+
+                                            <button
+                                                onClick={() => toggleSelect(p.id)}
+                                                className={`px-3 py-2 rounded-xl text-sm ${
+                                                    checked
+                                                        ? 'bg-emerald-600 text-white'
+                                                        : 'bg-slate-100 text-slate-700'
+                                                }`}
+                                            >
+                                                {checked ? 'Выбрано' : 'В подборку'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {/* панель кнопок под карточками */}
+                    {selected.length > 0 && (
+                        <div className="mt-6 flex flex-wrap items-center gap-3">
+                            <button
+                                onClick={createSelection}
+                                className="px-3 py-2 rounded-xl bg-emerald-600 text-white"
+                            >
+                                Создать подборку ({selected.length})
+                            </button>
+                            <button
+                                onClick={() => setSelected([])}
+                                className="px-3 py-2 rounded-xl bg-slate-100 text-slate-700"
+                            >
+                                Очистить выбор
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </>
+    )
+        ;
 }
