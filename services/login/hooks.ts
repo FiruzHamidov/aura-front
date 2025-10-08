@@ -175,6 +175,7 @@ export const useProfile = () => {
     queryKey: ["user"],
     queryFn: () => {
       const user = getUserFromCookie();
+      console.log('userHook', user)
       if (user?.id) {
         return authApi.getProfile(user.id);
       }

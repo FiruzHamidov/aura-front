@@ -39,6 +39,7 @@ const STATUS_OPTIONS = [
     { label: 'Одобрено/Опубликовано', value: 'approved' },
     { label: 'Отклонено', value: 'rejected' },
     { label: 'Продано', value: 'sold' },
+    { label: 'Продано владельцем', value: 'sold_by_owner' },
     { label: 'Арендовано', value: 'rented' },
     { label: 'Удалено', value: 'deleted' },
 ];
@@ -47,6 +48,20 @@ const OFFER_OPTIONS = [
     { label: 'Продажа', value: 'sale' },
     { label: 'Аренда', value: 'rent' },
 ];
+
+const OFFER_LABELS: Record<string, string> = {
+    sale: 'Продажа',
+    rent: 'Аренда',
+};
+
+const STATUS_LABELS: Record<string, string> = Object.fromEntries(
+    STATUS_OPTIONS.map(o => [String(o.value), o.label])
+);
+
+const statusLabel = (v?: string | null) =>
+    v ? (STATUS_LABELS[v] ?? v) : '—';
+
+const offerLabel = (v?: string | null) => (v ? (OFFER_LABELS[v] ?? v) : '—');
 
 export default function ReportsPage() {
     const [filters, setFilters] = useState<FilterState>({
@@ -96,7 +111,7 @@ export default function ReportsPage() {
                 reportsApi.timeSeries(query),
                 // reportsApi.priceBuckets({ ...query, buckets: 10 }),
                 reportsApi.roomsHist(query),
-                reportsApi.managerEfficiency({ ...query, group_by: 'agent_id' }),
+                reportsApi.managerEfficiency({ ...query, group_by: 'created_by' }),
                 reportsApi.agentsLeaderboard({ ...query, limit: 10 }),
             ]);
             setSummary(s);
@@ -127,7 +142,7 @@ export default function ReportsPage() {
     const statusData = useMemo(
         () =>
             (summary?.by_status ?? []).map((r) => ({
-                label: r.moderation_status ?? '—',
+                label: statusLabel(r.moderation_status ?? ''),
                 value: Number(r.cnt || 0),
             })),
         [summary]
@@ -136,7 +151,7 @@ export default function ReportsPage() {
     const offerData = useMemo(
         () =>
             (summary?.by_offer_type ?? []).map((r) => ({
-                label: r.offer_type ?? '—',
+                label: offerLabel(r.offer_type),
                 value: Number(r.cnt || 0),
             })),
         [summary]
@@ -315,7 +330,7 @@ export default function ReportsPage() {
                     <div className="text-sm text-gray-500">Продажа/Аренда</div>
                     <div className="text-2xl font-semibold">
                         {(summary?.by_offer_type ?? [])
-                            .map((x) => `${x.offer_type}:${x.cnt}`)
+                            .map((x) => `${offerLabel(x.offer_type)}: ${Number(x.cnt || 0).toLocaleString()}`)
                             .join('  ') || '—'}
                     </div>
                 </div>
@@ -323,9 +338,9 @@ export default function ReportsPage() {
 
             {/* Графики */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <PieStatus data={statusData} />
-                <BarOffer data={offerData} />
-                <LineTimeSeries data={seriesData} />
+                <PieStatus data={statusData}/>
+                <BarOffer data={offerData}/>
+                <LineTimeSeries data={seriesData}/>
                 {/*<BarBuckets data={bucketData} />*/}
                 <BarRooms data={roomsData} />
             </div>
@@ -340,8 +355,8 @@ export default function ReportsPage() {
                             <th className="py-2 pr-4">Агент</th>
                             <th className="py-2 pr-4">Всего</th>
                             <th className="py-2 pr-4">Одобрено</th>
-                            <th className="py-2 pr-4">Закрыто</th>
-                            <th className="py-2 pr-4">Закрыто %</th>
+                            <th className="py-2 pr-4">Продано</th>
+                            <th className="py-2 pr-4">Продано %</th>
                             <th className="py-2 pr-4">{priceMetric === 'sum' ? 'Сумма' : 'Ср. цена'}</th>
                         </tr>
                         </thead>
@@ -367,12 +382,12 @@ export default function ReportsPage() {
                 </div>
 
                 <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
-                    <h3 className="font-semibold mb-3">Топ агентов (закрытые)</h3>
+                    <h3 className="font-semibold mb-3">Топ агентов (Проданные)</h3>
                     <table className="min-w-full text-sm">
                         <thead>
                         <tr className="text-left text-gray-500">
                             <th className="py-2 pr-4">Агент</th>
-                            <th className="py-2 pr-4">Закрыто</th>
+                            <th className="py-2 pr-4">Продано</th>
                             <th className="py-2 pr-4">Всего</th>
                             <th className="py-2 pr-4">{priceMetric === 'sum' ? 'Сумма' : 'Ср. цена'}</th>
                         </tr>
