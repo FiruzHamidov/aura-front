@@ -199,6 +199,7 @@ export default function PropertiesWidget() {
                 headers: {
                     'Authorization': `Bearer ${jwt}`,
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                 },
                 body: JSON.stringify({
                     property_ids: selected,
@@ -206,8 +207,21 @@ export default function PropertiesWidget() {
                     sync_to_b24: true,
                 }),
             });
+            if (!res.ok) {
+                const txt = await res.text().catch(() => '');
+                throw new Error(`Ошибка создания подборки: ${res.status} ${txt}`);
+            }
             const data = await res.json();
-            alert(`Подборка создана!\nСсылка: ${data.selection.selection_url}`);
+            const url = data?.selection?.selection_url as string | undefined;
+
+            if (url) {
+                setSelectionUrl(url);
+                setShowModal(true);
+                // поджимаем высоту iFrame, чтобы попап влез
+                tryResize();
+            } else {
+                alert('Подборка создана, но ссылка не получена');
+            }
         } catch (e) {
             console.error(e);
             alert('Ошибка при создании подборки');
@@ -249,7 +263,29 @@ export default function PropertiesWidget() {
             qs.set('landmark', filters.q.trim());
         }
         return qs.toString();
+
+
     };
+    // рядом с другими useState
+    const [selectionUrl, setSelectionUrl] = useState<string | null>(null);
+    const [showModal, setShowModal] = useState(false);
+
+// универсальный copy helper
+    async function copyToClipboard(text: string) {
+        try {
+            await navigator.clipboard.writeText(text);
+            alert('Ссылка скопирована');
+        } catch {
+            // фоллбек
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            alert('Ссылка скопирована');
+        }
+    }
 
     return (
         <>
@@ -509,6 +545,57 @@ export default function PropertiesWidget() {
                     )}
                 </div>
             </div>
+
+            {/* MODAL: Ссылка на подборку */}
+            {showModal && selectionUrl && (
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40"
+                    onClick={() => { setShowModal(false); tryResize(); }}
+                >
+                    <div
+                        className="w-[min(520px,92vw)] rounded-2xl bg-white p-5 shadow-xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 className="text-lg font-semibold mb-2">Подборка создана</h3>
+                        <p className="text-sm text-slate-600 mb-3">
+                            Ссылка на подборку:
+                        </p>
+
+                        <div className="flex items-stretch gap-2 mb-4">
+                            <input
+                                className="flex-1 rounded-xl border border-black/10 bg-slate-50 px-3 py-2 text-sm"
+                                readOnly
+                                value={selectionUrl}
+                                onFocus={(e) => e.currentTarget.select()}
+                            />
+                            <button
+                                onClick={() => copyToClipboard(selectionUrl)}
+                                className="rounded-xl bg-slate-800 text-white px-3 py-2 text-sm"
+                            >
+                                Копировать
+                            </button>
+                        </div>
+
+                        <div className="flex gap-2 justify-end">
+                            <a
+                                href={selectionUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-4 py-2 rounded-xl bg-[#0036A5] text-white text-sm"
+                                onClick={() => { setShowModal(false); tryResize(); }}
+                            >
+                                Открыть ссылку
+                            </a>
+                            <button
+                                onClick={() => { setShowModal(false); tryResize(); }}
+                                className="px-4 py-2 rounded-xl bg-slate-100 text-slate-800 text-sm"
+                            >
+                                Закрыть
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     )
         ;
