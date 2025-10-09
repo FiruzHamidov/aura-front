@@ -1,8 +1,9 @@
 'use client';
 
-import { FC } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import useEmblaCarousel from 'embla-carousel-react';
 import { NewBuildingCardProps } from './types';
 import BedIcon from '@/icons/BedIcon';
 import PlanIcon from '@/icons/PlanIcon';
@@ -20,31 +21,100 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
   hasInstallmentOption = false,
   className = '',
   onClick,
+  photos = [],
 }) => {
   const href = slug ? `/new-buildings/${slug}` : `/new-buildings/${id}`;
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const scrollTo = useCallback(
+    (index: number) => emblaApi && emblaApi.scrollTo(index),
+    [emblaApi]
+  );
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.on('select', onSelect);
+    onSelect();
+    return () => {
+      emblaApi.off('select', onSelect);
+    };
+  }, [emblaApi, onSelect]);
 
   const formatPrice = (price: number): string => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   };
+
+  // Prepare display images
+  const displayImages =
+    photos && photos.length > 0
+      ? photos.map((photo, index) => ({
+          url: photo.path
+            ? `${STORAGE_URL}/${photo.path}`
+            : photo.url || '/images/placeholder.png',
+          alt: `${title} - фото ${index + 1}`,
+        }))
+      : [
+          {
+            url: image.src,
+            alt: image.alt,
+          },
+        ];
 
   return (
     <div
       className={`bg-white p-[18px] rounded-[22px] overflow-hidden transition-shadow duration-200 ${className}`}
       onClick={onClick}
     >
-      {/* Building image */}
-      <Link href={href}>
-        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl">
-          <Image
-            src={image.src}
-            alt={image.alt}
-            fill
-            className="object-cover hover:scale-105 transition-transform duration-300"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            priority
-          />
+      {/* Building image slider */}
+      <div className="relative mb-3">
+        <div className="overflow-hidden rounded-xl" ref={emblaRef}>
+          <div className="flex">
+            {displayImages.map((img, index) => (
+              <div className="min-w-full relative" key={index}>
+                <Link href={href}>
+                  <div className="relative aspect-[4/3] w-full overflow-hidden">
+                    <Image
+                      src={img.url}
+                      alt={img.alt}
+                      fill
+                      className="object-cover hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      priority={index === 0}
+                    />
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
         </div>
-      </Link>
+
+        {/* Carousel dots */}
+        {displayImages.length > 1 && (
+          <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-1.5">
+            {displayImages.map((_, index) => (
+              <button
+                key={index}
+                className={`block w-2 h-2 bg-white rounded-full transition-opacity ${
+                  index === selectedIndex ? 'opacity-90' : 'opacity-50'
+                }`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  scrollTo(index);
+                }}
+                aria-label={`Перейти к слайду ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       <div className="pt-5">
         {/* Building title and subtitle */}
@@ -69,7 +139,7 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
                   {option.area} м²
                 </div>
               </div>
-              <div className="text-right  text-[#666F8D]">
+              <div className="text-right text-[#666F8D]">
                 {formatPrice(option.price)} {option.currency || 'с.'}
               </div>
             </div>
@@ -85,6 +155,7 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
                 src={`${STORAGE_URL}/${developer.logo_path}`}
                 alt={`${developer.name} logo`}
                 fill
+                className="object-cover"
               />
             </div>
             <span className="text-lg">{developer.name}</span>

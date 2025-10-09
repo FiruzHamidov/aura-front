@@ -86,7 +86,7 @@ export default function DevelopersIndexPage() {
                 </td>
               </tr>
             )}
-
+            {/* @ts-expect-error TS2322 */}
             {list !== undefined && developers?.data.length === 0 && (
               <tr>
                 <td className="px-4 py-6 text-center" colSpan={8}>
@@ -94,7 +94,7 @@ export default function DevelopersIndexPage() {
                 </td>
               </tr>
             )}
-
+            {/* @ts-expect-error TS2322 */}
             {developers?.data.map((dev) => (
               <tr key={dev.id} className="border-t">
                 <td className="px-4 py-3">

@@ -2,50 +2,9 @@
 
 import { useState } from 'react';
 import clsx from 'clsx';
-import NewBuildingCard from '@/ui-components/new-buildings/new-buildings-card';
-import {
-  useNewBuildings,
-  useNewBuildingPhotos,
-} from '@/services/new-buildings/hooks';
+import { useNewBuildings } from '@/services/new-buildings/hooks';
 import type { NewBuildingsFilters } from '@/services/new-buildings/types';
-
-// eslint-disable-next-line
-function NewBuildingCardWithPhotos({ building }: { building: any }) {
-  const { data: photos } = useNewBuildingPhotos(building.id);
-
-  return (
-    <NewBuildingCard
-      key={building.id}
-      id={building.id}
-      slug={building.id.toString()}
-      title={building.title}
-      subtitle={building.description || ''}
-      image={{
-        src:
-          photos?.[0]?.url || building.photos?.[0]?.url
-            ? `${process.env.NEXT_PUBLIC_STORAGE_URL}/${
-                photos?.[0]?.url || building.photos?.[0]?.url
-              }`
-            : '/images/placeholder.png',
-        alt: building.title,
-      }}
-      apartmentOptions={[]}
-      location={building.address || 'Душанбе'}
-      developer={
-        building?.developer?.name
-          ? {
-              name: building.developer.name,
-              logo_path: building.developer.logo_path,
-            }
-          : {
-              name: 'Неизвестно',
-              logo_path: '/images/placeholder.png',
-            }
-      }
-      hasInstallmentOption={building.installment_available}
-    />
-  );
-}
+import { NewBuildingCardWithPhotos } from './[slug]/_components/NewBuildingCardWithPhotos';
 
 export default function NewBuildings() {
   const [showOnlyDifferences, setShowOnlyDifferences] = useState(false);
