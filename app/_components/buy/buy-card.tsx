@@ -83,13 +83,20 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
         };
     }, [emblaApi, onSelect]);
 
-    const getLabel = (listing: Property) => {
-        if (listing.listing_type === 'regular') {
-            return listing.offer_type === 'sale'
-                ? LISTING_TYPE_META.regular?.label
+    const getLabel = (l: Property) => {
+        // --- приоритет: moderation_status ---
+        if (l?.moderation_status === 'sold') return 'Продан';
+        if (l?.moderation_status === 'sold_by_owner') return 'Продан';
+        if (l?.moderation_status === 'rented') return 'Сдано';
+
+        // --- обычные типы ---
+        if (l.listing_type === 'regular') {
+            return l.offer_type === 'sale'
+                ? LISTING_TYPE_META.regular?.label // «Продаётся»
                 : 'Сдаётся';
         }
-        return LISTING_TYPE_META[listing.listing_type]?.label;
+
+        return LISTING_TYPE_META[l.listing_type]?.label || '';
     };
 
     const displayImages =
@@ -102,11 +109,61 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
             }))
             : [{url: '/images/no-image.jpg', alt: 'Нет фото'}];
 
-    const displayTitle = `${listing.rooms} комн. ${
-        listing.apartment_type || 'квартира,'
-    } ${listing.floor ? `${listing.floor} этаж,` : ''} ${
-        listing.total_area ? `${listing.total_area} м²` : ''
-    }`;
+    const getKindName = (l: Property) => {
+        const slug = l.type?.slug;
+
+        switch (slug) {
+            case 'commercial':
+                return 'Коммерческое помещение';
+            case 'land-plots':
+                return 'Земельный участок';
+            case 'houses':
+                return 'дом'; // при желании можно развести на коттедж/таунхаус по отдельному полю
+            case 'parking':
+                return 'парковка';
+            // квартиры идут в двух категориях: secondary и new-buildings
+            case 'secondary':
+            case 'new-buildings':
+            default:
+                // если есть уточнение типа квартиры — используем его
+                return l.apartment_type || 'квартира';
+        }
+    };
+
+    const buildTitle = (l: Property) => {
+        const kind = getKindName(l);
+        const slug = l.type?.slug;
+
+        if (slug === 'commercial') {
+            // комнаты не показываем, фокус на площади/этаже
+            return `${kind}${l.total_area ? `, ${l.total_area} м²` : ''}${
+                l.floor ? `, ${l.floor} этаж` : ''
+            }`;
+        }
+
+        if (slug === 'land-plots') {
+            // для участка чаще показывают площадь (если есть поле под сотки — подставь его)
+            return `${kind}${l.total_area ? `, ${l.total_area} м²` : ''}`;
+        }
+
+        if (slug === 'houses') {
+            // для домов комнатность опционально
+            return `${l.rooms ? `${l.rooms} комн. ` : ''}${kind}${
+                l.total_area ? `, ${l.total_area} м²` : ''
+            }${l.floor ? `, ${l.floor} этаж` : ''}`;
+        }
+
+        if (slug === 'parking') {
+            return kind; // можно добавить «подземная/наземная» по отдельному полю, если появится
+        }
+
+        // квартиры: secondary / new-buildings (или дефолт)
+        return `${l.rooms ? `${l.rooms} комн. ` : ''}${kind}${
+            l.floor ? `, ${l.floor} этаж` : ''
+        }${l.total_area ? `, ${l.total_area} м²` : ''}`;
+    };
+
+    const displayTitle = buildTitle(listing);
 
     const displayLocation =
         typeof listing.location === 'object'

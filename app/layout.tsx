@@ -13,6 +13,7 @@ import {Sidebar} from '@/app/profile/_components/sidebar';
 import {cookies} from 'next/headers';
 import ToastProvider from "@/app/_components/_providers/ToastProvider";
 import ClientChatMount from "@/app/_components/client-chat-mount";
+import HeaderAndFooterGate from "@/app/_components/layout/HeaderAndFooterGate";
 
 const interFont = Inter({variable: '--font-inter', subsets: ['latin', 'cyrillic']});
 
@@ -165,13 +166,19 @@ export default async function RootLayout({children}: { children: ReactNode }) {
 
         <Suspense fallback={null}>
             <QueryProvider>
-                <Header/>
+                <HeaderAndFooterGate>
+                    <Header/>
+                </HeaderAndFooterGate>
+
                 {token && <Sidebar/>}
                 <main>{children}</main>
                 <ToastProvider/>
-                <MobileBottomNavigation/>
-                <ClientChatMount />
-                <Footer/>
+                <HeaderAndFooterGate>
+                    <MobileBottomNavigation/>
+                    <ClientChatMount/>
+                    <Footer/>
+                </HeaderAndFooterGate>
+
             </QueryProvider>
 
             {/* SPA-хиты */}

@@ -97,6 +97,7 @@ export function PropertySelectionStep({
                     { id: 'draft', name: 'Черновик' },
                     { id: 'deleted', name: 'Удалено' },
                     { id: 'sold', name: 'Продано' },
+                    { id: 'sold_by_owner', name: 'Продано владельцем' },
                     { id: 'rented', name: 'Арендовано' },
                 ]}
                 selected={selectedModerationStatus}

@@ -55,6 +55,7 @@ export default function Profile() {
             });
             setPhotoDeleted(!user.photo);
         }
+        console.log('user', user)
     }, [user]);
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

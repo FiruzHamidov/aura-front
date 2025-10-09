@@ -59,7 +59,7 @@ export function BarOffer({ data }: { data: { label: string; value: number }[] })
 export function LineTimeSeries({ data }: { data: { x: string; total: number; closed: number }[] }) {
     return (
         <div className="p-4 bg-white rounded-2xl shadow">
-            <h3 className="font-semibold mb-3">Динамика (всего/закрыто)</h3>
+            <h3 className="font-semibold mb-3">Динамика (всего/продано)</h3>
             <Line
                 data={{
                     labels: data.map(d => d.x),
@@ -73,7 +73,7 @@ export function LineTimeSeries({ data }: { data: { x: string; total: number; clo
                             fill: true,
                         },
                         {
-                            label: 'Закрыто',
+                            label: 'Продано',
                             data: data.map(d => d.closed),
                             borderColor: COLORS[1],
                             backgroundColor: COLORS[1] + '33',
