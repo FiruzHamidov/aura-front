@@ -26,10 +26,13 @@ export const useDevelopers = (params = defaultParams) =>
   useQuery({
     queryKey: ["developers", params],
     queryFn: async () => {
-      const { data } = await axios.get<Paginated<Developer>>("/developers", {
-        params,
-      });
-      return data; // ВАЖНО: возвращаем целиком пагинированный объект
+      const { data } = await axios.get<Developer[] | Paginated<Developer>>(
+        "/developers",
+        {
+          params,
+        }
+      );
+      return data;
     },
     staleTime: 5 * 60 * 1000,
   });
@@ -48,10 +51,8 @@ export const useCreateDeveloper = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: DeveloperPayload) => {
-      // Use FormData to handle file uploads
       const formData = new FormData();
 
-      // Add all text fields
       formData.append("name", payload.name);
 
       if (payload.description) {
@@ -107,12 +108,10 @@ export const useCreateDeveloper = () => {
         formData.append("telegram", payload.telegram);
       }
 
-      // Add the logo file if it exists
       if (payload.logo) {
         formData.append("logo", payload.logo);
       }
 
-      // Send the FormData with appropriate headers
       const { data } = await axios.post<Developer>("/developers", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -131,10 +130,8 @@ export const useUpdateDeveloper = (id: number) => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: DeveloperPayload) => {
-      // Use FormData to handle file uploads
       const formData = new FormData();
 
-      // Add all text fields
       formData.append("name", payload.name);
 
       if (payload.description) {
@@ -190,14 +187,12 @@ export const useUpdateDeveloper = (id: number) => {
         formData.append("telegram", payload.telegram);
       }
 
-      // Add the logo file if it exists
       if (payload.logo) {
         formData.append("logo", payload.logo);
       }
 
-      // Use PUT method for update
       const { data } = await axios.post<Developer>(
-        `/developers/${id}?_method=PUT`, // Laravel-style method spoofing
+        `/developers/${id}?_method=PUT`,
         formData,
         {
           headers: {
@@ -503,7 +498,6 @@ export const useDeleteNewBuilding = () => {
   });
 };
 
-// Фичи к новостройке
 export const useAttachFeature = () =>
   useMutation({
     mutationFn: async (vars: { newBuildingId: number; featureId: number }) => {

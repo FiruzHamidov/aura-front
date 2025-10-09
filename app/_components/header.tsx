@@ -16,6 +16,7 @@ const navItems = [
   { name: 'Покупка', href: '/buy' },
   { name: 'Снять', href: '/rent' },
   { name: 'Новостройки', href: '/new-buildings' },
+  { name: 'Застройщики', href: '/developers' },
   { name: 'Ипотека', href: '/mortgage' },
   { name: 'Сервисы', href: '/services' },
   { name: 'О нас', href: '/about' },
@@ -136,8 +137,6 @@ const Header: FC = () => {
             </button>
           </Link>
 
-
-
           <button
             onClick={handleLogout}
             disabled={logoutMutation.isPending}
@@ -189,12 +188,18 @@ const Header: FC = () => {
                 Профиль
               </button>
             </Link>
-            <Link href="/profile/my-listings" onClick={() => setIsMobileMenuOpen(false)}>
+            <Link
+              href="/profile/my-listings"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
               <button className="cursor-pointer w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors">
                 Мои объявления
               </button>
             </Link>
-            <Link href="/profile/favorites" onClick={() => setIsMobileMenuOpen(false)}>
+            <Link
+              href="/profile/favorites"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
               <button className="cursor-pointer w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors">
                 Избранное
               </button>

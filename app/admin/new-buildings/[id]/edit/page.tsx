@@ -13,7 +13,6 @@ import NBSelectionStep from '../../_components/NBSelectionStep';
 import NBDetailsStep from '../../_components/NBDetailsStep';
 import type {
   NewBuildingPayload,
-  NewBuilding,
   LocationOption,
   BuildingApiError,
 } from '@/services/new-buildings/types';
@@ -50,9 +49,7 @@ export default function NewBuildingEditPage() {
   useEffect(() => {
     if (!initial) return;
 
-    // Если тип initial уже описан (NewBuilding), используем его поля напрямую,
-    // без принудительных any-кастов.
-    const nb = initial as NewBuilding;
+    const nb = initial.data;
 
     setForm((prev) => ({
       ...prev,
@@ -109,7 +106,6 @@ export default function NewBuildingEditPage() {
     }
   };
 
-  // Без any: строго типизируем selectedFeatureIds и locationId
   const selectedFeatureIds: number[] = Array.isArray(form.features)
     ? (form.features as number[])
     : [];

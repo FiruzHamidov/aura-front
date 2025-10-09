@@ -51,6 +51,7 @@ export function useNewBuildingForm() {
   const { data: featuresPg } = useFeatures();
   const { data: locationsPg } = useLocations();
 
+  // @ts-expect-error ignore
   const developers = rows(developersPg);
   const stages = rows(stagesPg);
   const materials = rows(materialsPg);

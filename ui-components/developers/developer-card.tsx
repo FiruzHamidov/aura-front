@@ -3,9 +3,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Developer } from '@/services/new-buildings/types';
 import { STORAGE_URL } from '@/constants/base-url';
-import FacebookIcon from '@/icons/FacebookIcon';
 import InstagramIcon from '@/icons/InstagramIcon';
-import WhatsappNoBgIcon from '@/icons/WhatsappNoBgIcon';
+import WhatsAppIcon from '@/icons/Whatsapp';
+import FacebookBlueIcon from '@/icons/FacebookBlueIcon';
 
 interface DeveloperCardProps {
   developer: Developer;
@@ -16,10 +16,20 @@ const DeveloperCard: FC<DeveloperCardProps> = ({ developer }) => {
     ? `${STORAGE_URL}/${developer.logo_path}`
     : '/images/placeholder-developer.png';
 
+  const formatUrl = (url: string) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return `https://${url}`;
+  };
+
+  const cleanPhone = developer.phone?.replace(/[^\d+]/g, '') || '';
+
   return (
     <Link
       href={`/developers/${developer.id}`}
-      className="bg-white rounded-[22px] p-6 hover:shadow-lg transition-shadow block"
+      className="bg-white rounded-[22px] p-6 transition-shadow block hover:shadow-lg"
     >
       <div className="flex items-center gap-4 mb-4">
         <div className="relative w-[80px] h-[80px] rounded-full overflow-hidden flex-shrink-0">
@@ -80,19 +90,41 @@ const DeveloperCard: FC<DeveloperCardProps> = ({ developer }) => {
       {/* Social media links */}
       <div className="flex gap-2">
         {developer.facebook && (
-          <div className="w-8 h-8 bg-[#1877F2] rounded-full flex items-center justify-center">
-            <FacebookIcon className="w-4 h-4 text-white" />
-          </div>
+          <a
+            href={formatUrl(developer.facebook)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="w-10 h-10 bg-[#1877F2] rounded-full flex items-center justify-center hover:opacity-80 transition-opacity"
+            aria-label="Facebook"
+          >
+            <FacebookBlueIcon className="w-10 h-10" />
+          </a>
         )}
         {developer.instagram && (
-          <div className="w-8 h-8 bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737] rounded-full flex items-center justify-center">
-            <InstagramIcon className="w-4 h-4 text-white" />
-          </div>
+          <a
+            href={formatUrl(developer.instagram)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="w-10 h-10 bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737] rounded-full flex items-center justify-center hover:opacity-80 transition-opacity"
+            aria-label="Instagram"
+          >
+            <InstagramIcon />
+          </a>
         )}
+
         {developer.phone && (
-          <div className="w-8 h-8 bg-[#25D366] rounded-full flex items-center justify-center">
-            <WhatsappNoBgIcon className="w-4 h-4 text-white" />
-          </div>
+          <a
+            href={`https://wa.me/${cleanPhone}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="w-10 h-10 bg-[#25D366] rounded-full flex items-center justify-center hover:opacity-80 transition-opacity"
+            aria-label="WhatsApp"
+          >
+            <WhatsAppIcon className="w-10 h-10 text-white" />
+          </a>
         )}
       </div>
     </Link>

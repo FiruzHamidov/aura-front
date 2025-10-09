@@ -21,14 +21,19 @@ export interface Developer {
   instagram?: string | null;
   facebook?: string | null;
   telegram?: string | null;
+  whatsapp?: string | null;
+  address?: string | null;
   total_projects?: number;
   under_construction_count?: number;
   moderation_status?: ModerationStatus;
 }
 
+export type DevelopersResponse = Developer[] | Paginated<Developer>;
+
 export interface DeveloperPayload {
   name: string;
   description?: string | null;
+  address?: string | null;
   phone?: string | null;
   under_construction_count?: number | null;
   built_count?: number | null;
@@ -39,6 +44,7 @@ export interface DeveloperPayload {
   facebook?: string | null;
   instagram?: string | null;
   telegram?: string | null;
+  whatsapp?: string | null;
   logo?: File | null;
 }
 
@@ -93,7 +99,7 @@ export interface NewBuildingPhoto {
   url?: string;
   is_cover?: boolean;
   sort_order?: number;
-  order?: number; // alias for sort_order
+  order?: number;
   created_at?: string;
   updated_at?: string;
 }
@@ -154,7 +160,7 @@ export interface NearbyPlace {
     | "kindergarten"
     | "supermarket";
   name?: string | null;
-  distance: number; // in meters
+  distance: number;
   created_at: string;
   updated_at: string;
 }

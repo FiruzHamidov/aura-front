@@ -17,10 +17,7 @@ export default function DevelopersPage() {
         <h1 className="text-3xl font-bold mb-8">Застройщики</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-[22px] p-6 animate-pulse"
-            >
+            <div key={i} className="bg-white rounded-[22px] p-6 animate-pulse">
               <div className="w-20 h-20 bg-gray-200 rounded-full mb-4" />
               <div className="h-6 bg-gray-200 rounded mb-2" />
               <div className="h-4 bg-gray-200 rounded w-2/3" />
@@ -31,8 +28,12 @@ export default function DevelopersPage() {
     );
   }
 
-  const developers = developersData?.data || [];
-  const totalPages = developersData?.last_page || 1;
+  const developers = Array.isArray(developersData)
+    ? developersData
+    : developersData?.data || [];
+  const totalPages = Array.isArray(developersData)
+    ? 1
+    : developersData?.last_page || 1;
 
   return (
     <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 pt-8 pb-12">
