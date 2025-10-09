@@ -17,6 +17,7 @@ import type {
   NewBuildingsFilters,
   NewBuildingPhoto,
   DeveloperPayload,
+  NewBuildingDetailResponse,
 } from "./types";
 
 const defaultParams = { page: 1, per_page: 100 };
@@ -450,7 +451,9 @@ export const useNewBuilding = (id?: number) =>
   useQuery({
     queryKey: ["new-buildings", id],
     queryFn: async () => {
-      const { data } = await axios.get<NewBuilding>(`/new-buildings/${id}`);
+      const { data } = await axios.get<NewBuildingDetailResponse>(
+        `/new-buildings/${id}`
+      );
       return data;
     },
     enabled: !!id,

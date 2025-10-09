@@ -20,11 +20,12 @@ function NewBuildingCardWithPhotos({ building }: { building: any }) {
       slug={building.id.toString()}
       title={building.title}
       subtitle={building.description || ''}
+      photos={photos || []}
       image={{
         src:
-          photos?.[0]?.url || building.photos?.[0]?.url
+          photos?.[0]?.path || building.photos?.[0]?.path
             ? `${process.env.NEXT_PUBLIC_STORAGE_URL}/${
-                photos?.[0]?.url || building.photos?.[0]?.url
+                photos?.[0]?.path || building.photos?.[0]?.path
               }`
             : '/images/placeholder.png',
         alt: building.title,

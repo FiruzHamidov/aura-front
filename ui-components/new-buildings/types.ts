@@ -1,3 +1,5 @@
+import { NewBuildingPhoto } from "@/services/new-buildings/types";
+
 export interface ApartmentOption {
   rooms: number;
   area: number;
@@ -20,6 +22,7 @@ export interface NewBuildingCardProps {
     name: string;
     logo_path: string;
   };
+  photos: NewBuildingPhoto[];
   hasInstallmentOption?: boolean;
   className?: string;
   onClick?: () => void;
