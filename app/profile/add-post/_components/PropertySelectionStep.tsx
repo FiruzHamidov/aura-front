@@ -3,8 +3,10 @@
 import {SelectToggle} from '@/ui-components/SelectToggle';
 import {Button} from '@/ui-components/Button';
 import {SelectOption} from '@/services/add-post/types';
+import {useEffect, useMemo} from "react";
 
 interface PropertySelectionStepProps {
+    isAgent: boolean;
     selectedModerationStatus: string;
     setSelectedModerationStatus: (type: string) => void;
     selectedOfferType: string;
@@ -23,6 +25,7 @@ interface PropertySelectionStepProps {
 }
 
 export function PropertySelectionStep({
+                                          isAgent,
                                           selectedModerationStatus,
                                           setSelectedModerationStatus,
                                           selectedOfferType,
@@ -40,6 +43,32 @@ export function PropertySelectionStep({
                                           onNext,
                                       }: PropertySelectionStepProps) {
     const isValid = selectedPropertyType && selectedBuildingType && selectedRooms;
+
+    useEffect(() => {
+        if (isAgent && selectedListingType !== 'regular' && selectedModerationStatus !== 'pending') {
+            setSelectedModerationStatus('pending');
+        }
+    }, [isAgent, selectedListingType, selectedModerationStatus, setSelectedModerationStatus]);
+
+
+    // список опций модерации (фильтрация для агента при vip/urgent)
+    const moderationOptions = useMemo(
+        () =>
+            (isAgent && selectedListingType !== 'regular')
+                ? [{ id: 'pending', name: 'На модерации' }]
+                : [
+                    { id: 'pending', name: 'На модерации' },
+                    { id: 'approved', name: 'Одобрено' },
+                    { id: 'rejected', name: 'Отклонено' },
+                    { id: 'draft', name: 'Черновик' },
+                    { id: 'deleted', name: 'Удалено' },
+                    { id: 'sold', name: 'Продано' },
+                    { id: 'sold_by_owner', name: 'Продано владельцем' },
+                    { id: 'rented', name: 'Арендовано' },
+                ],
+        [isAgent, selectedListingType]
+    );
+    const moderationDisabled = isAgent && selectedListingType !== 'regular';
 
     return (
         <div className="flex flex-col gap-6">
@@ -88,21 +117,15 @@ export function PropertySelectionStep({
                 setSelected={setSelectedRooms}
             />
 
+
             <SelectToggle
                 title="Статус модерации"
-                options={[
-                    { id: 'pending', name: 'На модерации' },
-                    { id: 'approved', name: 'Одобрено' },
-                    { id: 'rejected', name: 'Отклонено' },
-                    { id: 'draft', name: 'Черновик' },
-                    { id: 'deleted', name: 'Удалено' },
-                    { id: 'sold', name: 'Продано' },
-                    { id: 'sold_by_owner', name: 'Продано владельцем' },
-                    { id: 'rented', name: 'Арендовано' },
-                ]}
+                options={moderationOptions}
                 selected={selectedModerationStatus}
                 setSelected={setSelectedModerationStatus}
+                disabled={moderationDisabled}
             />
+
 
             <div className="flex justify-end">
                 <Button onClick={onNext} disabled={!isValid} className="mt-8">

@@ -1,6 +1,6 @@
 'use client';
 
-import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import {
     useCreatePropertyMutation,
     useGetBuildingTypesQuery,
@@ -11,11 +11,13 @@ import {
     useGetPropertyTypesQuery,
     useGetRepairTypesQuery,
     useUpdatePropertyMutation,
-    useReorderPropertyPhotosMutation, useDeletePropertyPhotoMutation,
+    useReorderPropertyPhotosMutation,
+    useDeletePropertyPhotoMutation, // ← опечатка исправлена
 } from '@/services/add-post';
 import { showToast } from '@/ui-components/Toast';
 import { Property } from '@/services/properties/types';
 import { extractValidationMessages } from '@/utils/validationErrors';
+import { isAxiosError } from 'axios'; // ← добавлено
 
 import type {
     CreatePropertyPayload,
@@ -23,6 +25,12 @@ import type {
     PhotoItem,
     UpdatePropertyPayload,
 } from '@/services/add-post/types';
+
+// для обработки дублей
+import type {
+    DuplicateCandidate,
+    CreatePropertyResult,
+} from '@/services/properties/types';
 
 type FormState = Omit<RawFormState, 'photos'> & { photos: PhotoItem[] };
 
@@ -79,7 +87,7 @@ interface UseAddPostFormProps {
 }
 
 export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFormProps = {}) {
-
+    // справочники
     const { data: propertyTypes = [] } = useGetPropertyTypesQuery();
     const { data: buildingTypes = [] } = useGetBuildingTypesQuery();
     const { data: locations = [] } = useGetLocationsQuery();
@@ -88,11 +96,13 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
     const { data: parkingTypes = [] } = useGetParkingTypesQuery();
     const { data: contractTypes = [] } = useGetContractTypesQuery();
 
-    const createPropertyMutation = useCreatePropertyMutation();
-    const updatePropertyMutation = useUpdatePropertyMutation();
-    const deletePhotoMutation = useDeletePropertyPhotoMutation();
+    // мутации
+    const createPropertyMutation = useCreatePropertyMutation(); // возвращает CreatePropertyResult (union)
+    const updatePropertyMutation = useUpdatePropertyMutation(); // возвращает union, но при успехе — Property
+    const deletePhotoMutation = useDeletePropertyPhotoMutation(); // ← опечатка фиксанута
     const reorderPhotosMutation = useReorderPropertyPhotosMutation();
 
+    // состояние формы
     const [form, setForm] = useState<FormState>(initialFormState);
     const [selectedOfferType, setSelectedOfferType] = useState('sale');
     const [selectedModerationStatus, setSelectedModerationStatus] = useState('approved');
@@ -101,12 +111,20 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
     const [selectedListingType, setSelectedListingType] = useState('regular');
     const [selectedRooms, setSelectedRooms] = useState<number | null>(null);
 
+    // дубляжи + модалка
+    const [dupDialogOpen, setDupDialogOpen] = useState(false);
+    const [duplicates, setDuplicates] = useState<DuplicateCandidate[]>([]);
+    const [pendingCreatePayload, setPendingCreatePayload] = useState<FormData | null>(null);
+
+    // «грязная форма» → предупреждение при уходе
+    const [isDirty, setIsDirty] = useState(false);
+
     const isInitialized = useRef(false);
 
     const mapServerPhotos = (photos: Property['photos'] | undefined | null): PhotoItem[] => {
         if (!photos) return [];
         return photos.map((p): PhotoItem => {
-            const src = (p as unknown as PropertyPhotoFromServer);
+            const src = p as unknown as PropertyPhotoFromServer;
             return {
                 id: cid(),
                 url: (src.file_path && String(src.file_path)) || (src.url && String(src.url)) || '',
@@ -164,12 +182,25 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
         }
     }, [editMode, propertyData?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    // предупреждение при закрытии\обновлении вкладки
+    useEffect(() => {
+        const onBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (isDirty) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        };
+        window.addEventListener('beforeunload', onBeforeUnload);
+        return () => window.removeEventListener('beforeunload', onBeforeUnload);
+    }, [isDirty]);
+
     // --- Общий onChange полей формы ---
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, type, value } = e.target;
         const input = e.target as HTMLInputElement;
         const newValue = type === 'checkbox' ? input.checked : value;
         setForm((prev) => ({ ...prev, [name]: newValue }));
+        setIsDirty(true);
     };
 
     // --- Добавление новых файлов (File -> PhotoItem) ---
@@ -181,6 +212,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
             file: f,
         }));
         setForm((prev) => ({ ...prev, photos: [...prev.photos, ...additions] }));
+        setIsDirty(true);
     };
 
     // --- Удаление фото по индексу (только UI) ---
@@ -192,6 +224,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
         const prev = form.photos;
         const next = prev.filter((_, i) => i !== index);
         setForm((p) => ({ ...p, photos: next }));
+        setIsDirty(true);
 
         // 2) Если это серверное фото и мы в editMode — зовём DELETE
         if (editMode && target.serverId && propertyData?.id) {
@@ -201,7 +234,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
                     photoId: target.serverId,
                 });
 
-                // 3) (опционально) Подтвердим новый порядок оставшихся серверных фото
+                // 3) Подтвердим новый порядок оставшихся серверных фото
                 const remainingServerIds = next
                     .filter((x): x is PhotoItem & { serverId: number } => typeof x.serverId === 'number')
                     .map((x) => x.serverId);
@@ -219,12 +252,12 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
                 console.error(e);
             }
         }
-        // Для локальных (новых) фото — API не нужен, удаление уже произошло в UI
     };
 
     // --- Применение нового порядка от DnD ---
     const handleReorder = (next: PhotoItem[]) => {
         setForm((prev) => ({ ...prev, photos: next }));
+        setIsDirty(true);
     };
 
     // --- Сброс формы ---
@@ -236,6 +269,10 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
         setSelectedBuildingType(null);
         setSelectedRooms(null);
         setSelectedListingType('regular');
+        setDupDialogOpen(false);
+        setDuplicates([]);
+        setPendingCreatePayload(null);
+        setIsDirty(false);
         isInitialized.current = false;
     };
 
@@ -247,6 +284,86 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
         }
         return true;
     };
+
+    // --- Сборка FormData (строго нормализуем булевы) ---
+    const buildFormData = (payload: Record<string, unknown>) => {
+        const fd = new FormData();
+
+        const appendKV = (key: string, value: unknown) => {
+            if (value === null || value === undefined) return;
+            if (typeof value === 'boolean') {
+                fd.append(key, value ? '1' : '0');
+                return;
+            }
+            if (value === 'true' || value === 'false') {
+                fd.append(key, value === 'true' ? '1' : '0');
+                return;
+            }
+            const s = String(value);
+            if (s === '') return;
+            fd.append(key, s);
+        };
+
+        Object.entries(payload).forEach(([k, v]) => appendKV(k, v));
+
+        // Новые фото и их позиции (позиция = индекс карточки в UI)
+        let fileIndex = 0;
+        form.photos.forEach((p, uiIndex) => {
+            if (p.file) {
+                fd.append('photos[]', p.file);
+                fd.append(`photo_positions[${fileIndex}]`, String(uiIndex));
+                fileIndex += 1;
+            }
+        });
+
+        return fd;
+    };
+
+    // --- Принудительное создание (force=1) после 409 ---
+    const forceCreate = useCallback(async () => {
+        if (!pendingCreatePayload) return;
+        pendingCreatePayload.set('force', '1');
+        try {
+            const resAny = await createPropertyMutation.mutateAsync(
+                pendingCreatePayload as unknown as CreatePropertyPayload
+            );
+
+            // Detect wrapped union vs plain success object
+            const isWrapped = (r: unknown): r is CreatePropertyResult =>
+                typeof r === 'object' && r !== null && 'ok' in (r as Record<string, unknown>);
+
+            if (!isWrapped(resAny)) {
+                // Plain success (Property)
+                showToast('success', 'Объявление добавлено (несмотря на найденные дубликаты)');
+                resetForm();
+                setDupDialogOpen(false);
+                return;
+            }
+
+            if (resAny.ok) {
+                showToast('success', 'Объявление добавлено (несмотря на найденные дубликаты)');
+                resetForm();
+                setDupDialogOpen(false);
+                return;
+            }
+
+            if (resAny.code === 409 && 'duplicates' in resAny) {
+                setDuplicates(resAny.duplicates ?? []);
+                setDupDialogOpen(true);
+                return;
+            }
+
+            showToast('error', resAny.message || 'Не удалось сохранить с принудительным добавлением');
+        } catch (e) {
+            if (isAxiosError(e) && e.response?.status === 409) {
+                const dups = (e.response.data?.duplicates ?? []) as DuplicateCandidate[];
+                setDuplicates(dups);
+                setDupDialogOpen(true);
+                return;
+            }
+            showToast('error', 'Не удалось сохранить с принудительным добавлением');
+        }
+    }, [pendingCreatePayload, createPropertyMutation, resetForm]);
 
     // --- Сабмит с сохранением порядка ---
     const handleSubmit = async (e: FormEvent) => {
@@ -288,43 +405,11 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
             latitude: form.latitude,
             longitude: form.longitude,
             agent_id: form.agent_id,
+            title: form.title,
+            object_key: form.object_key,
         };
 
-        // 2) Сборка FormData (строго нормализуем булевы)
-        const buildFormData = () => {
-            const fd = new FormData();
-
-            const appendKV = (key: string, value: unknown) => {
-                if (value === null || value === undefined) return;
-                if (typeof value === 'boolean') {
-                    fd.append(key, value ? '1' : '0');
-                    return;
-                }
-                if (value === 'true' || value === 'false') {
-                    fd.append(key, value === 'true' ? '1' : '0');
-                    return;
-                }
-                const s = String(value);
-                if (s === '') return;
-                fd.append(key, s);
-            };
-
-            Object.entries(propertyDataToSubmit).forEach(([k, v]) => appendKV(k, v));
-
-            // Новые фото и их позиции (позиция = индекс карточки в UI)
-            let fileIndex = 0;
-            form.photos.forEach((p, uiIndex) => {
-                if (p.file) {
-                    fd.append('photos[]', p.file);
-                    fd.append(`photo_positions[${fileIndex}]`, String(uiIndex));
-                    fileIndex += 1;
-                }
-            });
-
-            return fd;
-        };
-
-        // 3) Текущий порядок существующих фото (по id из БД)
+        // 2) Текущий порядок существующих фото (по id из БД)
         const existingPhotoOrder = form.photos
             .filter((p): p is PhotoItem & { serverId: number } => typeof p.serverId === 'number')
             .map((p) => p.serverId);
@@ -332,33 +417,75 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
         try {
             if (editMode && propertyData?.id) {
                 // UPDATE: дозагрузка новых фото + обновление полей
-                const fd = buildFormData();
+                const fd = buildFormData(propertyDataToSubmit);
                 if (!fd.has('_method')) fd.append('_method', 'PUT');
 
                 const updatePayload: UpdatePropertyPayload = {
                     id: propertyData.id.toString(),
                     formData: fd,
                 };
-                await updatePropertyMutation.mutateAsync(updatePayload);
+                const resUpdAny = await updatePropertyMutation.mutateAsync(updatePayload);
 
-                // фиксация порядка существующих фото (без перезаливки) — ВЫЗОВ API
-                if (existingPhotoOrder.length) {
-                    await reorderPhotosMutation.mutateAsync({
-                        id: propertyData.id,
-                        order: existingPhotoOrder,
-                    });
+                const isWrappedUpd = (r: unknown): r is CreatePropertyResult =>
+                    typeof r === 'object' && r !== null && 'ok' in (r as Record<string, unknown>);
+
+                const handleUpdateSuccess = async () => {
+                    if (existingPhotoOrder.length) {
+                        await reorderPhotosMutation.mutateAsync({
+                            id: propertyData.id,
+                            order: existingPhotoOrder,
+                        });
+                    }
+                    showToast('success', 'Объявление успешно обновлено!');
+                    setIsDirty(false);
+                };
+
+                if (!isWrappedUpd(resUpdAny)) {
+                    await handleUpdateSuccess();
+                } else if (resUpdAny.ok) {
+                    await handleUpdateSuccess();
+                } else if (resUpdAny.code === 409 && 'duplicates' in resUpdAny) {
+                    setDuplicates(resUpdAny.duplicates ?? []);
+                    setDupDialogOpen(true);
+                } else {
+                    showToast('error', resUpdAny.message || 'Ошибка при обновлении объявления');
                 }
-
-                showToast('success', 'Объявление успешно обновлено!');
             } else {
                 // CREATE
-                const fd = buildFormData();
-                const createPayload: CreatePropertyPayload = fd;
-                await createPropertyMutation.mutateAsync(createPayload);
-                showToast('success', 'Объявление успешно добавлено!');
-                resetForm();
+                const fd = buildFormData(propertyDataToSubmit);
+
+                // сохраним payload — понадобится, если сервер вернёт 409 и пользователь нажмёт «Добавить всё равно»
+                setPendingCreatePayload(fd);
+
+                const resAny = await createPropertyMutation.mutateAsync(
+                    fd as unknown as CreatePropertyPayload
+                );
+
+                const isWrappedCreate = (r: unknown): r is CreatePropertyResult =>
+                    typeof r === 'object' && r !== null && 'ok' in (r as Record<string, unknown>);
+
+                if (!isWrappedCreate(resAny)) {
+                    showToast('success', 'Объявление успешно добавлено!');
+                    resetForm();
+                } else if (resAny.ok) {
+                    showToast('success', 'Объявление успешно добавлено!');
+                    resetForm();
+                } else if (resAny.code === 409 && 'duplicates' in resAny) {
+                    setDuplicates(resAny.duplicates ?? []);
+                    setDupDialogOpen(true);
+                } else {
+                    showToast('error', resAny.message || 'Ошибка при добавлении объявления');
+                }
             }
         } catch (err) {
+            // Если сервер вернул 409 как axios-ошибку (без union-ответа)
+            if (isAxiosError(err) && err.response?.status === 409) {
+                const dups = (err.response.data?.duplicates ?? []) as DuplicateCandidate[];
+                setDuplicates(dups);
+                setDupDialogOpen(true);
+                return;
+            }
+
             const messages = extractValidationMessages(err);
             if (messages) {
                 showToast('error', `Исправьте ошибки:\n• ${messages.join('\n• ')}`);
@@ -379,6 +506,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
         parkingTypes,
         contractTypes,
 
+        // состояние формы
         form,
         selectedOfferType,
         selectedPropertyType,
@@ -386,18 +514,30 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
         selectedListingType,
         selectedModerationStatus,
         selectedRooms,
+
+        // сеттеры
         setSelectedOfferType,
         setSelectedListingType,
         setSelectedPropertyType,
         setSelectedBuildingType,
         setSelectedModerationStatus,
         setSelectedRooms,
+
+        // операции
         handleChange,
         handleFileChange,
         removePhoto,
         handleReorder,
         handleSubmit,
         resetForm,
+
+        // дубли
+        dupDialogOpen,
+        setDupDialogOpen,
+        duplicates,
+        forceCreate,
+
+        // прочее
         isSubmitting: editMode ? updatePropertyMutation.isPending : createPropertyMutation.isPending,
         editMode,
     };

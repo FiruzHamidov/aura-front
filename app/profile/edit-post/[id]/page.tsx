@@ -147,6 +147,7 @@ export default function EditPost() {
 
             {currentStep === 1 && (
                 <PropertySelectionStep
+                    isAgent={(user?.role?.slug === 'agent')}
                     selectedModerationStatus={formData.selectedModerationStatus}
                     setSelectedModerationStatus={formData.setSelectedModerationStatus}
                     selectedOfferType={formData.selectedOfferType}

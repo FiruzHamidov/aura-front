@@ -34,7 +34,7 @@ export default function MyListings() {
         isLoading,
         isFetching,
     } = useGetMyPropertiesQuery(
-        { listing_type: '', page, per_page: perPage, moderation_status: selectedTab },
+        { listing_type: '', page, per_page: perPage, moderation_status: selectedTab, sort: 'none' },
         true
     );
 

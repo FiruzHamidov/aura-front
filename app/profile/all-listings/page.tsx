@@ -40,6 +40,7 @@ export default function MyListings() {
             page,
             per_page: perPage,
             moderation_status: selectedTab,
+            sort: 'none'
         },
         true
     );

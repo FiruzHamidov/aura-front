@@ -1,6 +1,6 @@
 // services/add-post/types.ts
 
-import { Property } from '../properties/types';
+import {DuplicateCandidate, Property} from '../properties/types';
 
 /** Справочники */
 export interface SelectOption { id: number; name: string; city?: string; slug?: string }
@@ -103,11 +103,10 @@ export interface CreatePropertyRequest {
     cover_id?: number;
 }
 
-export interface CreatePropertyResponse {
-    id: number;
-    message: string;
-    property?: Property;
-}
+export type CreatePropertyResponse =
+    | { ok: true; data: Property }
+    | { ok: false; code: 409; message: string; duplicates: DuplicateCandidate[] }
+    | { ok: false; code: number; message: string };
 
 
 export type CreatePropertyPayload = FormData | CreatePropertyRequest;

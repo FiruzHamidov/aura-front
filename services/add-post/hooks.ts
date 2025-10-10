@@ -1,16 +1,12 @@
-// services/add-post/hooks.ts
-// Хуки на react-query, типизированные под union payload’ы,
-// чтобы вызывать mutate без `as any`.
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { addPostApi } from './api';
 import type {
   CreatePropertyPayload,
-  CreatePropertyResponse,
+  CreatePropertyResponse, // = { ok:true; data: Property } | { ok:false; ... }
   UpdatePropertyPayload,
 } from './types';
 
-// ---- READ QUERIES (без изменений) ----
+// ---- READ QUERIES ----
 export const useGetPropertyTypesQuery = () =>
     useQuery({ queryKey: ['get-property-types'], queryFn: addPostApi.getPropertyTypes });
 
@@ -32,29 +28,28 @@ export const useGetParkingTypesQuery = () =>
 export const useGetContractTypesQuery = () =>
     useQuery({ queryKey: ['get-contract-types'], queryFn: addPostApi.getContractTypes });
 
-// ---- CREATE (union: FormData | JSON) ----
 export const useCreatePropertyMutation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation<CreatePropertyResponse, Error, CreatePropertyPayload>({
-    // ✅ теперь можно передавать либо FormData, либо JSON
+  const qc = useQueryClient();
+  return useMutation<CreatePropertyResponse, Error, CreatePropertyPayload & { force?: boolean }>({
     mutationFn: (payload) => addPostApi.createProperty(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['get-properties'] });
+    onSuccess: (res) => {
+      if (res.ok) {
+        qc.invalidateQueries({ queryKey: ['get-properties'] });
+        qc.invalidateQueries({ queryKey: ['get-property-by-id', String(res.data.id)] });
+      }
     },
   });
 };
 
-// ---- UPDATE (union: { id, formData } | { id, json }) ----
 export const useUpdatePropertyMutation = () => {
-  const queryClient = useQueryClient();
-
+  const qc = useQueryClient();
   return useMutation<CreatePropertyResponse, Error, UpdatePropertyPayload>({
-    // ✅ теперь можно передавать либо multipart, либо JSON-патч
-    mutationFn: (payload) => addPostApi.updateProperty(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['get-properties'] });
-      queryClient.invalidateQueries({ queryKey: ['get-property-by-id'] });
+    mutationFn: (payload) => addPostApi.updateProperty(payload), // ← возвращает CreatePropertyResponse (union)
+    onSuccess: (res) => {
+      if (res.ok) {
+        qc.invalidateQueries({ queryKey: ['get-properties'] });
+        qc.invalidateQueries({ queryKey: ['get-property-by-id', String(res.data.id)] });
+      }
     },
   });
 };
@@ -77,7 +72,6 @@ export const useDeletePropertyPhotoMutation = () => {
     mutationFn: ({ propertyId, photoId }: { propertyId: number | string; photoId: number }) =>
         addPostApi.deletePropertyPhoto(propertyId, photoId),
     onSuccess: () => {
-      // Обновим списки/детали, чтобы серверное состояние совпало с UI
       qc.invalidateQueries({ queryKey: ['get-properties'] });
       qc.invalidateQueries({ queryKey: ['get-property-by-id'] });
     },
