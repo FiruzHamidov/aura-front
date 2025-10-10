@@ -115,22 +115,47 @@ export interface BuildingBlock {
   updated_at: string;
 }
 
+export interface BuildingBlockPayload {
+  name: string;
+  floors_from: number;
+  floors_to: number;
+  completion_at: string;
+}
+
 export interface BuildingUnit {
   id: number;
   new_building_id: number;
   block_id: number;
-  name: string;
-  bedrooms: number;
-  bathrooms: number;
-  area: string;
+  title: string;
+  rooms: number;
+  area_total: number;
+  price: number;
+  currency: string;
   floor: number;
-  price_per_sqm: string;
-  total_price: string;
-  description?: string | null;
-  is_available: boolean;
-  moderation_status: ModerationStatus;
+  status: "available" | "sold" | "reserved";
   created_at: string;
   updated_at: string;
+  // Legacy fields for backward compatibility
+  name?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  area?: string;
+  price_per_sqm?: string;
+  total_price?: string;
+  description?: string | null;
+  is_available?: boolean;
+  moderation_status?: ModerationStatus;
+}
+
+export interface BuildingUnitPayload {
+  block_id: number;
+  title: string;
+  rooms: number;
+  area_total: number;
+  price: number;
+  currency: string;
+  floor: number;
+  status: "available" | "sold" | "reserved";
 }
 
 export interface NewBuildingStats {
