@@ -13,9 +13,22 @@ import PhotoGalleryModal from '@/ui-components/PhotoGalleryModal';
 import BookingSidebarForm from '@/app/apartment/[slug]/_components/BookingSidebarForm';
 import FooterPhoneIcon from "@/icons/FooterPhoneIcon";
 import WhatsappInlineIcon from "@/icons/WhatsappInlineIcon";
-import {ArrowUpDown, Bath, Building2, EyeIcon, Flame, Hammer, Home, MapPin, ParkingSquare, Ruler} from "lucide-react";
+import {
+    ArrowUpDown,
+    Bath,
+    Building2,
+    Copy,
+    EyeIcon,
+    Flame,
+    Hammer,
+    Home,
+    MapPin,
+    ParkingSquare,
+    Ruler
+} from "lucide-react";
 import {axios} from "@/utils/axios";
 import {AxiosError} from "axios";
+import {toast} from "react-toastify";
 
 interface Props {
     apartment: Property;
@@ -60,6 +73,35 @@ export default function GalleryWrapper({apartment, photos}: Props) {
             ? [parseFloat(apartment.latitude), parseFloat(apartment.longitude)]
             : null
     );
+
+    const [copied] = useState(false);
+
+    const handleCopyLink = async () => {
+        try {
+            const url =
+                typeof window !== "undefined"
+                    ? window.location.href
+                    : `https://aura.tj/apartment/${apartment.id}`;
+
+            await navigator.clipboard.writeText(url);
+            toast.success("Ссылка скопирована успешно!", {
+                position: "top-center",
+                autoClose: 2000,
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: false,
+                draggable: false,
+                theme: "colored",
+            });
+        } catch {
+            toast.error("Не удалось скопировать ссылку", {
+                position: "top-center",
+                autoClose: 2000,
+                hideProgressBar: true,
+                theme: "colored",
+            });
+        }
+    };
 
     useEffect(() => {
         const controller = new AbortController();
@@ -231,6 +273,16 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                             </svg>
                                         </Link>
                                     )}
+
+                                    <button
+                                        type="button"
+                                        onClick={handleCopyLink}
+                                        className="w-14 h-14 rounded-full border border-[#0036A5] bg-[#0036A5] flex items-center justify-center hover:bg-blue-800 transition-colors cursor-pointer"
+                                        title={copied ? "Ссылка скопирована!" : "Копировать ссылку"}
+                                        aria-live="polite"
+                                    >
+                                        <Copy size={20} className="text-white"/>
+                                    </button>
                                     <button
                                         className="w-14 h-14 rounded-full border border-[#BAC0CC] flex items-center justify-center hover:bg-gray-50 cursor-pointer">
                                         <SettingsIcon className="w-6 h-6 text-[#1E3A8A]"/>

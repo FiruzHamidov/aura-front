@@ -1,20 +1,19 @@
 'use client';
 
-import { useEffect, useMemo, useState, ChangeEvent } from 'react';
+import {ChangeEvent, useEffect, useMemo, useState} from 'react';
 import {
     AgentsLeaderboardRow,
     ManagerEfficiencyRow,
-    // PriceBucketsResponse,
-    ReportsQuery,
     reportsApi,
+    ReportsQuery,
     RoomsRow,
     SummaryResponse,
     TimeSeriesRow,
 } from '@/services/reports/api';
-import { BarOffer, BarRooms, LineTimeSeries, PieStatus } from './_charts';
-import { MultiSelect } from '@/ui-components/MultiSelect';
-import { Button } from '@/ui-components/Button';
-import { Input } from '@/ui-components/Input';
+import {BarOffer, BarRooms, LineTimeSeries, PieStatus} from './_charts';
+import {MultiSelect} from '@/ui-components/MultiSelect';
+import {Button} from '@/ui-components/Button';
+import {Input} from '@/ui-components/Input';
 
 type FilterState = {
     date_from: string;
@@ -34,19 +33,19 @@ type WithMetrics = { sum_price?: number; avg_price?: number };
 type SummaryUnion = SummaryResponse & { sum_price?: number; sum_total_area?: number };
 
 const STATUS_OPTIONS = [
-    { label: 'Черновик', value: 'draft' },
-    { label: 'Ожидание', value: 'pending' },
-    { label: 'Одобрено/Опубликовано', value: 'approved' },
-    { label: 'Отклонено', value: 'rejected' },
-    { label: 'Продано', value: 'sold' },
-    { label: 'Продано владельцем', value: 'sold_by_owner' },
-    { label: 'Арендовано', value: 'rented' },
-    { label: 'Удалено', value: 'deleted' },
+    {label: 'Черновик', value: 'draft'},
+    {label: 'Ожидание', value: 'pending'},
+    {label: 'Одобрено/Опубликовано', value: 'approved'},
+    {label: 'Отклонено', value: 'rejected'},
+    {label: 'Продано', value: 'sold'},
+    {label: 'Продано владельцем', value: 'sold_by_owner'},
+    {label: 'Арендовано', value: 'rented'},
+    {label: 'Удалено', value: 'deleted'},
 ];
 
 const OFFER_OPTIONS = [
-    { label: 'Продажа', value: 'sale' },
-    { label: 'Аренда', value: 'rent' },
+    {label: 'Продажа', value: 'sale'},
+    {label: 'Аренда', value: 'rent'},
 ];
 
 const OFFER_LABELS: Record<string, string> = {
@@ -109,14 +108,12 @@ export default function ReportsPage() {
             const [s, ts, rh, me, lb] = await Promise.all([
                 reportsApi.summary(query),
                 reportsApi.timeSeries(query),
-                // reportsApi.priceBuckets({ ...query, buckets: 10 }),
                 reportsApi.roomsHist(query),
-                reportsApi.managerEfficiency({ ...query, group_by: 'created_by' }),
-                reportsApi.agentsLeaderboard({ ...query, limit: 10 }),
+                reportsApi.managerEfficiency({...query, group_by: 'created_by'}),
+                reportsApi.agentsLeaderboard({...query, limit: 10}),
             ]);
             setSummary(s);
             setSeries(ts);
-            // setBuckets(pb);
             setRooms(rh);
             setManagers(me);
             setLeaders(lb);
@@ -158,7 +155,7 @@ export default function ReportsPage() {
     );
 
     const seriesData = useMemo(
-        () => series.map((r) => ({ x: r.bucket, total: r.total, closed: r.closed })),
+        () => series.map((r) => ({x: r.bucket, total: r.total, closed: r.closed})),
         [series]
     );
 
@@ -169,7 +166,7 @@ export default function ReportsPage() {
     // );
 
     const roomsData = useMemo(
-        () => rooms.map((r) => ({ label: String(r.rooms), value: r.cnt })),
+        () => rooms.map((r) => ({label: String(r.rooms), value: r.cnt})),
         [rooms]
     );
 
@@ -201,7 +198,7 @@ export default function ReportsPage() {
 
     const handleIntervalChange = (e: ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value as FilterState['interval'];
-        setFilters((s) => ({ ...s, interval: value }));
+        setFilters((s) => ({...s, interval: value}));
     };
 
     return (
@@ -216,14 +213,14 @@ export default function ReportsPage() {
                         label="Дата с"
                         name="date_from"
                         value={filters.date_from}
-                        onChange={(e) => setFilters((s) => ({ ...s, date_from: e.target.value }))}
+                        onChange={(e) => setFilters((s) => ({...s, date_from: e.target.value}))}
                     />
                     <Input
                         type="date"
                         label="Дата по"
                         name="date_to"
                         value={filters.date_to}
-                        onChange={(e) => setFilters((s) => ({ ...s, date_to: e.target.value }))}
+                        onChange={(e) => setFilters((s) => ({...s, date_to: e.target.value}))}
                     />
 
                     <div>
@@ -243,7 +240,7 @@ export default function ReportsPage() {
                         label="Тип объявления"
                         value={filters.offer_type}
                         options={OFFER_OPTIONS}
-                        onChange={(arr) => setFilters((s) => ({ ...s, offer_type: arr }))}
+                        onChange={(arr) => setFilters((s) => ({...s, offer_type: arr}))}
                     />
                 </div>
 
@@ -252,7 +249,7 @@ export default function ReportsPage() {
                         label="Статусы"
                         value={filters.moderation_status}
                         options={STATUS_OPTIONS}
-                        onChange={(arr) => setFilters((s) => ({ ...s, moderation_status: arr }))}
+                        onChange={(arr) => setFilters((s) => ({...s, moderation_status: arr}))}
                     />
                 </div>
 
@@ -342,7 +339,7 @@ export default function ReportsPage() {
                 <BarOffer data={offerData}/>
                 <LineTimeSeries data={seriesData}/>
                 {/*<BarBuckets data={bucketData} />*/}
-                <BarRooms data={roomsData} />
+                <BarRooms data={roomsData}/>
             </div>
 
             {/* Таблицы: эффективность и лидерборд */}
@@ -382,12 +379,14 @@ export default function ReportsPage() {
                 </div>
 
                 <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
-                    <h3 className="font-semibold mb-3">Топ агентов (Проданные)</h3>
+                    <h3 className="font-semibold mb-3">Топ агентов</h3>
                     <table className="min-w-full text-sm">
                         <thead>
                         <tr className="text-left text-gray-500">
                             <th className="py-2 pr-4">Агент</th>
                             <th className="py-2 pr-4">Продано</th>
+                            <th className="py-2 pr-4">Арендовано</th>
+                            <th className="py-2 pr-4">Продано владельцем</th>
                             <th className="py-2 pr-4">Всего</th>
                             <th className="py-2 pr-4">{priceMetric === 'sum' ? 'Сумма' : 'Ср. цена'}</th>
                         </tr>
@@ -398,11 +397,14 @@ export default function ReportsPage() {
                                 priceMetric === 'sum'
                                     ? (r as WithMetrics).sum_price
                                     : (r as WithMetrics).avg_price;
+                            // поля приходят из API: sold_count, rented_count, sold_by_owner_count
                             return (
                                 <tr key={i} className="border-t">
                                     <td className="py-2 pr-4">{r.agent_name}</td>
-                                    <td className="py-2 pr-4">{r.closed}</td>
-                                    <td className="py-2 pr-4">{r.total}</td>
+                                    <td className="py-2 pr-4">{Number((r as any).sold_count ?? 0).toLocaleString()}</td>
+                                    <td className="py-2 pr-4">{Number((r as any).rented_count ?? 0).toLocaleString()}</td>
+                                    <td className="py-2 pr-4">{Number((r as any).sold_by_owner_count ?? 0).toLocaleString()}</td>
+                                    <td className="py-2 pr-4">{Number(r.total ?? 0).toLocaleString()}</td>
                                     <td className="py-2 pr-4">{Number(metricValue ?? 0).toLocaleString()}</td>
                                 </tr>
                             );

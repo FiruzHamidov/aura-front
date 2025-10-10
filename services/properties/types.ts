@@ -177,6 +177,7 @@ export interface PropertyFilters {
   zoom?: number | string;
   districts?: string;
   type_id?: string;
+  landmark?: string;
 }
 
 export interface User {

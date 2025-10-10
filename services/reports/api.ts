@@ -29,13 +29,14 @@ export type ManagerEfficiencyRow = {
 };
 
 export type AgentsLeaderboardRow = {
-    agent_id?: number | null;      // если group_by=agent_id
-    created_by?: number | null;    // если group_by=created_by
     agent_name: string;
-    closed: number;
     total: number;
-    avg_price?: number;
+    closed: number; // можно оставить для совместимости
+    sold_count: number;
+    rented_count: number;
+    sold_by_owner_count: number;
     sum_price?: number;
+    avg_price?: number;
 };
 
 export type ConversionFunnel = {
