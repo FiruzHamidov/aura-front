@@ -3,7 +3,7 @@
 import {ChangeEvent, useEffect, useMemo, useState} from 'react';
 import {
     AgentsLeaderboardRow,
-    ManagerEfficiencyRow,
+    ManagerEfficiencyRow, MissingPhoneAgentRow,
     reportsApi,
     ReportsQuery,
     RoomsRow,
@@ -14,6 +14,7 @@ import {BarOffer, BarRooms, LineTimeSeries, PieStatus} from './_charts';
 import {MultiSelect} from '@/ui-components/MultiSelect';
 import {Button} from '@/ui-components/Button';
 import {Input} from '@/ui-components/Input';
+import Link from "next/link";
 
 type FilterState = {
     date_from: string;
@@ -74,6 +75,24 @@ export default function ReportsPage() {
         agent_id: [],
     });
 
+    function buildHref(basePath: string, input: {
+        date_from?: string; date_to?: string;
+        offer_type?: (string | number)[]; moderation_status?: (string | number)[];
+        type_id?: (string | number)[]; location_id?: (string | number)[];
+        created_by?: (string | number)[];
+    }) {
+        const qs = new URLSearchParams();
+        if (input.date_from) qs.set('date_from', input.date_from);
+        if (input.date_to) qs.set('date_to', input.date_to);
+        input.offer_type?.forEach(v => qs.append('offer_type', String(v)));
+        input.moderation_status?.forEach(v => qs.append('moderation_status', String(v)));
+        input.type_id?.forEach(v => qs.append('type_id', String(v)));
+        input.location_id?.forEach(v => qs.append('location_id', String(v)));
+        input.created_by?.forEach(v => qs.append('created_by', String(v)));
+        const q = qs.toString();
+        return q ? `${basePath}?${q}` : basePath;
+    }
+
     const [priceMetric, setPriceMetric] = useState<PriceMetric>('sum');
 
     const [loading, setLoading] = useState(false);
@@ -84,6 +103,7 @@ export default function ReportsPage() {
     const [managers, setManagers] = useState<ManagerEfficiencyRow[]>([]);
     const [leaders, setLeaders] = useState<AgentsLeaderboardRow[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [missingAgents, setMissingAgents] = useState<MissingPhoneAgentRow[]>([]);
 
     // Формируем query строго типизированно
     const query = useMemo<Partial<ReportsQuery>>(() => {
@@ -105,18 +125,20 @@ export default function ReportsPage() {
         setLoading(true);
         setError(null);
         try {
-            const [s, ts, rh, me, lb] = await Promise.all([
+            const [s, ts, rh, me, lb, mp] = await Promise.all([
                 reportsApi.summary(query),
                 reportsApi.timeSeries(query),
                 reportsApi.roomsHist(query),
-                reportsApi.managerEfficiency({...query, group_by: 'created_by'}),
-                reportsApi.agentsLeaderboard({...query, limit: 10}),
+                reportsApi.managerEfficiency({ ...query, group_by: 'created_by' }),
+                reportsApi.agentsLeaderboard({ ...query, limit: 10 }),
+                reportsApi.missingPhoneAgentsByStatus(query), // ⬅️ NEW
             ]);
             setSummary(s);
             setSeries(ts);
             setRooms(rh);
             setManagers(me);
             setLeaders(lb);
+            setMissingAgents(mp); // ⬅️ NEW
         } catch (e) {
             const message =
                 e instanceof Error
@@ -401,9 +423,9 @@ export default function ReportsPage() {
                             return (
                                 <tr key={i} className="border-t">
                                     <td className="py-2 pr-4">{r.agent_name}</td>
-                                    <td className="py-2 pr-4">{Number((r as any).sold_count ?? 0).toLocaleString()}</td>
-                                    <td className="py-2 pr-4">{Number((r as any).rented_count ?? 0).toLocaleString()}</td>
-                                    <td className="py-2 pr-4">{Number((r as any).sold_by_owner_count ?? 0).toLocaleString()}</td>
+                                    <td className="py-2 pr-4">{Number(r.sold_count ?? 0).toLocaleString()}</td>
+                                    <td className="py-2 pr-4">{Number(r.rented_count ?? 0).toLocaleString()}</td>
+                                    <td className="py-2 pr-4">{Number(r.sold_by_owner_count ?? 0).toLocaleString()}</td>
                                     <td className="py-2 pr-4">{Number(r.total ?? 0).toLocaleString()}</td>
                                     <td className="py-2 pr-4">{Number(metricValue ?? 0).toLocaleString()}</td>
                                 </tr>
@@ -412,6 +434,77 @@ export default function ReportsPage() {
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            {/* Таблица: Без телефона по агентам и статусам */}
+            <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
+                <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold">Без телефона — по агентам и статусам</h3>
+                    {/* Общая ссылка на список (без конкретного агента/статуса, но с активными фильтрами) */}
+                    <Link
+                        href={buildHref('/profile/reports/missing-phone', {
+                            date_from: filters.date_from || undefined,
+                            date_to: filters.date_to || undefined,
+                            offer_type: filters.offer_type,
+                            moderation_status: filters.moderation_status,
+                            type_id: filters.type_id,
+                            location_id: filters.location_id,
+                            created_by: filters.agent_id,
+                        })}
+                        className="text-[#0036A5] hover:underline"
+                    >
+                        Открыть список
+                    </Link>
+                </div>
+
+                <table className="min-w-full text-sm">
+                    <thead>
+                    <tr className="text-left text-gray-500">
+                        <th className="py-2 pr-4">Агент</th>
+                        <th className="py-2 pr-4">Статус</th>
+                        <th className="py-2 pr-4">Без телефона</th>
+                        <th className="py-2 pr-4">Всего (в статусе)</th>
+                        <th className="py-2 pr-4">Доля, %</th>
+                        <th className="py-2 pr-4"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {missingAgents.length === 0 ? (
+                        <tr>
+                            <td className="py-4 text-gray-500" colSpan={6}>
+                                Нет данных по текущим фильтрам
+                            </td>
+                        </tr>
+                    ) : (
+                        missingAgents.map((r, i) => (
+                            <tr key={i} className="border-t">
+                                <td className="py-2 pr-4">{r.agent_name}</td>
+                                <td className="py-2 pr-4">{statusLabel(r.moderation_status ?? '')}</td>
+                                <td className="py-2 pr-4">{r.missing_phone}</td>
+                                <td className="py-2 pr-4">{r.bucket_total}</td>
+                                <td className="py-2 pr-4">{r.missing_share_pct}</td>
+                                <td className="py-2 pr-4">
+                                    {/* Ссылка "Список" — проваливаемся в отдельную страницу с предзаполненными фильтрами */}
+                                    <Link
+                                        href={buildHref('/profile/reports/missing-phone', {
+                                            date_from: filters.date_from || undefined,
+                                            date_to: filters.date_to || undefined,
+                                            offer_type: filters.offer_type,
+                                            moderation_status: filters.moderation_status,
+                                            type_id: filters.type_id,
+                                            location_id: filters.location_id,
+                                            created_by: filters.agent_id,
+                                        })}
+                                        className="text-[#0036A5] hover:underline"
+                                    >
+                                        Открыть список
+                                    </Link>
+                                </td>
+                            </tr>
+                        ))
+                    )}
+                    </tbody>
+                </table>
             </div>
 
             {error && (

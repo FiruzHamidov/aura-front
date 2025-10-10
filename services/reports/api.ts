@@ -95,6 +95,40 @@ export type ReportsQuery = {
     group_by?: "agent_id" | "created_by"; // manager-efficiency
 };
 
+export type MissingPhoneAgentRow = {
+    agent_id: number;
+    agent_name: string;
+    agent_email?: string | null;
+    moderation_status: string | null;
+    missing_phone: number;       // шт. без телефона в этом статусе
+    bucket_total: number;        // всего объектов у агента в этом статусе
+    missing_share_pct: number;   // доля, %
+};
+
+export type MissingPhoneListItem = {
+    id: number;
+    title: string | null;
+    address: string | null;
+    moderation_status: string | null;
+    created_by: number;
+    created_by_name: string;
+    agent_id: number | null;
+    created_at: string;
+    updated_at: string;
+    price: number | null;
+    currency: string | null;
+    owner_name: string | null;
+    owner_phone: string | null;
+};
+
+export type MissingPhoneListResponse = {
+    data: MissingPhoneListItem[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+};
+
 /** ---------- Вспомогалки ---------- */
 function buildParams(q?: ReportsQuery) {
     const params: Record<string, any> = {};
@@ -206,6 +240,26 @@ export const reportsApi = {
 
     conversion: async (query?: ReportsQuery): Promise<ConversionFunnel> => {
         const { data } = await axios.get<ConversionFunnel>(REPORTS.CONVERSION, {
+            params: buildParams(query),
+            headers: authHeaders(),
+        });
+        return data;
+    },
+
+    /** --- Недостающие телефоны: агрегат по агентам и статусам --- */
+    missingPhoneAgentsByStatus: async (query?: ReportsQuery): Promise<MissingPhoneAgentRow[]> => {
+        const { data } = await axios.get<MissingPhoneAgentRow[]>('/reports/missing-phone/agents-by-status', {
+            params: buildParams(query),
+            headers: authHeaders(),
+        });
+        return data;
+    },
+
+    /** --- Недостающие телефоны: список объектов --- */
+    missingPhoneList: async (
+        query?: ReportsQuery & { page?: number; per_page?: number }
+    ): Promise<MissingPhoneListResponse> => {
+        const { data } = await axios.get<MissingPhoneListResponse>('/reports/missing-phone/list', {
             params: buildParams(query),
             headers: authHeaders(),
         });
