@@ -8,6 +8,7 @@ import {useAddPostForm} from '@/hooks/useAddPostForm';
 import {useMultiStepForm} from '@/hooks/useMultiStepForm';
 import {DuplicateDialog} from "@/app/profile/_components/DuplicateDialog";
 import {useProfile} from "@/services/login/hooks";
+import {useUnsavedChanges} from '@/hooks/useUnsavedChanges';
 
 const STEPS = ['Основная информация', 'Детали и фото'];
 
@@ -19,6 +20,9 @@ export default function AddPost() {
     });
 
     const {data: user} = useProfile();
+
+    const isDirty = (formData.isDirty || formData.hasNewFiles) && !formData.isSubmitting;
+    useUnsavedChanges(isDirty, 'Все несохранённые изменения будут потеряны. Выйти?');
 
     const handleFormSubmit = async (e: React.FormEvent) => {
         console.log('formData', formData)

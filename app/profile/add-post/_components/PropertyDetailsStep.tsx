@@ -55,6 +55,13 @@ export function PropertyDetailsStep({
     const mapRef = useRef(undefined);
     const ymapsRef = useRef(null);
 
+    const DISTRICTS: SelectOption[] = [
+        {id: 1, name: 'Сино'},
+        {id: 2, name: 'И Сомони'}, // можно как в бэке храните
+        {id: 3, name: 'Шохмансур'},
+        {id: 4, name: 'Фирдавси'},
+    ];
+
     // eslint-disable-next-line
     const handleMapClick = (e: any) => {
         const coords = e.get('coords');
@@ -142,13 +149,14 @@ export function PropertyDetailsStep({
                     required
                 />
 
-                <Input
+                <Select
                     label="Район"
                     name="district"
                     value={form.district}
+                    options={DISTRICTS}
                     onChange={onChange}
-                    type="text"
-                    placeholder="Сино"
+                    valueField="name"
+                    required
                 />
 
                 <Input

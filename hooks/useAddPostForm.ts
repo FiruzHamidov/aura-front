@@ -194,6 +194,11 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
         return () => window.removeEventListener('beforeunload', onBeforeUnload);
     }, [isDirty]);
 
+    useEffect(() => {
+        const hasChanges = JSON.stringify(form) !== JSON.stringify(initialFormState);
+        setIsDirty(hasChanges);
+    }, [form]);
+
     // --- Общий onChange полей формы ---
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, type, value } = e.target;
@@ -540,5 +545,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
         // прочее
         isSubmitting: editMode ? updatePropertyMutation.isPending : createPropertyMutation.isPending,
         editMode,
+        isDirty,
+        hasNewFiles: form.photos.some(p => !!p.file),
     };
 }

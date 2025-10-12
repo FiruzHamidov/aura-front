@@ -11,6 +11,7 @@ import {useMultiStepForm} from '@/hooks/useMultiStepForm';
 import {useGetPropertyByIdQuery} from '@/services/properties/hooks';
 import {Property} from '@/services/properties/types';
 import {useProfile} from '@/services/login/hooks';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 
 const STEPS = ['Основная информация', 'Детали и фото'];
 
@@ -86,6 +87,9 @@ export default function EditPost() {
         editMode: true,
         propertyData: convertedPropertyData as Property | undefined,
     });
+
+    const guardActive = (formData.isDirty || formData.hasNewFiles) && !formData.isSubmitting;
+    useUnsavedChanges(guardActive, 'Все несохранённые изменения будут потеряны. Выйти?');
 
     const {currentStep, nextStep, prevStep} = useMultiStepForm({
         totalSteps: 2,
