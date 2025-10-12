@@ -18,6 +18,10 @@ import type {
   NewBuildingPhoto,
   DeveloperPayload,
   NewBuildingDetailResponse,
+  BuildingBlock,
+  BuildingBlockPayload,
+  BuildingUnit,
+  BuildingUnitPayload,
 } from "./types";
 
 const defaultParams = { page: 1, per_page: 100 };
@@ -530,3 +534,175 @@ export const useNewBuildingPhotos = (newBuildingId?: number) =>
     enabled: !!newBuildingId,
     staleTime: 5 * 60 * 1000,
   });
+
+// Building Blocks CRUD
+export const useBuildingBlocks = (newBuildingId?: number) =>
+  useQuery({
+    queryKey: ["new-buildings", newBuildingId, "blocks"],
+    queryFn: async () => {
+      const { data } = await axios.get<BuildingBlock[]>(
+        `/new-buildings/${newBuildingId}/blocks`
+      );
+      return data;
+    },
+    enabled: !!newBuildingId,
+    staleTime: 5 * 60 * 1000,
+  });
+
+export const useBuildingBlock = (newBuildingId?: number, blockId?: number) =>
+  useQuery({
+    queryKey: ["new-buildings", newBuildingId, "blocks", blockId],
+    queryFn: async () => {
+      const { data } = await axios.get<BuildingBlock>(
+        `/new-buildings/${newBuildingId}/blocks/${blockId}`
+      );
+      return data;
+    },
+    enabled: !!newBuildingId && !!blockId,
+  });
+
+export const useCreateBuildingBlock = (newBuildingId: number) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: BuildingBlockPayload) => {
+      const { data } = await axios.post<BuildingBlock>(
+        `/new-buildings/${newBuildingId}/blocks`,
+        payload
+      );
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "blocks"],
+      });
+      qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
+    },
+  });
+};
+
+export const useUpdateBuildingBlock = (
+  newBuildingId: number,
+  blockId: number
+) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: BuildingBlockPayload) => {
+      const { data } = await axios.put<BuildingBlock>(
+        `/new-buildings/${newBuildingId}/blocks/${blockId}`,
+        payload
+      );
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "blocks"],
+      });
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "blocks", blockId],
+      });
+      qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
+    },
+  });
+};
+
+export const useDeleteBuildingBlock = (newBuildingId: number) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (blockId: number) => {
+      await axios.delete(`/new-buildings/${newBuildingId}/blocks/${blockId}`);
+      return true;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "blocks"],
+      });
+      qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
+    },
+  });
+};
+
+// Building Units CRUD
+export const useBuildingUnits = (newBuildingId?: number) =>
+  useQuery({
+    queryKey: ["new-buildings", newBuildingId, "units"],
+    queryFn: async () => {
+      const { data } = await axios.get<BuildingUnit[]>(
+        `/new-buildings/${newBuildingId}/units`
+      );
+      return data;
+    },
+    enabled: !!newBuildingId,
+    staleTime: 5 * 60 * 1000,
+  });
+
+export const useBuildingUnit = (newBuildingId?: number, unitId?: number) =>
+  useQuery({
+    queryKey: ["new-buildings", newBuildingId, "units", unitId],
+    queryFn: async () => {
+      const { data } = await axios.get<BuildingUnit>(
+        `/new-buildings/${newBuildingId}/units/${unitId}`
+      );
+      return data;
+    },
+    enabled: !!newBuildingId && !!unitId,
+  });
+
+export const useCreateBuildingUnit = (newBuildingId: number) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: BuildingUnitPayload) => {
+      const { data } = await axios.post<BuildingUnit>(
+        `/new-buildings/${newBuildingId}/units`,
+        payload
+      );
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "units"],
+      });
+      qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
+    },
+  });
+};
+
+export const useUpdateBuildingUnit = (
+  newBuildingId: number,
+  unitId: number
+) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: BuildingUnitPayload) => {
+      const { data } = await axios.put<BuildingUnit>(
+        `/new-buildings/${newBuildingId}/units/${unitId}`,
+        payload
+      );
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "units"],
+      });
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "units", unitId],
+      });
+      qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
+    },
+  });
+};
+
+export const useDeleteBuildingUnit = (newBuildingId: number) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (unitId: number) => {
+      await axios.delete(`/new-buildings/${newBuildingId}/units/${unitId}`);
+      return true;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "units"],
+      });
+      qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
+    },
+  });
+};

@@ -124,6 +124,36 @@ export default function NewBuildingShowPage() {
               ))}
             </div>
           </div>
+
+          <div className="border rounded-2xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-medium">Блоки</h2>
+              <Link href={`/admin/new-buildings/${nb.id}/blocks`}>
+                <Button variant="outline" size="sm">
+                  Управление блоками
+                </Button>
+              </Link>
+            </div>
+            <p className="text-sm text-gray-500">
+              Управляйте блоками новостройки: добавляйте, редактируйте или
+              удаляйте блоки.
+            </p>
+          </div>
+
+          <div className="border rounded-2xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-medium">Квартиры</h2>
+              <Link href={`/admin/new-buildings/${nb.id}/units`}>
+                <Button variant="outline" size="sm">
+                  Управление квартирами
+                </Button>
+              </Link>
+            </div>
+            <p className="text-sm text-gray-500">
+              Управляйте квартирами новостройки: добавляйте, редактируйте или
+              удаляйте квартиры.
+            </p>
+          </div>
         </div>
 
         <div className="md:col-span-1">

@@ -38,7 +38,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
               <Image
                 fill
                 src="/images/buildings/plans/1.png"
-                alt={unit.name}
+                alt={unit.name ?? `Plan + ${unit.id}`}
                 className="object-contain p-2 rotate-270"
               />
             </div>
@@ -64,7 +64,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
 
                 <div className="flex items-center gap-1 text-[#667085]">
                   <PlanIcon className="w-5 h-5 mr-1" />
-                  <span>{parseFloat(unit.area).toFixed(1)} м²</span>
+                  <span>{parseFloat(unit.area ?? '1').toFixed(1)} м²</span>
                 </div>
 
                 <div className="flex items-center gap-1 text-[#667085]">
@@ -75,15 +75,18 @@ export const Offers: FC<OffersProps> = ({ building }) => {
 
               <div className="flex items-center">
                 <span className="text-[#0036A5] text-2xl font-bold">
-                  {parseFloat(unit.total_price).toLocaleString('ru-RU', {
+                  {parseFloat(unit.total_price ?? '0').toLocaleString('ru-RU', {
                     maximumFractionDigits: 0,
                   })}{' '}
                   с.
                 </span>
                 <span className="ml-auto text-sm text-[#667085]">
-                  {parseFloat(unit.price_per_sqm).toLocaleString('ru-RU', {
-                    maximumFractionDigits: 0,
-                  })}{' '}
+                  {parseFloat(unit.price_per_sqm ?? '0').toLocaleString(
+                    'ru-RU',
+                    {
+                      maximumFractionDigits: 0,
+                    }
+                  )}{' '}
                   с./м²
                 </span>
               </div>
