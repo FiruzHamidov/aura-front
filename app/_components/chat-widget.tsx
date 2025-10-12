@@ -29,57 +29,57 @@ export default function ChatWidget({
     const TYPE_SPEED = 65;
     const LS_PHRASE_IDX = 'aura_chat_btn_phrase_idx';
 
-    const HIDE_DELTA = 20;       // чувствительность скрытия при прокрутке вниз
-    const SHOW_DELTA = -12;      // чувствительность показа при прокрутке вверх (гистерезис)
-    const SHOW_TOP_OFFSET = 48;  // показываем возле верха страницы
-    const UNHIDE_AFTER_IDLE = 150; // мс после остановки скролла показываем FAB
-
-    const [fabHidden, setFabHidden] = useState(false);
-    const lastYRef = useRef(0);
+    // const HIDE_DELTA = 20;       // чувствительность скрытия при прокрутке вниз
+    // const SHOW_DELTA = -12;      // чувствительность показа при прокрутке вверх (гистерезис)
+    // const SHOW_TOP_OFFSET = 48;  // показываем возле верха страницы
+    // const UNHIDE_AFTER_IDLE = 150; // мс после остановки скролла показываем FAB
+    //
+    // // const [fabHidden, setFabHidden] = useState(false);
+    // const lastYRef = useRef(0);
 
     const [phrase, setPhrase] = useState<string>(buttonPhrases[0]);
     const [typed, setTyped] = useState<string>('');
 
-    useEffect(() => {
-        let rafId: number | null = null;
-        let idleTimer: number | null = null;
+    // useEffect(() => {
+    //     let rafId: number | null = null;
+    //     let idleTimer: number | null = null;
+    //
+    //     const onScroll = () => {
+    //         const y = window.scrollY || 0;
+    //         const diff = y - lastYRef.current;
+    //
+    //         if (rafId) cancelAnimationFrame(rafId);
+    //         rafId = requestAnimationFrame(() => {
+    //             if (y <= SHOW_TOP_OFFSET) {
+    //                 setFabHidden(false);
+    //             } else if (diff > HIDE_DELTA) {
+    //                 // активное движение вниз — спрятать
+    //                 setFabHidden(true);
+    //             } else if (diff < SHOW_DELTA) {
+    //                 // движение вверх — показать
+    //                 setFabHidden(false);
+    //             }
+    //             lastYRef.current = y;
+    //
+    //             // после остановки прокрутки — через небольшую паузу показать
+    //             if (idleTimer) clearTimeout(idleTimer);
+    //             idleTimer = window.setTimeout(() => setFabHidden(false), UNHIDE_AFTER_IDLE);
+    //         });
+    //     };
+    //
+    //     lastYRef.current = window.scrollY || 0;
+    //     window.addEventListener('scroll', onScroll, { passive: true });
+    //
+    //     return () => {
+    //         window.removeEventListener('scroll', onScroll);
+    //         if (rafId) cancelAnimationFrame(rafId);
+    //         if (idleTimer) clearTimeout(idleTimer);
+    //     };
+    // }, []);
 
-        const onScroll = () => {
-            const y = window.scrollY || 0;
-            const diff = y - lastYRef.current;
-
-            if (rafId) cancelAnimationFrame(rafId);
-            rafId = requestAnimationFrame(() => {
-                if (y <= SHOW_TOP_OFFSET) {
-                    setFabHidden(false);
-                } else if (diff > HIDE_DELTA) {
-                    // активное движение вниз — спрятать
-                    setFabHidden(true);
-                } else if (diff < SHOW_DELTA) {
-                    // движение вверх — показать
-                    setFabHidden(false);
-                }
-                lastYRef.current = y;
-
-                // после остановки прокрутки — через небольшую паузу показать
-                if (idleTimer) clearTimeout(idleTimer);
-                idleTimer = window.setTimeout(() => setFabHidden(false), UNHIDE_AFTER_IDLE);
-            });
-        };
-
-        lastYRef.current = window.scrollY || 0;
-        window.addEventListener('scroll', onScroll, { passive: true });
-
-        return () => {
-            window.removeEventListener('scroll', onScroll);
-            if (rafId) cancelAnimationFrame(rafId);
-            if (idleTimer) clearTimeout(idleTimer);
-        };
-    }, []);
-
-    useEffect(() => {
-        if (open) setFabHidden(false);
-    }, [open]);
+    // useEffect(() => {
+    //     if (open) setFabHidden(false);
+    // }, [open]);
 
     // выбираем случайную фразу (не равную прошлой, если возможно)
     useEffect(() => {
@@ -276,7 +276,11 @@ export default function ChatWidget({
             {/* Floating button with waves & single-phrase typing */}
             <button
                 onPointerUp={() => setOpen(true)}
-                style={{ willChange: 'transform, opacity', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
+                style={{
+                    willChange: 'transform, opacity',
+                    WebkitTapHighlightColor: 'transparent',
+                    touchAction: 'manipulation'
+                }}
                 className={`
                         fixed z-[70] group h-14 rounded-full right-6
                          bottom-[calc(100px+max(env(safe-area-inset-bottom),0px))] sm:bottom-4
