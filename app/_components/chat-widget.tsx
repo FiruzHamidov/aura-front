@@ -29,8 +29,10 @@ export default function ChatWidget({
     const TYPE_SPEED = 65;
     const LS_PHRASE_IDX = 'aura_chat_btn_phrase_idx';
 
-    const SCROLL_DELTA = 8;
-    const SHOW_TOP_OFFSET = 48;
+    const HIDE_DELTA = 20;       // чувствительность скрытия при прокрутке вниз
+    const SHOW_DELTA = -12;      // чувствительность показа при прокрутке вверх (гистерезис)
+    const SHOW_TOP_OFFSET = 48;  // показываем возле верха страницы
+    const UNHIDE_AFTER_IDLE = 150; // мс после остановки скролла показываем FAB
 
     const [fabHidden, setFabHidden] = useState(false);
     const lastYRef = useRef(0);
@@ -39,25 +41,40 @@ export default function ChatWidget({
     const [typed, setTyped] = useState<string>('');
 
     useEffect(() => {
+        let rafId: number | null = null;
+        let idleTimer: number | null = null;
+
         const onScroll = () => {
             const y = window.scrollY || 0;
             const diff = y - lastYRef.current;
 
-            if (y <= SHOW_TOP_OFFSET) {
-                setFabHidden(false);
-            } else if (diff > SCROLL_DELTA) {
-                // скроллим вниз — прячем
-                setFabHidden(true);
-            } else if (diff < -SCROLL_DELTA) {
-                // скроллим вверх — показываем
-                setFabHidden(false);
-            }
-            lastYRef.current = y;
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(() => {
+                if (y <= SHOW_TOP_OFFSET) {
+                    setFabHidden(false);
+                } else if (diff > HIDE_DELTA) {
+                    // активное движение вниз — спрятать
+                    setFabHidden(true);
+                } else if (diff < SHOW_DELTA) {
+                    // движение вверх — показать
+                    setFabHidden(false);
+                }
+                lastYRef.current = y;
+
+                // после остановки прокрутки — через небольшую паузу показать
+                if (idleTimer) clearTimeout(idleTimer);
+                idleTimer = window.setTimeout(() => setFabHidden(false), UNHIDE_AFTER_IDLE);
+            });
         };
 
         lastYRef.current = window.scrollY || 0;
-        window.addEventListener('scroll', onScroll, {passive: true});
-        return () => window.removeEventListener('scroll', onScroll);
+        window.addEventListener('scroll', onScroll, { passive: true });
+
+        return () => {
+            window.removeEventListener('scroll', onScroll);
+            if (rafId) cancelAnimationFrame(rafId);
+            if (idleTimer) clearTimeout(idleTimer);
+        };
     }, []);
 
     useEffect(() => {
@@ -258,27 +275,28 @@ export default function ChatWidget({
         <>
             {/* Floating button with waves & single-phrase typing */}
             <button
-                onClick={() => setOpen(true)}
+                onPointerUp={() => setOpen(true)}
+                style={{ willChange: 'transform, opacity', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
                 className={`
-                        fixed z-40 group h-14 rounded-full right-6
-                        bottom-[calc(100px+max(env(safe-area-inset-bottom),0px))] sm:bottom-4
+                        fixed z-[70] group h-14 rounded-full right-6
+                         bottom-[calc(100px+max(env(safe-area-inset-bottom),0px))] sm:bottom-4
                         transition-transform duration-200 cursor-pointer
-                        ${fabHidden ? 'translate-y-6 opacity-0 pointer-events-none sm:translate-y-0 sm:opacity-100' : 'translate-y-0 opacity-100'}
                       `}
-                                    aria-label="Открыть чат Aura Assistant"
-                                >
-                                    {/* волны */}
-                                    <span className="absolute inset-0 -z-10 rounded-full w-14 h-14 bg-blue-500/70 blur-md animate-ping"/>
-                                    <span className="absolute inset-0 -z-10 rounded-full w-14 h-14 bg-blue-500/60 blur-md animate-pulse"/>
-                                    <span className="absolute inset-0 -z-10 rounded-full w-14 h-14 bg-blue-500/30"/>
-                                    {/* ядро кнопки */}
-                                    <span
-                                        className="inline-flex items-center gap-2 rounded-full px-5 py-3 shadow-lg text-white hover:bg-blue-900 transition bg-[#0036A5] w-full h-full">
+                aria-label="Открыть чат Aura Assistant"
+            >
+                {/* волны */}
+                {/*<span className="absolute inset-0 -z-10 rounded-full w-14 h-14 bg-blue-500/70 blur-md animate-ping"/>*/}
+                {/*<span className="absolute inset-0 -z-10 rounded-full w-14 h-14 bg-blue-500/60 blur-md animate-pulse"/>*/}
+                {/*<span className="absolute inset-0 -z-10 rounded-full w-14 h-14 bg-blue-500/30"/>*/}
+                {/* ядро кнопки */}
+                <span
+                    className="inline-flex items-center gap-2 rounded-full px-5 py-3 shadow-lg text-white hover:bg-blue-900 transition bg-[#0036A5] w-full h-full">
                         <MessageSquareText className="w-5 h-5"/>
                         <span className="relative">
                           <span>{typed}</span>
                             {!open && typed.length < phrase.length && (
-                                <span className="ml-0.5 inline-block w-[1px] h-[1em] bg-white align-[-0.18em] animate-pulse"/>
+                                <span
+                                    className="ml-0.5 inline-block w-[1px] h-[1em] bg-white align-[-0.18em] animate-pulse"/>
                             )}
                         </span>
                       </span>
