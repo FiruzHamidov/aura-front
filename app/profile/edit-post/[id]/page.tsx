@@ -62,6 +62,8 @@ export default function EditPost() {
             latitude: propertyData.latitude,
             longitude: propertyData.longitude,
             owner_phone: propertyData.owner_phone,
+            owner_name: propertyData.owner_name,
+            object_key: propertyData.object_key,
             offer_type: propertyData.offer_type,
             photos: propertyData.photos,
             moderation_status: propertyData.moderation_status,

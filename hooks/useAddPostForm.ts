@@ -111,7 +111,6 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
     const [selectedListingType, setSelectedListingType] = useState('regular');
     const [selectedRooms, setSelectedRooms] = useState<number | null>(null);
 
-    // дубляжи + модалка
     const [dupDialogOpen, setDupDialogOpen] = useState(false);
     const [duplicates, setDuplicates] = useState<DuplicateCandidate[]>([]);
     const [pendingCreatePayload, setPendingCreatePayload] = useState<FormData | null>(null);
@@ -412,6 +411,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
             agent_id: form.agent_id,
             title: form.title,
             object_key: form.object_key,
+            owner_name: form.owner_name,
         };
 
         // 2) Текущий порядок существующих фото (по id из БД)

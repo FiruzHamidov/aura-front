@@ -24,7 +24,10 @@ import {
     Home,
     MapPin,
     ParkingSquare,
-    Ruler
+    Ruler,
+    User,
+    Phone,
+    Key
 } from "lucide-react";
 import {axios} from "@/utils/axios";
 import {AxiosError} from "axios";
@@ -49,24 +52,39 @@ export default function GalleryWrapper({apartment, photos}: Props) {
     };
     const closeModal = () => setIsModalOpen(false);
 
-    const rawPhone = apartment.creator?.phone ?? '';
+    // helper: форматирование телефона в +992 XXX XX XX XX и чистый +992XXXXXXXXX
+    const formatPhone = (rawPhone?: string | null) => {
+        const rp = rawPhone ?? '';
+        let cleanPhone = rp.replace(/[^\d+]/g, '');
+        let digits = rp.replace(/\D/g, '');
 
-    let cleanPhone = rawPhone.replace(/[^\d+]/g, '');
+        if (digits.startsWith('992')) {
+            digits = digits.slice(3);
+        }
 
-    let digits = rawPhone.replace(/\D/g, '');
+        const formatted = digits.replace(/^(\d{3})(\d{2})(\d{2})(\d{2})$/, '$1 $2 $3 $4');
+        let display = formatted || rp;
 
-    if (digits.startsWith('992')) {
-        digits = digits.slice(3);
-    }
+        if (!cleanPhone.startsWith('+992')) {
+            // если в raw нет +992 — добавим для ссылки
+            cleanPhone = `+992${digits}`;
+            if (formatted) display = `+992 ${formatted}`;
+        }
 
-    const formatted = digits.replace(/^(\d{3})(\d{2})(\d{2})(\d{2})$/, '$1 $2 $3 $4');
-    let phone = formatted
+        return {cleanPhone, display};
+    };
 
-    if (!cleanPhone.startsWith('+992')) {
-        cleanPhone = `+992${cleanPhone}`;
-        phone = `+992 ${formatted}`;
-    }
+    // creator phone (раньше был inline) — оставляем, но теперь через helper
+    const creatorPhoneData = formatPhone(apartment.creator?.phone ?? '');
+    const creatorCleanPhone = creatorPhoneData.cleanPhone;
+    const creatorDisplayPhone = creatorPhoneData.display;
 
+    // owner fields (покажем только admin'у)
+    const ownerName = apartment.owner_name ?? '-'; // fallback
+    const ownerPhoneRaw = apartment.owner_phone ?? '-';
+    const ownerPhoneData = formatPhone(ownerPhoneRaw);
+    const ownerCleanPhone = ownerPhoneData.cleanPhone;
+    const ownerDisplayPhone = ownerPhoneData.display;
 
     const [coordinates, setCoordinates] = useState<[number, number] | null>(
         apartment.latitude && apartment.longitude
@@ -177,12 +195,12 @@ export default function GalleryWrapper({apartment, photos}: Props) {
         }
     };
 
-// короткие генераторы кусков
+    // короткие генераторы кусков
     const areaLabel = (p: Property) => (p.total_area ? `${p.total_area} м²` : '');
     const floorLabel = (p: Property) => (p.floor ? `${p.floor} этаж` : '');
     const roomsLabel = (p: Property) => (p.rooms ? `${p.rooms} комн.` : '');
 
-// === Итоговый TITLE без адреса (адрес добавим в JSX) ===
+    // === Итоговый TITLE без адреса (адрес добавим в JSX) ===
     const buildPageTitle = (p: Property) => {
         const kind = getKindName(p);
         const slug = p.type?.slug;
@@ -208,7 +226,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
             .join(', ');
     };
 
-// Заголовок секций
+    // Заголовок секций
     const aboutSectionTitle = (p: Property) => {
         const slug = p.type?.slug;
         if (slug === 'commercial') return 'О помещении';
@@ -218,7 +236,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
         return 'О квартире';
     };
 
-// Подпись к типу в характеристиках
+    // Подпись к типу в характеристиках
     const typeFieldLabel = (p: Property) =>
         p.type?.slug === 'commercial' ? 'Тип объекта' : 'Тип жилья';
 
@@ -434,7 +452,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                         xmlns="http://www.w3.org/2000/svg"
                                     >
                                         <path
-                                            d="M31.9406 24.9756L31.0703 21.7276C30.9363 21.2275 30.4223 20.9306 29.9221 21.0647C29.422 21.1987 29.1253 21.7128 29.2593 22.2129L29.7485 24.0389L25.9104 21.823V12.823L16.9375 17.3148V27.3253L24.8398 23.3698L28.8111 25.6626L26.9851 26.1519C26.4849 26.2859 26.1882 26.8 26.3222 27.3001C26.4563 27.8004 26.9705 28.0971 27.4704 27.963L30.7183 27.0928C31.6411 26.8454 32.1879 25.8986 31.9406 24.9756ZM6.08957 21.8229L2.2515 24.0389L2.74075 22.2129C2.87475 21.7128 2.578 21.1987 2.07788 21.0647C1.57757 20.9306 1.06369 21.2275 0.929691 21.7276L0.0594406 24.9756C-0.187809 25.8984 0.358753 26.8454 1.28175 27.0926L4.52975 27.9629C5.03007 28.097 5.544 27.7999 5.67794 27.3001C5.81194 26.7999 5.51519 26.2859 5.01507 26.1519L3.18907 25.6626L7.16032 23.3698L15.0625 27.3252V17.3148L6.08957 12.823V21.8229ZM16.9362 7.39101V2.87713L18.2729 4.21382C18.639 4.57988 19.2326 4.57995 19.5987 4.21382C19.9648 3.84769 19.9648 3.25413 19.5987 2.88807L17.221 0.510383C16.5471 -0.163617 15.4503 -0.163617 14.7764 0.510383L12.3988 2.88807C12.0326 3.2542 12.0326 3.84776 12.3988 4.21382C12.7648 4.57995 13.3584 4.57995 13.7245 4.21382L15.0613 2.87713V7.39201L7.2465 11.3049C7.67919 11.5213 15.5605 15.4673 16.0001 15.6874C16.4397 15.4673 24.3209 11.5213 24.7536 11.3049L16.9362 7.39101Z"
+                                            d="M31.9406 24.9756L31.0703 21.7276C30.9363 21.2275 30.4223 20.9306 29.9221 21.0647C29.422 21.1987 29.1253 21.7128 29.2593 22.2129L29.7485 24.0389L25.9104 21.823V12.823L16.9375 17.3148V27.3253L24.8398 23.3698L28.8111 25.6626L26.9851 26.1519C26.4849 26.2859 26.1882 26.8 26.3222 27.3001C26.4563 27.8004 26.9705 28.0971 27.4704 27.963L30.7183 27.0928C31.6411 26.8454 32.1879 25.8986 31.9406 24.9756ZM6.08957 21.8229L2.2515 24.0389L2.74075 22.2129C2.87475 21.7128 2.578 21.1987 2.07788 21.0647C1.57757 20.9306 1.06369 21.2275 0.929691 21.7276L0.0594406 24.9756C-0.187809 25.8984 0.358753 26.8454 1.28175 27.0926L4.52975 27.9629C5.03007 28.097 5.544 27.7999 5.67794 27.3001C5.81194 26.7999 5.51519 26.2859 5.01507 26.1519L3.18907 25.6626L7.16032 23.3698L15.0625 27.3252V17.3148L6.08957 12.823V21.8229ZM16.9362 7.39101V2.87713L18.2729 4.21382C18.639 4.57988 19.2326 4.57995 19.5987 4.21382C19.9648 3.84769 19.9648 3.25413 19.5987 2.88807L17.221 0.510383C16.5471 -0.163617 15.4503 -0.163617 14.7764 0.510383L12.3988 2.88807C12.0326 3.2542 12.0326 3.84776 12.3988 4.21382C12.7648 4.57995 13.3584 4.57995 13.7245 4.21382L15.0613 2.87713V7.39201L7.2465 11.3049C7.67919 11.5213 15.5605 15.4673 16.0001 15.6874C16.4397 15.4673 24.3209 11.5213 24.7536 11.3049L16.9362 7.39101"
                                             fill="#0036A5"
                                         />
                                     </svg>
@@ -493,6 +511,42 @@ export default function GalleryWrapper({apartment, photos}: Props) {
         {apartment.district || "-"}
       </span>
                                             </div>
+
+                                            {/* --- ADMIN: дополнительные поля владелец / телефон владельца / у кого ключи --- */}
+                                            {user && user.role?.slug === 'admin' && (
+                                                <>
+                                                    <div className="flex justify-between py-2 border-b border-gray-100">
+                                                        <span className="text-[#666F8D] flex items-center gap-2">
+                                                            <User size={16}/> Имя владельца
+                                                        </span>
+                                                        <span className="font-medium">
+                                                            {ownerName || '-'}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="flex justify-between py-2 border-b border-gray-100">
+                                                        <span className="text-[#666F8D] flex items-center gap-2">
+                                                            <Phone size={16}/> Телефон владельца
+                                                        </span>
+                                                        <span className="font-medium">
+                                                            {ownerPhoneRaw ? (
+                                                                <a href={`tel:${ownerCleanPhone}`} className="hover:underline">
+                                                                    {ownerDisplayPhone}
+                                                                </a>
+                                                            ) : '-'}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="flex justify-between py-2 border-b border-gray-100">
+                                                        <span className="text-[#666F8D] flex items-center gap-2">
+                                                            <Key size={16}/> У кого ключи
+                                                        </span>
+                                                        <span className="font-medium">
+                                                            {apartment.object_key}
+                                                        </span>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
 
@@ -577,16 +631,16 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                 <div className="text-[#666F8D] mb-4">Агент по недвижимости</div>
 
                                 <Link
-                                    href={`tel:${cleanPhone}`}
+                                    href={`tel:${creatorCleanPhone}`}
                                     className="flex items-center justify-center gap-3 w-full bg-[#0036A5] hover:bg-blue-800 text-white py-5 rounded-full text-center mb-4 transition-colors"
                                 >
                                     <FooterPhoneIcon className="w-8 h-8"/>
-                                    {phone}
+                                    {creatorDisplayPhone}
                                 </Link>
 
                                 <div className="flex flex-col gap-3">
                                     <Link
-                                        href={`https://wa.me/${cleanPhone}`}
+                                        href={`https://wa.me/${creatorCleanPhone}`}
                                         className="flex items-center justify-center gap-3 w-full py-3 border border-[#25D366] text-[#25D366] rounded-full text-center hover:bg-[#25D366]/10 transition"
                                         target="_blank"
                                     >
