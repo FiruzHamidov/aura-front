@@ -124,7 +124,7 @@ const MobileBottomNavigation: FC = () => {
             {/* Bottom Nav */}
             <div
                 className={`
-          md:hidden fixed left-0 right-0 z-40 border-t border-gray-200 bg-white/10 backdrop-blur supports-[backdrop-filter]:bg-white/10
+          md:hidden fixed left-0 right-0 z-40 border-t border-gray-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/80
           transition-transform duration-200
           ${hidden ? 'translate-y-full' : 'translate-y-0'}
           pb-[max(env(safe-area-inset-bottom),0px)]

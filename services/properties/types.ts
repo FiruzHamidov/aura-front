@@ -177,7 +177,37 @@ export interface PropertyFilters {
   zoom?: number | string;
   districts?: string;
   type_id?: string;
+  landmark?: string;
+  sort?: string;
 }
+
+export type DuplicateCandidate = {
+  id: number;
+  title?: string | null;
+  address?: string | null;
+  owner_name?: string | null;
+  owner_phone?: string | null;
+  total_area?: number | null;
+  floor?: number | null;
+  price?: number | null;
+  currency?: string | null;
+  moderation_status?: string | null;
+  created_at?: string;
+  score?: number; // 0..100
+  links?: { view?: string };
+  signals?: {
+    phone_match?: boolean;
+    address_similarity?: number;
+    geo_near?: boolean;
+    floor_match?: boolean;
+    area_delta?: number | null;
+  };
+};
+
+export type CreatePropertyResult =
+    | { ok: true; data: Property }
+    | { ok: false; code: 409; duplicates: DuplicateCandidate[]; message: string }
+    | { ok: false; code: number; message: string };
 
 export interface User {
   id: number;

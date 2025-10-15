@@ -1,76 +1,92 @@
 'use client';
 
-import { FormLayout } from '@/ui-components/FormLayout';
-import { ProgressIndicator } from '@/ui-components/ProgressIndicator';
-import { PropertySelectionStep } from './_components/PropertySelectionStep';
-import { PropertyDetailsStep } from './_components/PropertyDetailsStep';
-import { useAddPostForm } from '@/hooks/useAddPostForm';
-import { useMultiStepForm } from '@/hooks/useMultiStepForm';
+import {FormLayout} from '@/ui-components/FormLayout';
+import {ProgressIndicator} from '@/ui-components/ProgressIndicator';
+import {PropertySelectionStep} from './_components/PropertySelectionStep';
+import {PropertyDetailsStep} from './_components/PropertyDetailsStep';
+import {useAddPostForm} from '@/hooks/useAddPostForm';
+import {useMultiStepForm} from '@/hooks/useMultiStepForm';
+import {DuplicateDialog} from "@/app/profile/_components/DuplicateDialog";
+import {useProfile} from "@/services/login/hooks";
+import {useUnsavedChanges} from '@/hooks/useUnsavedChanges';
 
 const STEPS = ['Основная информация', 'Детали и фото'];
 
 export default function AddPost() {
-  const formData = useAddPostForm();
-  const { currentStep, nextStep, prevStep, resetSteps } = useMultiStepForm({
-    totalSteps: 2,
-    initialStep: 1,
-  });
+    const formData = useAddPostForm();
+    const {currentStep, nextStep, prevStep, resetSteps} = useMultiStepForm({
+        totalSteps: 2,
+        initialStep: 1,
+    });
 
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    console.log('formData', formData)
-    await formData.handleSubmit(e);
-    resetSteps();
-  };
+    const {data: user} = useProfile();
 
-  return (
-    <FormLayout
-      title="Добавить объявление"
-      description="Заполните информацию о вашем объекте недвижимости"
-    >
-      <ProgressIndicator
-        currentStep={currentStep}
-        totalSteps={2}
-        steps={STEPS}
-        className="mb-8"
-      />
+    const isDirty = (formData.isDirty || formData.hasNewFiles) && !formData.isSubmitting;
+    useUnsavedChanges(isDirty, 'Все несохранённые изменения будут потеряны. Выйти?');
 
-      {currentStep === 1 && (
-        <PropertySelectionStep
-          selectedModerationStatus={formData.selectedModerationStatus}
-          setSelectedModerationStatus={formData.setSelectedModerationStatus}
-          selectedOfferType={formData.selectedOfferType}
-          setSelectedOfferType={formData.setSelectedOfferType}
-          selectedListingType={formData.selectedListingType}
-          setSelectedListingType={formData.setSelectedListingType}
-          selectedPropertyType={formData.selectedPropertyType}
-          setSelectedPropertyType={formData.setSelectedPropertyType}
-          selectedBuildingType={formData.selectedBuildingType}
-          setSelectedBuildingType={formData.setSelectedBuildingType}
-          selectedRooms={formData.selectedRooms}
-          setSelectedRooms={formData.setSelectedRooms}
-          propertyTypes={formData.propertyTypes}
-          buildingTypes={formData.buildingTypes}
-          onNext={nextStep}
-        />
-      )}
+    const handleFormSubmit = async (e: React.FormEvent) => {
+        console.log('formData', formData)
+        await formData.handleSubmit(e);
+        resetSteps();
+    };
 
-      {currentStep === 2 && (
-        <PropertyDetailsStep
-          form={formData.form}
-          locations={formData.locations}
-          repairTypes={formData.repairTypes}
-          heatingTypes={formData.heatingTypes}
-          parkingTypes={formData.parkingTypes}
-          contractTypes={formData.contractTypes}
-          onSubmit={handleFormSubmit}
-          onChange={formData.handleChange}
-          onPhotoChange={formData.handleFileChange}
-          onPhotoRemove={formData.removePhoto}
-          onReorder={formData.handleReorder}
-          isSubmitting={formData.isSubmitting}
-          onBack={prevStep}
-        />
-      )}
-    </FormLayout>
-  );
+    return (
+        <FormLayout
+            title="Добавить объявление"
+            description="Заполните информацию о вашем объекте недвижимости"
+        >
+            <ProgressIndicator
+                currentStep={currentStep}
+                totalSteps={2}
+                steps={STEPS}
+                className="mb-8"
+            />
+
+            {currentStep === 1 && (
+                <PropertySelectionStep
+                    isAgent={(user?.role?.slug === 'agent')}
+                    selectedModerationStatus={formData.selectedModerationStatus}
+                    setSelectedModerationStatus={formData.setSelectedModerationStatus}
+                    selectedOfferType={formData.selectedOfferType}
+                    setSelectedOfferType={formData.setSelectedOfferType}
+                    selectedListingType={formData.selectedListingType}
+                    setSelectedListingType={formData.setSelectedListingType}
+                    selectedPropertyType={formData.selectedPropertyType}
+                    setSelectedPropertyType={formData.setSelectedPropertyType}
+                    selectedBuildingType={formData.selectedBuildingType}
+                    setSelectedBuildingType={formData.setSelectedBuildingType}
+                    selectedRooms={formData.selectedRooms}
+                    setSelectedRooms={formData.setSelectedRooms}
+                    propertyTypes={formData.propertyTypes}
+                    buildingTypes={formData.buildingTypes}
+                    onNext={nextStep}
+                />
+            )}
+
+            {currentStep === 2 && (
+                <PropertyDetailsStep
+                    form={formData.form}
+                    locations={formData.locations}
+                    repairTypes={formData.repairTypes}
+                    heatingTypes={formData.heatingTypes}
+                    parkingTypes={formData.parkingTypes}
+                    contractTypes={formData.contractTypes}
+                    onSubmit={handleFormSubmit}
+                    onChange={formData.handleChange}
+                    onPhotoChange={formData.handleFileChange}
+                    onPhotoRemove={formData.removePhoto}
+                    onReorder={formData.handleReorder}
+                    isSubmitting={formData.isSubmitting}
+                    onBack={prevStep}
+                />
+            )}
+
+            <DuplicateDialog
+                open={formData.dupDialogOpen}
+                onClose={() => formData.setDupDialogOpen(false)}
+                items={formData.duplicates}
+                onForce={formData.forceCreate}
+            />
+        </FormLayout>
+    );
 }

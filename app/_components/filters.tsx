@@ -43,6 +43,7 @@ interface AllFiltersProps {
         areaTo?: string;
         floorFrom?: string;
         floorTo?: string;
+        landmark?: string;
     };
     propertyTypes: PropertyType[]
 }
@@ -110,6 +111,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
     const [areaTo, setAreaTo] = useState('0');
     const [floorFrom, setFloorFrom] = useState('1');
     const [floorTo, setFloorTo] = useState('3');
+    const [landmark, setLandmark] = useState('');
     // eslint-disable-next-line
     const [mortgageOption] = useState<'mortgage' | 'developer'>('mortgage');
     // eslint-disable-next-line
@@ -133,6 +135,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
             setAreaTo(initialFilters.areaTo || '');
             setFloorFrom(initialFilters.floorFrom || '');
             setFloorTo(initialFilters.floorTo || '');
+            setLandmark(initialFilters.landmark || '');
         }
     }, []);
 
@@ -170,6 +173,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
                 floorTo && floorTo !== '0' && floorTo !== '3' ? floorTo : undefined,
 
             listing_type: listingType === 'regular' ? undefined : listingType,
+            landmark: landmark,
             offer_type: 'sale',
         };
 
@@ -292,8 +296,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
                             placeholder="Выберите типы ремонта"
                         />
 
-                        <FormInput label="Ориентир" value="Душанбе" onChange={() => {
-                        }}/>
+                        <FormInput label="Ориентир" value={landmark} onChange={setLandmark}/>
                     </div>
 
                     {/* переключатели (по желанию) */}

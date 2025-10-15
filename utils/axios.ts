@@ -69,13 +69,14 @@ axios.interceptors.response.use(
         const config = getCookieConfig();
         const expiry = "; expires=Thu, 01 Jan 1970 00:00:01 GMT";
 
-        document.cookie = `auth_token=${expiry}; path=/${config.domain}`;
-        document.cookie = `user_data=${expiry}; path=/${config.domain}`;
+        document.cookie = `auth_token=${expiry}; path=/; ${config.domain}`;
+        document.cookie = `user_data=${expiry}; path=/; ${config.domain}`;
 
-        // Redirect to login page
-        window.location.href = "/login";
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
       }
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
   }
 );

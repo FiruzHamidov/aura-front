@@ -11,6 +11,7 @@ import {useMultiStepForm} from '@/hooks/useMultiStepForm';
 import {useGetPropertyByIdQuery} from '@/services/properties/hooks';
 import {Property} from '@/services/properties/types';
 import {useProfile} from '@/services/login/hooks';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 
 const STEPS = ['Основная информация', 'Детали и фото'];
 
@@ -61,6 +62,8 @@ export default function EditPost() {
             latitude: propertyData.latitude,
             longitude: propertyData.longitude,
             owner_phone: propertyData.owner_phone,
+            owner_name: propertyData.owner_name,
+            object_key: propertyData.object_key,
             offer_type: propertyData.offer_type,
             photos: propertyData.photos,
             moderation_status: propertyData.moderation_status,
@@ -86,6 +89,9 @@ export default function EditPost() {
         editMode: true,
         propertyData: convertedPropertyData as Property | undefined,
     });
+
+    const guardActive = (formData.isDirty || formData.hasNewFiles) && !formData.isSubmitting;
+    useUnsavedChanges(guardActive, 'Все несохранённые изменения будут потеряны. Выйти?');
 
     const {currentStep, nextStep, prevStep} = useMultiStepForm({
         totalSteps: 2,
@@ -147,6 +153,7 @@ export default function EditPost() {
 
             {currentStep === 1 && (
                 <PropertySelectionStep
+                    isAgent={(user?.role?.slug === 'agent')}
                     selectedModerationStatus={formData.selectedModerationStatus}
                     setSelectedModerationStatus={formData.setSelectedModerationStatus}
                     selectedOfferType={formData.selectedOfferType}

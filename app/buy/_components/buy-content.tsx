@@ -49,6 +49,7 @@ export const BuyContent: FC<{ offer_type_props?: string }> = ({offer_type_props 
             areaTo: searchParams.get('areaTo') || undefined,
             floorFrom: searchParams.get('floorFrom') || undefined,
             floorTo: searchParams.get('floorTo') || undefined,
+            landmark: searchParams.get('landmark') || undefined,
         }),
         [searchParams]
     );
@@ -66,6 +67,7 @@ export const BuyContent: FC<{ offer_type_props?: string }> = ({offer_type_props 
         areaTo: searchParams.get('areaTo') || undefined,
         floorFrom: searchParams.get('floorFrom') || undefined,
         floorTo: searchParams.get('floorTo') || undefined,
+        landmark: searchParams.get('landmark') || undefined,
         listing_type: '',
         offer_type: offer_type_props,
     };
@@ -398,7 +400,7 @@ export const BuyContent: FC<{ offer_type_props?: string }> = ({offer_type_props 
             ) : (
                 // Map view
                 <div className="mx-auto w-full max-w-[1520px]">
-                    <BuyMap items={properties}/>
+                    <BuyMap items={properties} baseFilters={filters}/>
                 </div>
             )}
         </div>

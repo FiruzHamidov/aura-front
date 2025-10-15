@@ -186,3 +186,8 @@ export const getPropertiesMapData = async (
 
   return data;
 };
+
+function authHeaders() {
+  const token = getAuthToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
