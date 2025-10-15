@@ -154,6 +154,20 @@ export default function NewBuildingShowPage() {
               удаляйте квартиры.
             </p>
           </div>
+
+          <div className="border rounded-2xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-medium">Фотографии</h2>
+              <Link href={`/admin/new-buildings/${nb.id}/photos`}>
+                <Button variant="outline" size="sm">
+                  Управление фото
+                </Button>
+              </Link>
+            </div>
+            <p className="text-sm text-gray-500">
+              Загружайте, удаляйте и меняйте порядок фотографий новостройки.
+            </p>
+          </div>
         </div>
 
         <div className="md:col-span-1">

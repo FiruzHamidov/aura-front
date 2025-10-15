@@ -64,16 +64,19 @@ axios.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      const config = getCookieConfig();
-      const expiry = "; expires=Thu, 01 Jan 1970 00:00:01 GMT";
-
-      document.cookie = `auth_token=${expiry}; path=/; ${config.domain}`;
-      document.cookie = `user_data=${expiry}; path=/; ${config.domain}`;
-
+      // Only redirect if we're in the browser
       if (typeof window !== "undefined") {
-        window.location.href = "/login";
+        const config = getCookieConfig();
+        const expiry = "; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+
+        document.cookie = `auth_token=${expiry}; path=/; ${config.domain}`;
+        document.cookie = `user_data=${expiry}; path=/; ${config.domain}`;
+
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
       }
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
   }
 );

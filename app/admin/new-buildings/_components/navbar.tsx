@@ -32,11 +32,9 @@ export const Navbar = () => {
   const pathname = usePathname();
 
   const isActive = (href: string) => {
-    // For the main route, it should only be active when the path is exactly the same
     if (href === '/admin/new-buildings') {
       return pathname === '/admin/new-buildings';
     }
-    // For other routes, check if the pathname starts with the href
     return pathname.startsWith(href);
   };
 

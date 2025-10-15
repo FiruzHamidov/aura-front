@@ -1,4 +1,4 @@
-import { ChangeEvent, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import {
   useCreateNewBuilding,
@@ -91,7 +91,7 @@ export function useNewBuildingForm() {
 
   const validate = useMemo(() => Boolean(form.title), [form.title]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!validate) return;
 
@@ -115,28 +115,11 @@ export function useNewBuildingForm() {
         // features уже number[] благодаря toggleFeature
       };
 
-      await createMutation.mutateAsync(payload);
+      const result = await createMutation.mutateAsync(payload);
       toast.success("Новостройка создана");
 
-      // сброс
-      setForm({
-        title: "",
-        description: "",
-        developer_id: null,
-        construction_stage_id: null,
-        material_id: null,
-        location_id: null,
-        installment_available: false,
-        heating: false,
-        has_terrace: false,
-        floors_range: "",
-        completion_at: "",
-        address: "",
-        latitude: undefined,
-        longitude: undefined,
-        moderation_status: "pending",
-        features: [],
-      });
+      // Return the created building ID for redirect
+      return result;
     } catch (err: unknown) {
       const e = err as ApiError;
       const msg =

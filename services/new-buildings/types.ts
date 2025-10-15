@@ -158,6 +158,17 @@ export interface BuildingUnitPayload {
   status: "available" | "sold" | "reserved";
 }
 
+export interface UnitPhoto {
+  id: number;
+  unit_id: number;
+  path: string;
+  url: string;
+  is_cover: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface NewBuildingStats {
   total_price: {
     min: number | null;
