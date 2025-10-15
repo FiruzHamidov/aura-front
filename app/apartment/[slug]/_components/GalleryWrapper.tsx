@@ -1,21 +1,21 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import {Map, Placemark, YMaps} from '@pbe/react-yandex-maps';
+import { Map, Placemark, YMaps } from '@pbe/react-yandex-maps';
 import SettingsIcon from '@/icons/SettingsIcon';
 import HeartIcon from '@/icons/HeartIcon';
-import {Property} from '@/services/properties/types';
-import {useProfile} from '@/services/login/hooks';
+import { Property } from '@/services/properties/types';
+import { useProfile } from '@/services/login/hooks';
 import MortgageCalculator from '../_components/MortgageCalculator';
 import PhotoGalleryModal from '@/ui-components/PhotoGalleryModal';
 import BookingSidebarForm from '@/app/apartment/[slug]/_components/BookingSidebarForm';
 import FooterPhoneIcon from "@/icons/FooterPhoneIcon";
 import WhatsappInlineIcon from "@/icons/WhatsappInlineIcon";
-import {ArrowUpDown, Bath, Building2, EyeIcon, Flame, Hammer, Home, MapPin, ParkingSquare, Ruler} from "lucide-react";
-import {axios} from "@/utils/axios";
-import {AxiosError} from "axios";
+import { ArrowUpDown, Bath, Building2, EyeIcon, Flame, Hammer, Home, MapPin, ParkingSquare, Ruler } from "lucide-react";
+import { axios } from "@/utils/axios";
+import { AxiosError } from "axios";
 
 interface Props {
     apartment: Property;
@@ -575,6 +575,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                 onLoad={(ymaps) => {
                                     // @ts-expect-error type error disabling
                                     ymapsRef.current = ymaps;
+                                    return undefined;
                                 }}
                             >
                                 {coordinates && (

@@ -41,7 +41,7 @@ export default function EditBuildingBlockPage() {
         name: block.name,
         floors_from: block.floors_from,
         floors_to: block.floors_to,
-        completion_at: block.completion_at.slice(0, 10), // Format date for input
+        completion_at: block.completion_at,
       });
     }
   }, [block]);

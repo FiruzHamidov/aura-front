@@ -22,6 +22,7 @@ import type {
   BuildingBlockPayload,
   BuildingUnit,
   BuildingUnitPayload,
+  UnitPhoto,
 } from "./types";
 
 const defaultParams = { page: 1, per_page: 100 };
@@ -701,6 +702,184 @@ export const useDeleteBuildingUnit = (newBuildingId: number) => {
     onSuccess: () => {
       qc.invalidateQueries({
         queryKey: ["new-buildings", newBuildingId, "units"],
+      });
+      qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
+    },
+  });
+};
+
+// Unit Photos CRUD
+export const useUnitPhotos = (newBuildingId?: number, unitId?: number) =>
+  useQuery({
+    queryKey: ["new-buildings", newBuildingId, "units", unitId, "photos"],
+    queryFn: async () => {
+      const { data } = await axios.get<UnitPhoto[]>(
+        `/new-buildings/${newBuildingId}/units/${unitId}/photos`
+      );
+      return data;
+    },
+    enabled: !!newBuildingId && !!unitId,
+    staleTime: 5 * 60 * 1000,
+  });
+
+export const useUploadUnitPhoto = (newBuildingId: number, unitId: number) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("photo", file);
+      const { data } = await axios.post<UnitPhoto>(
+        `/new-buildings/${newBuildingId}/units/${unitId}/photos`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "units", unitId, "photos"],
+      });
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "units", unitId],
+      });
+    },
+  });
+};
+
+export const useDeleteUnitPhoto = (newBuildingId: number, unitId: number) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (photoId: number) => {
+      await axios.delete(
+        `/new-buildings/${newBuildingId}/units/${unitId}/photos/${photoId}`
+      );
+      return true;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "units", unitId, "photos"],
+      });
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "units", unitId],
+      });
+    },
+  });
+};
+
+export const useReorderUnitPhotos = (newBuildingId: number, unitId: number) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (photoIds: number[]) => {
+      await axios.put(
+        `/new-buildings/${newBuildingId}/units/${unitId}/photos/reorder`,
+        { photo_ids: photoIds }
+      );
+      return true;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "units", unitId, "photos"],
+      });
+    },
+  });
+};
+
+export const useSetUnitPhotoCover = (newBuildingId: number, unitId: number) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (photoId: number) => {
+      await axios.post(
+        `/new-buildings/${newBuildingId}/units/${unitId}/photos/${photoId}/cover`
+      );
+      return true;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "units", unitId, "photos"],
+      });
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "units", unitId],
+      });
+    },
+  });
+};
+
+// New Building Photos Management
+export const useUploadNewBuildingPhoto = (newBuildingId: number) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const { data } = await axios.post<NewBuildingPhoto>(
+        `/new-buildings/${newBuildingId}/photos`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "photos"],
+      });
+      qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
+    },
+  });
+};
+
+export const useDeleteNewBuildingPhoto = (newBuildingId: number) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (photoId: number) => {
+      await axios.delete(`/new-buildings/${newBuildingId}/photos/${photoId}`);
+      return true;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "photos"],
+      });
+      qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
+    },
+  });
+};
+
+export const useReorderNewBuildingPhotos = (newBuildingId: number) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (photoIds: number[]) => {
+      await axios.put(`/new-buildings/${newBuildingId}/photos/reorder`, {
+        photo_ids: photoIds,
+      });
+      return true;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "photos"],
+      });
+    },
+  });
+};
+
+export const useSetNewBuildingPhotoCover = (newBuildingId: number) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (photoId: number) => {
+      await axios.post(
+        `/new-buildings/${newBuildingId}/photos/${photoId}/cover`
+      );
+      return true;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["new-buildings", newBuildingId, "photos"],
       });
       qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
     },

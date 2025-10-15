@@ -1,12 +1,12 @@
 'use client';
 
-import {ChangeEvent, FormEvent, useRef, useState} from 'react';
-import {Map, Placemark, YMaps} from '@pbe/react-yandex-maps';
-import {Input} from '@/ui-components/Input';
-import {Select} from '@/ui-components/Select';
-import {PhotoUpload} from '@/ui-components/PhotoUpload';
-import {Button} from '@/ui-components/Button';
-import type {FormState as RawFormState, PhotoItem, SelectOption} from '@/services/add-post/types';
+import { ChangeEvent, FormEvent, useRef, useState } from 'react';
+import { Map, Placemark, YMaps } from '@pbe/react-yandex-maps';
+import { Input } from '@/ui-components/Input';
+import { Select } from '@/ui-components/Select';
+import { PhotoUpload } from '@/ui-components/PhotoUpload';
+import { Button } from '@/ui-components/Button';
+import type { FormState as RawFormState, PhotoItem, SelectOption } from '@/services/add-post/types';
 
 type FormWithPhotos = Omit<RawFormState, 'photos'> & { photos: PhotoItem[] };
 
@@ -353,6 +353,7 @@ export function PropertyDetailsStep({
                             onLoad={(ymaps) => {
                                 // @ts-expect-error type error disabling
                                 ymapsRef.current = ymaps;
+                                return undefined;
                             }}
                         >
                             {coordinates && (

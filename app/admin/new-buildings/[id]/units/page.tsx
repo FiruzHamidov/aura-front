@@ -8,7 +8,7 @@ import {
 } from '@/services/new-buildings/hooks';
 import Link from 'next/link';
 import { Button } from '@/ui-components/Button';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Pencil, Plus, Trash2, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 export default function BuildingUnitsPage() {
@@ -19,6 +19,7 @@ export default function BuildingUnitsPage() {
     useNewBuilding(newBuildingId);
   const { data: units, isLoading: unitsLoading } =
     useBuildingUnits(newBuildingId);
+
   const deleteUnit = useDeleteBuildingUnit(newBuildingId);
 
   const building = buildingResponse?.data;
@@ -41,6 +42,10 @@ export default function BuildingUnitsPage() {
 
   if (!building) {
     return <div>Новостройка не найдена</div>;
+  }
+
+  if (!units) {
+    return <div>Квартиры не найдены</div>;
   }
 
   return (
@@ -106,67 +111,77 @@ export default function BuildingUnitsPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {units.map((unit) => (
-                  <tr key={unit.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.id}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {unit.title}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.rooms}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.area_total} м²
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.floor}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.price.toLocaleString()} {unit.currency}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${
-                          unit.status === 'available'
-                            ? 'bg-green-100 text-green-800'
+                {units &&
+                  units.length > 0 &&
+                  units?.map((unit) => (
+                    <tr key={unit.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {unit.id}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {unit.title}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {unit.rooms}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {unit.area_total} м²
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {unit.floor}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {unit.price.toLocaleString()} {unit.currency}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            unit.status === 'available'
+                              ? 'bg-green-100 text-green-800'
+                              : unit.status === 'sold'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}
+                        >
+                          {unit.status === 'available'
+                            ? 'Доступна'
                             : unit.status === 'sold'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}
-                      >
-                        {unit.status === 'available'
-                          ? 'Доступна'
-                          : unit.status === 'sold'
-                          ? 'Продана'
-                          : 'Забронирована'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.block_id}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center justify-end gap-2">
-                        <Link
-                          href={`/admin/new-buildings/${newBuildingId}/units/${unit.id}/edit`}
-                        >
-                          <Button variant="outline" size="sm">
-                            <Pencil className="w-3 h-3" />
+                            ? 'Продана'
+                            : 'Забронирована'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {unit.block_id}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center justify-end gap-2">
+                          <Link
+                            href={`/admin/new-buildings/${newBuildingId}/units/${unit.id}/photos`}
+                            title="Фотографии"
+                          >
+                            <Button variant="outline" size="sm">
+                              <ImageIcon className="w-3 h-3" />
+                            </Button>
+                          </Link>
+                          <Link
+                            href={`/admin/new-buildings/${newBuildingId}/units/${unit.id}/edit`}
+                          >
+                            <Button variant="outline" size="sm">
+                              <Pencil className="w-3 h-3" />
+                            </Button>
+                          </Link>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(unit.id, unit.title)}
+                            disabled={deleteUnit.isPending}
+                          >
+                            <Trash2 className="w-3 h-3 text-red-600" />
                           </Button>
-                        </Link>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDelete(unit.id, unit.title)}
-                          disabled={deleteUnit.isPending}
-                        >
-                          <Trash2 className="w-3 h-3 text-red-600" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
