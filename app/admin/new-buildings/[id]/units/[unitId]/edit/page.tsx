@@ -32,10 +32,11 @@ export default function EditBuildingUnitPage() {
   const building = buildingResponse?.data;
 
   const [form, setForm] = useState<BuildingUnitPayload>({
+    new_building_id: 0,
     block_id: 0,
-    title: '',
+    name: '',
     rooms: 1,
-    area_total: 0,
+    area: 0,
     price: 0,
     currency: 'TJS',
     floor: 1,
@@ -45,17 +46,18 @@ export default function EditBuildingUnitPage() {
   useEffect(() => {
     if (unit) {
       setForm({
+        new_building_id: newBuildingId,
         block_id: unit.block_id,
-        title: unit.title,
+        name: unit.name,
         rooms: unit.rooms,
-        area_total: unit.area_total,
+        area: unit.area,
         price: unit.price,
         currency: unit.currency,
         floor: unit.floor,
         status: unit.status,
       });
     }
-  }, [unit]);
+  }, [unit, newBuildingId]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -77,7 +79,7 @@ export default function EditBuildingUnitPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!form.title.trim()) {
+    if (!form.name.trim()) {
       toast.error('Введите название квартиры');
       return;
     }
@@ -92,7 +94,7 @@ export default function EditBuildingUnitPage() {
       return;
     }
 
-    if (form.area_total <= 0) {
+    if (form.area <= 0) {
       toast.error('Площадь должна быть положительным числом');
       return;
     }
@@ -146,7 +148,7 @@ export default function EditBuildingUnitPage() {
       <div>
         <h1 className="text-2xl font-semibold">Редактировать квартиру</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Изменение квартиры {unit.title} в {building.title}
+          Изменение квартиры {unit.name} в {building.title}
         </p>
       </div>
 
@@ -178,8 +180,8 @@ export default function EditBuildingUnitPage() {
           </label>
           <input
             type="text"
-            name="title"
-            value={form.title}
+            name="name"
+            value={form.name}
             onChange={handleChange}
             placeholder="Например: 2-комнатная, 68 м²"
             className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
@@ -223,8 +225,8 @@ export default function EditBuildingUnitPage() {
           </label>
           <input
             type="number"
-            name="area_total"
-            value={form.area_total}
+            name="area"
+            value={form.area}
             onChange={handleChange}
             min="0"
             step="0.1"

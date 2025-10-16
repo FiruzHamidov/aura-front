@@ -126,9 +126,7 @@ export interface BuildingUnit {
   id: number;
   new_building_id: number;
   block_id: number;
-  title: string;
   rooms: number;
-  area_total: number;
   price: number;
   currency: string;
   floor: number;
@@ -136,10 +134,10 @@ export interface BuildingUnit {
   created_at: string;
   updated_at: string;
   // Legacy fields for backward compatibility
-  name?: string;
+  name: string;
   bedrooms?: number;
   bathrooms?: number;
-  area?: string;
+  area: number;
   price_per_sqm?: string;
   total_price?: string;
   description?: string | null;
@@ -149,9 +147,10 @@ export interface BuildingUnit {
 
 export interface BuildingUnitPayload {
   block_id: number;
-  title: string;
+  name: string;
   rooms: number;
-  area_total: number;
+  area: number;
+  new_building_id: number;
   price: number;
   currency: string;
   floor: number;

@@ -62,7 +62,7 @@ function SortablePhotoCard({
     >
       <div className="relative h-48 w-full">
         <Image
-          src={`${STORAGE_URL}${photo.path}`}
+          src={`${STORAGE_URL}/${photo.path}`}
           alt="Photo"
           fill
           className="object-cover"
@@ -213,7 +213,7 @@ export default function UnitPhotosPage() {
         <div>
           <h1 className="text-2xl font-semibold">Фотографии квартиры</h1>
           <p className="text-sm text-gray-500 mt-1">
-            {unit.title} в {building?.title}
+            {unit.name} в {building?.title}
           </p>
         </div>
         <Link href={`/admin/new-buildings/${newBuildingId}/units`}>

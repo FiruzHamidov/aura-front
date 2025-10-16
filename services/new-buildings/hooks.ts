@@ -623,18 +623,19 @@ export const useDeleteBuildingBlock = (newBuildingId: number) => {
 };
 
 // Building Units CRUD
-export const useBuildingUnits = (newBuildingId?: number) =>
-  useQuery({
-    queryKey: ["new-buildings", newBuildingId, "units"],
-    queryFn: async () => {
-      const { data } = await axios.get<BuildingUnit[]>(
-        `/new-buildings/${newBuildingId}/units`
-      );
-      return data;
-    },
-    enabled: !!newBuildingId,
-    staleTime: 5 * 60 * 1000,
-  });
+export const useBuildingUnits = (newBuildingId?: number, page = 1, per_page = 15) =>
+    useQuery<Paginated<BuildingUnit>>({
+      queryKey: ["new-buildings", newBuildingId, "units", page, per_page],
+      queryFn: async () => {
+        const { data } = await axios.get<Paginated<BuildingUnit>>(
+            `/new-buildings/${newBuildingId}/units`,
+            { params: { page, per_page } }
+        );
+        return data;
+      },
+      enabled: !!newBuildingId,
+      staleTime: 5 * 60 * 1000,
+    });
 
 export const useBuildingUnit = (newBuildingId?: number, unitId?: number) =>
   useQuery({
@@ -776,7 +777,7 @@ export const useReorderUnitPhotos = (newBuildingId: number, unitId: number) => {
     mutationFn: async (photoIds: number[]) => {
       await axios.put(
         `/new-buildings/${newBuildingId}/units/${unitId}/photos/reorder`,
-        { photo_ids: photoIds }
+        { photo_order: photoIds }
       );
       return true;
     },
@@ -854,9 +855,9 @@ export const useDeleteNewBuildingPhoto = (newBuildingId: number) => {
 export const useReorderNewBuildingPhotos = (newBuildingId: number) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (photoIds: number[]) => {
+    mutationFn: async (orders: { id: number; sort_order: number }[]) => {
       await axios.put(`/new-buildings/${newBuildingId}/photos/reorder`, {
-        photo_ids: photoIds,
+        orders: [...orders],
       });
       return true;
     },

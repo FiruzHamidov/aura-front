@@ -61,7 +61,7 @@ function SortablePhotoCard({
     >
       <div className="relative h-48 w-full">
         <Image
-          src={`${STORAGE_URL}${photo.path}`}
+          src={`${STORAGE_URL}/${photo.path}`}
           alt="Photo"
           fill
           className="object-cover"
@@ -181,10 +181,13 @@ export default function NewBuildingPhotosPage() {
     if (oldIndex === -1 || newIndex === -1) return;
 
     const reorderedPhotos = arrayMove(photos, oldIndex, newIndex);
-    const photoIds = reorderedPhotos.map((p) => p.id!);
+    const orders = reorderedPhotos.map((p, index) => ({
+      id: p.id!,
+      sort_order: index + 1, // можно 1-based, либо 0-based по API сервера
+    }));
 
     try {
-      await reorderPhotos.mutateAsync(photoIds);
+      await reorderPhotos.mutateAsync(orders);
       toast.success('Порядок фото обновлен');
     } catch (err) {
       toast.error('Ошибка при изменении порядка');

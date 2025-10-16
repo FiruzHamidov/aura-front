@@ -27,9 +27,10 @@ export default function CreateBuildingUnitPage() {
 
   const [form, setForm] = useState<BuildingUnitPayload>({
     block_id: 0,
-    title: '',
+    new_building_id: newBuildingId,
+    name: '',
     rooms: 1,
-    area_total: 0,
+    area: 0,
     price: 0,
     currency: 'TJS',
     floor: 1,
@@ -56,7 +57,7 @@ export default function CreateBuildingUnitPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!form.title.trim()) {
+    if (!form.name.trim()) {
       toast.error('Введите название квартиры');
       return;
     }
@@ -71,7 +72,7 @@ export default function CreateBuildingUnitPage() {
       return;
     }
 
-    if (form.area_total <= 0) {
+    if (form.area <= 0) {
       toast.error('Площадь должна быть положительным числом');
       return;
     }
@@ -157,8 +158,8 @@ export default function CreateBuildingUnitPage() {
           </label>
           <input
             type="text"
-            name="title"
-            value={form.title}
+            name="name"
+            value={form.name}
             onChange={handleChange}
             placeholder="Например: 2-комнатная, 68 м²"
             className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
@@ -202,8 +203,8 @@ export default function CreateBuildingUnitPage() {
           </label>
           <input
             type="number"
-            name="area_total"
-            value={form.area_total}
+            name="area"
+            value={form.area}
             onChange={handleChange}
             min="0"
             step="0.1"

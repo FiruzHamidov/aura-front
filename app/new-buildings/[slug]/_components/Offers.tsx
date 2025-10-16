@@ -64,7 +64,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
 
                 <div className="flex items-center gap-1 text-[#667085]">
                   <PlanIcon className="w-5 h-5 mr-1" />
-                  <span>{parseFloat(unit.area ?? '1').toFixed(1)} м²</span>
+                  <span>{parseFloat(String(unit.area ?? '1')).toFixed(1)} м²</span>
                 </div>
 
                 <div className="flex items-center gap-1 text-[#667085]">
