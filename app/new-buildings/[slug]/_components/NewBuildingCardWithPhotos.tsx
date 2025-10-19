@@ -27,10 +27,12 @@ export function NewBuildingCardWithPhotos({ building }: { building: any }) {
       developer={
         building?.developer?.name
           ? {
+              id: building.developer.id,
               name: building.developer.name,
               logo_path: building.developer.logo_path,
             }
           : {
+              id: 0,
               name: 'Неизвестно',
               logo_path: '/images/placeholder.png',
             }

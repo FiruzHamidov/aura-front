@@ -19,6 +19,7 @@ export interface NewBuildingCardProps {
   apartmentOptions: ApartmentOption[];
   location: string;
   developer: {
+    id: number | string;
     name: string;
     logo_path: string;
   };

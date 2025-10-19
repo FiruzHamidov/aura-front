@@ -149,17 +149,19 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
         <div className="text-[#666F8D] mb-3">{location}</div>
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <div className="w-[60px] h-[60px] relative mr-3 overflow-hidden rounded-full">
-              <Image
-                src={`${STORAGE_URL}/${developer.logo_path}`}
-                alt={`${developer.name} logo`}
-                fill
-                className="object-cover"
-              />
+          <Link href={`/developers/${developer.id}`}>
+            <div className="flex items-center">
+              <div className="w-[60px] h-[60px] relative mr-3 overflow-hidden rounded-full">
+                <Image
+                  src={`${STORAGE_URL}/${developer.logo_path}`}
+                  alt={`${developer.name} logo`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <span className="text-lg">{developer.name}</span>
             </div>
-            <span className="text-lg">{developer.name}</span>
-          </div>
+          </Link>
 
           {hasInstallmentOption && (
             <button className="bg-[#00C7EA] text-white px-5 py-1 rounded hover:bg-[#00B0E6] transition-colors">
