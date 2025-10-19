@@ -1,9 +1,10 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import BedIcon from '@/icons/BedIcon';
 import FloorIcon from '@/icons/FloorIcon';
 import PlanIcon from '@/icons/PlanIcon';
 import ShowerIcon from '@/icons/ShowerIcon';
 import Image from 'next/image';
+import { X } from 'lucide-react';
 import type { NewBuilding } from '@/services/new-buildings/types';
 
 interface OffersProps {
@@ -12,6 +13,7 @@ interface OffersProps {
 
 export const Offers: FC<OffersProps> = ({ building }) => {
   const units = building.units || [];
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   if (units.length === 0) {
     return (
@@ -34,7 +36,10 @@ export const Offers: FC<OffersProps> = ({ building }) => {
             key={unit.id}
             className="bg-[#F7FAFD] rounded-xl overflow-hidden"
           >
-            <div className="relative h-[188px] w-full bg-[#F0F7FF] rounded-xl mb-4 px-12 py-[18px]">
+            <div
+              className="relative h-[188px] w-full bg-[#F0F7FF] rounded-xl mb-4 px-12 py-[18px] cursor-pointer"
+              onClick={() => setSelectedImage('/images/buildings/plans/1.png')}
+            >
               <Image
                 fill
                 src="/images/buildings/plans/1.png"
@@ -64,7 +69,9 @@ export const Offers: FC<OffersProps> = ({ building }) => {
 
                 <div className="flex items-center gap-1 text-[#667085]">
                   <PlanIcon className="w-5 h-5 mr-1" />
-                  <span>{parseFloat(String(unit.area ?? '1')).toFixed(1)} м²</span>
+                  <span>
+                    {parseFloat(String(unit.area ?? '1')).toFixed(1)} м²
+                  </span>
                 </div>
 
                 <div className="flex items-center gap-1 text-[#667085]">
@@ -94,6 +101,31 @@ export const Offers: FC<OffersProps> = ({ building }) => {
           </div>
         ))}
       </div>
+
+      {selectedImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div className="relative max-w-7xl max-h-[90vh] w-full h-full">
+            <button
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-4 right-4 z-10 bg-white rounded-full p-2 hover:bg-gray-100 transition-colors"
+            >
+              <X className="w-6 h-6 text-gray-700" />
+            </button>
+            <div className="relative w-full h-full">
+              <Image
+                src={selectedImage}
+                alt="Plan preview"
+                fill
+                className="object-contain"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

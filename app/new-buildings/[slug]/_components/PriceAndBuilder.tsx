@@ -43,22 +43,24 @@ export const PriceAndBuilder: FC<PriceAndBuilderProps> = ({
       </div>
 
       <div className="bg-white rounded-[22px] px-4 py-5 md:px-8 md:py-10">
-        <div className="flex items-center gap-4 mb-6 md:mb-8">
-          {developer.logo_path && (
-            <div className="relative w-[60px] h-[60px] rounded-full overflow-hidden">
-              <Image
-                src={`${STORAGE_URL}/${developer.logo_path}`}
-                alt={developer.name}
-                fill
-                className="object-cover"
-              />
+        <Link href={`/developers/${developer.id}`}>
+          <div className="flex items-center gap-4 mb-6 md:mb-8">
+            {developer.logo_path && (
+              <div className="relative w-[60px] h-[60px] rounded-full overflow-hidden">
+                <Image
+                  src={`${STORAGE_URL}/${developer.logo_path}`}
+                  alt={developer.name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
+            <div>
+              <h3 className="text-2xl font-bold mb-0.5">{developer.name}</h3>
+              <div className="text-[#666F8D]">Застройщик</div>
             </div>
-          )}
-          <div>
-            <h3 className="text-2xl font-bold mb-0.5">{developer.name}</h3>
-            <div className="text-[#666F8D]">Застройщик</div>
           </div>
-        </div>
+        </Link>
 
         {developer.description && (
           <div className="text-[#666F8D] mb-4">{developer.description}</div>

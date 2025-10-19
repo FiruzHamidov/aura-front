@@ -142,7 +142,7 @@ export interface BuildingUnit {
   total_price?: string;
   description?: string | null;
   is_available?: boolean;
-  moderation_status?: ModerationStatus;
+  moderation_status?: "available" | "sold" | "reserved";
 }
 
 export interface BuildingUnitPayload {
