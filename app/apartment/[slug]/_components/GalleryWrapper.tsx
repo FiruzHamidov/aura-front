@@ -27,7 +27,7 @@ import {
   Ruler,
   User,
   Phone,
-  Key,
+  Key, Share,
 } from 'lucide-react';
 import { axios } from '@/utils/axios';
 import { AxiosError } from 'axios';
@@ -277,11 +277,11 @@ export default function GalleryWrapper({ apartment, photos }: Props) {
                   <button
                       type="button"
                       onClick={handleCopyLink}
-                      className="w-14 h-14 rounded-full border border-[#0036A5] bg-[#0036A5] flex items-center justify-center hover:bg-blue-800 transition-colors cursor-pointer"
+                      className="w-auto h-14 px-4 gap-2 text-white rounded-full border border-[#0036A5] bg-[#0036A5] flex items-center justify-center hover:bg-blue-800 transition-colors cursor-pointer"
                       title={copied ? 'Ссылка скопирована!' : 'Копировать ссылку'}
                       aria-live="polite"
                   >
-                    <Copy size={20} className="text-white"/> Копировать ссылку
+                    <Share size={20} className="text-white"/> Поделиться
                   </button>
                   {canEdit && (
                       <Link
