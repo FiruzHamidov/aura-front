@@ -274,67 +274,69 @@ export default function GalleryWrapper({ apartment, photos }: Props) {
                   </div>
                 </div>
                 <div className="flex gap-2 md:mt-0 mt-4">
+                  <button
+                      type="button"
+                      onClick={handleCopyLink}
+                      className="w-14 h-14 rounded-full border border-[#0036A5] bg-[#0036A5] flex items-center justify-center hover:bg-blue-800 transition-colors cursor-pointer"
+                      title={copied ? 'Ссылка скопирована!' : 'Копировать ссылку'}
+                      aria-live="polite"
+                  >
+                    <Copy size={20} className="text-white"/> Копировать ссылку
+                  </button>
                   {canEdit && (
-                    <Link
-                      href={`/profile/edit-post/${apartment.id}`}
-                      className="w-14 h-14 rounded-full border border-[#0036A5] bg-[#0036A5] flex items-center justify-center hover:bg-blue-800 transition-colors"
-                      title="Редактировать объявление"
-                    >
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
+                      <Link
+                          href={`/profile/edit-post/${apartment.id}`}
+                          className="w-14 h-14 rounded-full border border-[#0036A5] bg-[#0036A5] flex items-center justify-center hover:bg-blue-800 transition-colors"
+                          title="Редактировать объявление"
                       >
-                        <path
-                          d="M12 20H21"
-                          stroke="white"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M16.5 3.5C16.8978 3.10218 17.4374 2.87868 18 2.87868C18.2786 2.87868 18.5544 2.93355 18.8118 3.04016C19.0692 3.14676 19.303 3.30301 19.5 3.5C19.697 3.69699 19.8532 3.9308 19.9598 4.18819C20.0665 4.44558 20.1213 4.72142 20.1213 5C20.1213 5.27858 20.0665 5.55442 19.9598 5.81181C19.8532 6.0692 19.697 6.30301 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z"
-                          stroke="white"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </Link>
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                        >
+                          <path
+                              d="M12 20H21"
+                              stroke="white"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                          />
+                          <path
+                              d="M16.5 3.5C16.8978 3.10218 17.4374 2.87868 18 2.87868C18.2786 2.87868 18.5544 2.93355 18.8118 3.04016C19.0692 3.14676 19.303 3.30301 19.5 3.5C19.697 3.69699 19.8532 3.9308 19.9598 4.18819C20.0665 4.44558 20.1213 4.72142 20.1213 5C20.1213 5.27858 20.0665 5.55442 19.9598 5.81181C19.8532 6.0692 19.697 6.30301 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z"
+                              stroke="white"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                          />
+                        </svg>
+                      </Link>
                   )}
 
+
                   <button
-                    type="button"
-                    onClick={handleCopyLink}
-                    className="w-14 h-14 rounded-full border border-[#0036A5] bg-[#0036A5] flex items-center justify-center hover:bg-blue-800 transition-colors cursor-pointer"
-                    title={copied ? 'Ссылка скопирована!' : 'Копировать ссылку'}
-                    aria-live="polite"
-                  >
-                    <Copy size={20} className="text-white" />
-                  </button>
-                  <button className="w-14 h-14 rounded-full border border-[#BAC0CC] flex items-center justify-center hover:bg-gray-50 cursor-pointer">
-                    <SettingsIcon className="w-6 h-6 text-[#1E3A8A]" />
+                      className="w-14 h-14 rounded-full border border-[#BAC0CC] flex items-center justify-center hover:bg-gray-50 cursor-pointer">
+                    <SettingsIcon className="w-6 h-6 text-[#1E3A8A]"/>
                   </button>
                   <button
-                    className="w-14 h-14 rounded-full border border-[#BAC0CC] flex items-center justify-center hover:bg-gray-50 cursor-pointer"
-                    onClick={toggleFavorite}
-                    aria-pressed={isFavorite}
+                      className="w-14 h-14 rounded-full border border-[#BAC0CC] flex items-center justify-center hover:bg-gray-50 cursor-pointer"
+                      onClick={toggleFavorite}
+                      aria-pressed={isFavorite}
                   >
-                    <HeartIcon className="w-6 h-6 text-[#1E3A8A]" />
+                    <HeartIcon className="w-6 h-6 text-[#1E3A8A]"/>
                   </button>
                 </div>
               </div>
 
               {/* Галерея */}
               {photos.length > 0 && (
-                <div className="mb-[30px]">
-                  {/* 303px слева + 376px справа (3 превью по 120 + 2 гэпа по 8) */}
-                  <div className="grid grid-cols-1 md:grid-cols-[303px_376px] gap-4">
-                    {/* Основное изображение 3:4, на md+: ровно 303×396 */}
-                    <div className="relative">
-                      <div
-                        className="relative w-full aspect-[3/4] md:w-[303px] md:h-[396px] md:aspect-auto rounded-xl overflow-hidden bg-gray-100 cursor-pointer"
+                  <div className="mb-[30px]">
+                    {/* 303px слева + 376px справа (3 превью по 120 + 2 гэпа по 8) */}
+                    <div className="grid grid-cols-1 md:grid-cols-[303px_376px] gap-4">
+                      {/* Основное изображение 3:4, на md+: ровно 303×396 */}
+                      <div className="relative">
+                        <div
+                            className="relative w-full aspect-[3/4] md:w-[303px] md:h-[396px] md:aspect-auto rounded-xl overflow-hidden bg-gray-100 cursor-pointer"
                         onClick={() => openModal(selectedIndex)}
                         title="Нажмите для увеличения"
                       >

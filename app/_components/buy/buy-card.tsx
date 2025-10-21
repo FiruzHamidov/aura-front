@@ -347,14 +347,18 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                                     className="rounded-full w-9 h-9 object-cover mr-2"
                                 />
                             ) : (
-                                <div className="rounded-full w-9 h-9 bg-[#F1F5F9] p-1.5 mr-1.5">
-                                    <UserIcon className="h-[22px] w-[22px]"/>
-                                </div>
+                                <Link href={`/about/team/${listing.creator?.id}`}>
+                                    <div className="rounded-full w-9 h-9 bg-[#F1F5F9] p-1.5 mr-1.5">
+                                        <UserIcon className="h-[22px] w-[22px]"/>
+                                    </div>
+                                </Link>
                             )}
                             <div className="flex items-center">
-                                <div className="font-bold text-sm text-[#020617]">
-                                    {displayAgent.name}
-                                </div>
+                                <Link href={`/about/team/${listing.creator?.id}`}>
+                                    <div className="font-bold text-sm text-[#020617]">
+                                        {displayAgent.name}
+                                    </div>
+                                </Link>
                                 {/*<div className="text-[#666F8D] text-xs">{displayAgent.role}</div>*/}
                                 <div className="relative group inline-flex items-center">
                                     <VerifiedIcon

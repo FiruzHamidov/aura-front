@@ -1,6 +1,6 @@
 'use client';
 
-import { ChangeEvent, FormEvent, useRef, useState } from 'react';
+import {ChangeEvent, FormEvent, useEffect, useRef, useState} from 'react';
 import { Map, Placemark, YMaps } from '@pbe/react-yandex-maps';
 import { Input } from '@/ui-components/Input';
 import { Select } from '@/ui-components/Select';
@@ -61,6 +61,36 @@ export function PropertyDetailsStep({
         {id: 3, name: 'Шохмансур'},
         {id: 4, name: 'Фирдавси'},
     ];
+
+    const [showOptions, setShowOptions] = useState(false);
+    const wrapperRef = useRef<HTMLDivElement | null>(null);
+
+    const options = ["У риелтора", "У владельца"];
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                wrapperRef.current &&
+                !wrapperRef.current.contains(event.target as Node)
+            ) {
+                setShowOptions(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const handleSelect = (value: string) => {
+        const syntheticEvent = {
+            target: { name: 'object_key', value },
+            currentTarget: { name: 'object_key', value },
+        } as unknown as ChangeEvent<HTMLInputElement>;
+
+        onChange(syntheticEvent);
+        setShowOptions(false);
+    };
+
 
     // eslint-disable-next-line
     const handleMapClick = (e: any) => {
@@ -156,7 +186,6 @@ export function PropertyDetailsStep({
                     options={DISTRICTS}
                     onChange={onChange}
                     valueField="name"
-                    required
                 />
 
                 <Input
@@ -227,14 +256,35 @@ export function PropertyDetailsStep({
                     placeholder="Эшматов Тошмат"
                 />
 
-                <Input
-                    label="Ключ от объекта"
-                    name="object_key"
-                    value={form.object_key}
-                    onChange={onChange}
-                    type="text"
-                    placeholder="У кого ключ от объекта?"
-                />
+                <div className="relative w-full" ref={wrapperRef}>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Ключ от объекта
+                    </label>
+                    <input
+                        type="text"
+                        name="object_key"
+                        value={form.object_key || ""}
+                        placeholder="У кого ключ от объекта?"
+                        onChange={onChange}
+                        onFocus={() => setShowOptions(true)}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                    />
+
+                    {showOptions && (
+                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg">
+                            {options.map((option) => (
+                                <button
+                                    key={option}
+                                    type="button"
+                                    onClick={() => handleSelect(option)}
+                                    className="block w-full text-left px-4 py-2 hover:bg-blue-50 transition-colors"
+                                >
+                                    {option}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
                 <Input
                     label="Цена"

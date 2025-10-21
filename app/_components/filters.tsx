@@ -22,7 +22,7 @@ const districtOptions: Option[] = [
     {id: 'Сино', name: 'Сино'},
     {id: 'Шохмансур', name: 'Шохмансур'},
     {id: 'Фирдавси', name: 'Фирдавси'},
-    {id: 'Сомони', name: 'Сомони'},
+    {id: 'И Сомони', name: 'И Сомони'},
 ];
 
 interface AllFiltersProps {
