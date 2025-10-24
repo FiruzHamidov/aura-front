@@ -31,7 +31,48 @@ import {
 } from 'lucide-react';
 import {axios} from '@/utils/axios';
 import {AxiosError} from 'axios';
+
 import {toast} from 'react-toastify';
+
+// ---- Google Ad component (replace client/slot with your IDs) ----
+function AdBanner({client, slot, style}: { client: string; slot: string; style?: React.CSSProperties }) {
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        // Вставляем скрипт с client в query параметр (как в вашем сниппете),
+        // но только если он еще не добавлен
+        if (!document.querySelector('script[src^="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]')) {
+            const s = document.createElement('script');
+            s.async = true;
+            s.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${client}`;
+            s.crossOrigin = 'anonymous';
+            document.head.appendChild(s);
+        }
+
+        // Пытаемся отрендерить блок (нужно для SPA)
+        try {
+            (window as any).adsbygoogle = (window as any).adsbygoogle || [];
+            (window as any).adsbygoogle.push({});
+        } catch (e) {
+            // ignore
+        }
+    }, [client]);
+
+    return (
+        <div style={style}>
+            <ins
+                className="adsbygoogle"
+                style={{display: 'block'}}
+                data-ad-client={client}
+                data-ad-slot={slot}
+                data-ad-format="auto"
+                data-full-width-responsive="true"
+                data-adtest="on"
+            />
+        </div>
+    );
+}
+// -------------------------------------------------------------------
 
 interface Props {
     apartment: Property;
@@ -694,6 +735,15 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                 </div>
                             </div>
                         )}
+
+                        {/* --- Google AdSense block (replace IDs) --- */}
+                        <div
+                            className="bg-white rounded-[22px] md:px-[26px] px-4 py-5 md:py-6 mb-6 flex justify-center items-center">
+                            <AdBanner
+                                client="ca-pub-7044136892757742"
+                                slot="5085881730"
+                            />
+                        </div>
 
                         {user &&
                             (user.role?.slug === 'agent' || user.role?.slug === 'admin') && (
