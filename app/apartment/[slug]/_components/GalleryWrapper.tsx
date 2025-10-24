@@ -4,7 +4,6 @@ import {useEffect, useRef, useState} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {Map, Placemark, YMaps} from '@pbe/react-yandex-maps';
-import SettingsIcon from '@/icons/SettingsIcon';
 import HeartIcon from '@/icons/HeartIcon';
 import {Property} from '@/services/properties/types';
 import {useProfile} from '@/services/login/hooks';
@@ -18,6 +17,7 @@ import {
     Bath,
     Building2,
     EyeIcon,
+    FileText,
     Flame,
     Hammer,
     Home,
@@ -273,7 +273,14 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex gap-2 md:mt-0 mt-4">
+                                <div className="flex gap-2 md:mt-0 mt-4 flex-wrap sm:flex-nowrap">
+                                    <button
+                                        className="w-14 h-14 rounded-full border border-[#BAC0CC] flex items-center justify-center hover:bg-gray-50 cursor-pointer"
+                                        onClick={toggleFavorite}
+                                        aria-pressed={isFavorite}
+                                    >
+                                        <HeartIcon className="w-6 h-6 text-[#1E3A8A]"/>
+                                    </button>
                                     <button
                                         type="button"
                                         onClick={handleCopyLink}
@@ -283,6 +290,8 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                     >
                                         <Share size={20} className="text-white"/> Поделиться
                                     </button>
+
+
                                     {canEdit && (
                                         <Link
                                             href={`/profile/edit-post/${apartment.id}`}
@@ -312,19 +321,21 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                             </svg>
                                         </Link>
                                     )}
+                                    {canEdit && (
+                                        <Link href='#createBooking'
+                                              className="w-auto h-14 px-4 gap-2 text-white rounded-full sm:hidden border border-[#0036A5] bg-[#0036A5] flex items-center justify-center hover:bg-blue-800 transition-colors cursor-pointer"
+                                        >
+                                            <EyeIcon size={20} className="text-white"/>
+                                            Создать показ
+                                        </Link>
+                                    )}
 
 
-                                    <button
-                                        className="w-14 h-14 rounded-full border border-[#BAC0CC] flex items-center justify-center hover:bg-gray-50 cursor-pointer">
-                                        <SettingsIcon className="w-6 h-6 text-[#1E3A8A]"/>
-                                    </button>
-                                    <button
-                                        className="w-14 h-14 rounded-full border border-[#BAC0CC] flex items-center justify-center hover:bg-gray-50 cursor-pointer"
-                                        onClick={toggleFavorite}
-                                        aria-pressed={isFavorite}
-                                    >
-                                        <HeartIcon className="w-6 h-6 text-[#1E3A8A]"/>
-                                    </button>
+                                    {/*<button*/}
+                                    {/*    className="w-14 h-14 rounded-full border border-[#BAC0CC] flex items-center justify-center hover:bg-gray-50 cursor-pointer">*/}
+                                    {/*    <SettingsIcon className="w-6 h-6 text-[#1E3A8A]"/>*/}
+                                    {/*</button>*/}
+
                                 </div>
                             </div>
 
@@ -535,39 +546,49 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                             {user && user.role?.slug === 'admin' && (
                                                 <>
                                                     <div className="flex justify-between py-2 border-b border-gray-100">
-                            <span className="text-[#666F8D] flex items-center gap-2">
-                              <User size={16}/> Имя владельца
-                            </span>
+                                                        <span className="text-[#666F8D] flex items-center gap-2">
+                                                          <User size={16}/> Имя владельца
+                                                        </span>
                                                         <span className="font-medium">
-                              {ownerName || '-'}
-                            </span>
+                                                          {ownerName || '-'}
+                                                        </span>
                                                     </div>
 
                                                     <div className="flex justify-between py-2 border-b border-gray-100">
-                            <span className="text-[#666F8D] flex items-center gap-2">
-                              <Phone size={16}/> Телефон владельца
-                            </span>
+                                                        <span className="text-[#666F8D] flex items-center gap-2">
+                                                          <Phone size={16}/> Телефон владельца
+                                                        </span>
                                                         <span className="font-medium">
-                              {ownerPhoneRaw ? (
-                                  <a
-                                      href={`tel:${ownerCleanPhone}`}
-                                      className="hover:underline"
-                                  >
-                                      {ownerDisplayPhone}
-                                  </a>
-                              ) : (
-                                  '-'
-                              )}
-                            </span>
+                                                          {ownerPhoneRaw ? (
+                                                              <a
+                                                                  href={`tel:${ownerCleanPhone}`}
+                                                                  className="hover:underline"
+                                                              >
+                                                                  {ownerDisplayPhone}
+                                                              </a>
+                                                          ) : (
+                                                              '-'
+                                                          )}
+                                                        </span>
                                                     </div>
 
                                                     <div className="flex justify-between py-2 border-b border-gray-100">
-                            <span className="text-[#666F8D] flex items-center gap-2">
-                              <Key size={16}/> У кого ключи
-                            </span>
+                                                        <span className="text-[#666F8D] flex items-center gap-2">
+                                                          <Key size={16}/> У кого ключи
+                                                        </span>
                                                         <span className="font-medium">
-                              {apartment.object_key}
-                            </span>
+                                                          {apartment.object_key}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* --- Новый блок: тип договора --- */}
+                                                    <div className="flex justify-between py-2 border-b border-gray-100">
+                                                          <span className="text-[#666F8D] flex items-center gap-2">
+                                                            <FileText size={16}/> Тип договора
+                                                          </span>
+                                                        <span className="font-medium">
+                                                            {apartment.contract_type?.name || '-'}
+                                                          </span>
                                                     </div>
                                                 </>
                                             )}
@@ -676,10 +697,12 @@ export default function GalleryWrapper({apartment, photos}: Props) {
 
                         {user &&
                             (user.role?.slug === 'agent' || user.role?.slug === 'admin') && (
-                                <BookingSidebarForm
-                                    propertyId={apartment.id}
-                                    defaultAgentId={user.id}
-                                />
+                                <div id="createBooking">
+                                    <BookingSidebarForm
+                                        propertyId={apartment.id}
+                                        defaultAgentId={user.id}
+                                    />
+                                </div>
                             )}
                     </div>
                 </div>

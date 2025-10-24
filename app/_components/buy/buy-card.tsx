@@ -137,7 +137,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
         if (slug === 'commercial') {
             // комнаты не показываем, фокус на площади/этаже
             return `${kind}${l.total_area ? `, ${l.total_area} м²` : ''}${
-                l.floor ? `, ${l.floor} этаж` : ''
+                l.floor ? `, ${l.floor}/${l.total_floors} этаж` : ''
             }`;
         }
 
@@ -150,7 +150,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
             // для домов комнатность опционально
             return `${l.rooms ? `${l.rooms} комн. ` : ''}${kind}${
                 l.total_area ? `, ${l.total_area} м²` : ''
-            }${l.floor ? `, ${l.floor} этаж` : ''}`;
+            }${l.floor ? `, ${l.floor}/${l.total_floors} этаж` : ''}`;
         }
 
         if (slug === 'parking') {
@@ -159,7 +159,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
 
         // квартиры: secondary / new-buildings (или дефолт)
         return `${l.rooms ? `${l.rooms} комн. ` : ''}${kind}${
-            l.floor ? `, ${l.floor} этаж` : ''
+            l.floor ? `, ${l.floor}/${l.total_floors} этаж` : ''
         }${l.total_area ? `, ${l.total_area} м²` : ''}`;
     };
 

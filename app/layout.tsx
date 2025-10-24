@@ -164,6 +164,9 @@ export default async function RootLayout({children}: { children: ReactNode }) {
             }}
         />
 
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXX"
+                crossOrigin="anonymous"></script>
+
         <Suspense fallback={null}>
             <QueryProvider>
                 <HeaderAndFooterGate>
