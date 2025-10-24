@@ -49,10 +49,10 @@ export default function MyListings() {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  const formatInputDate = (date: Date) => {
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-  };
+  // const formatInputDate = (date: Date) => {
+  //   const pad = (n: number) => String(n).padStart(2, '0');
+  //   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  // };
 
   const getStatusColor = (status: Booking['status']) => {
     switch (status) {
@@ -69,8 +69,7 @@ export default function MyListings() {
 
   const fetchBookings = useCallback(async () => {
     try {
-      const params: Record<string, any> = {};
-      // ✅ если пользователь агент — фильтруем по нему
+      const params: Record<string, string | number | undefined> = {};
       if (user?.role?.slug === 'agent') {
         params.agent_id = user.id;
       }
