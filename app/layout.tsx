@@ -112,33 +112,35 @@ export default async function RootLayout({children}: { children: ReactNode }) {
         <head>
             <meta name="theme-color" media="(prefers-color-scheme: light)" content="#00000000"/>
             <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#00000000"/>
-            <meta name="apple-mobile-web-app-capable" content="yes"/>
+            <meta name="mobile-web-app-capable" content="yes"/>
 
             {/* JSON-LD: WebSite + Organization */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        '@context': 'https://schema.org',
-                        '@type': 'WebSite',
-                        name: 'Aura Estate',
-                        url: SITE_URL,
-                        potentialAction: {
-                            '@type': 'SearchAction',
-                            target: `${SITE_URL}/search?query={query}`,
-                            'query-input': 'required name=query',
-                        },
-                        publisher: {
-                            '@type': 'Organization',
-                            name: 'Aura',
-                            url: SITE_URL,
-                            logo: `${SITE_URL}/icons/icon-512.png`,
-                        },
-                    }),
-                }}
-            />
+            {/*<script*/}
+            {/*    type="application/ld+json"*/}
+            {/*    dangerouslySetInnerHTML={{*/}
+            {/*        __html: JSON.stringify({*/}
+            {/*            '@context': 'https://schema.org',*/}
+            {/*            '@type': 'WebSite',*/}
+            {/*            name: 'Aura Estate',*/}
+            {/*            url: SITE_URL,*/}
+            {/*            potentialAction: {*/}
+            {/*                '@type': 'SearchAction',*/}
+            {/*                target: `${SITE_URL}/search?query={query}`,*/}
+            {/*                'query-input': 'required name=query',*/}
+            {/*            },*/}
+            {/*            publisher: {*/}
+            {/*                '@type': 'Organization',*/}
+            {/*                name: 'Aura',*/}
+            {/*                url: SITE_URL,*/}
+            {/*                logo: `${SITE_URL}/icons/icon-512.png`,*/}
+            {/*            },*/}
+            {/*        }),*/}
+            {/*    }}*/}
+            {/*/>*/}
+
         </head>
         <body className={`${interFont.variable} antialiased`}>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7044136892757742" crossOrigin="anonymous"></script>
         {/* Yandex.Metrika loader */}
         <Script
             id="ym-loader"
@@ -163,9 +165,6 @@ export default async function RootLayout({children}: { children: ReactNode }) {
           `,
             }}
         />
-
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXX"
-                crossOrigin="anonymous"></script>
 
         <Suspense fallback={null}>
             <QueryProvider>

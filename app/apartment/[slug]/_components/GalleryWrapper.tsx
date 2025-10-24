@@ -1,5 +1,5 @@
 'use client';
-
+import dynamic from 'next/dynamic';
 import {useEffect, useRef, useState} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -34,45 +34,8 @@ import {AxiosError} from 'axios';
 
 import {toast} from 'react-toastify';
 
-// ---- Google Ad component (replace client/slot with your IDs) ----
-function AdBanner({client, slot, style}: { client: string; slot: string; style?: React.CSSProperties }) {
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
+const AdBannerNoSSR = dynamic(() => import('@/app/apartment/[slug]/_components/AdBanner'), { ssr: false });
 
-        // Вставляем скрипт с client в query параметр (как в вашем сниппете),
-        // но только если он еще не добавлен
-        if (!document.querySelector('script[src^="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]')) {
-            const s = document.createElement('script');
-            s.async = true;
-            s.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${client}`;
-            s.crossOrigin = 'anonymous';
-            document.head.appendChild(s);
-        }
-
-        // Пытаемся отрендерить блок (нужно для SPA)
-        try {
-            (window as any).adsbygoogle = (window as any).adsbygoogle || [];
-            (window as any).adsbygoogle.push({});
-        } catch (e) {
-            // ignore
-        }
-    }, [client]);
-
-    return (
-        <div style={style}>
-            <ins
-                className="adsbygoogle"
-                style={{display: 'block'}}
-                data-ad-client={client}
-                data-ad-slot={slot}
-                data-ad-format="auto"
-                data-full-width-responsive="true"
-                data-adtest="on"
-            />
-        </div>
-    );
-}
-// -------------------------------------------------------------------
 
 interface Props {
     apartment: Property;
@@ -194,29 +157,33 @@ export default function GalleryWrapper({apartment, photos}: Props) {
     const mapRef = useRef(undefined);
     const ymapsRef = useRef(null);
 
-    // eslint-disable-next-line
-    const handleMapClick = (e: any) => {
+    // typed handler for Yandex Maps clicks - avoid `any`
+    type YMapsEvent = { get: (key: 'coords') => [number, number] };
+
+    const handleMapClick = (e: YMapsEvent) => {
         const coords = e.get('coords');
         setCoordinates([coords[0], coords[1]]);
 
         if (ymapsRef.current) {
             try {
-                // @ts-expect-error type error disabling
-                const geocoder = ymapsRef.current.geocode(coords);
+                const geocoder = (ymapsRef.current as unknown as {
+                    geocode: (coords: [number, number]) => Promise<{
+                        geoObjects: { get: (index: number) => { getAddressLine?: () => string } }
+                    }>
+                }).geocode(coords);
                 geocoder
-                    // eslint-disable-next-line
-                    .then((res: { geoObjects: { get: (index: number) => any } }) => {
+                    .then((res: { geoObjects: { get: (index: number) => { getAddressLine?: () => string } } }) => {
                         const firstGeoObject = res.geoObjects.get(0);
-                        if (firstGeoObject) {
+                        if (firstGeoObject && typeof firstGeoObject.getAddressLine === 'function') {
                             const address = firstGeoObject.getAddressLine();
                             setAddressCaption(address);
                         }
                     })
-                    .catch((error: Error) => {
-                        console.error('Geocoding error:', error);
+                    .catch((err: Error) => {
+                        console.error('Geocoding error:', err);
                     });
-            } catch (error) {
-                console.error('Error initializing geocoder:', error);
+            } catch (err) {
+                console.error('Error initializing geocoder:', err);
             }
         }
     };
@@ -738,8 +705,8 @@ export default function GalleryWrapper({apartment, photos}: Props) {
 
                         {/* --- Google AdSense block (replace IDs) --- */}
                         <div
-                            className="bg-white rounded-[22px] md:px-[26px] px-4 py-5 md:py-6 mb-6 flex justify-center items-center">
-                            <AdBanner
+                            className="bg-white rounded-[22px] md:px-[26px] px-4 py-5 md:py-6 my-6 flex justify-center items-center">
+                            <AdBannerNoSSR
                                 client="ca-pub-7044136892757742"
                                 slot="5085881730"
                             />
