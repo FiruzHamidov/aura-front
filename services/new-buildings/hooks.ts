@@ -425,10 +425,9 @@ export const useLocations = (params = defaultParams) =>
   useQuery({
     queryKey: ["locations", params],
     queryFn: async () => {
-      const { data } = await axios.get<Paginated<LocationOption>>(
-        "/locations",
-        { params }
-      );
+      const { data } = await axios.get<LocationOption[]>("/locations", {
+        params,
+      });
       return data;
     },
     staleTime: 5 * 60 * 1000,
@@ -623,19 +622,23 @@ export const useDeleteBuildingBlock = (newBuildingId: number) => {
 };
 
 // Building Units CRUD
-export const useBuildingUnits = (newBuildingId?: number, page = 1, per_page = 15) =>
-    useQuery<Paginated<BuildingUnit>>({
-      queryKey: ["new-buildings", newBuildingId, "units", page, per_page],
-      queryFn: async () => {
-        const { data } = await axios.get<Paginated<BuildingUnit>>(
-            `/new-buildings/${newBuildingId}/units`,
-            { params: { page, per_page } }
-        );
-        return data;
-      },
-      enabled: !!newBuildingId,
-      staleTime: 5 * 60 * 1000,
-    });
+export const useBuildingUnits = (
+  newBuildingId?: number,
+  page = 1,
+  per_page = 15
+) =>
+  useQuery<Paginated<BuildingUnit>>({
+    queryKey: ["new-buildings", newBuildingId, "units", page, per_page],
+    queryFn: async () => {
+      const { data } = await axios.get<Paginated<BuildingUnit>>(
+        `/new-buildings/${newBuildingId}/units`,
+        { params: { page, per_page } }
+      );
+      return data;
+    },
+    enabled: !!newBuildingId,
+    staleTime: 5 * 60 * 1000,
+  });
 
 export const useBuildingUnit = (newBuildingId?: number, unitId?: number) =>
   useQuery({
