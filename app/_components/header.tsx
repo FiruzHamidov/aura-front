@@ -10,6 +10,8 @@ import PlusIcon from '@/icons/PlusIcon';
 import UserIcon from '@/icons/UserIcon';
 import { usePathname } from 'next/navigation';
 import { useLogoutMutation, useMe } from '@/services/login/hooks';
+import { useLocations } from '@/services/new-buildings/hooks';
+import { useSelectedLocation } from '@/hooks/useSelectedLocation';
 
 const navItems = [
   { name: 'Главная', href: '/' },
@@ -25,16 +27,28 @@ const navItems = [
 
 const Header: FC = () => {
   const pathname = usePathname();
+
+  const { data: locations } = useLocations();
+
+  console.log({ locations });
+
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isAboutDropdownOpen, setIsAboutDropdownOpen] = useState(false);
+  const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
+  const [isMobileLocationDropdownOpen, setIsMobileLocationDropdownOpen] =
+    useState(false);
+  const { selectedLocationId, setLocation } = useSelectedLocation();
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const userMenuRef = useRef<HTMLDivElement | null>(null);
+  const locationMenuRef = useRef<HTMLDivElement | null>(null);
   const [isClient, setIsClient] = useState(false);
 
   const { data: user, isLoading: userLoading } = useMe();
   const logoutMutation = useLogoutMutation();
+
+  console.log({ isLocationDropdownOpen });
 
   useEffect(() => {
     setIsClient(true);
@@ -47,6 +61,12 @@ const Header: FC = () => {
     } catch (error) {
       console.error('Logout error:', error);
     }
+  };
+
+  const handleLocationSelect = (locationId: number) => {
+    setLocation(locationId);
+    setIsLocationDropdownOpen(false);
+    setIsMobileLocationDropdownOpen(false);
   };
 
   useEffect(() => {
@@ -66,13 +86,21 @@ const Header: FC = () => {
       ) {
         setIsUserMenuOpen(false);
       }
+
+      if (
+        isLocationDropdownOpen &&
+        locationMenuRef.current &&
+        !locationMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsLocationDropdownOpen(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [activeDropdown, isUserMenuOpen]);
+  }, [activeDropdown, isUserMenuOpen, isLocationDropdownOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -227,10 +255,56 @@ const Header: FC = () => {
               <Logo className="w-[135px] h-[45px]" />
             </Link>
             {/* Location button - hidden on mobile and small tablets */}
-            <button className="hidden lg:flex items-center space-x-2 bg-sky-100/70 hover:bg-sky-100 px-4 xl:px-[27px] py-2 rounded-full text-sm transition-colors">
-              <MapIcon className="h-5 w-6 text-[#0036A5]" />
-              <span className="text-sm">Душанбе</span>
-            </button>
+            <div
+              className="hidden lg:block relative z-50"
+              ref={locationMenuRef}
+            >
+              <button
+                onClick={() =>
+                  setIsLocationDropdownOpen(!isLocationDropdownOpen)
+                }
+                className="flex items-center space-x-2 bg-sky-100/70 hover:bg-sky-100 px-4 xl:px-[27px] py-2 rounded-full text-sm transition-colors"
+              >
+                <MapIcon className="h-5 w-6 text-[#0036A5]" />
+                <span className="text-sm">
+                  {locations?.find((loc) => loc.id === selectedLocationId)
+                    ?.city || 'Душанбе'}
+                </span>
+                <svg
+                  className={`w-4 h-4 transition-transform ${
+                    isLocationDropdownOpen ? 'rotate-180' : ''
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+
+              {isLocationDropdownOpen && locations && locations.length > 0 && (
+                <div className="absolute left-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-2 max-h-60 overflow-y-auto">
+                  {locations.map((location) => (
+                    <button
+                      key={location.id}
+                      onClick={() => handleLocationSelect(location.id)}
+                      className={`w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors ${
+                        selectedLocationId === location.id
+                          ? 'bg-blue-50 text-[#0036A5] font-medium'
+                          : ''
+                      }`}
+                    >
+                      {location.city}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Desktop Action Buttons - Hidden on mobile */}
@@ -418,10 +492,57 @@ const Header: FC = () => {
           <div className="p-6 pt-16 space-y-4 mb-32 border-t border-white/20">
             <div className="flex space-x-4">
               {/* Location Button */}
-              <button className="flex-1 flex items-center justify-center space-x-1 bg-white px-3 py-2 rounded-full transition-all">
-                <MapIcon className="h-5 w-5 text-white" />
-                <span>Душанбе</span>
-              </button>
+              <div className="flex-1 relative">
+                <button
+                  onClick={() =>
+                    setIsMobileLocationDropdownOpen(
+                      !isMobileLocationDropdownOpen
+                    )
+                  }
+                  className="w-full flex items-center justify-center space-x-1 bg-white px-3 py-2 rounded-full transition-all"
+                >
+                  <MapIcon className="h-5 w-5 text-[#0036A5]" />
+                  <span className="text-[#0036A5]">
+                    {locations?.find((loc) => loc.id === selectedLocationId)
+                      ?.city || 'Душанбе'}
+                  </span>
+                  <svg
+                    className={`w-4 h-4 text-[#0036A5] transition-transform ${
+                      isMobileLocationDropdownOpen ? 'rotate-180' : ''
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {isMobileLocationDropdownOpen &&
+                  locations &&
+                  locations.length > 0 && (
+                    <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2 max-h-60 overflow-y-auto">
+                      {locations.map((location) => (
+                        <button
+                          key={location.id}
+                          onClick={() => handleLocationSelect(location.id)}
+                          className={`w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors ${
+                            selectedLocationId === location.id
+                              ? 'bg-blue-50 text-[#0036A5] font-medium'
+                              : 'text-gray-900'
+                          }`}
+                        >
+                          {location.city}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+              </div>
 
               {/* Login/User Button */}
               {!user ? (

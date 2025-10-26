@@ -37,7 +37,7 @@ export default function NewBuildingCreatePage() {
   const nextStep = () => setStep((s) => Math.min(3, s + 1));
   const prevStep = () => setStep((s) => Math.max(1, s - 1));
 
-  const locationOptions: LocationOption[] = (locations?.data ??
+  const locationOptions: LocationOption[] = (locations ??
     []) as LocationOption[];
 
   // Избавляемся от `any`: предполагаем, что в форме хранятся ID фичей как number[]

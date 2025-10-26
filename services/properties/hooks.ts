@@ -9,27 +9,46 @@ import {
   getPropertiesMapData,
 } from "./api";
 import { MapBounds, PropertyFilters } from "./types";
-import {addPostApi} from "@/services/add-post";
+import { addPostApi } from "@/services/add-post";
+import { useSelectedLocation } from "@/hooks/useSelectedLocation";
 
 export const useGetPropertiesQuery = (
   filters?: PropertyFilters,
   withAuth: boolean = false
 ) => {
+  const { selectedLocationId } = useSelectedLocation();
+
   return useQuery({
-    queryKey: [PROPERTY_QUERY_KEYS.PROPERTY, filters, withAuth],
+    queryKey: [
+      PROPERTY_QUERY_KEYS.PROPERTY,
+      selectedLocationId,
+      filters,
+      withAuth,
+    ],
     queryFn: () => getProperties(filters, withAuth),
   });
 };
 
 export const useGetPropertyTypesQuery = () =>
-    useQuery({ queryKey: ['get-property-types'], queryFn: addPostApi.getPropertyTypes });
+  useQuery({
+    queryKey: ["get-property-types"],
+    queryFn: addPostApi.getPropertyTypes,
+  });
 
 export const useGetPropertiesInfiniteQuery = (
   filters?: PropertyFilters,
   withAuth: boolean = false
 ) => {
+  const { selectedLocationId } = useSelectedLocation();
+
   return useInfiniteQuery({
-    queryKey: [PROPERTY_QUERY_KEYS.PROPERTY, "infinite", filters, withAuth],
+    queryKey: [
+      PROPERTY_QUERY_KEYS.PROPERTY,
+      "infinite",
+      selectedLocationId,
+      filters,
+      withAuth,
+    ],
     queryFn: ({ pageParam }) =>
       getPropertiesInfinite({ pageParam, filters, withAuth }),
     initialPageParam: 1,
@@ -116,9 +135,12 @@ export const useGetPropertiesMapQuery = (
   withAuth: boolean = false,
   enabled: boolean = true
 ) => {
+  const { selectedLocationId } = useSelectedLocation();
+
   return useQuery({
     queryKey: [
       PROPERTY_QUERY_KEYS.PROPERTY_MAP,
+      selectedLocationId,
       bounds,
       zoom,
       filters,

@@ -2,8 +2,8 @@
 
 import { FormEvent, useEffect, useState } from 'react';
 import {
-    useNewBuilding,
-    useUpdateNewBuilding,
+  useNewBuilding,
+  useUpdateNewBuilding,
 } from '@/services/new-buildings/hooks';
 import { useNewBuildingForm } from '@/hooks/useNewBuildingForm';
 import { useParams, useRouter } from 'next/navigation';
@@ -13,9 +13,9 @@ import NBSelectionStep from '../../_components/NBSelectionStep';
 import NBDetailsStep from '../../_components/NBDetailsStep';
 import NBManagementStep from '../../_components/NBManagementStep';
 import type {
-    NewBuildingPayload,
-    LocationOption,
-    BuildingApiError,
+  NewBuildingPayload,
+  LocationOption,
+  BuildingApiError,
 } from '@/services/new-buildings/types';
 import { toast } from 'react-toastify';
 
@@ -49,7 +49,7 @@ export default function NewBuildingEditPage() {
   const [step, setStep] = useState(1);
   const nextStep = () => setStep((s) => Math.min(3, s + 1));
   const prevStep = () => setStep((s) => Math.max(1, s - 1));
-  const locationOptions: LocationOption[] = (locations?.data ??
+  const locationOptions: LocationOption[] = (locations ??
     []) as LocationOption[];
   useEffect(() => {
     if (!initial) return;

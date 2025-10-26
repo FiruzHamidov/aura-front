@@ -8,23 +8,33 @@ import {
   PropertyFilters,
 } from "./types";
 
+// Helper function to get location ID from localStorage
+const getSelectedLocationId = (): string => {
+  if (typeof window === "undefined") return "1"; // Default for SSR
+  return localStorage.getItem("selectedLocationId") || "1";
+};
+
 export const getProperties = async (
   filters?: PropertyFilters,
   withAuth: boolean = false
 ): Promise<PropertiesResponse> => {
   let url: string = PROPERTY_ENDPOINTS.PROPERTIES;
 
+  const queryParams = new URLSearchParams();
+
+  // Always add location_id
+  queryParams.append("location_id", getSelectedLocationId());
+
   if (filters) {
-    const queryParams = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
       if (value && value !== "") {
         queryParams.append(key, String(value));
       }
     });
+  }
 
-    if (queryParams.toString()) {
-      url = `${url}?${queryParams.toString()}`;
-    }
+  if (queryParams.toString()) {
+    url = `${url}?${queryParams.toString()}`;
   }
 
   const { data } = await axios.get<PropertiesResponse>(url, {
@@ -51,6 +61,9 @@ export const getPropertiesInfinite = async ({
   const queryParams = new URLSearchParams();
   queryParams.append("page", String(pageParam));
   queryParams.append("per_page", "10");
+
+  // Always add location_id
+  queryParams.append("location_id", getSelectedLocationId());
 
   if (filters) {
     Object.entries(filters).forEach(([key, value]) => {
@@ -165,6 +178,9 @@ export const getPropertiesMapData = async (
   queryParams.append("bbox", bbox);
   queryParams.append("zoom", zoom.toString());
 
+  // Always add location_id
+  queryParams.append("location_id", getSelectedLocationId());
+
   if (filters) {
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== "") {
@@ -186,8 +202,3 @@ export const getPropertiesMapData = async (
 
   return data;
 };
-
-function authHeaders() {
-  const token = getAuthToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
