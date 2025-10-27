@@ -1,45 +1,75 @@
 'use client';
 
-import {useEffect} from 'react';
-import {useRouter} from 'next/navigation';
+import { useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 
+/**
+ * Use this hook to warn about unsaved changes.
+ * - when: показывать предупреждение
+ * - message: текст confirm
+ */
 export function useUnsavedChanges(when: boolean, message = 'Есть несохранённые изменения. Выйти со страницы?') {
     const router = useRouter();
+    const initialUrlRef = useRef<string | null>(null);
 
     useEffect(() => {
-        if (!when) return;
+        if (!when) {
+            // если флаг false — ничего не делаем
+            return;
+        }
 
-        // 1) Закрытие вкладки / перезагрузка
+        // сохраняем текущий URL при активации (может пригодиться)
+        initialUrlRef.current = window.location.href;
+
+        // beforeunload — при перезагрузке/закрытии вкладки
         const onBeforeUnload = (e: BeforeUnloadEvent) => {
             e.preventDefault();
-            e.returnValue = ''; // нужно для отображения системного диалога
+            // большинство браузеров игнорируют пользовательский текст, возвращаем пустую строку
+            e.returnValue = '';
             return '';
         };
         window.addEventListener('beforeunload', onBeforeUnload);
 
-        // 2) Навигация по ссылкам внутри SPA
+        // перехват ссылок <a>
         const onDocumentClick = (e: MouseEvent) => {
             const anchor = (e.target as HTMLElement)?.closest('a[href]') as HTMLAnchorElement | null;
             if (!anchor) return;
-            // игнорируем внешние/новую вкладку/якоря на той же странице
-            const sameOrigin = anchor.origin === window.location.origin;
-            if (!sameOrigin || anchor.target === '_blank' || anchor.href === window.location.href) return;
+
+            // игнорируем внешние/target=_blank/якоря на той же странице
+            try {
+                const sameOrigin = anchor.origin === window.location.origin;
+                if (!sameOrigin || anchor.target === '_blank' || anchor.href === window.location.href) return;
+            } catch {
+                return;
+            }
 
             e.preventDefault();
+            const href = anchor.getAttribute('href') || '/';
             if (window.confirm(message)) {
-                router.push(anchor.getAttribute('href')!);
+                // разрешил уход — SPA-навигация
+                router.push(href);
+            } else {
+                // пользователь отменил — ничего не делаем
             }
         };
         document.addEventListener('click', onDocumentClick);
 
-        // 3) Кнопка “Назад/Вперёд”
-        // Ставим фиктивное состояние, чтобы перехватывать popstate
-        const push = () => { try { history.pushState(null, '', window.location.href); } catch {} };
-        push();
-        const onPopState = (e: PopStateEvent) => {
-            if (!window.confirm(message)) {
-                // отменяем уход: возвращаем текущее состояние
-                push();
+        // Обработка кнопки "назад/вперёд" (popstate)
+        // Если пользователь отменил уход — мы встаём на место, чтобы он не ушёл
+        const onPopState = (ev: PopStateEvent) => {
+            // вопрос пользователю
+            const ok = window.confirm(message);
+            if (!ok) {
+                // отменил уход — вставим текущую запись обратно, чтобы не уходить
+                try {
+                    // pushState здесь нужен, чтобы "вернуть" пользователя назад в текущую страницу
+                    history.pushState(null, '', window.location.href);
+                } catch {
+                    // ignore
+                }
+            } else {
+                // согласился — позволяем навигации происходить
+                // ничего дополнительно не делаем
             }
         };
         window.addEventListener('popstate', onPopState);
@@ -48,6 +78,7 @@ export function useUnsavedChanges(when: boolean, message = 'Есть несох�
             window.removeEventListener('beforeunload', onBeforeUnload);
             document.removeEventListener('click', onDocumentClick);
             window.removeEventListener('popstate', onPopState);
+            initialUrlRef.current = null;
         };
     }, [when, message, router]);
 }

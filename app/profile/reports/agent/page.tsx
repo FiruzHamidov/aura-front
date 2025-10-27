@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 import Link from 'next/link';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { reportsApi } from '@/services/reports/api';
-import { Input } from '@/ui-components/Input';
-import { Button } from '@/ui-components/Button';
+import {useRouter, useSearchParams} from 'next/navigation';
+import {reportsApi} from '@/services/reports/api';
+import {Input} from '@/ui-components/Input';
+import {Button} from '@/ui-components/Button';
+import {EyeIcon} from "lucide-react";
 
 type AgentPropertiesReport = {
     agent_id: number;
@@ -45,7 +46,6 @@ export default function AgentReportPage() {
     const search = useSearchParams();
     const router = useRouter();
 
-    // read either created_by or agent param
     const createdBy = search.get('created_by') ?? search.get('agent') ?? '';
     const dateFromParam = search.get('date_from') ?? '';
     const dateToParam = search.get('date_to') ?? '';
@@ -54,16 +54,17 @@ export default function AgentReportPage() {
     const [report, setReport] = useState<AgentPropertiesReport | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    // local editable filters (so user can change and apply)
     const [dateFrom, setDateFrom] = useState<string>(dateFromParam);
     const [dateTo, setDateTo] = useState<string>(dateToParam);
 
+    // загрузчик — типизируем и логируем ответ
     const load = async (agentId: string) => {
         if (!agentId) {
-            setError('Не указан агент (created_by или agent в query).');
+            setError('Не указан агент (параметр created_by или agent в query).');
             setReport(null);
             return;
         }
+
         setLoading(true);
         setError(null);
         try {
@@ -72,44 +73,106 @@ export default function AgentReportPage() {
                 date_from: dateFrom || undefined,
                 date_to: dateTo || undefined,
             });
+
+            // логируем приходящие данные для отладки
+            console.log('agentPropertiesReport response:', data);
+
             setReport(data as AgentPropertiesReport);
         } catch (e: unknown) {
             console.error('agentPropertiesReport error', e);
             let msg = 'Ошибка загрузки';
-            if (e instanceof Error) {
-                msg = e.message;
-            } else if (typeof e === 'object' && e !== null && 'statusText' in e) {
-                const val = (e as Record<string, unknown>)['statusText'];
-                if (val !== undefined && val !== null) msg = String(val);
-            }
-            setError(String(msg));
+            if (e instanceof Error) msg = e.message;
+            setError(msg);
             setReport(null);
+        } finally {
+            setLoading(false);
         }
     };
 
+    // Перезапускаем загрузку при изменении агента или фильтров даты.
+    // Включаем dateFrom/dateTo — чтобы при applyFilters данные тоже загрузились.
     useEffect(() => {
-        // when page opens read current query param
         load(createdBy);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [createdBy]);
+    }, [createdBy, dateFrom, dateTo]);
 
-    const applyFilters = () => {
-        // update URL with date_from/date_to but keep created_by
+    const applyFilters = async () => {
         const params = new URLSearchParams();
         if (createdBy) params.set('created_by', createdBy);
         if (dateFrom) params.set('date_from', dateFrom);
         if (dateTo) params.set('date_to', dateTo);
+
+        // обновляем URL
         router.push(`/profile/reports/agent?${params.toString()}`);
-        // load will be triggered by effect because search params changed
+
+        // дополнительно сразу запрашиваем данные (чтобы UI обновился быстрее)
+        await load(createdBy);
     };
 
-    const clearFilters = () => {
+    const clearFilters = async () => {
         setDateFrom('');
         setDateTo('');
         const params = new URLSearchParams();
         if (createdBy) params.set('created_by', createdBy);
         router.push(`/profile/reports/agent?${params.toString()}`);
+
+        // перезагрузим без дат
+        await load(createdBy);
     };
+
+    // const getKindName = (l: Property) => {
+    //     const slug = l.type?.slug;
+    //
+    //     switch (slug) {
+    //         case 'commercial':
+    //             return 'Коммерческое помещение';
+    //         case 'land-plots':
+    //             return 'Земельный участок';
+    //         case 'houses':
+    //             return 'дом'; // при желании можно развести на коттедж/таунхаус по отдельному полю
+    //         case 'parking':
+    //             return 'парковка';
+    //         // квартиры идут в двух категориях: secondary и new-buildings
+    //         case 'secondary':
+    //         case 'new-buildings':
+    //         default:
+    //             // если есть уточнение типа квартиры — используем его
+    //             return l.apartment_type || 'квартира';
+    //     }
+    // };
+    //
+    // const buildTitle = (l: Property) => {
+    //     const kind = getKindName(l);
+    //     const slug = l.type?.slug;
+    //
+    //     if (slug === 'commercial') {
+    //         // комнаты не показываем, фокус на площади/этаже
+    //         return `${kind}${l.total_area ? `, ${l.total_area} м²` : ''}${
+    //             l.floor ? `, ${l.floor}/${l.total_floors} этаж` : ''
+    //         }`;
+    //     }
+    //
+    //     if (slug === 'land-plots') {
+    //         // для участка чаще показывают площадь (если есть поле под сотки — подставь его)
+    //         return `${kind}${l.land_size ? `, ${l.land_size} соток` : ''}`;
+    //     }
+    //
+    //     if (slug === 'houses') {
+    //         // для домов комнатность опционально
+    //         return `${l.rooms ? `${l.rooms} комн. ` : ''}${kind}${
+    //             l.land_size ? `, ${l.land_size} соток` : ''
+    //         }${l.floor ? `, ${l.floor}/${l.total_floors} этаж` : ''}`;
+    //     }
+    //
+    //     if (slug === 'parking') {
+    //         return kind; // можно добавить «подземная/наземная» по отдельному полю, если появится
+    //     }
+    //
+    //     // квартиры: secondary / new-buildings (или дефолт)
+    //     return `${l.rooms ? `${l.rooms} комн. ` : ''}${kind}${
+    //         l.floor ? `, ${l.floor}/${l.total_floors} этаж` : ''
+    //     }${l.total_area ? `, ${l.total_area} м²` : ''}`;
+    // };
 
     const summary = report?.summary;
 
@@ -209,7 +272,7 @@ export default function AgentReportPage() {
                     <table className="min-w-full text-sm">
                         <thead>
                         <tr className="text-left text-gray-500">
-                            <th className="py-2 pr-4">Объект</th>
+                            {/*<th className="py-2 pr-4">Объект</th>*/}
                             <th className="py-2 pr-4">Цена</th>
                             <th className="py-2 pr-4">Статус</th>
                             <th className="py-2 pr-4">Показов</th>
@@ -226,13 +289,18 @@ export default function AgentReportPage() {
                             </tr>
                         ) : (
                             report.properties.map((p) => (
-                                <tr key={p.id} className="border-t">
-                                    <td className="py-2 pr-4">{p.title}</td>
+                                <tr className="border-t" key={p.id}>
+
+
+                                    {/*<td className="py-2 pr-4">{buildTitle(p)}</td>*/}
                                     <td className="py-2 pr-4">{p.price ? `${p.price} ${p.currency ?? ''}` : '—'}</td>
                                     <td className="py-2 pr-4">{statusLabel(p.moderation_status ?? '')}</td>
                                     <td className="py-2 pr-4">{p.shows_count}</td>
                                     <td className="py-2 pr-4">{p.first_show ?? '—'}</td>
                                     <td className="py-2 pr-4">{p.last_show ?? '—'}</td>
+                                    <td className="flex"><Link href={`/apartment/${p.id}`}> <EyeIcon
+                                        className='w-4 h-4'/> Посмотреть </Link></td>
+
                                 </tr>
                             ))
                         )}
