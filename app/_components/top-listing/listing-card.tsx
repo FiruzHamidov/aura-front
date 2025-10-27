@@ -17,6 +17,7 @@ import { addToComparison } from '@/utils/comparison';
 import { Listing } from './types';
 import {useProfile} from "@/services/login/hooks";
 import ModerationModal from "@/app/_components/moderation-modal";
+import {Bed, Building2, Home, Ruler} from "lucide-react";
 // import ModerationModal from "@/app/_components/moderation-modal";
 // import {Property} from "@/services/properties/types";
 
@@ -210,14 +211,31 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
           {listing.title} {listing.description.substring(0, 55)}
         </h3>
 
+
         <div
-          className={`flex items-center space-x-3 text-[#666F8D] ${
-            isLarge ? 'text-sm mb-1' : 'text-xs'
-          }`}
+            className={`flex items-center flex-wrap gap-2 text-[#666F8D] ${
+                isLarge ? 'text-sm mb-1' : 'text-xs'
+            }`}
         >
-          <span>{listing.roomCountLabel}</span>
-          <span>{listing.area} кв/м²</span>
-          <span>{listing.floorInfo}</span>
+          <div className="flex items-center gap-1.5">
+            <Bed size={14} className="text-[#666F8D]" />
+            <span>{listing.roomCountLabel}</span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <Ruler size={14} className="text-[#666F8D]" />
+            <span>{listing.area} м²</span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <Building2 size={14} className="text-[#666F8D]" />
+            <span>{listing.floorInfo}</span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <Home size={14} className="text-[#666F8D]" />
+            <span>{listing.typeName}</span>
+          </div>
         </div>
 
         {isLarge && listing.agent && listing.date && (

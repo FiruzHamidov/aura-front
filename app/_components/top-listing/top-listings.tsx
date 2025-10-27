@@ -111,7 +111,8 @@ const TopListings: FC<{
                     }
                     : undefined,
                 date: property.created_at ? new Date(property.created_at).toLocaleDateString('ru-RU') : undefined,
-                type: typeSlug
+                type: typeSlug,
+                typeName: property.type.name
             };
         });
     }, [properties]);

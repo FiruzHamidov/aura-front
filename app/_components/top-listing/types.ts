@@ -28,4 +28,5 @@ export interface Listing {
     agent?: Agent;
     date?: string;
     type?: string;
+    typeName?: string;
 }

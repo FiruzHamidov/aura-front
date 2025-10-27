@@ -3,7 +3,8 @@
 import {ChangeEvent, useEffect, useMemo, useState} from 'react';
 import {
     AgentsLeaderboardRow,
-    ManagerEfficiencyRow, MissingPhoneAgentRow,
+    ManagerEfficiencyRow,
+    MissingPhoneAgentRow,
     reportsApi,
     ReportsQuery,
     RoomsRow,
@@ -29,7 +30,6 @@ type FilterState = {
 
 type PriceMetric = 'sum' | 'avg';
 
-// Для безопасного доступа к метрикам цены
 type WithMetrics = { sum_price?: number; avg_price?: number };
 type SummaryUnion = SummaryResponse & { sum_price?: number; sum_total_area?: number };
 
@@ -63,6 +63,39 @@ const statusLabel = (v?: string | null) =>
     v ? (STATUS_LABELS[v] ?? v) : '—';
 
 const offerLabel = (v?: string | null) => (v ? (OFFER_LABELS[v] ?? v) : '—');
+
+// Booking agent row (already present in api types)
+type BookingAgentRow = {
+    agent_id: number;
+    agent_name: string;
+    shows_count: number;
+    total_minutes: number;
+    unique_clients: number;
+    unique_properties: number;
+    first_show: string | null;
+    last_show: string | null;
+};
+
+// Agent properties report types (matches backend)
+type AgentPropertiesReport = {
+    agent_id: number;
+    agent_name: string;
+    summary: {
+        total_properties: number;
+        total_shows: number;
+        by_status: Record<string, number>;
+    };
+    properties: {
+        id: number;
+        title: string;
+        price: number | null;
+        currency: string | null;
+        moderation_status: string | null;
+        shows_count: number;
+        first_show: string | null;
+        last_show: string | null;
+    }[];
+};
 
 export default function ReportsPage() {
     const [filters, setFilters] = useState<FilterState>({
@@ -99,20 +132,26 @@ export default function ReportsPage() {
     const [loading, setLoading] = useState(false);
     const [summary, setSummary] = useState<SummaryResponse | null>(null);
     const [series, setSeries] = useState<TimeSeriesRow[]>([]);
-    // const [buckets, setBuckets] = useState<PriceBucketsResponse | null>(null);
     const [rooms, setRooms] = useState<RoomsRow[]>([]);
     const [managers, setManagers] = useState<ManagerEfficiencyRow[]>([]);
     const [leaders, setLeaders] = useState<AgentsLeaderboardRow[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [missingAgents, setMissingAgents] = useState<MissingPhoneAgentRow[]>([]);
 
-    // Формируем query строго типизированно
+    const [bookingsReport, setBookingsReport] = useState<BookingAgentRow[]>([]);
+
+    // single-agent detailed report
+    const [agentPropertiesReport, setAgentPropertiesReport] = useState<AgentPropertiesReport | null>(null);
+    // aggregated list for all agents (backend returns array when no agent param)
+    const [agentsPropertiesList, setAgentsPropertiesList] = useState<AgentPropertiesReport[] | null>(null);
+
+    // build typed query
     const query = useMemo<Partial<ReportsQuery>>(() => {
         const q: Partial<ReportsQuery> = {
             date_from: filters.date_from || undefined,
             date_to: filters.date_to || undefined,
             interval: filters.interval,
-            price_metric: priceMetric, // отправляем выбранную метрику
+            price_metric: priceMetric,
         };
         if (filters.offer_type.length) q.offer_type = filters.offer_type;
         if (filters.moderation_status.length) q.moderation_status = filters.moderation_status;
@@ -126,20 +165,63 @@ export default function ReportsPage() {
         setLoading(true);
         setError(null);
         try {
+            // main reports
             const [s, ts, rh, me, lb, mp] = await Promise.all([
                 reportsApi.summary(query),
                 reportsApi.timeSeries(query),
                 reportsApi.roomsHist(query),
                 reportsApi.managerEfficiency({ ...query, group_by: 'created_by' }),
                 reportsApi.agentsLeaderboard({ ...query, limit: 10 }),
-                reportsApi.missingPhoneAgentsByStatus(query), // ⬅️ NEW
+                reportsApi.missingPhoneAgentsByStatus(query),
             ]);
+
             setSummary(s);
             setSeries(ts);
             setRooms(rh);
             setManagers(me);
             setLeaders(lb);
-            setMissingAgents(mp); // ⬅️ NEW
+            setMissingAgents(mp);
+
+            // bookings agents
+            try {
+                const bookings = await reportsApi.bookingsAgentsReport(query);
+                setBookingsReport(bookings);
+            } catch (e) {
+                console.warn('bookingsAgentsReport failed', e);
+                setBookingsReport([]);
+            }
+
+            // agent properties: if exactly one agent selected -> single report, otherwise fetch list for all agents
+            if (filters.agent_id.length === 1) {
+                try {
+                    const agentId = filters.agent_id[0];
+                    const apr = await reportsApi.agentPropertiesReport({
+                        agent: String(agentId),
+                        date_from: filters.date_from || undefined,
+                        date_to: filters.date_to || undefined,
+                    });
+                    setAgentPropertiesReport(apr as AgentPropertiesReport);
+                    setAgentsPropertiesList(null);
+                } catch (e) {
+                    console.warn('agentPropertiesReport(single) failed', e);
+                    setAgentPropertiesReport(null);
+                    setAgentsPropertiesList(null);
+                }
+            } else {
+                // fetch aggregated list for all agents
+                try {
+                    const list = await reportsApi.agentPropertiesReport({
+                        date_from: filters.date_from || undefined,
+                        date_to: filters.date_to || undefined,
+                    }) as AgentPropertiesReport[];
+                    setAgentsPropertiesList(list);
+                    setAgentPropertiesReport(null);
+                } catch (e) {
+                    console.warn('agentPropertiesReport(list) failed', e);
+                    setAgentsPropertiesList(null);
+                    setAgentPropertiesReport(null);
+                }
+            }
         } catch (e) {
             const message =
                 e instanceof Error
@@ -158,7 +240,7 @@ export default function ReportsPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Преобразования данных для графиков
+    // transforms for charts (same as before)
     const statusData = useMemo(
         () =>
             (summary?.by_status ?? []).map((r) => ({
@@ -181,12 +263,6 @@ export default function ReportsPage() {
         () => series.map((r) => ({x: r.bucket, total: r.total, closed: r.closed})),
         [series]
     );
-
-    // Вернули корзины цен — теперь переменная buckets используется
-    // const bucketData = useMemo(
-    //     () => (buckets?.buckets ?? []).map((b) => ({ label: `${b.from}–${b.to}`, value: b.count })),
-    //     [buckets]
-    // );
 
     const roomsData = useMemo(
         () => rooms.map((r) => ({label: String(r.rooms), value: r.cnt})),
@@ -277,7 +353,6 @@ export default function ReportsPage() {
                 </div>
 
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-5 gap-4">
-                    {/* Переключатель метрики цены */}
                     <div className="flex flex-col gap-2">
                         <span className="block mb-2 text-sm text-[#666F8D]">Метрика цены</span>
                         <div className="flex items-center gap-4">
@@ -315,7 +390,7 @@ export default function ReportsPage() {
                 </div>
             </div>
 
-            {/* Карточки сводки */}
+            {/* Сводные карточки */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="p-4 bg-white rounded-2xl shadow">
                     <div className="text-sm text-gray-500">Всего объектов</div>
@@ -361,12 +436,12 @@ export default function ReportsPage() {
                 <PieStatus data={statusData}/>
                 <BarOffer data={offerData}/>
                 <LineTimeSeries data={seriesData}/>
-                {/*<BarBuckets data={bucketData} />*/}
                 <BarRooms data={roomsData}/>
             </div>
 
-            {/* Таблицы: эффективность и лидерборд */}
+            {/* Эффективность / Топ */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* managers table */}
                 <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
                     <h3 className="font-semibold mb-3">Эффективность агентов</h3>
                     <table className="min-w-full text-sm">
@@ -401,6 +476,7 @@ export default function ReportsPage() {
                     </table>
                 </div>
 
+                {/* leaders table */}
                 <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
                     <h3 className="font-semibold mb-3">Топ агентов</h3>
                     <table className="min-w-full text-sm">
@@ -420,7 +496,6 @@ export default function ReportsPage() {
                                 priceMetric === 'sum'
                                     ? (r as WithMetrics).sum_price
                                     : (r as WithMetrics).avg_price;
-                            // поля приходят из API: sold_count, rented_count, sold_by_owner_count
                             return (
                                 <tr key={i} className="border-t">
                                     <td className="py-2 pr-4">{r.agent_name}</td>
@@ -437,11 +512,165 @@ export default function ReportsPage() {
                 </div>
             </div>
 
-            {/* Таблица: Без телефона по агентам и статусам */}
+            {/* Bookings agents report */}
+            <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
+                <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold">Показы — по агентам</h3>
+                    <div className="text-sm text-gray-500">Период: {filters.date_from || '—'} — {filters.date_to || '—'}</div>
+                </div>
+
+                <table className="min-w-full text-sm">
+                    <thead>
+                    <tr className="text-left text-gray-500">
+                        <th className="py-2 pr-4">Агент</th>
+                        <th className="py-2 pr-4">Показов</th>
+                        <th className="py-2 pr-4">Мин. всего</th>
+                        <th className="py-2 pr-4">Уник. клиенты</th>
+                        <th className="py-2 pr-4">Уник. объекты</th>
+                        <th className="py-2 pr-4">Первый показ</th>
+                        <th className="py-2 pr-4">Последний показ</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {bookingsReport.length === 0 ? (
+                        <tr>
+                            <td className="py-4 text-gray-500" colSpan={7}>
+                                Нет данных по текущим фильтрам
+                            </td>
+                        </tr>
+                    ) : (
+                        bookingsReport.map((r, i) => (
+                            <tr key={i} className="border-t">
+                                <td className="py-2 pr-4">{r.agent_name}</td>
+                                <td className="py-2 pr-4">{r.shows_count}</td>
+                                <td className="py-2 pr-4">{r.total_minutes}</td>
+                                <td className="py-2 pr-4">{r.unique_clients}</td>
+                                <td className="py-2 pr-4">{r.unique_properties}</td>
+                                <td className="py-2 pr-4">{r.first_show ?? '—'}</td>
+                                <td className="py-2 pr-4">{r.last_show ?? '—'}</td>
+                            </tr>
+                        ))
+                    )}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Agent properties report: single-agent or list */}
+            {agentPropertiesReport ? (
+                <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-semibold">Отчёт по агенту: {agentPropertiesReport.agent_name}</h3>
+                        <div className="text-sm text-gray-500">Период: {filters.date_from || '—'} — {filters.date_to || '—'}</div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div className="p-3 bg-gray-50 rounded">
+                            <div className="text-sm text-gray-500">Всего объектов</div>
+                            <div className="text-lg font-semibold">{agentPropertiesReport.summary.total_properties}</div>
+                        </div>
+                        <div className="p-3 bg-gray-50 rounded">
+                            <div className="text-sm text-gray-500">Всего показов</div>
+                            <div className="text-lg font-semibold">{agentPropertiesReport.summary.total_shows}</div>
+                        </div>
+                        <div className="p-3 bg-gray-50 rounded">
+                            <div className="text-sm text-gray-500">По статусам</div>
+                            <div className="text-sm">
+                                {Object.entries(agentPropertiesReport.summary.by_status).map(([k,v]) => (
+                                    <div key={k} className="flex justify-between">
+                                        <span className="text-gray-600">{statusLabel(k)}</span>
+                                        <span className="font-medium">{v}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <table className="min-w-full text-sm">
+                        <thead>
+                        <tr className="text-left text-gray-500">
+                            <th className="py-2 pr-4">Объект</th>
+                            <th className="py-2 pr-4">Цена</th>
+                            <th className="py-2 pr-4">Статус</th>
+                            <th className="py-2 pr-4">Показов</th>
+                            <th className="py-2 pr-4">Первый показ</th>
+                            <th className="py-2 pr-4">Последний показ</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {agentPropertiesReport.properties.length === 0 ? (
+                            <tr>
+                                <td className="py-4 text-gray-500" colSpan={6}>Нет объектов</td>
+                            </tr>
+                        ) : (
+                            agentPropertiesReport.properties.map((p) => (
+                                <tr key={p.id} className="border-t">
+                                    <td className="py-2 pr-4">{p.title}</td>
+                                    <td className="py-2 pr-4">{p.price ? `${p.price} ${p.currency ?? ''}` : '—'}</td>
+                                    <td className="py-2 pr-4">{statusLabel(p.moderation_status ?? '')}</td>
+                                    <td className="py-2 pr-4">{p.shows_count}</td>
+                                    <td className="py-2 pr-4">{p.first_show ?? '—'}</td>
+                                    <td className="py-2 pr-4">{p.last_show ?? '—'}</td>
+                                </tr>
+                            ))
+                        )}
+                        </tbody>
+                    </table>
+                </div>
+            ) : agentsPropertiesList && agentsPropertiesList.length > 0 ? (
+                <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-semibold">Отчёты по агентам (агрегированно)</h3>
+                        <div className="text-sm text-gray-500">Период: {filters.date_from || '—'} — {filters.date_to || '—'}</div>
+                    </div>
+
+                    <table className="min-w-full text-sm">
+                        <thead>
+                        <tr className="text-left text-gray-500">
+                            <th className="py-2 pr-4">Агент</th>
+                            <th className="py-2 pr-4">Всего объектов</th>
+                            <th className="py-2 pr-4">Всего показов</th>
+                            <th className="py-2 pr-4">По статусам (кратко)</th>
+                            <th className="py-2 pr-4">Детальнее</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {agentsPropertiesList.map((a) => (
+                            <tr key={a.agent_id} className="border-t">
+                                <td className="py-2 pr-4">{a.agent_name}</td>
+                                <td className="py-2 pr-4">{a.summary.total_properties}</td>
+                                <td className="py-2 pr-4">{a.summary.total_shows}</td>
+                                <td className="py-2 pr-4">
+                                    {Object.entries(a.summary.by_status).map(([k,v]) => (
+                                        <div key={k} className="text-xs flex gap-2">
+                                            <span className="text-gray-600">{statusLabel(k)}:</span>
+                                            <span className="font-medium">{v}</span>
+                                        </div>
+                                    ))}
+                                </td>
+                                <td className="py-2 pr-4">
+                                    {/* Ссылка — можно перенаправить на ту же страницу с фильтром agent_id=... */}
+                                    <Link
+                                        href={buildHref('/profile/reports/agent', {
+                                            date_from: filters.date_from || undefined,
+                                            date_to: filters.date_to || undefined,
+                                            created_by: [a.agent_id],
+                                        })}
+                                        className="text-[#0036A5] hover:underline"
+                                    >
+                                        Открыть
+                                    </Link>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
+            ) : null}
+
+            {/* Missing phones table (unchanged) */}
             <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
                 <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold">Без телефона — по агентам и статусам</h3>
-                    {/* Общая ссылка на список (без конкретного агента/статуса, но с активными фильтрами) */}
                     <Link
                         href={buildHref('/profile/reports/missing-phone', {
                             date_from: filters.date_from || undefined,
@@ -485,7 +714,6 @@ export default function ReportsPage() {
                                 <td className="py-2 pr-4">{r.bucket_total}</td>
                                 <td className="py-2 pr-4">{r.missing_share_pct}</td>
                                 <td className="py-2 pr-4">
-                                    {/* Ссылка "Список" — проваливаемся в отдельную страницу с предзаполненными фильтрами */}
                                     <Link
                                         href={buildHref('/profile/reports/missing-phone', {
                                             date_from: filters.date_from || undefined,

@@ -50,12 +50,45 @@ export type ConversionFunnel = {
 // Универсальные распределения (by-status/type/location)
 export type DistRow = Record<string, any> & { cnt: number };
 
+/** Booking agents report row */
+export type BookingAgentRow = {
+    agent_id: number;
+    agent_name: string;
+    shows_count: number;
+    total_minutes: number;
+    unique_clients: number;
+    unique_properties: number;
+    first_show: string | null;
+    last_show: string | null;
+};
+
+/** Agent properties report */
+export type AgentPropertiesReport = {
+    agent_id: number;
+    agent_name: string;
+    summary: {
+        total_properties: number;
+        total_shows: number;
+        by_status: Record<string, number>;
+    };
+    properties: {
+        id: number;
+        title: string;
+        price: number | null;
+        currency: string | null;
+        moderation_status: string | null;
+        shows_count: number;
+        first_show: string | null;
+        last_show: string | null;
+    }[];
+};
+
 /** ---------- Параметры запросов ---------- */
 export type ReportsQuery = {
     // даты
     date_from?: string; // 'YYYY-MM-DD'
     date_to?: string;   // 'YYYY-MM-DD'
-    price_metric?: string;   // 'YYYY-MM-DD'
+    price_metric?: string;   // 'sum' | 'avg'
     date_field?: "created_at" | "updated_at";
     interval?: "day" | "week" | "month";
 
@@ -69,7 +102,7 @@ export type ReportsQuery = {
     listing_type?: (string | number)[];
     contract_type_id?: (string | number)[];
     created_by?: (string | number)[];
-    agent_id?: (string | number)[];
+    agent_id?: (string | number)[] | string | number;
     moderation_status?: (string | number)[];
     district?: (string | number)[];
 
@@ -162,6 +195,10 @@ const REPORTS = {
     ROOMS_HIST: "/reports/properties/rooms-hist",
     AGENTS_LEADERBOARD: "/reports/properties/agents-leaderboard",
     CONVERSION: "/reports/properties/conversion",
+    // bookings endpoint (external to reports namespace)
+    BOOKINGS_AGENTS: "/bookings/agents-report",
+    AGENT_PROPERTIES_LIST: "/reports/agents/properties",
+    AGENT_PROPERTIES: "/reports/agents/:agent/properties",
 } as const;
 
 /** ---------- Методы API (с явным токеном в headers) ---------- */
@@ -261,6 +298,59 @@ export const reportsApi = {
     ): Promise<MissingPhoneListResponse> => {
         const { data } = await axios.get<MissingPhoneListResponse>('/reports/missing-phone/list', {
             params: buildParams(query),
+            headers: authHeaders(),
+        });
+        return data;
+    },
+
+    /** --- Показы по агентам (из BookingController) --- */
+    bookingsAgentsReport: async (query?: ReportsQuery): Promise<BookingAgentRow[]> => {
+        // build params manually because backend expects `from`/`to` and single agent_id
+        const params: Record<string, any> = {};
+        if (query?.date_from) params.from = query.date_from;
+        if (query?.date_to) params.to = query.date_to;
+
+        if (query?.agent_id !== undefined && query?.agent_id !== null) {
+            if (Array.isArray(query.agent_id)) {
+                // take first agent if array provided (server currently expects one id)
+                if (query.agent_id.length) params.agent_id = String(query.agent_id[0]);
+            } else {
+                params.agent_id = String(query.agent_id);
+            }
+        }
+
+        const { data } = await axios.get<BookingAgentRow[]>(REPORTS.BOOKINGS_AGENTS, {
+            params,
+            headers: authHeaders(),
+        });
+        return data;
+    },
+
+    /** --- Отчёт по агенту: объекты + показы + статусы --- */
+    agentPropertiesReport: async (
+        query?: ReportsQuery & { agent?: string | number }
+    ): Promise<AgentPropertiesReport | AgentPropertiesReport[]> => {
+        const params: Record<string, any> = {};
+        if (query?.date_from) params.from = query.date_from;
+        if (query?.date_to) params.to = query.date_to;
+
+        // support optional extra filters that backend accepts (type_id, location_id)
+        if (query?.type_id && Array.isArray(query.type_id) && query.type_id.length) params.type_id = query.type_id.join(',');
+        if (query?.location_id && Array.isArray(query.location_id) && query.location_id.length) params.location_id = query.location_id.join(',');
+
+        // If agent is provided -> fetch single-agent report
+        if (query?.agent !== undefined && query?.agent !== null) {
+            const url = REPORTS.AGENT_PROPERTIES.replace(":agent", String(query.agent));
+            const { data } = await axios.get<AgentPropertiesReport>(url, {
+                params,
+                headers: authHeaders(),
+            });
+            return data;
+        }
+
+        // Otherwise fetch aggregated report for all agents (backend returns array)
+        const { data } = await axios.get<AgentPropertiesReport[]>(REPORTS.AGENT_PROPERTIES_LIST, {
+            params,
             headers: authHeaders(),
         });
         return data;
