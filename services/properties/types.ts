@@ -1,25 +1,25 @@
 export interface PropertiesResponse {
-    current_page: number;
-    data: Property[];
-    first_page_url: string;
-    from: number;
-    last_page: number;
-    last_page_url: string;
-    links: PaginationLink[];
-    next_page_url: string | null;
-    path: string;
-    per_page: number;
-    prev_page_url: string | null;
-    to: number;
-    total: number;
+  current_page: number;
+  data: Property[];
+  first_page_url: string;
+  from: number;
+  last_page: number;
+  last_page_url: string;
+  links: PaginationLink[];
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number;
+  total: number;
 }
 
 export interface ContractType {
-    created_at: string;
-    id: number;
-    name: string;
-    slug: string;
-    updated_at: string;
+  created_at: string;
+  id: number;
+  name: string;
+  slug: string;
+  updated_at: string;
 }
 
 export interface Property {
@@ -98,97 +98,98 @@ export interface Property {
 }
 
 export interface PropertyLocation {
-    id: number;
-    city: string;
-    district: string | null;
-    latitude: string;
-    longitude: string;
-    created_at: string;
-    updated_at: string;
+  id: number;
+  city: string;
+  district: string | null;
+  latitude: string;
+  longitude: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface PropertyPhoto {
-    id: number;
-    property_id: number;
-    file_path: string;
-    type: "photo" | "video";
-    created_at: string;
-    updated_at: string;
+  id: number;
+  property_id: number;
+  file_path: string;
+  type: "photo" | "video";
+  created_at: string;
+  updated_at: string;
 }
 
 export interface PropertyType {
-    id: number;
-    name: string;
-    slug: string;
+  id: number;
+  name: string;
+  slug: string;
 }
 
 export interface PropertyStatus {
-    id: number;
-    name: string;
-    slug: string;
-    created_at: string;
-    updated_at: string;
+  id: number;
+  name: string;
+  slug: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface MapBounds {
-    south: number;
-    west: number;
-    north: number;
-    east: number;
+  south: number;
+  west: number;
+  north: number;
+  east: number;
 }
 
 export interface MapPointProperties {
-    id: number;
-    title: string;
+  id: number;
+  title: string;
 }
 
 export interface MapClusterProperties {
-    cluster: true;
-    point_count: number;
+  cluster: true;
+  point_count: number;
 }
 
 export interface MapFeature {
-    type: "Feature";
-    geometry: {
-        type: "Point";
-        coordinates: [number, number];
-    };
-    properties?: MapPointProperties | MapClusterProperties;
-    property?: MapPointProperties | MapClusterProperties;
+  type: "Feature";
+  geometry: {
+    type: "Point";
+    coordinates: [number, number];
+  };
+  properties?: MapPointProperties | MapClusterProperties;
+  property?: MapPointProperties | MapClusterProperties;
 }
 
 export interface MapResponse {
-    type: "FeatureCollection";
-    features: MapFeature[];
+  type: "FeatureCollection";
+  features: MapFeature[];
 }
 
 export interface PropertyFilters {
-    priceFrom?: string;
-    priceTo?: string;
-    city?: string;
-    repair_type_id?: string;
-    propertyType?: string;
-    rooms?: string;
-    offer_type?: string;
-    roomsFrom?: string;
-    roomsTo?: string;
-    district?: string;
-    areaFrom?: string;
-    areaTo?: string;
-    created_by?: string;
-    agent_id?: string;
-    floorFrom?: string;
-    floorTo?: string;
-    moderation_status?: string;
-    listing_type: string;
-    page?: number;
-    per_page?: number;
-    bbox?: string;
-    zoom?: number | string;
-    districts?: string;
-    type_id?: string;
-    landmark?: string;
-    sort?: string;
+  priceFrom?: string;
+  priceTo?: string;
+  city?: string;
+  repair_type_id?: string;
+  propertyType?: string;
+  rooms?: string;
+  offer_type?: string;
+  roomsFrom?: string;
+  roomsTo?: string;
+  district?: string;
+  areaFrom?: string;
+  areaTo?: string;
+  created_by?: string;
+  agent_id?: string;
+  floorFrom?: string;
+  floorTo?: string;
+  moderation_status?: string;
+  listing_type: string;
+  location_id?: string;
+  page?: number;
+  per_page?: number;
+  bbox?: string;
+  zoom?: number | string;
+  districts?: string;
+  type_id?: string;
+  landmark?: string;
+  sort?: string;
 }
 
 export type DuplicateCandidate = {
@@ -198,7 +199,6 @@ export type DuplicateCandidate = {
     owner_name?: string | null;
     owner_phone?: string | null;
     total_area?: number | null;
-    land_size?: number | null;
     floor?: number | null;
     price?: number | null;
     currency?: string | null;
@@ -216,42 +216,42 @@ export type DuplicateCandidate = {
 };
 
 export type CreatePropertyResult =
-    | { ok: true; data: Property }
-    | { ok: false; code: 409; duplicates: DuplicateCandidate[]; message: string }
-    | { ok: false; code: number; message: string };
+  | { ok: true; data: Property }
+  | { ok: false; code: 409; duplicates: DuplicateCandidate[]; message: string }
+  | { ok: false; code: number; message: string };
 
 export interface User {
-    id: number;
-    name: string;
-    email: string;
-    phone: string;
-    role_id: number;
-    status: string;
-    auth_method: string;
-    created_at: string;
-    updated_at: string;
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  role_id: number;
+  status: string;
+  auth_method: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface PaginationLink {
-    url?: string;
-    label: string;
-    active: boolean;
+  url?: string;
+  label: string;
+  active: boolean;
 }
 
 export const LISTING_TYPE_META: Record<
-    string,
-    { label: string; classes: string }
+  string,
+  { label: string; classes: string }
 > = {
-    regular: {
-        label: "Продаётся",
-        classes: "bg-[#0036A5] text-white",
-    },
-    vip: {
-        label: "VIP",
-        classes: "bg-amber-400 text-[#020617]",
-    },
-    urgent: {
-        label: "Срочная",
-        classes: "bg-red-500 text-white",
-    },
+  regular: {
+    label: "Продаётся",
+    classes: "bg-[#0036A5] text-white",
+  },
+  vip: {
+    label: "VIP",
+    classes: "bg-amber-400 text-[#020617]",
+  },
+  urgent: {
+    label: "Срочная",
+    classes: "bg-red-500 text-white",
+  },
 };
