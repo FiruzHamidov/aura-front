@@ -338,7 +338,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                 <div className="flex items-center space-x-3 text-sm text-[#666F8D] mb-2">
                     <Building className="mr-1 mt-1 w-[18px] h-[18px] min-w-[18px]"/>
                     <span className='mt-1'>
-            {listing.type.name}
+            {listing.type?.name}
           </span>
                 </div>
 
