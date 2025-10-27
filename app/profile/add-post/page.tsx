@@ -78,6 +78,8 @@ export default function AddPost() {
                     onReorder={formData.handleReorder}
                     isSubmitting={formData.isSubmitting}
                     onBack={prevStep}
+                    selectedPropertyType={formData.selectedPropertyType}
+                    propertyTypes={formData.propertyTypes}
                 />
             )}
 

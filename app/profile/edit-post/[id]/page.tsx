@@ -48,6 +48,7 @@ export default function EditPost() {
             heating_type_id: propertyData.heating_type_id,
             parking_type_id: propertyData.parking_type_id,
             total_area: propertyData.total_area,
+            land_size: propertyData.land_size,
             living_area: propertyData.living_area,
             total_floors: propertyData.total_floors,
             year_built: propertyData.year_built,
@@ -187,6 +188,8 @@ export default function EditPost() {
                     onReorder={formData.handleReorder}
                     isSubmitting={formData.isSubmitting}
                     onBack={prevStep}
+                    selectedPropertyType={formData.selectedPropertyType}
+                    propertyTypes={formData.propertyTypes}
                 />
             )}
         </FormLayout>

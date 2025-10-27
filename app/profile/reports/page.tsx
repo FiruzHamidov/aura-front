@@ -42,6 +42,7 @@ const STATUS_OPTIONS = [
     {label: 'Продано владельцем', value: 'sold_by_owner'},
     {label: 'Арендовано', value: 'rented'},
     {label: 'Удалено', value: 'deleted'},
+    {label: 'denied', value: 'Отказано клиентом'},
 ];
 
 const OFFER_OPTIONS = [

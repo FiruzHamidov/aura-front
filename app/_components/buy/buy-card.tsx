@@ -19,7 +19,7 @@ import ModerationModal from '@/app/_components/moderation-modal';
 import VerifiedIcon from '@/icons/Verified';
 import {addToComparison} from '@/utils/comparison';
 import {toast} from 'react-toastify';
-import {Eye} from "lucide-react";
+import {Building, Eye} from "lucide-react";
 
 interface BuyCardProps {
     listing: Property;
@@ -143,13 +143,13 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
 
         if (slug === 'land-plots') {
             // для участка чаще показывают площадь (если есть поле под сотки — подставь его)
-            return `${kind}${l.total_area ? `, ${l.total_area} м²` : ''}`;
+            return `${kind}${l.land_size ? `, ${l.land_size} соток` : ''}`;
         }
 
         if (slug === 'houses') {
             // для домов комнатность опционально
             return `${l.rooms ? `${l.rooms} комн. ` : ''}${kind}${
-                l.total_area ? `, ${l.total_area} м²` : ''
+                l.land_size ? `, ${l.land_size} соток` : ''
             }${l.floor ? `, ${l.floor}/${l.total_floors} этаж` : ''}`;
         }
 
@@ -332,6 +332,13 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                     <LocationIcon className="mr-1 mt-1 w-[18px] h-[18px] min-w-[18px]"/>
                     <span>
             {listing.address} {listing.landmark && `(${listing.landmark})`}
+          </span>
+                </div>
+
+                <div className="flex items-center space-x-3 text-sm text-[#666F8D] mb-2">
+                    <Building className="mr-1 mt-1 w-[18px] h-[18px] min-w-[18px]"/>
+                    <span className='mt-1'>
+            {listing.type.name}
           </span>
                 </div>
 

@@ -25,7 +25,7 @@ async function fetchRealtor(slug: string): Promise<Realtor | null> {
     return {
         id: d.id,
         name: d.name,
-        position: d.position ?? "Агент по недвижимости",
+        position: d.position ?? "Специалист по недвижимости",
         avatar: d.photo,
         phone: phoneTj,
         photo: d.photo,

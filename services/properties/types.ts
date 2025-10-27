@@ -52,6 +52,7 @@ export interface Property {
     heating_type_id?: number;
     parking_type_id?: number;
     total_area?: string;
+    land_size?: string;
     living_area?: string;
     total_floors?: string;
     year_built?: string;
@@ -197,6 +198,7 @@ export type DuplicateCandidate = {
     owner_name?: string | null;
     owner_phone?: string | null;
     total_area?: number | null;
+    land_size?: number | null;
     floor?: number | null;
     price?: number | null;
     currency?: string | null;

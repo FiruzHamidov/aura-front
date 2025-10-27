@@ -9,6 +9,7 @@ export interface FormState {
   currency: string;
   total_area: string;
   living_area: string;
+  land_size: string;
   floor: string;
   total_floors: string;
   year_built: string;

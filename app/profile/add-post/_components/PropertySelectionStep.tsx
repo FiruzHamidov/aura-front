@@ -1,9 +1,9 @@
 'use client';
 
-import {SelectToggle} from '@/ui-components/SelectToggle';
-import {Button} from '@/ui-components/Button';
-import {SelectOption} from '@/services/add-post/types';
-import {useEffect, useMemo} from "react";
+import { SelectToggle } from '@/ui-components/SelectToggle';
+import { Button } from '@/ui-components/Button';
+import { SelectOption } from '@/services/add-post/types';
+import { useEffect, useMemo } from "react";
 
 interface PropertySelectionStepProps {
     isAgent: boolean;
@@ -24,6 +24,18 @@ interface PropertySelectionStepProps {
     onNext: () => void;
 }
 
+const BASE_STATUSES: { id: string; name: string }[] = [
+    { id: 'pending', name: 'На модерации' },
+    { id: 'approved', name: 'Одобрено' },
+    { id: 'rejected', name: 'Отклонено' },
+    { id: 'draft', name: 'Черновик' },
+    { id: 'deleted', name: 'Удалено' },
+    { id: 'sold', name: 'Продано' },
+    { id: 'sold_by_owner', name: 'Продано владельцем' },
+    { id: 'rented', name: 'Арендовано' },
+    { id: 'denied', name: 'Отказано клиентом' },
+];
+
 export function PropertySelectionStep({
                                           isAgent,
                                           selectedModerationStatus,
@@ -42,32 +54,54 @@ export function PropertySelectionStep({
                                           buildingTypes,
                                           onNext,
                                       }: PropertySelectionStepProps) {
-    const isValid = selectedPropertyType && selectedBuildingType && selectedRooms;
+    const isValid = Boolean(selectedPropertyType && selectedBuildingType && selectedRooms);
 
+    // Если агент и VIP/urgent -> принудительно pending
     useEffect(() => {
         if (isAgent && selectedListingType !== 'regular' && selectedModerationStatus !== 'pending') {
             setSelectedModerationStatus('pending');
         }
     }, [isAgent, selectedListingType, selectedModerationStatus, setSelectedModerationStatus]);
 
+    /**
+     * Фильтрация статусов:
+     * - если агент и VIP/urgent -> только pending (как было раньше)
+     * - иначе: отфильтровываем статусы, которые не подходят под selectedOfferType
+     *   * при 'sale' удаляем 'rented'
+     *   * при 'rent' удаляем 'sold' и 'sold_by_owner' и (если нужно) 'denied' — т.к. он про отказ в продаже
+     */
+    const moderationOptions = useMemo(() => {
+        if (isAgent && selectedListingType !== 'regular') {
+            return [{ id: 'pending', name: 'На модерации' }];
+        }
 
-    // список опций модерации (фильтрация для агента при vip/urgent)
-    const moderationOptions = useMemo(
-        () =>
-            (isAgent && selectedListingType !== 'regular')
-                ? [{ id: 'pending', name: 'На модерации' }]
-                : [
-                    { id: 'pending', name: 'На модерации' },
-                    { id: 'approved', name: 'Одобрено' },
-                    { id: 'rejected', name: 'Отклонено' },
-                    { id: 'draft', name: 'Черновик' },
-                    { id: 'deleted', name: 'Удалено' },
-                    { id: 'sold', name: 'Продано' },
-                    { id: 'sold_by_owner', name: 'Продано владельцем' },
-                    { id: 'rented', name: 'Арендовано' },
-                ],
-        [isAgent, selectedListingType]
-    );
+        let list = BASE_STATUSES.slice();
+
+        if (selectedOfferType === 'sale') {
+            list = list.filter(s => s.id !== 'rented');
+        } else if (selectedOfferType === 'rent') {
+            list = list.filter(s => s.id !== 'sold' && s.id !== 'sold_by_owner');
+        }
+
+        return list;
+    }, [isAgent, selectedListingType, selectedOfferType]);
+
+    // Если текущий выбранный статус больше не доступен — сбрасываем его безопасно
+    useEffect(() => {
+        const ids = moderationOptions.map(o => o.id);
+        if (!ids.includes(selectedModerationStatus)) {
+            // Предпочтительно: pending, иначе первый доступный, иначе ''
+            if (ids.includes('pending')) {
+                setSelectedModerationStatus('pending');
+            } else if (moderationOptions.length > 0) {
+                setSelectedModerationStatus(moderationOptions[0].id);
+            } else {
+                setSelectedModerationStatus('');
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [moderationOptions, selectedModerationStatus]);
+
     const moderationDisabled = isAgent && selectedListingType !== 'regular';
 
     return (
@@ -75,8 +109,8 @@ export function PropertySelectionStep({
             <SelectToggle
                 title="Сделка"
                 options={[
-                    {id: 'sale', name: 'Продажа'},
-                    {id: 'rent', name: 'Аренда'},
+                    { id: 'sale', name: 'Продажа' },
+                    { id: 'rent', name: 'Аренда' },
                 ]}
                 selected={selectedOfferType}
                 setSelected={setSelectedOfferType}
@@ -85,9 +119,9 @@ export function PropertySelectionStep({
             <SelectToggle
                 title="Тип объявления"
                 options={[
-                    {id: 'regular', name: 'Обычное'},
-                    {id: 'vip', name: 'VIP'},
-                    {id: 'urgent', name: 'Срочная продажа'},
+                    { id: 'regular', name: 'Обычное' },
+                    { id: 'vip', name: 'VIP' },
+                    { id: 'urgent', name: 'Срочная продажа' },
                 ]}
                 selected={selectedListingType}
                 setSelected={setSelectedListingType}
@@ -117,7 +151,6 @@ export function PropertySelectionStep({
                 setSelected={setSelectedRooms}
             />
 
-
             <SelectToggle
                 title="Статус модерации"
                 options={moderationOptions}
@@ -125,7 +158,6 @@ export function PropertySelectionStep({
                 setSelected={setSelectedModerationStatus}
                 disabled={moderationDisabled}
             />
-
 
             <div className="flex justify-end">
                 <Button onClick={onNext} disabled={!isValid} className="mt-8">

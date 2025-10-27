@@ -34,7 +34,7 @@ import {AxiosError} from 'axios';
 
 import {toast} from 'react-toastify';
 
-const AdBannerNoSSR = dynamic(() => import('@/app/apartment/[slug]/_components/AdBanner'), { ssr: false });
+const AdBannerNoSSR = dynamic(() => import('@/app/apartment/[slug]/_components/AdBanner'), {ssr: false});
 
 
 interface Props {
@@ -351,7 +351,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                             {photos.length > 0 && (
                                 <div className="mb-[30px]">
                                     {/* 303px слева + 376px справа (3 превью по 120 + 2 гэпа по 8) */}
-                                    <div className="grid grid-cols-1 md:grid-cols-[303px_376px] gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-[303px_minmax(0,520px)] gap-4">
                                         {/* Основное изображение 3:4, на md+: ровно 303×396 */}
                                         <div className="relative">
                                             <div
@@ -499,36 +499,49 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                         </h2>
                                         <div className="space-y-0.5 text-sm">
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="text-[#666F8D] flex items-center gap-2">
-                          <Home size={16}/> {typeFieldLabel(apartment)}
-                        </span>
+                                                <span className="text-[#666F8D] flex items-center gap-2">
+                                                  <Home size={16}/> {typeFieldLabel(apartment)}
+                                                </span>
                                                 <span className="font-medium">
-                          {apartment.type?.name || getKindName(apartment)}
-                        </span>
+                                                  {apartment.type?.name || getKindName(apartment)}
+                                                </span>
                                             </div>
 
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="text-[#666F8D] flex items-center gap-2">
-                          <Ruler size={16}/> Общая площадь
-                        </span>
+                                                <span className="text-[#666F8D] flex items-center gap-2">
+                                                  <Ruler size={16}/> Общая площадь
+                                                </span>
                                                 <span className="font-medium">
-                          {apartment.total_area
-                              ? `${apartment.total_area} м²`
-                              : '-'}
-                        </span>
+                                                  {apartment.total_area
+                                                      ? apartment.total_area + 'м²'
+                                                      : '-'}
+                                                </span>
                                             </div>
+
+                                            {(apartment.type.slug === 'houses' || apartment.type.slug === 'land_spots') && (
+                                                <div className="flex justify-between py-2 border-b border-gray-100">
+                                                <span className="text-[#666F8D] flex items-center gap-2">
+                                                  <Ruler size={16}/> Площадь в сотках
+                                                </span>
+                                                    <span className="font-medium">
+                                                  {apartment.land_size
+                                                      ? apartment.land_size + 'соток'
+                                                      : '-'}
+                                                </span>
+                                                </div>
+                                            )}
 
                                             {/* Санузел показываем только для квартир/домов */}
                                             {['secondary', 'new-buildings', 'houses'].includes(
                                                 apartment.type?.slug || ''
                                             ) && (
                                                 <div className="flex justify-between py-2 border-b border-gray-100">
-                          <span className="text-[#666F8D] flex items-center gap-2">
-                            <Bath size={16}/> Санузел
-                          </span>
+                                                  <span className="text-[#666F8D] flex items-center gap-2">
+                                                    <Bath size={16}/> Санузел
+                                                  </span>
                                                     <span className="font-medium">
-                            {apartment.bathroom_count ?? '1'}
-                          </span>
+                                                    {apartment.bathroom_count ?? '1'}
+                                                  </span>
                                                 </div>
                                             )}
 
@@ -681,7 +694,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                         {apartment.creator.name}
                                     </Link>
                                 </h3>
-                                <div className="text-[#666F8D] mb-4">Агент по недвижимости</div>
+                                <div className="text-[#666F8D] mb-4">Специалист по недвижимости</div>
 
                                 <Link
                                     href={`tel:${creatorCleanPhone}`}
@@ -793,7 +806,7 @@ function Thumbs({
     const btnRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
     const THUMB = 120; // px
-    const GAP = 8; // px
+    const GAP = 10; // px
     const VISIBLE_ROWS = 3; // 3 ряда по 120
     const maxHeight = VISIBLE_ROWS * THUMB + (VISIBLE_ROWS - 1) * GAP; // 3*120 + 2*8 = 376
 
@@ -848,7 +861,17 @@ function Thumbs({
     return (
         <div
             ref={containerRef}
-            className="hidden md:grid md:grid-cols-3 md:gap-2 md:overflow-y-auto md:pr-1"
+            className="
+                    hidden
+                    md:grid
+                    md:grid-cols-1
+                    lg:grid-cols-2
+                    xl:grid-cols-3
+                    2xl:grid-cols-4
+                    gap-3
+                    overflow-y-auto
+                    pr-1
+                  "
             style={{maxHeight, scrollBehavior: 'smooth'}}
         >
             {photos.map((src, i) => (

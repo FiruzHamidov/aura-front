@@ -46,6 +46,7 @@ const ModerationModal: FC<ModerationModalProps> = ({
             {id: 'sold', name: 'Продано'},
             {id: 'sold_by_owner', name: 'Продано владельцем'},
             {id: 'rented', name: 'Арендовано'},
+            {id: 'denied', name: 'Отказано клиентом'},
         ];
         // агент + vip/urgent → убираем approved из списка
         if (userRole === 'agent' && isPromo) {

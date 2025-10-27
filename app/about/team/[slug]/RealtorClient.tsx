@@ -109,7 +109,7 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
             const realtor: Realtor = {
                 id: data.id,
                 name: data.name,
-                position: 'Агент по недвижимости',
+                position: 'Специалист по недвижимости',
                 avatar: data.photo,
                 phone: readable,
                 photo: data.photo ?? null,
@@ -187,7 +187,7 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
                 <div className="flex flex-col md:flex-row gap-3.5">
                     {/* Левая часть */}
                     <div className="md:w-2/3">
-                        <div className="flex gap-[22px] bg-white p-10 rounded-[22px]">
+                        <div className="flex gap-[22px] bg-white px-4 py-8 rounded-[22px]">
                             <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden flex-shrink-0">
                                 {realtorData.photo ? (
                                     <Image
@@ -245,7 +245,7 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
                         </div>
 
                         {/* Отзывы */}
-                        <div className="mt-[52px]">
+                        <div className="mt-[52px] hidden">
                             <h2 className="text-2xl md:text-4xl font-bold mb-6 md:mb-10">Отзывы</h2>
                             <div className="mb-6">
                                 <button
@@ -294,7 +294,7 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
                     </div>
 
                     {/* Правая часть - форма */}
-                    <div className="bg-white p-8 pt-11 pb-14 rounded-[22px] md:w-1/3 h-max">
+                    <div className="bg-white py-8 px-4 rounded-[22px] md:w-1/3 h-max">
                         <h2 className="text-2xl font-bold text-[#666F8D] mb-[30px] text-center">Обратная связь</h2>
                         <form onSubmit={handleSubmit}>
                             <div className="mb-4">
@@ -319,7 +319,7 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
                             </div>
                             <button
                                 type="submit"
-                                className="w-full text-lg bg-[#0036A5] text-white py-5 rounded-full font-bold"
+                                className="w-full text-lg bg-[#0036A5] text-white p-5 rounded-full font-bold"
                             >
                                 Позвонить мне
                             </button>
@@ -332,7 +332,7 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
                 </div>
             </div>
 
-            <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 pt-8">
+            <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
                 <h2 className="text-2xl md:text-4xl font-bold mt-10 mb-4">
                     Объявлений: {listingsTotal ?? '—'}
                 </h2>

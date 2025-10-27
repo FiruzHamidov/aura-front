@@ -27,23 +27,27 @@ interface PropertyDetailsStepProps {
     onReorder: (next: PhotoItem[]) => void;
     isSubmitting: boolean;
     onBack?: () => void;
+    selectedPropertyType: number | null;
+    propertyTypes: SelectOption[];
 }
 
 export function PropertyDetailsStep({
-                                        form,
-                                        locations,
-                                        repairTypes,
-                                        heatingTypes,
-                                        parkingTypes,
-                                        contractTypes,
-                                        onSubmit,
-                                        onChange,
-                                        onPhotoChange,
-                                        onPhotoRemove,
-                                        onReorder,
-                                        isSubmitting,
-                                        onBack,
-                                    }: PropertyDetailsStepProps) {
+    form,
+    locations,
+    repairTypes,
+    heatingTypes,
+    parkingTypes,
+    contractTypes,
+    onSubmit,
+    onChange,
+    onPhotoChange,
+    onPhotoRemove,
+    onReorder,
+    isSubmitting,
+    onBack,
+    selectedPropertyType,
+    propertyTypes,
+}: PropertyDetailsStepProps) {
     const [coordinates, setCoordinates] = useState<[number, number] | null>(
         form.latitude && form.longitude
             ? [parseFloat(form.latitude), parseFloat(form.longitude)]
@@ -66,6 +70,14 @@ export function PropertyDetailsStep({
     const wrapperRef = useRef<HTMLDivElement | null>(null);
 
     const options = ["У риелтора", "У владельца"];
+
+    // determine whether we should show land_size (сотки) for current property type
+    const selectedProperty = propertyTypes?.find(p => p.id === selectedPropertyType);
+    const isLandOrHouse = Boolean(
+      selectedProperty && /(?:участ|земл|дом|house|land)/i.test(String(selectedProperty.name))
+    );
+
+    // console.log(form.)
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -212,6 +224,7 @@ export function PropertyDetailsStep({
                     value={form.repair_type_id}
                     options={repairTypes}
                     onChange={onChange}
+                    required
                 />
 
                 <Select
@@ -236,6 +249,7 @@ export function PropertyDetailsStep({
                     value={form.contract_type_id}
                     options={contractTypes}
                     onChange={onChange}
+                    required
                 />
 
                 <Input
@@ -245,6 +259,7 @@ export function PropertyDetailsStep({
                     onChange={onChange}
                     type="tel"
                     placeholder="+992 XX XXX XX XX"
+                    required
                 />
 
                 <Input
@@ -254,11 +269,12 @@ export function PropertyDetailsStep({
                     onChange={onChange}
                     type="text"
                     placeholder="Эшматов Тошмат"
+                    required
                 />
 
                 <div className="relative w-full" ref={wrapperRef}>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Ключ от объекта
+                        Ключ от объекта *
                     </label>
                     <input
                         type="text"
@@ -268,6 +284,7 @@ export function PropertyDetailsStep({
                         onChange={onChange}
                         onFocus={() => setShowOptions(true)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                        required
                     />
 
                     {showOptions && (
@@ -303,7 +320,18 @@ export function PropertyDetailsStep({
                     value={form.total_area}
                     onChange={onChange}
                     placeholder="0"
+                    required
                 />
+                {isLandOrHouse && (
+                  <Input
+                    label="Площадь участка (сотки)"
+                    name="land_size"
+                    type="number"
+                    value={form.land_size}
+                    onChange={onChange}
+                    placeholder="0"
+                  />
+                )}
 
                 <Input
                     label="Площадь (жилая)"
@@ -321,6 +349,7 @@ export function PropertyDetailsStep({
                     value={form.floor}
                     onChange={onChange}
                     placeholder="1"
+                    required
                 />
 
                 <Input
@@ -330,6 +359,7 @@ export function PropertyDetailsStep({
                     value={form.total_floors}
                     onChange={onChange}
                     placeholder="1"
+                    required
                 />
 
                 <Input
