@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {useParams, useRouter} from 'next/navigation';
 import {FormLayout} from '@/ui-components/FormLayout';
 import {ProgressIndicator} from '@/ui-components/ProgressIndicator';
@@ -12,6 +12,7 @@ import {useGetPropertyByIdQuery} from '@/services/properties/hooks';
 import {Property} from '@/services/properties/types';
 import {useProfile} from '@/services/login/hooks';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
+import {axios} from "@/utils/axios";
 
 const STEPS = ['Основная информация', 'Детали и фото'];
 
@@ -19,6 +20,34 @@ export default function EditPost() {
     const {id} = useParams();
     const router = useRouter();
     const {data: user} = useProfile();
+
+    const [agents, setAgents] = useState<{ id: number; name: string }[]>([]);
+    const [agentsLoading, setAgentsLoading] = useState(false);
+
+    // загрузка списка агентов (для админа)
+    // загрузка списка агентов (для админа)
+    useEffect(() => {
+        if (!user) return;
+        if (user.role?.slug !== 'admin') return;
+
+        (async () => {
+            try {
+                setAgentsLoading(true);
+                // корректно типизируем ответ axios: data будет массивом агентов
+                const { data } = await axios.get<{ id: number; name: string }[]>('/user/agents');
+                if (Array.isArray(data)) {
+                    setAgents(data.map((a) => ({ id: Number(a.id), name: String(a.name) })));
+                } else {
+                    setAgents([]);
+                }
+            } catch (err) {
+                console.error('Failed to load agents', err);
+                setAgents([]);
+            } finally {
+                setAgentsLoading(false);
+            }
+        })();
+    }, [user]);
 
     const {
         data: propertyData,
@@ -68,6 +97,7 @@ export default function EditPost() {
             offer_type: propertyData.offer_type,
             photos: propertyData.photos,
             moderation_status: propertyData.moderation_status,
+            created_by: propertyData.created_by ?? propertyData.creator?.id ?? null,
         }
         : undefined;
 
@@ -190,6 +220,9 @@ export default function EditPost() {
                     onBack={prevStep}
                     selectedPropertyType={formData.selectedPropertyType}
                     propertyTypes={formData.propertyTypes}
+                    isAdmin={(user?.role?.slug === 'admin')}
+                    agents={agents}
+                    agentsLoading={agentsLoading}
                 />
             )}
         </FormLayout>

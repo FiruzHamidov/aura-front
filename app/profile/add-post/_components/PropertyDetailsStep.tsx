@@ -10,6 +10,7 @@ import type { FormState as RawFormState, PhotoItem, SelectOption } from '@/servi
 
 type FormWithPhotos = Omit<RawFormState, 'photos'> & { photos: PhotoItem[] };
 
+interface AgentOption { id: number; name: string; }
 
 interface PropertyDetailsStepProps {
     form: FormWithPhotos;
@@ -29,39 +30,64 @@ interface PropertyDetailsStepProps {
     onBack?: () => void;
     selectedPropertyType: number | null;
     propertyTypes: SelectOption[];
+
+    /* --- new props for admin agent selection --- */
+    isAdmin?: boolean;
+    agents?: AgentOption[];
+    agentsLoading?: boolean;
+}
+
+type YMapClickEvent = {
+    // Yandex maps event minimal interface we use
+    get: (key: 'coords') => [number, number];
+};
+
+interface GeoObject {
+    getAddressLine: () => string;
+    getAdministrativeAreas: () => string[];
+}
+
+interface GeocoderResult {
+    geoObjects: {
+        get: (index: number) => GeoObject | undefined;
+    };
 }
 
 export function PropertyDetailsStep({
-    form,
-    locations,
-    repairTypes,
-    heatingTypes,
-    parkingTypes,
-    contractTypes,
-    onSubmit,
-    onChange,
-    onPhotoChange,
-    onPhotoRemove,
-    onReorder,
-    isSubmitting,
-    onBack,
-    selectedPropertyType,
-    propertyTypes,
-}: PropertyDetailsStepProps) {
+                                        form,
+                                        locations,
+                                        repairTypes,
+                                        heatingTypes,
+                                        parkingTypes,
+                                        contractTypes,
+                                        onSubmit,
+                                        onChange,
+                                        onPhotoChange,
+                                        onPhotoRemove,
+                                        onReorder,
+                                        isSubmitting,
+                                        onBack,
+                                        selectedPropertyType,
+                                        propertyTypes,
+                                        isAdmin = false,
+                                        agents = [],
+                                        agentsLoading = false,
+                                    }: PropertyDetailsStepProps) {
     const [coordinates, setCoordinates] = useState<[number, number] | null>(
         form.latitude && form.longitude
-            ? [parseFloat(form.latitude), parseFloat(form.longitude)]
+            ? [parseFloat(String(form.latitude)), parseFloat(String(form.longitude))]
             : null
     );
 
     const [addressCaption, setAddressCaption] = useState<string>('');
 
-    const mapRef = useRef(undefined);
-    const ymapsRef = useRef(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mapRef = useRef<any>(null);
+    const ymapsRef = useRef<{ geocode: (coords: [number, number]) => Promise<GeocoderResult> } | null>(null);
 
     const DISTRICTS: SelectOption[] = [
         {id: 1, name: 'Сино'},
-        {id: 2, name: 'И Сомони'}, // можно как в бэке храните
+        {id: 2, name: 'И Сомони'},
         {id: 3, name: 'Шохмансур'},
         {id: 4, name: 'Фирдавси'},
     ];
@@ -71,13 +97,10 @@ export function PropertyDetailsStep({
 
     const options = ["У риелтора", "У владельца"];
 
-    // determine whether we should show land_size (сотки) for current property type
     const selectedProperty = propertyTypes?.find(p => p.id === selectedPropertyType);
     const isLandOrHouse = Boolean(
-      selectedProperty && /(?:участ|земл|дом|house|land)/i.test(String(selectedProperty.name))
+        selectedProperty && /(?:участ|земл|дом|house|land)/i.test(String(selectedProperty.name))
     );
-
-    // console.log(form.)
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -103,41 +126,40 @@ export function PropertyDetailsStep({
         setShowOptions(false);
     };
 
-
-    // eslint-disable-next-line
-    const handleMapClick = (e: any) => {
+    const handleMapClick = (e: YMapClickEvent) => {
+        // Получаем координаты (типизированный get)
         const coords = e.get('coords');
+        if (!coords || !Array.isArray(coords) || coords.length < 2) return;
+
         setCoordinates([coords[0], coords[1]]);
 
+        // Создаём синтетические события с корректным типом вместо `as any`
         const latEvent = {
             target: {
                 name: 'latitude',
                 value: coords[0].toString(),
             },
-        };
+        } as unknown as ChangeEvent<HTMLInputElement>;
 
         const lngEvent = {
             target: {
                 name: 'longitude',
                 value: coords[1].toString(),
             },
-        };
+        } as unknown as ChangeEvent<HTMLInputElement>;
 
-        // eslint-disable-next-line
-        onChange(latEvent as any);
-        // eslint-disable-next-line
-        onChange(lngEvent as any);
+        onChange(latEvent);
+        onChange(lngEvent);
 
         if (ymapsRef.current) {
             try {
-                // @ts-expect-error type error disabling
                 const geocoder = ymapsRef.current.geocode(coords);
                 geocoder
                     // eslint-disable-next-line
                     .then((res: { geoObjects: { get: (index: number) => any } }) => {
                         const firstGeoObject = res.geoObjects.get(0);
                         if (firstGeoObject) {
-                            const address = firstGeoObject.getAddressLine();
+                            const address = firstGeoObject.getAddressLine?.() ?? '';
                             setAddressCaption(address);
 
                             const addressEvent = {
@@ -181,6 +203,29 @@ export function PropertyDetailsStep({
             <h2 className="text-xl font-bold mb-4 text-[#666F8D]">Детали объекта</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {isAdmin && (
+                    <div className="md:col-span-2">
+                        <label className="block mb-2 text-sm text-[#666F8D]">Агент</label>
+                        <select
+                            name="created_by"
+                            value={String(form.created_by ?? '')}
+                            onChange={onChange}
+                            className="w-full px-3 py-2 rounded border border-[#BAC0CC] bg-white"
+                        >
+                            <option value="">Не назначено</option>
+                            {agentsLoading ? (
+                                <option disabled>Загрузка...</option>
+                            ) : (
+                                agents.map((a) => (
+                                    <option key={a.id} value={String(a.id)}>
+                                        {a.name}
+                                    </option>
+                                ))
+                            )}
+                        </select>
+                    </div>
+                )}
+
                 <Select
                     label="Расположение"
                     name="location_id"
@@ -323,14 +368,14 @@ export function PropertyDetailsStep({
                     required
                 />
                 {isLandOrHouse && (
-                  <Input
-                    label="Площадь участка (сотки)"
-                    name="land_size"
-                    type="number"
-                    value={form.land_size}
-                    onChange={onChange}
-                    placeholder="0"
-                  />
+                    <Input
+                        label="Площадь участка (сотки)"
+                        name="land_size"
+                        type="number"
+                        value={form.land_size}
+                        onChange={onChange}
+                        placeholder="0"
+                    />
                 )}
 
                 <Input
@@ -439,8 +484,15 @@ export function PropertyDetailsStep({
                             instanceRef={mapRef}
                             modules={['geocode']}
                             onLoad={(ymaps) => {
-                                // @ts-expect-error type error disabling
-                                ymapsRef.current = ymaps;
+                                // store a small typed wrapper that exposes geocode if available
+                                const maybe = (ymaps as unknown) as { geocode?: (coords: [number, number]) => Promise<GeocoderResult> };
+                                if (maybe && typeof maybe.geocode === 'function') {
+                                    ymapsRef.current = {
+                                        geocode: (coords: [number, number]) => maybe.geocode!(coords),
+                                    };
+                                } else {
+                                    ymapsRef.current = null;
+                                }
                                 return undefined;
                             }}
                         >

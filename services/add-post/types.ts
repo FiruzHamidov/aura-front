@@ -53,6 +53,7 @@ export interface FormState {
     longitude: string;
     agent_id: string;
     district: string;
+    created_by: string;
     address: string;
 
     // Текущая форма проекта (новые File + серверные объекты)

@@ -79,6 +79,7 @@ const initialFormState: FormState = {
     owner_name: '',
     object_key: '',
     district: '',
+    created_by: '',
     address: '',
 };
 
@@ -169,6 +170,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
                 owner_name: propertyData.owner_name || '',
                 object_key: propertyData.object_key || '',
                 district: propertyData.district || '',
+                created_by: propertyData.created_by?.toString() || '',
                 address: propertyData.address || '',
             });
 
@@ -387,6 +389,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
             contract_type_id: form.contract_type_id,
             address: form.address,
             district: form.district,
+            created_by: form.created_by,
             parking_type_id: form.parking_type_id,
             price: form.price,
             currency: form.currency,
