@@ -20,9 +20,6 @@ const interFont = Inter({variable: '--font-inter', subsets: ['latin', 'cyrillic'
 const SITE_URL = 'https://aura.tj';
 const YM_ID = Number(process.env.NEXT_PUBLIC_YM_ID ?? 104117823);
 
-// Control ads via NEXT_PUBLIC_ENABLE_ADS (set to '1' in production env where ads are allowed)
-const ENABLE_ADS = process.env.NEXT_PUBLIC_ENABLE_ADS === '1';
-
 export const metadata: Metadata = {
     metadataBase: new URL(SITE_URL),
     title: {
