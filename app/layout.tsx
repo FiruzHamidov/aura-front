@@ -114,13 +114,12 @@ export default async function RootLayout({children}: { children: ReactNode }) {
             <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#00000000"/>
             <meta name="mobile-web-app-capable" content="yes"/>
 
+                <script
+                    async
+                    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7044136892757742"
+                    crossOrigin="anonymous"
+                />
 
-            <Script
-                id="adsense"
-                strategy="afterInteractive"
-                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7044136892757742"
-                crossOrigin="anonymous"
-            />
 
 
         </head>
