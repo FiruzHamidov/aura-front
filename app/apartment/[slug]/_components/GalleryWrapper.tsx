@@ -1,5 +1,4 @@
 'use client';
-import dynamic from 'next/dynamic';
 import {useEffect, useRef, useState} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -33,8 +32,8 @@ import {axios} from '@/utils/axios';
 import {AxiosError} from 'axios';
 
 import {toast} from 'react-toastify';
-
-const AdBannerNoSSR = dynamic(() => import('@/app/apartment/[slug]/_components/AdBanner'), {ssr: false});
+import AdSenseAd from "@/app/apartment/[slug]/_components/AdBanner";
+import {usePathname} from "next/navigation";
 
 
 interface Props {
@@ -47,7 +46,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
     const [isFavorite, setIsFavorite] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
+    const path = usePathname();
     const toggleFavorite = () => setIsFavorite((v) => !v);
 
     const openModal = (index?: number) => {
@@ -719,10 +718,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                         {/* --- Google AdSense block (replace IDs) --- */}
                         <div
                             className="bg-white rounded-[22px] md:px-[26px] px-4 py-5 md:py-6 my-6 flex justify-center items-center">
-                            <AdBannerNoSSR
-                                client="ca-pub-7044136892757742"
-                                slot="5085881730"
-                            />
+                            <AdSenseAd adSlot="5085881730" keyBy={path} className="w-full max-w-[336px]"/>
                         </div>
 
                         {user &&

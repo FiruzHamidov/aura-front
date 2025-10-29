@@ -45,6 +45,7 @@ export default async function SelectionPage({ params }: { params?: Promise<Param
   try {
     const { data } = await axios.get<SelectionPublic>(`/selections/public/${hash}`);
     selection = data;
+      console.log(selection)
   } catch (e: unknown) {
     // Axios 404 -> показываем NotFoundState, остальные ошибки -> ErrorState
     if (isAxiosError(e)) {
