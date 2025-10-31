@@ -31,6 +31,7 @@ export default function UserDetails() {
                 description: values.description,
                 birthday: values.birthday,
                 role_id: values.role_id,
+                password: values.password,
             };
             await upd.mutateAsync(payload);
             toast.success('Сохранено');

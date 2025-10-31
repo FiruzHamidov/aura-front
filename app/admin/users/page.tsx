@@ -91,6 +91,7 @@ export default function UsersPage() {
                 description: values.description,
                 birthday: values.birthday,
                 role_id: values.role_id ?? selected.role_id,
+                password: values.password,
             };
             await updateUser.mutateAsync(payload);
             toast.success('Пользователь обновлён');
