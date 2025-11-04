@@ -63,20 +63,20 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Only redirect if we're in the browser
-      if (typeof window !== "undefined") {
+    // If unauthorized — clear auth cookies and redirect to login
+    if (error?.response?.status === 401) {
+      if (typeof window !== 'undefined') {
         const config = getCookieConfig();
-        const expiry = "; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+        const expiry = '; expires=Thu, 01 Jan 1970 00:00:01 GMT';
 
         document.cookie = `auth_token=${expiry}; path=/; ${config.domain}`;
         document.cookie = `user_data=${expiry}; path=/; ${config.domain}`;
 
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
+        window.location.href = '/login';
       }
-      return Promise.reject(error);
     }
+
+    // Always rethrow the original axios error so callers receive a rejected promise
+    return Promise.reject(error);
   }
 );

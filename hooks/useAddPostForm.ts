@@ -332,15 +332,15 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
         if (!pendingCreatePayload) return;
         pendingCreatePayload.set('force', '1');
         try {
-            const resAny = await createPropertyMutation.mutateAsync(
-                pendingCreatePayload as unknown as CreatePropertyPayload
+            const res = await createPropertyMutation.mutateAsync(
+                pendingCreatePayload as CreatePropertyPayload
             );
 
             // Detect wrapped union vs plain success object
             const isWrapped = (r: unknown): r is CreatePropertyResult =>
                 typeof r === 'object' && r !== null && 'ok' in (r as Record<string, unknown>);
 
-            if (!isWrapped(resAny)) {
+            if (!isWrapped(res)) {
                 // Plain success (Property)
                 showToast('success', 'Объявление добавлено (несмотря на найденные дубликаты)');
                 resetForm();
@@ -348,21 +348,21 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
                 return;
             }
 
-            if (resAny.ok) {
+            if (res.ok) {
                 showToast('success', 'Объявление добавлено (несмотря на найденные дубликаты)');
                 resetForm();
                 setDupDialogOpen(false);
                 return;
             }
 
-            if (resAny.code === 409 && 'duplicates' in resAny) {
-                setDuplicates(resAny.duplicates ?? []);
+            if (res.code === 409 && 'duplicates' in res) {
+                setDuplicates(res.duplicates ?? []);
                 setDupDialogOpen(true);
                 return;
             }
 
-            showToast('error', resAny.message || 'Не удалось сохранить с принудительным добавлением');
-        } catch (e) {
+            showToast('error', res.message || 'Не удалось сохранить с принудительным добавлением');
+        } catch (e: unknown) {
             if (isAxiosError(e) && e.response?.status === 409) {
                 const dups = (e.response.data?.duplicates ?? []) as DuplicateCandidate[];
                 setDuplicates(dups);
@@ -468,27 +468,27 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
                 // сохраним payload — понадобится, если сервер вернёт 409 и пользователь нажмёт «Добавить всё равно»
                 setPendingCreatePayload(fd);
 
-                const resAny = await createPropertyMutation.mutateAsync(
-                    fd as unknown as CreatePropertyPayload
+                const res = await createPropertyMutation.mutateAsync(
+                    fd as CreatePropertyPayload
                 );
 
                 const isWrappedCreate = (r: unknown): r is CreatePropertyResult =>
                     typeof r === 'object' && r !== null && 'ok' in (r as Record<string, unknown>);
-
-                if (!isWrappedCreate(resAny)) {
+                if (!isWrappedCreate(res)) {
                     showToast('success', 'Объявление успешно добавлено!');
                     resetForm();
-                } else if (resAny.ok) {
+                } else if (res.ok) {
                     showToast('success', 'Объявление успешно добавлено!');
                     resetForm();
-                } else if (resAny.code === 409 && 'duplicates' in resAny) {
-                    setDuplicates(resAny.duplicates ?? []);
+                } else if (res.code === 409 && 'duplicates' in res) {
+                    setDuplicates(res.duplicates ?? []);
                     setDupDialogOpen(true);
                 } else {
-                    showToast('error', resAny.message || 'Ошибка при добавлении объявления');
+                    showToast('error', res.message || 'Ошибка при добавлении объявления');
                 }
             }
-        } catch (err) {
+        } catch (err: unknown) {
+
             // Если сервер вернул 409 как axios-ошибку (без union-ответа)
             if (isAxiosError(err) && err.response?.status === 409) {
                 const dups = (err.response.data?.duplicates ?? []) as DuplicateCandidate[];
@@ -496,7 +496,17 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
                 setDupDialogOpen(true);
                 return;
             }
-
+            // подробный лог для отладки
+            console.group('[CreateProperty] caught error');
+            console.log('isAxiosError:', isAxiosError(err));
+            console.log('typeof err:', typeof err);
+            try {
+                console.dir(err);
+                console.log('ownProps:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
+            } catch (e) {
+                console.warn('Could not stringify err', e);
+            }
+            console.groupEnd();
             const messages = extractValidationMessages(err);
             if (messages) {
                 showToast('error', `Исправьте ошибки:\n• ${messages.join('\n• ')}`);

@@ -13,6 +13,7 @@ import type {
   RepairType,
   UpdatePropertyPayload,
 } from './types';
+import {isAxiosError} from "axios";
 
 /** ---------------- Endpoints ---------------- */
 const EP = {
@@ -142,14 +143,25 @@ export const addPostApi = {
       (await axios.get(EP.CONTRACT_TYPES)).data,
 
   // create
-  async createProperty(payload: CreatePropertyPayload): Promise<CreatePropertyResponse> {
-    if (payload instanceof FormData) {
-      // axios сам выставит boundary, заголовок можно не задавать
-      return (await axios.post(EP.PROPERTIES, payload)).data;
-    }
-    const fd = buildFormDataFromJson(payload);
-    return (await axios.post(EP.PROPERTIES, fd)).data;
-  },
+    async createProperty(payload: CreatePropertyPayload): Promise<CreatePropertyResponse> {
+        try {
+            const response = payload instanceof FormData
+                ? await axios.post(EP.PROPERTIES, payload)
+                : await axios.post(EP.PROPERTIES, buildFormDataFromJson(payload));
+
+            if (!response) {
+                throw new Error('No response received from axios when creating property');
+            }
+
+            return response.data as CreatePropertyResponse;
+        } catch (err) {
+            // preserve original axios error if present so callers can use isAxiosError
+            if (isAxiosError(err)) {
+                throw err;
+            }
+            throw new Error(`createProperty failed: ${(err as Error)?.message ?? String(err)}`);
+        }
+    },
 
   // update
   async updateProperty(payload: UpdatePropertyPayload): Promise<CreatePropertyResponse> {
