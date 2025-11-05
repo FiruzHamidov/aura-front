@@ -32,7 +32,6 @@ import {axios} from '@/utils/axios';
 import {AxiosError} from 'axios';
 
 import {toast} from 'react-toastify';
-import {GoogleAdUnit} from "@mesmotronic/next-adsense";
 import AdSenseAd from "@/app/apartment/[slug]/_components/AdBanner";
 
 
