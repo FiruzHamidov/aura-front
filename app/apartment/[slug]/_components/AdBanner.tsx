@@ -58,17 +58,25 @@ export default function AdSenseAd({
   }, [adSlot, keyBy, pathname]);
 
   return (
-    <div className={className} style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-      <ins
-        className="adsbygoogle"
-        style={{ display: 'block', width: '100%', minHeight: 90, ...(style || {}) }}
-        data-ad-client={adClient}
-        data-ad-slot={String(adSlot)}
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-        data-adtest={process.env.NEXT_PUBLIC_ENABLE_ADS !== '1' ? 'on' : undefined}
-        ref={insRef}
-      />
-    </div>
+      <div className={className} style={{width: '100%', display: 'flex', justifyContent: 'center'}}>
+        <script async
+                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7044136892757742"
+                crossOrigin="anonymous"></script>
+
+        <ins
+            className="adsbygoogle"
+            style={{display: 'block', width: '100%', minHeight: 90, ...(style || {})}}
+            data-ad-client={adClient}
+            data-ad-slot={String(adSlot)}
+            data-ad-format="auto"
+            data-full-width-responsive="true"
+            data-adtest={process.env.NEXT_PUBLIC_ENABLE_ADS !== '1' ? 'on' : undefined}
+            ref={insRef}
+        />
+
+        <script>
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+      </div>
   );
 }
