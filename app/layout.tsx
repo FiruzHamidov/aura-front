@@ -124,7 +124,7 @@ export default async function RootLayout({children}: { children: ReactNode }) {
         </head>
         <body className={`${interFont.variable} antialiased`}>
         {/* Yandex.Metrika loader */}
-        <GoogleAdSense client={`${process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID}`} />
+        {/*<GoogleAdSense client={`${process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID}`} />*/}
         <Script
             id="ym-loader"
             strategy="afterInteractive"
