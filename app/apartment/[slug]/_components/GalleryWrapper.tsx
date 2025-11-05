@@ -715,7 +715,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
 
                         {/* --- Google AdSense block (replace IDs) --- */}
                         <div
-                            className="bg-white rounded-[22px] md:px-[26px] px-4 py-5 md:py-6 my-6 flex justify-center items-center">
+                            className="bg-white rounded-[22px] min-w-[200px] md:px-[26px] px-4 py-5 md:py-6 my-6 flex justify-center items-center">
 
 
                             <GoogleAdUnit>
