@@ -14,6 +14,7 @@ import {cookies} from 'next/headers';
 import ToastProvider from "@/app/_components/_providers/ToastProvider";
 import ClientChatMount from "@/app/_components/client-chat-mount";
 import HeaderAndFooterGate from "@/app/_components/layout/HeaderAndFooterGate";
+import {GoogleAdSense} from "@mesmotronic/next-adsense";
 
 const interFont = Inter({variable: '--font-inter', subsets: ['latin', 'cyrillic']});
 
@@ -114,11 +115,6 @@ export default async function RootLayout({children}: { children: ReactNode }) {
             <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#00000000"/>
             <meta name="mobile-web-app-capable" content="yes"/>
 
-            <script
-                async
-                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7044136892757742"
-                crossOrigin="anonymous"
-            />
 
             <script async custom-element="amp-auto-ads"
                     src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
@@ -128,6 +124,7 @@ export default async function RootLayout({children}: { children: ReactNode }) {
         </head>
         <body className={`${interFont.variable} antialiased`}>
         {/* Yandex.Metrika loader */}
+        <GoogleAdSense client={`${process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID}`} />
         <Script
             id="ym-loader"
             strategy="afterInteractive"

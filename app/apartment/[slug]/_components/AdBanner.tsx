@@ -1,37 +1,25 @@
-'use client'
+import { useEffect } from 'react';
 
-import { useEffect } from 'react'
-
-export default function AdBanner({ adClient, className }: { adClient: string, className: string }) {
+const AdBanner = (props) => {
     useEffect(() => {
         try {
-            const script = document.createElement('script')
-            script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClient}`
-            script.async = true
-            script.crossOrigin = 'anonymous'
-            document.head.appendChild(script)
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
         } catch (err) {
-            console.error('Error appending AdSense script:', err)
+            console.log(err);
         }
-    }, [adClient])
-
-    useEffect(() => {
-        try {
-            (window.adsbygoogle = window.adsbygoogle || []).push({})
-        } catch (err) {
-            console.error('Error pushing AdSense:', err)
-        }
-    }, [])
+    }, []);
 
     return (
         <ins
-            className={className}
-            style={{ display: 'block' }}
-            data-ad-client={adClient}
-            data-ad-slot="5085881730"
-            data-ad-format="auto"
-            data-full-width-responsive="true"
+            className="adsbygoogle adbanner-customize max-w-[375px]"
+            style={{
+                display: 'block',
+                overflow: 'hidden',
+                width: 'auto'
+            }}
+            data-ad-client={process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID}
+            {...props}
         />
-    )
-}
-
+    );
+};
+export default AdBanner;

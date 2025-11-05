@@ -554,6 +554,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mesmotronic/next-adsense@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@mesmotronic/next-adsense@npm:1.0.0"
+  peerDependencies:
+    next: ^15.0.3
+    react: ^18.3.1
+    react-dom: ^18.3.1
+  checksum: 10c0/c855929367c24d537fd040e17de53953b013caa9f4c439d2f67c1a1ed7e15e0109a39b1980c8e1f2a88a84ac3496435557927243d1fa6da8985e5796b1e3ac68
+  languageName: node
+  linkType: hard
+
 "@napi-rs/wasm-runtime@npm:^0.2.8, @napi-rs/wasm-runtime@npm:^0.2.9":
   version: 0.2.9
   resolution: "@napi-rs/wasm-runtime@npm:0.2.9"
@@ -1627,6 +1638,7 @@ __metadata:
     "@fullcalendar/react": "npm:^6.1.18"
     "@fullcalendar/timegrid": "npm:^6.1.18"
     "@headlessui/react": "npm:^2.2.0"
+    "@mesmotronic/next-adsense": "npm:^1.0.0"
     "@pbe/react-yandex-maps": "npm:^1.2.5"
     "@react-input/mask": "npm:^2.0.4"
     "@tailwindcss/postcss": "npm:^4.0.17"
