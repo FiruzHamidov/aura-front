@@ -718,7 +718,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                         {/* --- Google AdSense block (replace IDs) --- */}
                         <div
                             className="bg-white rounded-[22px] md:px-[26px] px-4 py-5 md:py-6 my-6 flex justify-center items-center">
-                            <AdSenseAd adSlot="5085881730" keyBy={path} className="w-full max-w-[336px]"/>
+                            <AdSenseAd adClient={"ca-pub-7044136892757742"} className="w-full max-w-[336px] adsbygoogle"/>
                         </div>
 
                         {user &&

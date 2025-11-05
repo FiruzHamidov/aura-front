@@ -1,59 +1,37 @@
-'use client';
-import {useEffect} from 'react';
+'use client'
 
-type Props = {
-    adClient?: string;
-    adSlot: string | number;
-    style?: React.CSSProperties;
-    className?: string;
-};
+import { useEffect } from 'react'
 
-export default function AdSenseAd({
-                                      adClient = 'ca-pub-7044136892757742',
-                                      adSlot,
-                                      style,
-                                      className,
-                                  }: Props) {
+export default function AdBanner({ adClient, className }: { adClient: string, className: string }) {
+    useEffect(() => {
+        try {
+            const script = document.createElement('script')
+            script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClient}`
+            script.async = true
+            script.crossOrigin = 'anonymous'
+            document.head.appendChild(script)
+        } catch (err) {
+            console.error('Error appending AdSense script:', err)
+        }
+    }, [adClient])
 
     useEffect(() => {
-        if (typeof window === 'undefined') return;
-
-        // create array if missing
-        if (!Array.isArray(window.adsbygoogle)) {
-            window.adsbygoogle = [] as unknown as typeof window.adsbygoogle;
-        }
-
-        // ищем именно те <ins>, которые ещё не помечены как initialized by AdSense
-        const uninitialized = document.querySelectorAll('ins.adsbygoogle:not([data-adsbygoogle-status="done"])');
-
-        if (uninitialized.length === 0) {
-            // ничего инициализировать — безопасно не вызывать push
-            return;
-        }
-
         try {
-            window.adsbygoogle.push({});
-        } catch (e) {
-            console.error('Error loading ads:', e);
+            (window.adsbygoogle = window.adsbygoogle || []).push({})
+        } catch (err) {
+            console.error('Error pushing AdSense:', err)
         }
-    }, [adSlot]);
+    }, [])
 
     return (
-        <div className={className} style={{width: '100%', display: 'flex', justifyContent: 'center'}}>
-            <script async
-                    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7044136892757742"
-                    crossOrigin="anonymous"></script>
-
-            <ins
-                className="adsbygoogle"
-                style={{display: 'block', width: '100%', minHeight: 90, ...(style || {})}}
-                data-ad-client="ca-pub-7044136892757742"
-                data-ad-slot="5085881730"
-                data-ad-format="auto"
-                data-full-width-responsive="true"
-                data-adtest="on"
-            />
-        </div>
-
-    );
+        <ins
+            className={className}
+            style={{ display: 'block' }}
+            data-ad-client={adClient}
+            data-ad-slot="5085881730"
+            data-ad-format="auto"
+            data-full-width-responsive="true"
+        />
+    )
 }
+
