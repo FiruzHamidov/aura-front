@@ -13,6 +13,73 @@ import BuyCardSkeleton from '@/ui-components/BuyCardSkeleton';
 import {Tabs} from '@/ui-components/tabs/tabs';
 import {useGetPropertyTypesQuery} from "@/services/add-post";
 
+import Router from 'next/router';
+
+declare global {
+    interface Window {
+        adsbygoogle: unknown[];
+    }
+}
+
+interface AdsBannerProps {
+    "data-ad-slot": string;
+    "data-ad-format": string;
+    "data-full-width-responsive": string;
+    "data-ad-layout"?: string;
+}
+
+const AdBanner = (props: AdsBannerProps) => {
+    useEffect(() => {
+        const pushAd = () => {
+            try {
+                if (window.adsbygoogle) {
+                    window.adsbygoogle.push({});
+                    return true;
+                }
+            } catch  {
+                // noop
+            }
+            return false;
+        };
+
+        // Try immediately and then periodically for up to ~3 seconds
+        if (!pushAd()) {
+            const intervalId = window.setInterval(() => {
+                if (pushAd()) {
+                    clearInterval(intervalId);
+                }
+            }, 200);
+
+            // safety clear after 3 seconds
+            setTimeout(() => clearInterval(intervalId), 3000);
+        }
+
+        // push on route changes as well
+        const handleRouteChange = () => {
+            try { pushAd(); } catch { /* noop */ }
+        };
+
+        Router.events.on('routeChangeComplete', handleRouteChange);
+        return () => {
+            Router.events.off('routeChangeComplete', handleRouteChange);
+        };
+    }, []);
+
+    return (
+        <ins
+            className="adsbygoogle adbanner-customize mt-2"
+            style={{
+                display: 'block',
+                overflow: 'hidden',
+                border: process.env.NODE_ENV === 'development' ? '1px solid red' : 'none',
+                minWidth: '250px'
+            }}
+            data-ad-client={process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID}
+            {...props}
+        />
+    );
+};
+
 type FilterType = 'list' | 'map';
 
 const BuyMap = dynamic(() => import('./BuyMap'), {
@@ -379,6 +446,12 @@ export const BuyContent: FC<{ offer_type_props?: string }> = ({offer_type_props 
                         hasTitle={false}
                         isLoading={isLoading}
                     />
+                    {/* Inline ad slot between listings */}
+                    <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
+                        <div className="my-6">
+                            <AdBanner data-ad-slot="5085881730" data-ad-format="auto" data-full-width-responsive="true" />
+                        </div>
+                    </div>
                     {isFetchingNextPage && (
                         <section>
                             <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
