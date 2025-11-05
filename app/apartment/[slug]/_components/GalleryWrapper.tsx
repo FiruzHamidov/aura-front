@@ -33,6 +33,7 @@ import {AxiosError} from 'axios';
 
 import {toast} from 'react-toastify';
 import {GoogleAdUnit} from "@mesmotronic/next-adsense";
+import AdSenseAd from "@/app/apartment/[slug]/_components/AdBanner";
 
 
 interface Props {
@@ -718,17 +719,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                             className="bg-white rounded-[22px] min-w-[200px] md:px-[26px] px-4 py-5 md:py-6 my-6 flex justify-center items-center">
 
 
-                            <GoogleAdUnit>
-                                <ins className="adsbygoogle"
-                                     style={{
-                                         display: 'block'
-                                     }}
-                                     data-ad-client={`${process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID}`}
-                                     data-ad-slot="5085881730"
-                                     data-ad-format="auto"
-                                     data-full-width-responsive="true"
-                                ></ins>
-                            </GoogleAdUnit>
+                        <AdSenseAd adSlot={'5694010534'} adClient={`${process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID}`}/>
                         </div>
 
                         {user &&
