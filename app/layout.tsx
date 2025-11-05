@@ -115,10 +115,6 @@ export default async function RootLayout({children}: { children: ReactNode }) {
             <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#00000000"/>
             <meta name="mobile-web-app-capable" content="yes"/>
 
-
-            <script async custom-element="amp-auto-ads"
-                    src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
-            </script>
             <Script
                 async
                 src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID}`}
