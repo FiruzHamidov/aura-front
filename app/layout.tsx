@@ -119,19 +119,12 @@ export default async function RootLayout({children}: { children: ReactNode }) {
             <script async custom-element="amp-auto-ads"
                     src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
             </script>
-            {/*<Script*/}
-            {/*    id="google-adsense"*/}
-            {/*    async*/}
-            {/*    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7044136892757742"*/}
-            {/*    crossOrigin="anonymous"*/}
-            {/*    strategy="afterInteractive"*/}
-            {/*/>*/}
-
-            <script
+            <Script
                 async
-                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7044136892757742"
+                src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID}`}
+                strategy="lazyOnload"
                 crossOrigin="anonymous"
-            />
+            ></Script>
 
         </head>
         <body className={`${interFont.variable} antialiased`}>

@@ -33,6 +33,7 @@ import {AxiosError} from 'axios';
 
 import {toast} from 'react-toastify';
 import AdSenseAd from "@/app/apartment/[slug]/_components/AdBanner";
+import AdBanner from "@/app/apartment/[slug]/_components/AdBanner";
 
 
 interface Props {
@@ -718,7 +719,12 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                             className="bg-white rounded-[22px] min-w-[200px] md:px-[26px] px-4 py-5 md:py-6 my-6 flex justify-center items-center">
 
 
-                        <AdSenseAd adSlot={'5085881730'} adClient={`${process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID}`}/>
+                            <AdBanner
+                                data-ad-slot="5085881730"
+                                data-full-width-responsive="true"
+                                data-ad-layout="in-article"
+                                data-ad-format="fluid"
+                            />
                         </div>
 
                         {user &&
@@ -776,7 +782,12 @@ export default function GalleryWrapper({apartment, photos}: Props) {
 
                 <MortgageCalculator propertyPrice={apartment.price}/>
 
-                <AdSenseAd adSlot={'5085881730'} adClient={`${process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID}`}/>
+                <AdBanner
+                    data-ad-slot="5085881730"
+                    data-full-width-responsive="true"
+                    data-ad-layout="in-article"
+                    data-ad-format="fluid"
+                />
             </div>
 
             <PhotoGalleryModal
