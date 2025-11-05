@@ -52,6 +52,7 @@ const AdBanner = (props: AdsBannerProps) => {
                 display: "block",
                 overflow: "hidden",
                 border: process.env.NODE_ENV === "development" ? "1px solid red" : "none",
+                minWidth: "250px"
             }}
             data-adtest="on"
             data-ad-client={process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID}
