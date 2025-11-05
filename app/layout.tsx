@@ -14,7 +14,7 @@ import {cookies} from 'next/headers';
 import ToastProvider from "@/app/_components/_providers/ToastProvider";
 import ClientChatMount from "@/app/_components/client-chat-mount";
 import HeaderAndFooterGate from "@/app/_components/layout/HeaderAndFooterGate";
-import {GoogleAdSense} from "@mesmotronic/next-adsense";
+// import {GoogleAdSense} from "@mesmotronic/next-adsense";
 
 const interFont = Inter({variable: '--font-inter', subsets: ['latin', 'cyrillic']});
 
