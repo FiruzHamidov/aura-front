@@ -718,7 +718,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                             className="bg-white rounded-[22px] min-w-[200px] md:px-[26px] px-4 py-5 md:py-6 my-6 flex justify-center items-center">
 
 
-                        <AdSenseAd adSlot={'5694010534'} adClient={`${process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID}`}/>
+                        <AdSenseAd adSlot={'5085881730'} adClient={`${process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID}`}/>
                         </div>
 
                         {user &&
@@ -776,7 +776,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
 
                 <MortgageCalculator propertyPrice={apartment.price}/>
 
-                <AdSenseAd adSlot={'5694010534'} adClient={`${process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID}`}/>
+                <AdSenseAd adSlot={'5085881730'} adClient={`${process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID}`}/>
             </div>
 
             <PhotoGalleryModal
