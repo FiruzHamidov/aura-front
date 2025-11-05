@@ -775,6 +775,8 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                 </div>
 
                 <MortgageCalculator propertyPrice={apartment.price}/>
+
+                <AdSenseAd adSlot={'5694010534'} adClient={`${process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID}`}/>
             </div>
 
             <PhotoGalleryModal
