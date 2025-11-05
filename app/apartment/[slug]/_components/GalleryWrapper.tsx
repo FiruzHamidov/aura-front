@@ -780,13 +780,16 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                 </div>
 
                 <MortgageCalculator propertyPrice={apartment.price}/>
+                <div
+                    className="bg-white rounded-[22px] min-w-[200px] md:px-[26px] px-4 py-5 md:py-6 my-6 flex justify-center items-center">
 
-                <AdBanner
-                    data-ad-slot="5085881730"
-                    data-full-width-responsive="true"
-                    data-ad-layout="in-article"
-                    data-ad-format="fluid"
-                />
+                    <AdBanner
+                        data-ad-slot="5694010534"
+                        data-full-width-responsive="true"
+                        data-ad-layout="in-article"
+                        data-ad-format="fluid"
+                    />
+                </div>
             </div>
 
             <PhotoGalleryModal
