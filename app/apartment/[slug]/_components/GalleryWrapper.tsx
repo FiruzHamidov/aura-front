@@ -46,7 +46,6 @@ export default function GalleryWrapper({apartment, photos}: Props) {
     const [isFavorite, setIsFavorite] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const path = usePathname();
     const toggleFavorite = () => setIsFavorite((v) => !v);
 
     const openModal = (index?: number) => {
