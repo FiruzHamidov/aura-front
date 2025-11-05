@@ -787,7 +787,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                         data-ad-slot="5694010534"
                         data-full-width-responsive="true"
                         data-ad-layout="in-article"
-                        data-ad-format="fluid"
+                        data-ad-format="auto"
                     />
                 </div>
             </div>
