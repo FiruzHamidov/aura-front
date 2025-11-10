@@ -1,6 +1,6 @@
 'use client';
 
-import {FC, useEffect, useMemo, useState} from 'react';
+import {FC, useEffect, useMemo, useState, useRef, useCallback} from 'react';
 import Link from 'next/link';
 import {Tabs} from '@/ui-components/tabs/tabs';
 import ListingCard from './listing-card';
@@ -47,6 +47,32 @@ const TopListings: FC<{
     }, [propertyTypesData]);
 
     const [activeType, setActiveType] = useState<string>(tabs[0]?.key ?? 'apartment');
+
+    // Refs to detect focus inside tabs / content (pauses auto-advance)
+    const tabsContainerRef = useRef<HTMLDivElement | null>(null);
+    const contentRef = useRef<HTMLDivElement | null>(null);
+
+    // Auto-advance / progress state
+    const [isPaused, setIsPaused] = useState(false);
+    const [progress, setProgress] = useState(0); // 0..100
+
+    const TICK_MS = 100;
+    const DURATION_MS = 5000; // 5 seconds
+    const CIRC = 2 * Math.PI * 16; // circumference for SVG progress circle (r=16)
+
+    // Reset progress when active tab changes
+    useEffect(() => {
+        setProgress(0);
+    }, [activeType]);
+
+    // Auto-increment progress and advance to next tab when complete
+
+
+    // Ensure clicking a tab resets progress immediately
+    const handleSetActiveType = useCallback((k: string) => {
+        setActiveType(k);
+        setProgress(0);
+    }, []);
 
     // Универсалка для строк
     const str = (v: unknown, fallback = ''): string => {
@@ -164,6 +190,57 @@ const TopListings: FC<{
         setSlide(0);
     }, [activeType]);
 
+    useEffect(() => {
+        if (isPaused) return;
+        if (!filteredTabs || filteredTabs.length <= 1) return;
+
+        const id = setInterval(() => {
+            setProgress((prev) => {
+                const next = prev + (TICK_MS / DURATION_MS) * 100;
+                if (next >= 100) {
+                    // advance to next available tab
+                    const idx = filteredTabs.findIndex((t) => t.key === activeType);
+                    const nextIdx = (idx + 1) % filteredTabs.length;
+                    const nextKey = filteredTabs[nextIdx]?.key;
+                    if (nextKey) {
+                        setActiveType(nextKey);
+                    }
+                    return 0;
+                }
+                return next;
+            });
+        }, TICK_MS);
+
+        return () => clearInterval(id);
+    }, [isPaused, filteredTabs, activeType]);
+
+    // Pause when focus is inside tabs or content
+    useEffect(() => {
+        const tabsNode = tabsContainerRef.current;
+        const contentNode = contentRef.current;
+        if (!tabsNode && !contentNode) return;
+
+        const onFocusIn = () => setIsPaused(true);
+        const onFocusOut = () => {
+            // if the newly focused element is still inside our nodes, keep paused
+            const active = document.activeElement;
+            const inside = (tabsNode && tabsNode.contains(active)) || (contentNode && contentNode.contains(active));
+            setIsPaused(Boolean(inside));
+        };
+
+        tabsNode?.addEventListener('focusin', onFocusIn);
+        tabsNode?.addEventListener('focusout', onFocusOut);
+        contentNode?.addEventListener('focusin', onFocusIn);
+        contentNode?.addEventListener('focusout', onFocusOut);
+
+        return () => {
+            tabsNode?.removeEventListener('focusin', onFocusIn);
+            tabsNode?.removeEventListener('focusout', onFocusOut);
+            contentNode?.removeEventListener('focusin', onFocusIn);
+            contentNode?.removeEventListener('focusout', onFocusOut);
+        };
+    }, [tabsContainerRef, contentRef]);
+
     const pageStart = slide * PAGE_SIZE;
     const pageItems = filtered.slice(pageStart, pageStart + PAGE_SIZE);
 
@@ -197,11 +274,64 @@ const TopListings: FC<{
 
     return (
         <section>
-            <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
+            <div ref={contentRef} className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
                 <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">{title}</h2>
 
-                <div className="mb-5 md:mb-8 overflow-auto hide-scrollbar">
-                    <Tabs tabs={tabs} activeType={activeType} setActiveType={setActiveType}/>
+                <div ref={tabsContainerRef} className="mb-5 md:mb-8 overflow-auto hide-scrollbar flex items-center justify-between">
+                    <div className="flex gap-3 items-center" role="tablist" aria-label="Типы недвижимости">
+                        {filteredTabs.map((t) => (
+                            <button
+                                key={t.key}
+                                role="tab"
+                                aria-selected={t.key === activeType}
+                                tabIndex={0}
+                                onClick={() => handleSetActiveType(t.key)}
+                                className={['relative px-4 py-2 rounded-full flex items-center gap-3 focus:outline-none', t.key === activeType ? 'bg-[#0036A5] text-white' : 'bg-white text-gray-700 shadow-sm'].join(' ')}
+                            >
+                                <span className="leading-5">{t.label}</span>
+
+                                {/* circular progress inside the tab button */}
+                                <span className="ml-2 w-8 h-8 inline-flex items-center justify-center">
+                                    <svg viewBox="0 0 36 36" className="w-6 h-6">
+                                        <circle cx="18" cy="18" r="16" strokeWidth="2" stroke="#756868" fill="none" />
+                                        <circle
+                                            cx="18"
+                                            cy="18"
+                                            r="16"
+                                            strokeWidth="2"
+                                            stroke={t.key === activeType ? '#FFFFFF' : '#a3b0cc'}
+                                            strokeLinecap="round"
+                                            fill="none"
+                                            strokeDasharray={`${CIRC}`}
+                                            strokeDashoffset={t.key === activeType ? String(CIRC * (1 - progress / 100)) : String(CIRC)}
+                                            transform="rotate(-90 18 18)"
+                                        />
+                                    </svg>
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+                    {/*<div className="ml-4 flex gap-3" aria-hidden>*/}
+                    {/*    {filteredTabs.map((t) => (*/}
+                    {/*        <div key={t.key} className="w-8 h-8 relative">*/}
+                    {/*            <svg viewBox="0 0 36 36" className="w-8 h-8">*/}
+                    {/*                <circle cx="18" cy="18" r="16" strokeWidth="2" stroke="#E5E7EB" fill="none" />*/}
+                    {/*                <circle*/}
+                    {/*                    cx="18"*/}
+                    {/*                    cy="18"*/}
+                    {/*                    r="16"*/}
+                    {/*                    strokeWidth="2"*/}
+                    {/*                    stroke="#0036A5"*/}
+                    {/*                    strokeLinecap="round"*/}
+                    {/*                    fill="none"*/}
+                    {/*                    strokeDasharray={`${CIRC}`}*/}
+                    {/*                    strokeDashoffset={t.key === activeType ? String(CIRC * (1 - progress / 100)) : String(CIRC)}*/}
+                    {/*                    transform="rotate(-90 18 18)"*/}
+                    {/*                />*/}
+                    {/*            </svg>*/}
+                    {/*        </div>*/}
+                    {/*    ))}*/}
+                    {/*</div>*/}
                 </div>
 
                 {filtered.length === 0 ? (
