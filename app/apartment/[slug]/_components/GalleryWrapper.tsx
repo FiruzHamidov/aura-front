@@ -726,12 +726,13 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                         </Link>
                                     </div>
                                 </div>
-                                <h3 className="text-2xl font-bold mb-2">
+                                <h3 className="text-2xl font-bold mb-2 flex justify-center">
                                     <Link href={`/about/team/${apartment.creator.id}`}>
                                         {apartment.creator.name}
                                     </Link>
                                 </h3>
-                                <div className="text-[#666F8D] mb-4">Специалист по недвижимости</div>
+                                <div className="text-[#666F8D] mb-4 flex justify-center">Специалист по недвижимости
+                                </div>
 
                                 <Link
                                     href={`tel:${creatorCleanPhone}`}
@@ -821,49 +822,52 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                     </div>
                 )}
 
-                <div className="bg-white px-4 py-5 md:px-9 md:py-10 rounded-[14px] md:rounded-[22px] mt-4">
-                    <div className="text-lg md:text-2xl mb-3 md:mb-6 font-bold">
-                        Расположение на карте
-                    </div>
-                    <div className="h-[145px] md:h-[500px] w-full rounded-[12px] overflow-hidden">
-                        <YMaps
-                            query={{
-                                lang: 'ru_RU',
-                                apikey: 'dbdc2ae1-bcbd-4f76-ab38-94ca88cf2a6f',
-                            }}
-                        >
-                            <Map
-                                state={{
-                                    center: coordinates ?? [38.5597722, 68.7870384],
-                                    zoom: coordinates ? 15 : 9,
-                                }}
-                                width="100%"
-                                height="100%"
-                                // onClick={handleMapClick}
-                                instanceRef={mapRef}
-                                modules={["geocode"]}
-                                onLoad={(ymaps) => {
-                                    // @ts-expect-error type error disabling
-                                    ymapsRef.current = ymaps;
-                                    return undefined;
+                {apartment.latitude && (
+                    <div className="bg-white px-4 py-5 md:px-9 md:py-10 rounded-[14px] md:rounded-[22px] mt-4">
+                        <div className="text-lg md:text-2xl mb-3 md:mb-6 font-bold">
+                            Расположение на карте
+                        </div>
+                        <div className="h-[145px] md:h-[500px] w-full rounded-[12px] overflow-hidden">
+                            <YMaps
+                                query={{
+                                    lang: 'ru_RU',
+                                    apikey: 'dbdc2ae1-bcbd-4f76-ab38-94ca88cf2a6f',
                                 }}
                             >
-                                {coordinates && (
-                                    <Placemark
-                                        geometry={coordinates}
-                                        options={{
-                                            preset: 'islands#blueHomeIcon',
-                                            draggable: true,
-                                        }}
-                                        properties={{
-                                            iconCaption: apartment.address,
-                                        }}
-                                    />
-                                )}
-                            </Map>
-                        </YMaps>
+                                <Map
+                                    state={{
+                                        center: coordinates ?? [38.5597722, 68.7870384],
+                                        zoom: coordinates ? 15 : 9,
+                                    }}
+                                    width="100%"
+                                    height="100%"
+                                    // onClick={handleMapClick}
+                                    instanceRef={mapRef}
+                                    modules={["geocode"]}
+                                    onLoad={(ymaps) => {
+                                        // @ts-expect-error type error disabling
+                                        ymapsRef.current = ymaps;
+                                        return undefined;
+                                    }}
+                                >
+                                    {coordinates && (
+                                        <Placemark
+                                            geometry={coordinates}
+                                            options={{
+                                                preset: 'islands#blueHomeIcon',
+                                                draggable: true,
+                                            }}
+                                            properties={{
+                                                iconCaption: apartment.address,
+                                            }}
+                                        />
+                                    )}
+                                </Map>
+                            </YMaps>
+                        </div>
                     </div>
-                </div>
+                )}
+
 
                 <MortgageCalculator propertyPrice={apartment.price}/>
                 <div
