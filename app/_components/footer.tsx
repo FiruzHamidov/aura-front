@@ -109,13 +109,14 @@ const Footer = () => {
           <div>
             <h3 className="text-xl font-bold mb-6">Связь с нами</h3>
 
-            <div className="flex items-center mb-6">
+            <div className="flex items-center justidy-center mb-6">
               <div className="mr-3">
                 <FooterPhoneIcon className="w-9 h-9" />
               </div>
               <div>
                 <p className="text-sm text-[#B2C3E4]">кол центр</p>
-                <p className="font-bold text-lg">+992 446 40 31 31</p>
+                <a href="tel:+992446403131"><p className="font-bold text-lg">+992 446 40 31 31</p></a>
+                <a href="tel:+992945313131"><p className="font-bold text-lg">+992 945 31 31 31</p></a>
               </div>
             </div>
 
@@ -125,7 +126,9 @@ const Footer = () => {
               </div>
               <div>
                 <p className="text-sm text-[#B2C3E4]">email</p>
-                <p className="font-bold text-lg">info@aura.tj</p>
+                <a href="mailto:info@aura.tj">
+                  <p className="font-bold text-lg">info@aura.tj</p>
+                </a>
               </div>
             </div>
           </div>

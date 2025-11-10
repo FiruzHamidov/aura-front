@@ -11,7 +11,7 @@ const WhatsAppNoBgIcon = (props: SVGProps<SVGSVGElement>) => (
     <rect width={47} height={47} x={0.794} y={0.5} stroke="#BAC0CC" rx={23.5} />
     <g clipPath="url(#a)">
       <path
-        fill="#666F8D"
+        fill="#2AA81A"
         d="M24.003 13.998h-.006c-5.513 0-9.997 4.485-9.997 10 0 2.188.705 4.215 1.904 5.861l-1.246 3.715 3.843-1.228a9.913 9.913 0 0 0 5.502 1.652c5.513 0 9.997-4.486 9.997-10s-4.484-10-9.997-10Z"
       />
       <path

@@ -15,6 +15,8 @@ import {
     ArrowUpDown,
     Bath,
     Building2,
+    Calendar1Icon,
+    CopyIcon,
     EyeIcon,
     FileText,
     Flame,
@@ -25,7 +27,6 @@ import {
     ParkingSquare,
     Phone,
     Ruler,
-    Share,
     User,
 } from 'lucide-react';
 import {axios} from '@/utils/axios';
@@ -33,6 +34,11 @@ import {AxiosError} from 'axios';
 
 import {toast} from 'react-toastify';
 import AdBanner from "@/app/apartment/[slug]/_components/AdBanner";
+import {STORAGE_URL} from "@/constants/base-url";
+import UserIcon from "@/icons/UserIcon";
+import TelegramNoBgIcon from "@/icons/TelegramNoBgIcon";
+import WhatsAppNoBgIcon from "@/icons/WhatsappNoBgIcon";
+import BuyCard from "@/app/_components/buy/buy-card";
 
 
 interface Props {
@@ -90,11 +96,38 @@ export default function GalleryWrapper({apartment, photos}: Props) {
     const ownerCleanPhone = ownerPhoneData.cleanPhone;
     const ownerDisplayPhone = ownerPhoneData.display;
 
-    const [coordinates, setCoordinates] = useState<[number, number] | null>(
+    const [coordinates] = useState<[number, number] | null>(
         apartment.latitude && apartment.longitude
             ? [parseFloat(apartment.latitude), parseFloat(apartment.longitude)]
             : null
     );
+
+    // --- similar properties (fetched from backend) ---
+    const [similarProperties, setSimilarProperties] = useState<Property[]>([]);
+    const [loadingSimilar, setLoadingSimilar] = useState(false);
+
+    useEffect(() => {
+        let mounted = true;
+        const loadSimilar = async () => {
+            if (!apartment?.id) return;
+            setLoadingSimilar(true);
+            try {
+                const {data} = await axios.get(`/properties/${apartment.id}/similar`);
+                if (mounted && Array.isArray(data)) {
+                    setSimilarProperties(data);
+                }
+            } catch (err) {
+                console.error('Load similar properties error', err);
+            } finally {
+                if (mounted) setLoadingSimilar(false);
+            }
+        };
+
+        loadSimilar();
+        return () => {
+            mounted = false;
+        };
+    }, [apartment.id]);
 
     const [copied] = useState(false);
 
@@ -149,41 +182,9 @@ export default function GalleryWrapper({apartment, photos}: Props) {
         return () => controller.abort();
     }, [apartment.id]);
 
-    const [addressCaption, setAddressCaption] = useState<string>('');
 
     const mapRef = useRef(undefined);
     const ymapsRef = useRef(null);
-
-    // typed handler for Yandex Maps clicks - avoid `any`
-    type YMapsEvent = { get: (key: 'coords') => [number, number] };
-
-    const handleMapClick = (e: YMapsEvent) => {
-        const coords = e.get('coords');
-        setCoordinates([coords[0], coords[1]]);
-
-        if (ymapsRef.current) {
-            try {
-                const geocoder = (ymapsRef.current as unknown as {
-                    geocode: (coords: [number, number]) => Promise<{
-                        geoObjects: { get: (index: number) => { getAddressLine?: () => string } }
-                    }>
-                }).geocode(coords);
-                geocoder
-                    .then((res: { geoObjects: { get: (index: number) => { getAddressLine?: () => string } } }) => {
-                        const firstGeoObject = res.geoObjects.get(0);
-                        if (firstGeoObject && typeof firstGeoObject.getAddressLine === 'function') {
-                            const address = firstGeoObject.getAddressLine();
-                            setAddressCaption(address);
-                        }
-                    })
-                    .catch((err: Error) => {
-                        console.error('Geocoding error:', err);
-                    });
-            } catch (err) {
-                console.error('Error initializing geocoder:', err);
-            }
-        }
-    };
 
     const canEdit =
         (user && user.role?.slug === 'admin') ||
@@ -255,6 +256,18 @@ export default function GalleryWrapper({apartment, photos}: Props) {
     const typeFieldLabel = (p: Property) =>
         p.type?.slug === 'commercial' ? 'Тип объекта' : 'Тип жилья';
 
+    function timeAgo(date: Date) {
+        console.log('date', typeof date)
+        const diff = Date.now() - date.getTime();
+        const minutes = Math.floor(diff / 60000);
+        if (minutes < 1) return 'только что';
+        if (minutes < 60) return `${minutes} мин назад`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours} ч назад`;
+        const days = Math.floor(hours / 24);
+        return `${days} дней назад`;
+    }
+
     return (
         <>
             <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 pt-8 pb-12">
@@ -276,6 +289,21 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                             <EyeIcon xlinkTitle="Просмотрено"/>
                                             {apartment.views_count}
                                         </div>
+                                        <div className="flex gap-1 ml-3 items-center">
+                                            <Calendar1Icon className='w-5' xlinkTitle="Просмотрено"/>
+                                            {(() => {
+                                                const d = new Date(apartment.created_at);
+                                                const full = d.toLocaleString('ru-RU', {
+                                                    year: 'numeric', month: 'long', day: '2-digit',
+                                                    hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Dushanbe'
+                                                });
+                                                return (
+                                                    <time dateTime={apartment.created_at} title={full}>
+                                                        {timeAgo(d)}
+                                                    </time>
+                                                );
+                                            })()}
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="flex gap-2 md:mt-0 mt-4 flex-wrap sm:flex-nowrap">
@@ -285,15 +313,6 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                         aria-pressed={isFavorite}
                                     >
                                         <HeartIcon className="w-6 h-6 text-[#1E3A8A]"/>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={handleCopyLink}
-                                        className="w-auto h-14 px-4 gap-2 text-white rounded-full border border-[#0036A5] bg-[#0036A5] flex items-center justify-center hover:bg-blue-800 transition-colors cursor-pointer"
-                                        title={copied ? 'Ссылка скопирована!' : 'Копировать ссылку'}
-                                        aria-live="polite"
-                                    >
-                                        <Share size={20} className="text-white"/> Поделиться
                                     </button>
 
 
@@ -470,22 +489,22 @@ export default function GalleryWrapper({apartment, photos}: Props) {
 
                             {/* Property Details Blocks - Added after carousel */}
                             <div className="mb-6">
-                                <button
-                                    className="md:w-[705px] text-center py-5 border border-[#BAC0CC] text-[#353E5C] rounded-lg flex items-center justify-center gap-2 cursor-pointer md:text-lg transition mb-[60px]">
-                                    <span>Посмотреть объект в 3D пространстве</span>
-                                    <svg
-                                        width="32"
-                                        height="28"
-                                        viewBox="0 0 32 28"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            d="M31.9406 24.9756L31.0703 21.7276C30.9363 21.2275 30.4223 20.9306 29.9221 21.0647C29.422 21.1987 29.1253 21.7128 29.2593 22.2129L29.7485 24.0389L25.9104 21.823V12.823L16.9375 17.3148V27.3253L24.8398 23.3698L28.8111 25.6626L26.9851 26.1519C26.4849 26.2859 26.1882 26.8 26.3222 27.3001C26.4563 27.8004 26.9705 28.0971 27.4704 27.963L30.7183 27.0928C31.6411 26.8454 32.1879 25.8986 31.9406 24.9756ZM6.08957 21.8229L2.2515 24.0389L2.74075 22.2129C2.87475 21.7128 2.578 21.1987 2.07788 21.0647C1.57757 20.9306 1.06369 21.2275 0.929691 21.7276L0.0594406 24.9756C-0.187809 25.8984 0.358753 26.8454 1.28175 27.0926L4.52975 27.9629C5.03007 28.097 5.544 27.7999 5.67794 27.3001C5.81194 26.7999 5.51519 26.2859 5.01507 26.1519L3.18907 25.6626L7.16032 23.3698L15.0625 27.3252V17.3148L6.08957 12.823V21.8229ZM16.9362 7.39101V2.87713L18.2729 4.21382C18.639 4.57988 19.2326 4.57995 19.5987 4.21382C19.9648 3.84769 19.9648 3.25413 19.5987 2.88807L17.221 0.510383C16.5471 -0.163617 15.4503 -0.163617 14.7764 0.510383L12.3988 2.88807C12.0326 3.2542 12.0326 3.84776 12.3988 4.21382C12.7648 4.57995 13.3584 4.57995 13.7245 4.21382L15.0613 2.87713V7.39201L7.2465 11.3049C7.67919 11.5213 15.5605 15.4673 16.0001 15.6874C16.4397 15.4673 24.3209 11.5213 24.7536 11.3049L16.9362 7.39101"
-                                            fill="#0036A5"
-                                        />
-                                    </svg>
-                                </button>
+                                {/*<button*/}
+                                {/*    className="md:w-[705px] text-center py-5 border border-[#BAC0CC] text-[#353E5C] rounded-lg flex items-center justify-center gap-2 cursor-pointer md:text-lg transition mb-[60px]">*/}
+                                {/*    <span>Посмотреть объект в 3D пространстве</span>*/}
+                                {/*    <svg*/}
+                                {/*        width="32"*/}
+                                {/*        height="28"*/}
+                                {/*        viewBox="0 0 32 28"*/}
+                                {/*        fill="none"*/}
+                                {/*        xmlns="http://www.w3.org/2000/svg"*/}
+                                {/*    >*/}
+                                {/*        <path*/}
+                                {/*            d="M31.9406 24.9756L31.0703 21.7276C30.9363 21.2275 30.4223 20.9306 29.9221 21.0647C29.422 21.1987 29.1253 21.7128 29.2593 22.2129L29.7485 24.0389L25.9104 21.823V12.823L16.9375 17.3148V27.3253L24.8398 23.3698L28.8111 25.6626L26.9851 26.1519C26.4849 26.2859 26.1882 26.8 26.3222 27.3001C26.4563 27.8004 26.9705 28.0971 27.4704 27.963L30.7183 27.0928C31.6411 26.8454 32.1879 25.8986 31.9406 24.9756ZM6.08957 21.8229L2.2515 24.0389L2.74075 22.2129C2.87475 21.7128 2.578 21.1987 2.07788 21.0647C1.57757 20.9306 1.06369 21.2275 0.929691 21.7276L0.0594406 24.9756C-0.187809 25.8984 0.358753 26.8454 1.28175 27.0926L4.52975 27.9629C5.03007 28.097 5.544 27.7999 5.67794 27.3001C5.81194 26.7999 5.51519 26.2859 5.01507 26.1519L3.18907 25.6626L7.16032 23.3698L15.0625 27.3252V17.3148L6.08957 12.823V21.8229ZM16.9362 7.39101V2.87713L18.2729 4.21382C18.639 4.57988 19.2326 4.57995 19.5987 4.21382C19.9648 3.84769 19.9648 3.25413 19.5987 2.88807L17.221 0.510383C16.5471 -0.163617 15.4503 -0.163617 14.7764 0.510383L12.3988 2.88807C12.0326 3.2542 12.0326 3.84776 12.3988 4.21382C12.7648 4.57995 13.3584 4.57995 13.7245 4.21382L15.0613 2.87713V7.39201L7.2465 11.3049C7.67919 11.5213 15.5605 15.4673 16.0001 15.6874C16.4397 15.4673 24.3209 11.5213 24.7536 11.3049L16.9362 7.39101"*/}
+                                {/*            fill="#0036A5"*/}
+                                {/*        />*/}
+                                {/*    </svg>*/}
+                                {/*</button>*/}
 
                                 <div className="flex gap-8 flex-col md:flex-row mb-10">
                                     {/* О квартире */}
@@ -543,21 +562,21 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                             )}
 
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="text-[#666F8D] flex items-center gap-2">
-                          <Hammer size={16}/> Ремонт
-                        </span>
+                                                <span className="text-[#666F8D] flex items-center gap-2">
+                                                  <Hammer size={16}/> Ремонт
+                                                </span>
                                                 <span className="font-medium">
-                          {apartment.repair_type?.name || 'Косметический'}
-                        </span>
+                                                  {apartment.repair_type?.name || 'Косметический'}
+                                                </span>
                                             </div>
 
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="text-[#666F8D] flex items-center gap-2">
-                          <MapPin size={16}/> Район
-                        </span>
+                                                <span className="text-[#666F8D] flex items-center gap-2">
+                                                  <MapPin size={16}/> Район
+                                                </span>
                                                 <span className="font-medium">
-                          {apartment.district || '-'}
-                        </span>
+                                                  {apartment.district || '-'}
+                                                </span>
                                             </div>
 
                                             {/* --- ADMIN: дополнительные поля владелец / телефон владельца / у кого ключи --- */}
@@ -618,48 +637,48 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                         <h2 className="text-2xl font-bold mb-4">О доме</h2>
                                         <div className="space-y-0.5 text-sm">
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="text-[#666F8D] flex items-center gap-2">
-                          <Building2 size={16}/> Год постройки
-                        </span>
+                                                <span className="text-[#666F8D] flex items-center gap-2">
+                                                  <Building2 size={16}/> Год постройки
+                                                </span>
                                                 <span className="font-medium">
-                          {apartment.year_built || '-'}
-                        </span>
+                                                  {apartment.year_built || '-'}
+                                                </span>
                                             </div>
 
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="text-[#666F8D] flex items-center gap-2">
-                          <ArrowUpDown size={16}/> Количество лифтов
-                        </span>
+                                                <span className="text-[#666F8D] flex items-center gap-2">
+                                                  <ArrowUpDown size={16}/> Количество лифтов
+                                                </span>
                                                 <span className="font-medium">
-                          {apartment.elevator_count || '2'}
-                        </span>
+                                                  {apartment.elevator_count || '2'}
+                                                </span>
                                             </div>
 
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="text-[#666F8D] flex items-center gap-2">
-                          <Building2 size={16}/> Тип дома
-                        </span>
+                                                <span className="text-[#666F8D] flex items-center gap-2">
+                                                  <Building2 size={16}/> Тип дома
+                                                </span>
                                                 <span className="font-medium">
-                          {apartment.building_type || 'Панельный'}
-                        </span>
+                                                  {apartment.building_type || 'Панельный'}
+                                                </span>
                                             </div>
 
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="text-[#666F8D] flex items-center gap-2">
-                          <ParkingSquare size={16}/> Парковка
-                        </span>
+                                                <span className="text-[#666F8D] flex items-center gap-2">
+                                                  <ParkingSquare size={16}/> Парковка
+                                                </span>
                                                 <span className="font-medium">
-                          {apartment.has_parking ? 'Да' : 'Открытая'}
-                        </span>
+                                                  {apartment.has_parking ? 'Да' : 'Открытая'}
+                                                </span>
                                             </div>
 
                                             <div className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="text-[#666F8D] flex items-center gap-2">
-                          <Flame size={16}/> Отопление
-                        </span>
+                                                <span className="text-[#666F8D] flex items-center gap-2">
+                                                  <Flame size={16}/> Отопление
+                                                </span>
                                                 <span className="font-medium">
-                          {apartment.heating_type?.name || 'Центральное'}
-                        </span>
+                                                  {apartment.heating_type?.name || 'Центральное'}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -686,6 +705,27 @@ export default function GalleryWrapper({apartment, photos}: Props) {
 
                         {apartment.creator && (
                             <div className="bg-white rounded-[22px] md:px-[26px] px-4 py-5 md:py-8">
+                                <div className='flex justify-center'>
+                                    <div
+                                        className="relative w-[120px] h-[120px] rounded-full overflow-hidden flex-shrink-0 mb-4">
+                                        <Link href={`/about/team/${apartment.creator.id}`}>
+                                            {apartment.creator.photo ? (
+                                                <Image
+                                                    src={`${STORAGE_URL}/${apartment.creator.photo}`}
+                                                    alt={apartment.creator.name}
+                                                    width={120}
+                                                    height={120}
+                                                    className="rounded-full object-cover mr-2 h-[120px] w-[120px]"
+                                                />
+                                            ) : (
+                                                <div
+                                                    className="rounded-full flex justify-center items-center  h-[120px] w-[120px] bg-[#F1F5F9] p-1.5 mr-1.5">
+                                                    <UserIcon className="w-6 h-7"/>
+                                                </div>
+                                            )}
+                                        </Link>
+                                    </div>
+                                </div>
                                 <h3 className="text-2xl font-bold mb-2">
                                     <Link href={`/about/team/${apartment.creator.id}`}>
                                         {apartment.creator.name}
@@ -695,7 +735,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
 
                                 <Link
                                     href={`tel:${creatorCleanPhone}`}
-                                    className="flex items-center justify-center gap-3 w-full bg-[#0036A5] hover:bg-blue-800 text-white py-5 rounded-full text-center mb-4 transition-colors"
+                                    className="flex items-center justify-center gap-3 w-full bg-[#0036A5] hover:bg-blue-800 text-white py-3 rounded-full text-center mb-4 transition-colors"
                                 >
                                     <FooterPhoneIcon className="w-8 h-8"/>
                                     {creatorDisplayPhone}
@@ -703,8 +743,10 @@ export default function GalleryWrapper({apartment, photos}: Props) {
 
                                 <div className="flex flex-col gap-3">
                                     <Link
-                                        href={`https://wa.me/${creatorCleanPhone}`}
-                                        className="flex items-center justify-center gap-3 w-full py-3 border border-[#25D366] text-[#25D366] rounded-full text-center hover:bg-[#25D366]/10 transition"
+                                        href={`https://wa.me/${creatorCleanPhone}?text=${encodeURIComponent(
+                                            `Здравствуйте! Интересует объект: ${buildPageTitle(apartment)} - https://www.aura.tj/apartment/${apartment.id}&utm_source=whatsAppAgentShare`
+                                        )}`}
+                                        className="flex items-center justify-center gap-3 w-full py-2 border border-[#25D366] text-[#25D366] rounded-full text-center hover:bg-[#25D366]/10 transition"
                                         target="_blank"
                                     >
                                         <WhatsappInlineIcon className="w-8 h-8"/> WhatsApp
@@ -713,11 +755,33 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                             </div>
                         )}
 
+                        <div
+                            className="bg-white rounded-[22px] min-w-[200px] md:px-[26px] px-4 py-5 md:py-6 my-6 items-center">
+                            <p className="text-2xl font-bold mb-2 flex justify-center">Поделиться</p>
+                            <div className="flex gap-2 mt-4 justify-center">
+                                <a href={`https://t.me/share/url?url=https://www.aura.tj/apartment/${apartment.id}/&text=${buildPageTitle(apartment)}&utm_source=tgShare`}
+                                   target="_blank" aria-label="Telegram" rel="noopener">
+                                    <TelegramNoBgIcon className="w-12 h-12 hover:border-blue-800 border-[#BAC0CC]"/>
+                                </a>
+                                <a href={`https://api.whatsapp.com/send?text=${buildPageTitle(apartment)} - https://www.aura.tj/apartment/${apartment.id}&utm_source=whatsAppShare`}
+                                   target="_blank" aria-label="WhatsApp" rel="noopener">
+                                    <WhatsAppNoBgIcon className="w-12 h-12 hover:border-blue-800 border-[#BAC0CC]"/>
+                                </a>
+                                <button
+                                    type="button"
+                                    onClick={handleCopyLink}
+                                    className="w-12 h-12 gap-2 text-white rounded-full border border-[#BAC0CC] flex items-center justify-center hover:border-blue-800 transition-colors cursor-pointer"
+                                    title={copied ? 'Ссылка скопирована!' : 'Копировать ссылку'}
+                                    aria-live="polite"
+                                >
+                                    <CopyIcon size={20} className="text-black"/>
+                                </button>
+                            </div>
+                        </div>
+
                         {/* --- Google AdSense block (replace IDs) --- */}
                         <div
                             className="bg-white rounded-[22px] min-w-[200px] md:px-[26px] px-4 py-5 md:py-6 my-6 flex justify-center items-center">
-
-
                             <AdBanner
                                 data-ad-slot="5085881730"
                                 data-full-width-responsive="true"
@@ -738,6 +802,25 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                     </div>
                 </div>
 
+                {/* === Similar properties carousel === */}
+                {similarProperties.length > 0 && (
+                    <div className="">
+                        <div className="flex items-center justify-between mb-3 bg-white rounded-[22px] p-4 my-6">
+                            <h3 className="text-lg md:text-xl font-bold">Похожие объекты</h3>
+                            <div
+                                className="text-sm text-[#666F8D]">{loadingSimilar ? 'Загрузка...' : `${similarProperties.length} найдено`}</div>
+                        </div>
+
+                        <div className="flex gap-3 overflow-x-auto pb-2">
+                            {similarProperties.map((p) => (
+                                <div className='w-[420px]' key={p.id}>
+                                    <BuyCard listing={p} user={user}/>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 <div className="bg-white px-4 py-5 md:px-9 md:py-10 rounded-[14px] md:rounded-[22px] mt-4">
                     <div className="text-lg md:text-2xl mb-3 md:mb-6 font-bold">
                         Расположение на карте
@@ -750,12 +833,15 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                             }}
                         >
                             <Map
-                                defaultState={{center: [38.5597722, 68.7870384], zoom: 9}}
+                                state={{
+                                    center: coordinates ?? [38.5597722, 68.7870384],
+                                    zoom: coordinates ? 15 : 9,
+                                }}
                                 width="100%"
                                 height="100%"
-                                onClick={handleMapClick}
+                                // onClick={handleMapClick}
                                 instanceRef={mapRef}
-                                modules={['geocode']}
+                                modules={["geocode"]}
                                 onLoad={(ymaps) => {
                                     // @ts-expect-error type error disabling
                                     ymapsRef.current = ymaps;
@@ -770,7 +856,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                             draggable: true,
                                         }}
                                         properties={{
-                                            iconCaption: addressCaption || 'Определение адреса...',
+                                            iconCaption: apartment.address,
                                         }}
                                     />
                                 )}

@@ -193,7 +193,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
 
     return (
         <div
-            className="bg-white rounded-xl overflow-hidden flex flex-col h-full hover:shadow-sm transition-shadow duration-200 p-4">
+            className="bg-white rounded-xl overflow-hidden flex flex-col h-full hover:shadow-sm transition-shadow duration-200 p-4 min-w-[312px]">
             <div className="relative mb-3">
                 <div className="overflow-hidden rounded-lg" ref={emblaRef}>
                     <div className="flex">
