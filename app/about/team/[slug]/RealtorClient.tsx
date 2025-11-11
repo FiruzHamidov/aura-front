@@ -1,7 +1,7 @@
 'use client';
 
-import {useEffect, useState} from 'react';
-import {useParams} from 'next/navigation';
+import {useEffect, useState, useRef} from 'react';
+import {useParams, useRouter} from 'next/navigation';
 import axios from 'axios';
 import Image from 'next/image';
 import TelegramNoBgIcon from '@/icons/TelegramNoBgIcon';
@@ -64,6 +64,8 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
     const route = useParams() as { slug?: string };
     const slug = slugProp ?? route.slug ?? "";
 
+    const router = useRouter();
+
     const [realtorData, setRealtorData] = useState<Realtor | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [name, setName] = useState('');
@@ -71,7 +73,17 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
     const reviewsPerPage = 4;
 
     const ROOM_CHIPS = [1, 2, 3, 4, 5]; // 5 = "5+"
-    const [selectedRooms, setSelectedRooms] = useState<number[]>([1, 2, 3, 4, 5]); // "Все" по умолчанию
+    const [selectedRooms, setSelectedRooms] = useState<number[]>(() => {
+        try {
+            if (typeof window === 'undefined') return [1, 2, 3, 4, 5];
+            const p = new URLSearchParams(window.location.search).get('rooms');
+            if (!p) return [1, 2, 3, 4, 5];
+            const arr = p.split(',').map(s => parseInt(s, 10)).filter(n => !isNaN(n));
+            return arr.length > 0 ? arr : [1, 2, 3, 4, 5];
+        } catch {
+            return [1, 2, 3, 4, 5];
+        }
+    }); // "Все" по умолчанию
     const [listingsTotal, setListingsTotal] = useState<number | null>(null);
 
     const isAllSelected = selectedRooms.length === ROOM_CHIPS.length;
@@ -172,6 +184,27 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
         }
     };
 
+// === sync selectedRooms -> URL (replace) but skip initial mount ===
+    const roomsSyncInitialized = useRef(false);
+    useEffect(() => {
+        if (!roomsSyncInitialized.current) {
+            roomsSyncInitialized.current = true;
+            return;
+        }
+        if (typeof window === 'undefined') return;
+        try {
+            const params = new URLSearchParams(window.location.search);
+            if (selectedRooms.length > 0) params.set('rooms', selectedRooms.join(','));
+            else params.delete('rooms');
+            const base = window.location.pathname;
+            const qs = params.toString();
+            const newUrl = `${base}${qs ? `?${qs}` : ''}${window.location.hash ?? ''}`;
+            router.replace(newUrl);
+        } catch {
+            // ignore
+        }
+    }, [selectedRooms, router]);
+
     if (!realtorData) return <div className="p-6 text-center">Загрузка...</div>;
 
     const currentReviews = realtorData.reviews.slice(
@@ -244,7 +277,7 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
                             </div>
                         </div>
 
-                        {/* Отзывы */}
+                        {/* Отзывы (скрыты) */}
                         <div className="mt-[52px] hidden">
                             <h2 className="text-2xl md:text-4xl font-bold mb-6 md:mb-10">Отзывы</h2>
                             <div className="mb-6">
@@ -354,8 +387,16 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
             </div>
 
             <div className="mb-4">
-                <RealtorListings slug={slug as string} selectedRooms={selectedRooms} onCountChange={setListingsTotal} />
+                <RealtorListings slug={slug as string} selectedRooms={selectedRooms} onCountChange={setListingsTotal}/>
             </div>
         </div>
     );
 }
+
+// --- PATCH BEGIN: RealtorListings changes below ---
+
+// Find the RealtorListings component and update its function body as described.
+// (The actual component is imported, but if it were defined here, the following changes would be made.)
+
+// --- PATCH END ---
+

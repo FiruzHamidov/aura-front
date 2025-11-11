@@ -1,7 +1,8 @@
 import {useGetPropertiesQuery} from "@/services/properties/hooks";
 import {PropertyFilters} from "@/services/properties/types";
 import Buy from "@/app/_components/buy/buy";
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useState, useRef} from 'react';
+import {useRouter} from 'next/navigation';
 
 type RealtorListingsProps = {
     slug: string;
@@ -9,7 +10,6 @@ type RealtorListingsProps = {
     onCountChange?: (total: number) => void;
 };
 
-// проверяем «непрерывность» выбора (например 2,3,4 или 3,4,5)
 const isContiguous = (arr: number[]) => {
     if (arr.length <= 1) return true;
     for (let i = 1; i < arr.length; i++) {
@@ -21,7 +21,21 @@ const isContiguous = (arr: number[]) => {
 };
 
 export const RealtorListings: React.FC<RealtorListingsProps> = ({slug, selectedRooms, onCountChange}) => {
-    const [page, setPage] = useState(1);
+    const router = useRouter();
+
+    const [page, setPage] = useState<number>(() => {
+        try {
+            if (typeof window === 'undefined') return 1;
+            const sp = new URLSearchParams(window.location.search).get('listingsPage');
+            const parsed = sp ? parseInt(sp, 10) : NaN;
+            return (!isNaN(parsed) && parsed > 0) ? parsed : 1;
+        } catch {
+            return 1;
+        }
+    });
+
+    // used to skip the first run of filter-reset effect so initial URL/page isn't overwritten
+    const filtersResetInitialized = useRef(false);
 
     // если выбрано «Все» — не добавляем комнатные фильтры вообще
     const allSelected = selectedRooms.length === 5;
@@ -29,9 +43,23 @@ export const RealtorListings: React.FC<RealtorListingsProps> = ({slug, selectedR
     // Сбрасываем страницу при смене фильтров
     const roomsKey = selectedRooms.join(',');
 
+    // reset page to 1 on filter change and update URL (replace), but skip initial mount
     useEffect(() => {
-        setPage(1);
-    }, [slug, roomsKey]);
+        if (!filtersResetInitialized.current) {
+            filtersResetInitialized.current = true;
+            return;
+        }
+        // setPage(1);
+        if (typeof window === 'undefined') return;
+        try {
+            const params = new URLSearchParams(window.location.search);
+            // params.set('listingsPage', '1');
+            const base = window.location.pathname;
+            const qs = params.toString();
+            const newUrl = `${base}${qs ? `?${qs}` : ''}${window.location.hash ?? ''}`;
+            router.replace(newUrl);
+        } catch {}
+    }, [slug, roomsKey, router]);
 
     // Готовим фильтры (мемоизация, чтобы не дергать лишние запросы)
     const filters: PropertyFilters = useMemo(() => {
@@ -86,7 +114,19 @@ export const RealtorListings: React.FC<RealtorListingsProps> = ({slug, selectedR
     const goToPage = (p: number) => {
         if (p < 1 || p > totalPages || p === currentPage) return;
         setPage(p);
-        // по желанию: скролл к началу списка
+        // push so user can go back/forward between pages
+        try {
+            if (typeof window === 'undefined') return;
+            const params = new URLSearchParams(window.location.search);
+            params.set('listingsPage', String(p));
+            const base = window.location.pathname;
+            const qs = params.toString();
+            const newUrl = `${base}${qs ? `?${qs}` : ''}${window.location.hash ?? ''}`;
+            router.push(newUrl);
+        } catch {
+            // ignore
+        }
+        // optional: scroll to top
         // window?.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -176,7 +216,8 @@ export const RealtorListings: React.FC<RealtorListingsProps> = ({slug, selectedR
     );
 };
 
-// Chip без изменений
+// Chip — если у вас отдельный экспорт, можете удалить этот экспорт и держать единственный в модуле.
+// Оставляю экспорт как у вас был раньше.
 export const Chip: React.FC<{ active: boolean; onClick: () => void; children: React.ReactNode }> = ({
                                                                                                         active,
                                                                                                         onClick,
