@@ -177,7 +177,8 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
                   {(index === 5 && extraImages > 0) && (
                       <div className="absolute right-0 top-0 flex w-full h-full bg-black/50 justify-center items-center">
                         {extraImages > 0 && (
-                            <span className="text-xs font-semibold items-center justify-center flex backdrop-blur-sm ring-1 ring-black/10 text-xs font-bold px-[18px] py-1 rounded-full shadow bg-slate-200 text-slate-900">ещё {extraImages} фото</span>
+                            <span
+                                className="text-[32px] font-semibold items-center justify-center flex text-xs font-bold px-[18px] py-1 rounded-full text-white/90">Еще {extraImages} фото</span>
                         )}
                       </div>
                   )}
