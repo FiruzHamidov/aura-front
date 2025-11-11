@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, useState, useCallback, useEffect, MouseEvent } from 'react';
+import { FC, useState, useCallback, useEffect, MouseEvent, useRef } from 'react';
 import { toast } from 'react-toastify';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -31,12 +31,82 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
   const {data: user} = useProfile();
   const formattedPrice = listing.price.toLocaleString('ru-RU');
 
-  const images = listing.images || [
-    { url: listing.imageUrl, alt: listing.imageAlt || `Фото ${listing.title}` },
-  ];
+  const rawImages = listing.images && listing.images.length > 0
+    ? listing.images.map(img => ({ url: img.url, alt: img.alt }))
+    : [{ url: listing.imageUrl, alt: listing.imageAlt || `Фото ${listing.title}` }];
+
+  const totalImages = rawImages.length;
+  const maxShown = 6; // show at most 6 in the card
+  const shownImages = rawImages.slice(0, maxShown);
+  const extraImages = Math.max(0, totalImages - maxShown);
+  const images = shownImages; // keep the rest of code using `images` variable
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [selectedIndex, setSelectedIndex] = useState(0);
+
+  // hover controls: zone-based + single-step + cooldown + lock until embla settles
+  const hoverCooldownRef = useRef<number>(0);
+  const HOVER_COOLDOWN_MS = 220;
+  const hoverDwellRef = useRef<number | null>(null);
+  const HOVER_DWELL_MS = 90;
+  const hoverLockedRef = useRef<boolean>(false);
+
+  const handleHoverMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!emblaApi || images.length <= 1) return;
+    if (hoverLockedRef.current) return;
+
+    const el = e.currentTarget as HTMLDivElement;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+
+    // divide container into N zones (N = number of visible images)
+    const zones = images.length;
+    const zoneWidth = rect.width / Math.max(1, zones);
+    let zoneIndex = Math.floor(x / zoneWidth);
+    if (zoneIndex < 0) zoneIndex = 0;
+    if (zoneIndex > zones - 1) zoneIndex = zones - 1;
+
+    if (zoneIndex === selectedIndex) {
+      if (hoverDwellRef.current) {
+        window.clearTimeout(hoverDwellRef.current as number);
+        hoverDwellRef.current = null;
+      }
+      return;
+    }
+
+    const direction = zoneIndex > selectedIndex ? 1 : -1;
+    const targetIndex = selectedIndex + direction;
+    if (targetIndex < 0 || targetIndex > images.length - 1) return;
+
+    const now = Date.now();
+    if (now - hoverCooldownRef.current >= HOVER_COOLDOWN_MS) {
+      hoverLockedRef.current = true;
+      scrollTo(targetIndex);
+      hoverCooldownRef.current = now;
+      if (hoverDwellRef.current) {
+        window.clearTimeout(hoverDwellRef.current as number);
+        hoverDwellRef.current = null;
+      }
+      return;
+    }
+
+    if (hoverDwellRef.current) return;
+    hoverLockedRef.current = true;
+    hoverDwellRef.current = window.setTimeout(() => {
+      scrollTo(targetIndex);
+      hoverCooldownRef.current = Date.now();
+      hoverDwellRef.current = null;
+    }, HOVER_DWELL_MS) as number;
+  };
+
+  const handleHoverLeave = () => {
+    if (hoverDwellRef.current) {
+      window.clearTimeout(hoverDwellRef.current as number);
+      hoverDwellRef.current = null;
+    }
+    hoverCooldownRef.current = 0;
+    hoverLockedRef.current = false;
+  };
 
   const userRole =
       user?.role?.slug === 'admin' ? 'admin' : user?.role?.slug === 'agent' ? 'agent' : null;
@@ -66,6 +136,8 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
     setSelectedIndex(emblaApi.selectedScrollSnap());
+    // embla finished selecting a snap; allow next hover-driven step
+    hoverLockedRef.current = false;
   }, [emblaApi]);
 
   useEffect(() => {
@@ -85,7 +157,7 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
       )}
     >
       <div className="relative">
-        <div className="overflow-hidden" ref={emblaRef}>
+        <div className="overflow-hidden" ref={emblaRef} onMouseMove={handleHoverMove} onMouseLeave={handleHoverLeave}>
           <div className="flex">
             {images.map((image, index) => (
               <div key={index} className="min-w-full">
@@ -97,10 +169,18 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
                     src={image.url ?? ''}
                     alt={`Фото ${listing.title}`}
                     fill
-                    className="object-cover" // заполняет контейнер, без искажений (возможна обрезка краёв)
+                    className="object-cover"
                     sizes="(min-width: 768px) 580px, 100vw"
                     priority={index === 0}
                   />
+
+                  {(index === 5 && extraImages > 0) && (
+                      <div className="absolute right-0 top-0 flex w-full h-full bg-black/50 justify-center items-center">
+                        {extraImages > 0 && (
+                            <span className="text-xs font-semibold items-center justify-center flex backdrop-blur-sm ring-1 ring-black/10 text-xs font-bold px-[18px] py-1 rounded-full shadow bg-slate-200 text-slate-900">ещё {extraImages} фото</span>
+                        )}
+                      </div>
+                  )}
                 </div>
               </div>
             ))}

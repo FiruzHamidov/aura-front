@@ -1,6 +1,6 @@
 'use client';
 
-import {FC, MouseEvent, useCallback, useEffect, useState} from 'react';
+import {FC, MouseEvent, useCallback, useEffect, useState, useRef} from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {useRouter} from 'next/navigation';
@@ -35,6 +35,80 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
 
     const [emblaRef, emblaApi] = useEmblaCarousel({loop: true});
     const [selectedIndex, setSelectedIndex] = useState(0);
+
+    const hoverCooldownRef = useRef<number>(0);
+    const HOVER_COOLDOWN_MS = 220; // milliseconds between allowed auto-steps
+
+    // Optional small dwell to avoid accidental flicks
+    const hoverDwellRef = useRef<number | null>(null);
+    const HOVER_DWELL_MS = 90;
+
+    // lock to prevent issuing another hover-driven step until embla finished moving
+    const hoverLockedRef = useRef<boolean>(false);
+
+    const handleHoverMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!emblaApi || displayImages.length <= 1) return;
+        // if a hover-driven step is already in progress (embla hasn't settled), ignore
+        if (hoverLockedRef.current) return;
+
+        const el = e.currentTarget as HTMLDivElement;
+        const rect = el.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+
+        // divide the container into N equal pixel zones (N = number of visible slides)
+        const zones = displayImages.length;
+        const zoneWidth = rect.width / Math.max(1, zones);
+        // compute the zone index under cursor
+        let zoneIndex = Math.floor(x / zoneWidth);
+        if (zoneIndex < 0) zoneIndex = 0;
+        if (zoneIndex > zones - 1) zoneIndex = zones - 1;
+
+        // if the cursor is in the same zone as the currently selected slide, do nothing
+        if (zoneIndex === selectedIndex) {
+            // clear any scheduled dwell
+            if (hoverDwellRef.current) {
+                window.clearTimeout(hoverDwellRef.current as number);
+                hoverDwellRef.current = null;
+            }
+            return;
+        }
+
+        // determine direction: move only one step toward the zone
+        const direction = zoneIndex > selectedIndex ? 1 : -1;
+        const targetIndex = selectedIndex + direction;
+        if (targetIndex < 0 || targetIndex > displayImages.length - 1) return;
+
+        const now = Date.now();
+        // if cooldown passed, issue a single step immediately and lock
+        if (now - hoverCooldownRef.current >= HOVER_COOLDOWN_MS) {
+            hoverLockedRef.current = true;
+            scrollTo(targetIndex);
+            hoverCooldownRef.current = now;
+            if (hoverDwellRef.current) {
+                window.clearTimeout(hoverDwellRef.current as number);
+                hoverDwellRef.current = null;
+            }
+            return;
+        }
+
+        // otherwise schedule a short dwell-triggered single step (if not already scheduled)
+        if (hoverDwellRef.current) return;
+        hoverLockedRef.current = true; // lock to avoid duplicates
+        hoverDwellRef.current = window.setTimeout(() => {
+            scrollTo(targetIndex);
+            hoverCooldownRef.current = Date.now();
+            hoverDwellRef.current = null;
+        }, HOVER_DWELL_MS) as unknown as number;
+    };
+
+    const handleHoverLeave = () => {
+        if (hoverDwellRef.current) {
+            window.clearTimeout(hoverDwellRef.current as number);
+            hoverDwellRef.current = null;
+        }
+        hoverCooldownRef.current = 0;
+        hoverLockedRef.current = false;
+    };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -72,6 +146,8 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
     const onSelect = useCallback(() => {
         if (!emblaApi) return;
         setSelectedIndex(emblaApi.selectedScrollSnap());
+        // embla finished selecting a snap; allow next hover-driven step
+        hoverLockedRef.current = false;
     }, [emblaApi]);
 
     useEffect(() => {
@@ -99,7 +175,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
         return LISTING_TYPE_META[l.listing_type]?.label || '';
     };
 
-    const displayImages =
+    const rawImages =
         listing.photos && listing.photos.length > 0
             ? listing.photos.map((photo: PropertyPhoto, index: number) => ({
                 url: photo.file_path
@@ -108,6 +184,12 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                 alt: `Фото ${listing.title || 'объявления'} ${index + 1}`,
             }))
             : [{url: '/images/no-image.jpg', alt: 'Нет фото'}];
+
+    const totalImages = rawImages.length;
+    const maxShown = 6;
+    const shownImages = rawImages.slice(0, maxShown);
+    const extraImages = Math.max(0, totalImages - maxShown);
+    const displayImages = shownImages;
 
     const getKindName = (l: Property) => {
         const slug = l.type?.slug;
@@ -195,7 +277,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
         <div
             className="bg-white rounded-xl overflow-hidden flex flex-col h-full hover:shadow-sm transition-shadow duration-200 p-4 min-w-[312px]">
             <div className="relative mb-3">
-                <div className="overflow-hidden rounded-lg" ref={emblaRef}>
+                <div className="overflow-hidden rounded-lg" ref={emblaRef} onMouseMove={handleHoverMove} onMouseLeave={handleHoverLeave}>
                     <div className="flex">
                         {displayImages.map((image, index) => (
                             <div className="min-w-full relative" key={index}>
@@ -210,6 +292,14 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                                         height={400}
                                         className="w-full object-cover aspect-[4/3] bg-gray-100"
                                     />
+
+                                {(index === 5 && extraImages > 0) && (
+                                    <div className="absolute right-0 top-0 flex w-full h-full bg-black/50 justify-center items-center">
+                                        {extraImages > 0 && (
+                                            <span className="text-xs font-semibold items-center justify-center flex backdrop-blur-sm ring-1 ring-black/10 text-xs font-bold px-[18px] py-1 rounded-full shadow bg-slate-200 text-slate-900">ещё {extraImages} фото</span>
+                                        )}
+                                    </div>
+                                )}
                                 </Link>
                             </div>
                         ))}
