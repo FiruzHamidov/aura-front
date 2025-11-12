@@ -6,7 +6,8 @@ import {useRouter, useSearchParams} from 'next/navigation';
 import {reportsApi} from '@/services/reports/api';
 import {Input} from '@/ui-components/Input';
 import {Button} from '@/ui-components/Button';
-import {EyeIcon} from "lucide-react";
+import {EditIcon, EyeIcon, HistoryIcon, User} from "lucide-react";
+import {Property} from "@/services/properties/types";
 
 type AgentPropertiesReport = {
     agent_id: number;
@@ -16,22 +17,25 @@ type AgentPropertiesReport = {
         total_shows: number;
         by_status: Record<string, number>;
     };
-    properties: {
-        id: number;
-        title: string;
-        price: number | null;
-        currency: string | null;
-        moderation_status: string | null;
-        shows_count: number;
-        first_show: string | null;
-        last_show: string | null;
-    }[];
+    properties: (Property & {
+        type?: { id?: number; slug?: string } | null;
+        apartment_type?: string | null;
+        rooms?: number | null;
+        total_area?: number | null;
+        living_area?: number | null;
+        land_size?: number | null;
+        floor?: number | null;
+        total_floors?: number | null;
+        shows_count?: number | null;
+        first_show?: string | null;
+        last_show?: string | null;
+    })[];
 };
 
 const STATUS_LABELS: Record<string, string> = {
     draft: 'Черновик',
     pending: 'Ожидание',
-    approved: 'Одобрено/Опубликовано',
+    approved: 'Опубликовано',
     rejected: 'Отклонено',
     sold: 'Продано',
     sold_by_owner: 'Продано владельцем',
@@ -53,6 +57,7 @@ export default function AgentReportPage() {
     const [loading, setLoading] = useState(false);
     const [report, setReport] = useState<AgentPropertiesReport | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [openRow, setOpenRow] = useState<number | null>(null);
 
     const [dateFrom, setDateFrom] = useState<string>(dateFromParam);
     const [dateTo, setDateTo] = useState<string>(dateToParam);
@@ -77,7 +82,15 @@ export default function AgentReportPage() {
             // логируем приходящие данные для отладки
             console.log('agentPropertiesReport response:', data);
 
-            setReport(data as AgentPropertiesReport);
+            // API may return either a single AgentPropertiesReport or an array (aggregated mode).
+            // Normalize to single object when possible.
+            if (Array.isArray(data)) {
+                // if array returned, try to find the report for the requested agent id
+                const found = data.find((r) => String(r.agent_id) === String(agentId));
+                setReport((found ?? data[0]) as unknown as AgentPropertiesReport);
+            } else {
+                setReport(data as unknown as AgentPropertiesReport);
+            }
         } catch (e: unknown) {
             console.error('agentPropertiesReport error', e);
             let msg = 'Ошибка загрузки';
@@ -118,6 +131,61 @@ export default function AgentReportPage() {
 
         // перезагрузим без дат
         await load(createdBy);
+    };
+
+
+    const getKindName = (l: Property) => {
+        const slug = l.type?.slug;
+
+        switch (slug) {
+            case 'commercial':
+                return 'Коммерческое помещение';
+            case 'land-plots':
+                return 'Земельный участок';
+            case 'houses':
+                return 'дом'; // при желании можно развести на коттедж/таунхаус по отдельному полю
+            case 'parking':
+                return 'парковка';
+            // квартиры идут в двух категориях: secondary и new-buildings
+            case 'secondary':
+            case 'new-buildings':
+            default:
+                // если есть уточнение типа квартиры — используем его
+                return l.apartment_type || 'квартира';
+        }
+    };
+
+    const buildTitle = (l: Property) => {
+        const kind = getKindName(l);
+        const slug = l.type?.slug;
+
+        if (slug === 'commercial') {
+            // комнаты не показываем, фокус на площади/этаже
+            return `${kind}${l.total_area ? `, ${l.total_area} м²` : ''}${
+                l.floor ? `, ${l.floor}/${l.total_floors} этаж` : ''
+            }`;
+        }
+
+        if (slug === 'land-plots') {
+            // для участка чаще показывают площадь (если есть поле под сотки — подставь его)
+            return `${kind}${l.land_size ? `, ${l.land_size} соток` : ''}`;
+        }
+
+        if (slug === 'houses') {
+            // для домов комнатность опционально
+            return `${l.rooms ? `${l.rooms} комн. ` : ''}${kind}${
+                l.land_size ? `, ${l.land_size} соток` : ''
+            }${l.floor ? `, ${l.floor}/${l.total_floors} этаж` : ''}`;
+        }
+
+        if (slug === 'parking') {
+            return kind; // можно добавить «подземная/наземная» по отдельному полю, если появится
+        }
+
+        // квартиры: secondary / new-buildings (или дефолт)
+        return `${l.rooms ? `${l.rooms} комн. ` : ''}${kind}${
+            l.floor ? `, ${l.floor}/${l.total_floors} этаж` : ''
+        }${l.total_area ? `, ${l.total_area} м²` : ''}`;
     };
 
     // const getKindName = (l: Property) => {
@@ -225,8 +293,10 @@ export default function AgentReportPage() {
                         <Button variant="secondary" onClick={clearFilters}>
                             Сбросить
                         </Button>
+
                     </div>
                 </div>
+
             </div>
 
             {loading && (
@@ -243,6 +313,7 @@ export default function AgentReportPage() {
                 <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
                     <div className="flex items-center justify-between mb-3">
                         <h2 className="font-semibold">Агент: {report.agent_name}</h2>
+
                         <div className="text-sm text-gray-500">Период: {dateFrom || '—'} — {dateTo || '—'}</div>
                     </div>
 
@@ -267,12 +338,18 @@ export default function AgentReportPage() {
                                     ))}
                             </div>
                         </div>
+                        <div className='flex'>
+                            <Link href={`/about/team/${createdBy}`}
+                                  className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
+                                <User className="w-6 h-6"/>
+                                <span>Посмотреть страницу агента</span>
+                            </Link></div>
                     </div>
 
                     <table className="min-w-full text-sm">
                         <thead>
                         <tr className="text-left text-gray-500">
-                            {/*<th className="py-2 pr-4">Объект</th>*/}
+                            <th className="py-2 pr-4">Объект</th>
                             <th className="py-2 pr-4">Цена</th>
                             <th className="py-2 pr-4">Статус</th>
                             <th className="py-2 pr-4">Показов</th>
@@ -292,14 +369,55 @@ export default function AgentReportPage() {
                                 <tr className="border-t" key={p.id}>
 
 
-                                    {/*<td className="py-2 pr-4">{buildTitle(p)}</td>*/}
+                                    <td className="py-2 pr-4 font-medium">{buildTitle(p)}</td>
                                     <td className="py-2 pr-4">{p.price ? `${p.price} ${p.currency ?? ''}` : '—'}</td>
                                     <td className="py-2 pr-4">{statusLabel(p.moderation_status ?? '')}</td>
                                     <td className="py-2 pr-4">{p.shows_count}</td>
                                     <td className="py-2 pr-4">{p.first_show ?? '—'}</td>
                                     <td className="py-2 pr-4">{p.last_show ?? '—'}</td>
-                                    <td className="flex"><Link href={`/apartment/${p.id}`}> <EyeIcon
-                                        className='w-4 h-4'/> Посмотреть </Link></td>
+                                    <td className="py-2 pr-4">
+                                        <div className="relative inline-block text-left">
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setOpenRow(openRow === p.id ? null : p.id);
+                                                }}
+                                                className="inline-flex items-center gap-2 px-3 py-1 border rounded text-sm bg-white hover:bg-gray-50"
+                                            >
+                                                Действия
+                                                <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"
+                                                     aria-hidden="true">
+                                                    <path fillRule="evenodd"
+                                                          d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.06z"
+                                                          clipRule="evenodd"/>
+                                                </svg>
+                                            </button>
+
+                                            {openRow === p.id && (
+                                                <div
+                                                    className="absolute right-0 mt-2 w-44 bg-white border rounded shadow z-20">
+                                                    <Link href={`/apartment/${p.id}`}
+                                                          className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
+                                                        <EyeIcon className="w-4 h-4"/>
+                                                        <span>Посмотреть</span>
+                                                    </Link>
+
+                                                    <Link href={`/apartment/${p.id}/logs`}
+                                                          className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
+                                                        <HistoryIcon className="w-4 h-4"/>
+                                                        <span>Посмотреть историю</span>
+                                                    </Link>
+                                                    <Link href={`/profile/edit-post/${p.id}`}
+                                                          className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
+                                                        <EditIcon className="w-4 h-4"/>
+                                                        <span>Редактировать</span>
+                                                    </Link>
+
+                                                </div>
+                                            )}
+                                        </div>
+                                    </td>
 
                                 </tr>
                             ))

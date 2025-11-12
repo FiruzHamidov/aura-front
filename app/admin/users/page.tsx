@@ -5,7 +5,7 @@ import {useAgents, useCreateUser, useDeleteUser, useUpdateUser, useUsers} from '
 import type {CreateUserPayload, DeleteUserPayload, UpdateUserPayload, UserDto} from '@/services/users/types';
 import UserForm from './_components/UserForm';
 import {toast} from 'react-toastify';
-import {Eye, Pencil, Plus, Trash2} from 'lucide-react';
+import {Eye, Pencil, Plus, SquareChartGantt, Trash2} from 'lucide-react';
 import {AnimatePresence, motion} from 'framer-motion';
 import DeleteUserDialog from "@/app/admin/users/_components/DeleteUserDialog";
 import showAxiosErrorToast from "@/utils/showAxiosErrorToast";
@@ -179,6 +179,15 @@ export default function UsersPage() {
                                     >
                                         <Eye className="w-4 h-4"/>
                                     </Link>
+                                    <Link
+                                        href={`/profile/reports/agent?created_by=${u.id}`}
+                                        title="Показать"
+                                        aria-label="Показать"
+                                        className="p-2 rounded-md hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition cursor-pointer"
+                                    >
+                                        <SquareChartGantt className="w-4 h-4"/>
+
+                                    </Link>
                                     <button
                                         onClick={() => openEdit(u)}
                                         title="Редактировать"
@@ -195,6 +204,8 @@ export default function UsersPage() {
                                     >
                                         <Trash2 className="w-4 h-4"/>
                                     </button>
+
+
                                 </div>
                             </li>
                         ))}

@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useState, useRef} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {useParams, useRouter} from 'next/navigation';
 import axios from 'axios';
 import Image from 'next/image';
@@ -14,6 +14,8 @@ import {toast} from 'react-toastify';
 import {STORAGE_URL} from "@/constants/base-url";
 import {Chip, RealtorListings} from "@/app/buy/_components/RealtorListing";
 import UserIcon from "@/icons/UserIcon";
+import Link from "next/link";
+import {SquareChartGantt} from "lucide-react";
 
 interface Review {
     id: number;
@@ -60,7 +62,7 @@ const Rating = ({value}: { value: number }) => (
     </div>
 );
 
-export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
+export default function RealtorClient({slug: slugProp}: { slug?: string }) {
     const route = useParams() as { slug?: string };
     const slug = slugProp ?? route.slug ?? "";
 
@@ -231,8 +233,9 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
                                         className="rounded-full object-cover mr-2 h-[120px] w-[120px]"
                                     />
                                 ) : (
-                                    <div className="rounded-full flex justify-center items-center  h-[120px] w-[120px] bg-[#F1F5F9] p-1.5 mr-1.5">
-                                        <UserIcon className="w-6 h-7" />
+                                    <div
+                                        className="rounded-full flex justify-center items-center  h-[120px] w-[120px] bg-[#F1F5F9] p-1.5 mr-1.5">
+                                        <UserIcon className="w-6 h-7"/>
                                     </div>
                                 )}
                             </div>
@@ -240,13 +243,33 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
                             <div>
                                 <div className="text-[#353E5C]">{realtorData.position}</div>
                                 {/* H1 рендерится на сервере как sr-only */}
-                                <div className="text-[32px] font-bold" aria-hidden="true">{realtorData.name}</div>
+                                <div className="text-[32px] font-bold flex justify-beetwen"
+                                     aria-hidden="true">{realtorData.name}
+                                    <div>
+
+                                        <Link href={`/profile/reports/agent?created_by=${realtorData.id}`}
+                                              className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
+                                            <SquareChartGantt/>
+                                            <span>Посмотреть отчет</span>
+                                        </Link>
+
+                                        {/*<Link href={`/apartment/${p.id}/logs`} className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">*/}
+                                        {/*    <HistoryIcon className="w-4 h-4" />*/}
+                                        {/*    <span>Посмотреть историю</span>*/}
+                                        {/*</Link>*/}
+                                        {/*<Link href={`/profile/edit-post/${p.id}/logs`} className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">*/}
+                                        {/*    <EditIcon className="w-4 h-4" />*/}
+                                        {/*    <span>Редактировать</span>*/}
+                                        {/*</Link>*/}
+                                    </div>
+                                </div>
                                 <div className="flex items-center gap-3 mt-3">
-                                    <div className="flex items-center gap-1 rounded-[26px] text-[#666F8D] bg-[#F7F8FA] px-2.5 py-2">
-                                        <ThumbsUpIcon className="w-5 h-5" />
+                                    <div
+                                        className="flex items-center gap-1 rounded-[26px] text-[#666F8D] bg-[#F7F8FA] px-2.5 py-2">
+                                        <ThumbsUpIcon className="w-5 h-5"/>
                                         <span>{realtorData.rating ?? 0}</span>
                                     </div>
-                                    <div className="text-[#666F8D]">{realtorData.reviewCount ?? 0} отзывов</div>
+                                    {/*<div className="text-[#666F8D]">{realtorData.reviewCount ?? 0} отзывов</div>*/}
                                 </div>
 
                                 {realtorData.description && (
@@ -263,14 +286,16 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
                                         {realtorData.phone}
                                     </a>
                                     <div className="flex gap-2">
-                                        <a href={linkData?.tgHref ?? '#'} target="_blank" aria-label="Telegram" rel="noopener">
-                                            <TelegramNoBgIcon className="w-12 h-12" />
+                                        <a href={linkData?.tgHref ?? '#'} target="_blank" aria-label="Telegram"
+                                           rel="noopener">
+                                            <TelegramNoBgIcon className="w-12 h-12"/>
                                         </a>
                                         <a href={linkData?.telHref ?? '#'} aria-label="Phone">
-                                            <PhoneNoBgIcon className="w-12 h-12" />
+                                            <PhoneNoBgIcon className="w-12 h-12"/>
                                         </a>
-                                        <a href={linkData?.waHref ?? '#'} target="_blank" aria-label="WhatsApp" rel="noopener">
-                                            <WhatsAppNoBgIcon className="w-12 h-12" />
+                                        <a href={linkData?.waHref ?? '#'} target="_blank" aria-label="WhatsApp"
+                                           rel="noopener">
+                                            <WhatsAppNoBgIcon className="w-12 h-12"/>
                                         </a>
                                     </div>
                                 </div>
@@ -285,7 +310,7 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
                                     className="inline-flex items-center gap-1 p-2.5 rounded-full border border-[#BAC0CC] text-lg"
                                 >
                                     <div className="bg-[#0036A5] p-1 rounded-full w-8 h-8">
-                                        <PencilIcon className="w-6 h-6" />
+                                        <PencilIcon className="w-6 h-6"/>
                                     </div>
                                     Оставить отзыв
                                 </button>
@@ -296,7 +321,7 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
                                         <div className="mb-1">
                                             <div className="text-lg mb-2">{review.author}</div>
                                             <div className="flex items-center justify-between mb-3.5">
-                                                <Rating value={review.rating} />
+                                                <Rating value={review.rating}/>
                                                 <div className="text-lg text-[#666F8D]">{review.date}</div>
                                             </div>
                                         </div>
@@ -374,7 +399,7 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
                     <p className="mt-2 mb-3">Кол-во комнат:</p>
                     <div className="flex flex-wrap items-center gap-2">
                         <Chip active={isAllSelected} onClick={selectAll}>Все</Chip>
-                        {[1,2,3,4,5].map(v => (
+                        {[1, 2, 3, 4, 5].map(v => (
                             <Chip key={v} active={selectedRooms.includes(v)} onClick={() => toggleRoom(v)}>
                                 {v === 5 ? '5+' : v}
                             </Chip>
