@@ -247,11 +247,11 @@ export default function RealtorClient({slug: slugProp}: { slug?: string }) {
                                      aria-hidden="true">{realtorData.name}
                                     <div>
 
-                                        <Link href={`/profile/reports/agent?created_by=${realtorData.id}`}
-                                              className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
-                                            <SquareChartGantt/>
-                                            <span>Посмотреть отчет</span>
-                                        </Link>
+                                        {/*<Link href={`/profile/reports/agent?created_by=${realtorData.id}`}*/}
+                                        {/*      className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">*/}
+                                        {/*    <SquareChartGantt/>*/}
+                                        {/*    <span>Посмотреть отчет</span>*/}
+                                        {/*</Link>*/}
 
                                         {/*<Link href={`/apartment/${p.id}/logs`} className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">*/}
                                         {/*    <HistoryIcon className="w-4 h-4" />*/}
