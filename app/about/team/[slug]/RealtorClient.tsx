@@ -221,14 +221,14 @@ export default function RealtorClient({slug: slugProp}: { slug?: string }) {
                     {/* Левая часть */}
                     <div className="md:w-2/3">
                         <div className="flex gap-[22px] bg-white px-4 py-8 rounded-[22px]">
-                            <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden flex-shrink-0">
+                            <div className="relative h-auto overflow-hidden flex-shrink-0">
                                 {realtorData.photo ? (
                                     <Image
                                         src={`${STORAGE_URL}/${realtorData.photo}`}
                                         alt={realtorData.name}
-                                        width={120}
-                                        height={120}
-                                        className="rounded-full object-cover mr-2 h-[120px] w-[120px]"
+                                        width={300}
+                                        height={400}
+                                        className="rounded-lg object-cover mr-2"
                                     />
                                 ) : (
                                     <div
@@ -261,7 +261,7 @@ export default function RealtorClient({slug: slugProp}: { slug?: string }) {
                                         {/*</Link>*/}
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3 mt-3">
+                                <div className="flex items-center gap-3 mt-3 hidden">
                                     <div
                                         className="flex items-center gap-1 rounded-[26px] text-[#666F8D] bg-[#F7F8FA] px-2.5 py-2">
                                         <ThumbsUpIcon className="w-5 h-5"/>
