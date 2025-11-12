@@ -20,7 +20,7 @@ export const Tabs = <T extends string = string>({
           className={clsx(
               'bg-[#F0F2F5]',
               hasBorder ? 'border border-[#E3E6EA]' : '',
-              'rounded-full w-max px-3 py-2.5 flex flex-wrap gap-2'
+              'rounded-full justify-center px-3 py-2.5 flex flex-wrap gap-2'
           )}
       >
         {tabs.map((tab) => {

@@ -552,7 +552,7 @@ export const BuyContent: FC<{ offer_type_props?: string }> = ({offer_type_props 
                             <div className="relative">
                                 <button
                                     onClick={() => setIsSortOpen(true)}
-                                    className={`flex items-center gap-2 bg-[#F0F2F5] hover:bg-gray-200 p-4 rounded-full  mb-4 md:mb-0 w-full md:w-auto cursor-pointer ${activeFilter === 'map' ? 'hidden' : ''}`}
+                                    className={`flex items-center justify-center gap-2 bg-[#F0F2F5] hover:bg-gray-200 p-4 rounded-full  mb-4 md:mb-0 w-full md:w-auto cursor-pointer ${activeFilter === 'map' ? 'hidden' : ''}`}
                                 >
                                     <ArrowUpWideNarrow className="h-6 w-6 text-[#0036A5]"/>
                                     <span>Сортировка</span>

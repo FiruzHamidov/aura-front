@@ -334,7 +334,7 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
                                 <input
                                     type="text"
                                     placeholder="Ваше имя"
-                                    className="w-full p-5 text-lg rounded-full bg-[#F0F2F5] border-none"
+                                    className="w-full p-3 text-lg rounded-full bg-[#F0F2F5] border-none text-center"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     required
@@ -344,7 +344,7 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
                                 <input
                                     type="tel"
                                     placeholder="Телефон"
-                                    className="w-full p-5 text-lg rounded-full bg-[#F0F2F5] border-none"
+                                    className="w-full p-3 text-lg rounded-full bg-[#F0F2F5] border-none text-center"
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value)}
                                     required
@@ -352,7 +352,7 @@ export default function RealtorClient({ slug: slugProp }: { slug?: string }) {
                             </div>
                             <button
                                 type="submit"
-                                className="w-full text-lg bg-[#0036A5] text-white p-5 rounded-full font-bold"
+                                className="w-full text-lg bg-[#0036A5] text-white p-3 rounded-full font-bold"
                             >
                                 Позвонить мне
                             </button>
