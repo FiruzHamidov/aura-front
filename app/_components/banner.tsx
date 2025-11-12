@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import { useRouter } from 'next/navigation';
 import FilterSearchIcon from '@/icons/FilterSearchIcon';
 import { SelectInput } from '@/ui-components/SelectInput';
-import { AllFilters } from './filters';
+import { AllFilters } from './filtersMain';
 import { PropertyFilters } from '@/services/properties/types';
 import { useGetPropertyTypesQuery } from '@/services/add-post';
 import Link from 'next/link';
