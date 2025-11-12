@@ -14,8 +14,6 @@ import {toast} from 'react-toastify';
 import {STORAGE_URL} from "@/constants/base-url";
 import {Chip, RealtorListings} from "@/app/buy/_components/RealtorListing";
 import UserIcon from "@/icons/UserIcon";
-import Link from "next/link";
-import {SquareChartGantt} from "lucide-react";
 
 interface Review {
     id: number;
