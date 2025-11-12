@@ -15,7 +15,7 @@ export const Tab: FC<TabProps> = ({
 }) => {
   return (
     <button
-      className={`px-6 py-3 rounded-full cursor-pointer md:text-lg text-sm transition-colors ${
+      className={`sm:px-6 px-3 py-3 rounded-full cursor-pointer md:text-lg text-sm transition-colors ${
         isActive ? 'bg-[#0036A5] text-white' : 'bg-white text-[#020617]'
       } ${className}`}
       onClick={onClick}

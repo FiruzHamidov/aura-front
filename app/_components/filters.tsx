@@ -186,10 +186,10 @@ export const AllFilters: FC<AllFiltersProps> = ({
     };
 
     return (
-        <div className={`${isOpen ? 'block' : 'hidden pointer-events-none'}`}>
+        <div className={`${isOpen ? 'block ' : 'hidden pointer-events-none'} z-[9999999] w-full sm:h-full sm:h-auto top-[-90px] left-0 right-0 absolute mx-auto flex justify-center`}>
             <div
-                className={`mx-auto bg-white px-4 sm:px-8 md:px-12 lg:px-[70px] p-6 transition-transform duration-300 ${
-                    isOpen ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'
+                className={`mx-auto bg-white rounded-3xl shadow-lg px-4 sm:px-8 md:px-12 lg:px-[70px] p-6 transition-transform duration-300 w-full ${
+                    isOpen ? 'translate-y-0 opacity-100 ' : 'translate-y-5 opacity-0'
                 }`}
             >
                 <div className="flex justify-between items-center mb-4">
@@ -203,7 +203,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
                 </div>
 
                 <form onSubmit={handleSubmit}>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 relative">
                         <MultiSelectInput
                             label="Тип недвижимости"
                             options={propertyTypeOpts}
@@ -339,7 +339,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
                     <div className="flex justify-end mt-8">
                         <button
                             type="submit"
-                            className="bg-[#0036A5] text-white py-3 px-6 rounded-lg hover:bg-blue-800 cursor-pointer"
+                            className="bg-[#0036A5] text-white py-3 px-6 rounded-lg hover:bg-blue-800 cursor-pointer fixed bottom-4"
                         >
                             Найти объекты
                         </button>

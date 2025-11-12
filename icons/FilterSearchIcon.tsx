@@ -3,8 +3,8 @@ import { SVGProps } from 'react';
 const FilterSearchIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="1em"
-    height="1em"
+    width="0.5em"
+    height="0.5em"
     fill="none"
     {...props}
   >

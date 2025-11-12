@@ -1,6 +1,6 @@
 'use client';
 
-import {FC, useEffect, useMemo, useState, useRef, useCallback} from 'react';
+import {FC, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import Link from 'next/link';
 import {Tabs} from '@/ui-components/tabs/tabs';
 import ListingCard from './listing-card';
@@ -57,7 +57,7 @@ const TopListings: FC<{
     const [progress, setProgress] = useState(0); // 0..100
 
     const TICK_MS = 100;
-    const DURATION_MS = 5000; // 5 seconds
+    const DURATION_MS = 9000;
     const CIRC = 2 * Math.PI * 16; // circumference for SVG progress circle (r=16)
 
     // Reset progress when active tab changes
@@ -277,7 +277,8 @@ const TopListings: FC<{
             <div ref={contentRef} className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
                 <h2 className="text-2xl md:text-4xl font-bold text-[#020617] mb-6 md:mb-10">{title}</h2>
 
-                <div ref={tabsContainerRef} className="mb-5 md:mb-8 overflow-auto hide-scrollbar flex items-center justify-between">
+                <div ref={tabsContainerRef}
+                     className="mb-5 md:mb-8 overflow-auto hide-scrollbar flex items-center justify-between">
                     <div className="flex gap-3 items-center" role="tablist" aria-label="Типы недвижимости">
                         {filteredTabs.map((t) => (
                             <button
@@ -286,28 +287,33 @@ const TopListings: FC<{
                                 aria-selected={t.key === activeType}
                                 tabIndex={0}
                                 onClick={() => handleSetActiveType(t.key)}
-                                className={['relative px-4 py-2 rounded-full flex items-center gap-3 focus:outline-none', t.key === activeType ? 'bg-[#0036A5] text-white' : 'bg-white text-gray-700 shadow-sm'].join(' ')}
+                                className={['relative px-4 py-2 my-2 rounded-full flex items-center gap-3 focus:outline-none ', t.key === activeType ? 'bg-[#0036A5] text-white' : 'bg-white text-gray-700 shadow-sm'].join(' ')}
                             >
-                                <span className="leading-5">{t.label}</span>
-
-                                {/* circular progress inside the tab button */}
+                                <span className="leading-5 h-8 flex items-center">{t.label}</span>
+                                {t.key === activeType && (
                                 <span className="ml-2 w-8 h-8 inline-flex items-center justify-center">
-                                    <svg viewBox="0 0 36 36" className="w-6 h-6">
-                                        <circle cx="18" cy="18" r="16" strokeWidth="2" stroke="#756868" fill="none" />
-                                        <circle
-                                            cx="18"
-                                            cy="18"
-                                            r="16"
-                                            strokeWidth="2"
-                                            stroke={t.key === activeType ? '#FFFFFF' : '#a3b0cc'}
-                                            strokeLinecap="round"
-                                            fill="none"
-                                            strokeDasharray={`${CIRC}`}
-                                            strokeDashoffset={t.key === activeType ? String(CIRC * (1 - progress / 100)) : String(CIRC)}
-                                            transform="rotate(-90 18 18)"
-                                        />
-                                    </svg>
+
+                                        <svg viewBox="0 0 36 36" className="w-6 h-6">
+                                            <circle cx="18" cy="18" r="16" strokeWidth="2"
+                                                    stroke={t.key === activeType ? '#756868' : '#ffffff'}
+                                                    fill="none"/>
+                                            <circle
+                                                cx="18"
+                                                cy="18"
+                                                r="16"
+                                                strokeWidth="2"
+                                                stroke={t.key === activeType ? '#FFFFFF' : '#a3b0cc'}
+                                                strokeLinecap="round"
+                                                fill="none"
+                                                strokeDasharray={`${CIRC}`}
+                                                strokeDashoffset={t.key === activeType ? String(CIRC * (1 - progress / 100)) : String(CIRC)}
+                                                transform="rotate(-90 18 18)"
+                                            />
+                                        </svg>
+
                                 </span>
+                                )}
+
                             </button>
                         ))}
                     </div>

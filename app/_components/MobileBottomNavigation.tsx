@@ -186,7 +186,7 @@ const MobileBottomNavigation: FC = () => {
 
             {/* Bottom Sheet: меню профиля — только когда авторизован и открыт */}
             {isAuthed && sheetOpen && (
-                <div className="md:hidden fixed inset-0 z-50">
+                <div className="md:hidden fixed inset-0 z-71">
                     {/* overlay */}
                     <div className="absolute inset-0" onClick={closeSheet} aria-hidden />
                     {/* FULL-SCREEN SHEET */}

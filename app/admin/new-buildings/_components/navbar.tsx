@@ -44,7 +44,7 @@ export const Navbar = () => {
 
   return (
     <>
-      <div className="mx-auto max-w-[1520px] hidden md:block sticky top-10 z-30 ">
+      <div className="mx-auto max-w-[1520px] hidden md:block sticky top-10">
         <div className="bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 rounded-xl">
           <nav className="flex items-center gap-2 overflow-x-auto scrollbar-none py-3 px-2">
             {ALL_ITEMS.map(({ href, label }) => {

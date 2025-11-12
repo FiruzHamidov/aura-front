@@ -1,12 +1,11 @@
 'use client';
 
-import {FC, useEffect, useMemo, useState} from 'react';
+import {FC, useEffect, useMemo, useState, useRef} from 'react';
 import dynamic from 'next/dynamic';
 import {useRouter, useSearchParams} from 'next/navigation';
 import clsx from 'clsx';
 import Buy from '@/app/_components/buy/buy';
 import {useGetPropertiesInfiniteQuery} from '@/services/properties/hooks';
-import FilterSearchIcon from '@/icons/FilterSearchIcon';
 import {AllFilters} from '@/app/_components/filters';
 import {PropertyFilters} from '@/services/properties/types';
 import BuyCardSkeleton from '@/ui-components/BuyCardSkeleton';
@@ -14,6 +13,7 @@ import {Tabs} from '@/ui-components/tabs/tabs';
 import {useGetPropertyTypesQuery} from "@/services/add-post";
 
 import Router from 'next/router';
+import {ArrowUpWideNarrow, ListFilterPlus} from "lucide-react";
 
 declare global {
     interface Window {
@@ -36,7 +36,7 @@ const AdBanner = (props: AdsBannerProps) => {
                     window.adsbygoogle.push({});
                     return true;
                 }
-            } catch  {
+            } catch {
                 // noop
             }
             return false;
@@ -56,7 +56,10 @@ const AdBanner = (props: AdsBannerProps) => {
 
         // push on route changes as well
         const handleRouteChange = () => {
-            try { pushAd(); } catch { /* noop */ }
+            try {
+                pushAd();
+            } catch { /* noop */
+            }
         };
 
         Router.events.on('routeChangeComplete', handleRouteChange);
@@ -80,12 +83,141 @@ const AdBanner = (props: AdsBannerProps) => {
     );
 };
 
+const SortPopup: FC<{
+    isOpen: boolean;
+    onClose: () => void;
+    offerType: string;
+}> = ({isOpen, onClose, offerType}) => {
+    const [selected, setSelected] = useState<string | null>(null);
+
+    // lock body scroll when open
+    useEffect(() => {
+        if (!isOpen) return;
+        const prev = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = prev;
+        };
+    }, [isOpen]);
+
+    // init selected from query params when popup opens
+    useEffect(() => {
+        if (!isOpen) return;
+        const params = new URLSearchParams(window.location.search);
+        const sort = params.get('sort');
+        const dir = params.get('dir') || 'desc';
+        if (!sort) {
+            setSelected('none');
+            return;
+        }
+        setSelected(`${sort}:${dir}`);
+    }, [isOpen]);
+
+    if (!isOpen) return null;
+
+    const applySelection = (value: string) => {
+        if (!value) return;
+        const params = new URLSearchParams(window.location.search);
+
+        if (value === 'none') {
+            params.delete('sort');
+            params.delete('dir');
+        } else {
+            const [sort, dir] = value.split(':');
+            params.set('sort', sort);
+            params.set('dir', dir as 'asc' | 'desc');
+        }
+
+        const base = offerType === 'rent' ? '/rent-offers' : '/buy';
+        const qs = params.toString();
+        window.history.pushState({}, '', `${base}${qs ? `?${qs}` : ''}`);
+        window.dispatchEvent(new PopStateEvent('popstate'));
+        onClose();
+    };
+
+    return (
+        <div
+            className="fixed inset-0 z-[99999] flex items-center justify-center"
+            aria-modal="true"
+            role="dialog"
+        >
+            <div onClick={onClose} className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
+
+            <div onClick={(e) => e.stopPropagation()} className="relative z-10 w-full max-w-md mx-4 bg-white rounded-3xl shadow-lg">
+                <div className="p-6">
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="text-sm font-semibold">Сортировать по</div>
+                        <button onClick={onClose} className="text-gray-500 text-sm">Закрыть</button>
+                    </div>
+
+                    <form
+                        onSubmit={(e) => { e.preventDefault(); if (selected) applySelection(selected); }}
+                        className="flex flex-col gap-2"
+                    >
+                        <fieldset className="flex flex-col gap-1" aria-label="Сортировка">
+                            <label className="inline-flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" name="sort" value="listing_type:desc" checked={selected === 'listing_type:desc'} onChange={() => setSelected('listing_type:desc')} />
+                                <span>По типу</span>
+                            </label>
+
+                            <div className="border-t my-1" />
+
+                            <label className="inline-flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" name="sort" value="price:asc" checked={selected === 'price:asc'} onChange={() => setSelected('price:asc')} />
+                                <span>Цена — по возрастанию</span>
+                            </label>
+                            <label className="inline-flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" name="sort" value="price:desc" checked={selected === 'price:desc'} onChange={() => setSelected('price:desc')} />
+                                <span>Цена — по убыванию</span>
+                            </label>
+
+                            <div className="border-t my-1" />
+
+                            <label className="inline-flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" name="sort" value="total_area:asc" checked={selected === 'total_area:asc'} onChange={() => setSelected('total_area:asc')} />
+                                <span>Площадь — по возрастанию</span>
+                            </label>
+                            <label className="inline-flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" name="sort" value="total_area:desc" checked={selected === 'total_area:desc'} onChange={() => setSelected('total_area:desc')} />
+                                <span>Площадь — по убыванию</span>
+                            </label>
+
+                            <div className="border-t my-1" />
+
+                            <label className="inline-flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" name="sort" value="date:desc" checked={selected === 'date:desc'} onChange={() => setSelected('date:desc')} />
+                                <span>Дата — новые сверху</span>
+                            </label>
+                            <label className="inline-flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" name="sort" value="date:asc" checked={selected === 'date:asc'} onChange={() => setSelected('date:asc')} />
+                                <span>Дата — старые сверху</span>
+                            </label>
+
+                            <div className="border-t my-1" />
+
+                            <label className="inline-flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" name="sort" value="none" checked={selected === 'none'} onChange={() => setSelected('none')} />
+                                <span>Без сортировки (по умолчанию)</span>
+                            </label>
+                        </fieldset>
+
+                        <div className="mt-4 flex items-center justify-between gap-2">
+                            <button type="button" onClick={() => { if (selected) applySelection(selected); }} className="flex-1 bg-[#0036A5] text-white px-4 py-2 rounded">Применить</button>
+                            <button type="button" onClick={() => { setSelected('none'); const params = new URLSearchParams(window.location.search); params.delete('sort'); params.delete('dir'); const base = offerType === 'rent' ? '/rent-offers' : '/buy'; window.history.pushState({}, '', `${base}${params.toString() ? `?${params.toString()}` : ''}`); window.dispatchEvent(new PopStateEvent('popstate')); onClose(); }} className="flex-1 border border-gray-200 px-4 py-2 rounded">Сброс</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 type FilterType = 'list' | 'map';
 
 const BuyMap = dynamic(() => import('./BuyMap'), {
     ssr: false,
     loading: () => (
-        <div className="h-[70vh] rounded-[22px] bg-gray-100 animate-pulse my-10"/>
+        <div className="h-[100vh] rounded-[22px] bg-gray-100 animate-pulse my-10"/>
     ),
 });
 
@@ -99,6 +231,7 @@ export const BuyContent: FC<{ offer_type_props?: string }> = ({offer_type_props 
     const router = useRouter();
     const [activeFilter, setActiveFilter] = useState<FilterType>('list');
     const [isAllFiltersOpen, setIsAllFiltersOpen] = useState(false);
+    const [isSortOpen, setIsSortOpen] = useState(false);
     const {data: propertyTypesList} = useGetPropertyTypesQuery();
     const formattedInitialFilters = useMemo(
         () => ({
@@ -117,6 +250,8 @@ export const BuyContent: FC<{ offer_type_props?: string }> = ({offer_type_props 
             floorFrom: searchParams.get('floorFrom') || undefined,
             floorTo: searchParams.get('floorTo') || undefined,
             landmark: searchParams.get('landmark') || undefined,
+            sort: searchParams.get('sort') || undefined,
+            dir: searchParams.get('dir') || undefined,
         }),
         [searchParams]
     );
@@ -135,6 +270,8 @@ export const BuyContent: FC<{ offer_type_props?: string }> = ({offer_type_props 
         floorFrom: searchParams.get('floorFrom') || undefined,
         floorTo: searchParams.get('floorTo') || undefined,
         landmark: searchParams.get('landmark') || undefined,
+        sort: searchParams.get('sort') || undefined,
+        dir: searchParams.get('dir') || undefined,
         listing_type: '',
         offer_type: offer_type_props,
     };
@@ -328,15 +465,20 @@ export const BuyContent: FC<{ offer_type_props?: string }> = ({offer_type_props 
     };
 
     const handleAdvancedSearch = (filters: PropertyFilters) => {
-        const searchParams = new URLSearchParams();
+        // Start from current URL params so we preserve existing sort/dir and any other params
+        const params = new URLSearchParams(window.location.search);
 
+        // Apply/overwrite filter values from the form. If a value is empty/falsey, remove it.
         Object.entries(filters).forEach(([key, value]) => {
             if (value && value !== '' && value !== '0') {
-                searchParams.append(key, value as string);
+                params.set(key, value as string);
+            } else {
+                params.delete(key);
             }
         });
 
-        const queryString = searchParams.toString();
+        // Keep existing sort/dir in params (we didn't touch them above)
+        const queryString = params.toString();
         router.push(`${offer_type_props === 'rent' ? '/rent-offers' : '/buy'}${queryString ? `?${queryString}` : ''}`);
         setIsAllFiltersOpen(false);
     };
@@ -357,17 +499,44 @@ export const BuyContent: FC<{ offer_type_props?: string }> = ({offer_type_props 
         return () => window.removeEventListener('scroll', handleScroll);
     }, [fetchNextPage, hasNextPage, isFetching, activeFilter]);
 
+    // Reload / reapply filters when sort/dir query params change.
+    // We store previous values to avoid calling repeatedly.
+    const prevSortRef = useRef<string | null>(null);
+    const prevDirRef = useRef<string | null>(null);
+
+    useEffect(() => {
+        const currentSort = searchParams.get('sort');
+        const currentDir = searchParams.get('dir') || 'desc';
+
+        // if no change — do nothing
+        if (prevSortRef.current === currentSort && prevDirRef.current === currentDir) return;
+
+        // update prev values
+        prevSortRef.current = currentSort;
+        prevDirRef.current = currentDir;
+
+        // call handleAdvancedSearch to reapply current filters together with new sort
+        // formattedInitialFilters comes from searchParams and represents current filter state
+        try {
+            handleAdvancedSearch(filters);
+        } catch {
+            // fallback — refresh router
+            router.refresh();
+        }
+    }, [searchParams.toString()]);
+
     return (
-        <div className="mb-[60px]">
+        <div className="mb-[60px] relative">
             <div
                 className={clsx(
-                    ' mx-auto w-full max-w-[1520px] mt-8 px-4 sm:px-6 lg:px-8',
-                    isAllFiltersOpen && 'rounded-b-none'
+                    ' mx-auto w-full max-w-[1520px]  px-4 sm:px-6 lg:px-8 z-5 relative',
+                    isAllFiltersOpen && 'rounded-b-none',
+                    activeFilter === 'map' ? 'mt-2' : 'mt-8'
                 )}
             >
-                <div className="p-6 bg-white rounded-[22px]">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-                        <div>
+                <div className={`rounded-[22px] ${activeFilter === 'map' ? 'bg-transparent p-2' : 'bg-white p-6'}`}>
+                    <div className={`flex flex-col md:flex-row items-start md:items-center ${activeFilter === 'map' ? 'justify-end' : 'justify-between'}`}>
+                        <div className={`${activeFilter === 'map' ? 'hidden' : ''}`}>
                             <h1 className="text-2xl font-bold text-[#020617] mb-1">
                                 {selectedTypeNames ? `${offer_type_props === 'rent' ? 'Аренда' : 'Купить'}: ${selectedTypeNames}` : `${offer_type_props === 'rent' ? 'Аренда недвижимости' : 'Купить недвижимость'}`}
                             </h1>
@@ -379,13 +548,34 @@ export const BuyContent: FC<{ offer_type_props?: string }> = ({offer_type_props 
                         </div>
 
                         <div
-                            className="md:flex items-center gap-2 mt-4 md:mt-0 w-full md:w-auto [&>div]:w-full md:[&>div]:w-auto">
+                            className={`md:flex items-center gap-4  md:mt-0 w-full md:w-auto  ${activeFilter === 'map' ? 'flex' : 'mt-4'}`}>
+                            <div className="relative">
+                                <button
+                                    onClick={() => setIsSortOpen(true)}
+                                    className={`flex items-center gap-2 bg-[#F0F2F5] hover:bg-gray-200 p-4 rounded-full  mb-4 md:mb-0 w-full md:w-auto cursor-pointer ${activeFilter === 'map' ? 'hidden' : ''}`}
+                                >
+                                    <ArrowUpWideNarrow className="h-6 w-6 text-[#0036A5]"/>
+                                    <span>Сортировка</span>
+                                </button>
+                                <SortPopup isOpen={isSortOpen} onClose={() => setIsSortOpen(false)}
+                                           offerType={offer_type_props}/>
+                            </div>
                             <button
-                                onClick={() => setIsAllFiltersOpen(true)}
-                                className="flex items-center gap-2 bg-[#F0F2F5] hover:bg-gray-200 px-[19px] py-[21px] rounded-full mr-[18px] mb-4 md:mb-0 w-full md:w-auto"
+                                onClick={() => setIsAllFiltersOpen(!isAllFiltersOpen)}
+                                className={clsx(
+                                    'flex items-center justify-center gap-2 bg-[#F0F2F5] hover:bg-gray-200  rounded-full   cursor-pointer transition-all duration-300',
+                                    activeFilter === 'map'
+                                        ? ' shadow-lg w-[60px] h-[60px] p-0 !rounded-full justify-center items-center '
+                                        : 'w-full md:w-auto p-4 mb-4 md:mb-0'
+                                )}
                             >
-                                <FilterSearchIcon className="h-6 w-6 text-[#0036A5]"/>
-                                <span>Все фильтры</span>
+                                <ListFilterPlus
+                                    className={clsx(
+                                        'text-[#0036A5] transition-transform duration-300',
+                                        activeFilter === 'map' ? 'h-4 w-4' : 'h-6 w-6'
+                                    )}
+                                />
+                                <span className={clsx(activeFilter === 'map' && 'hidden')}>Все фильтры</span>
                             </button>
 
                             <Tabs
@@ -397,7 +587,7 @@ export const BuyContent: FC<{ offer_type_props?: string }> = ({offer_type_props 
                     </div>
                 </div>
             </div>
-            <div className="container px-0 mb-6">
+            <div className="container px-0 mb-6 ">
                 <AllFilters
                     isOpen={isAllFiltersOpen}
                     onClose={() => setIsAllFiltersOpen(false)}
@@ -449,7 +639,8 @@ export const BuyContent: FC<{ offer_type_props?: string }> = ({offer_type_props 
                     {/* Inline ad slot between listings */}
                     <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
                         <div className="my-6">
-                            <AdBanner data-ad-slot="5085881730" data-ad-format="auto" data-full-width-responsive="true" />
+                            <AdBanner data-ad-slot="5085881730" data-ad-format="auto"
+                                      data-full-width-responsive="true"/>
                         </div>
                     </div>
                     {isFetchingNextPage && (
@@ -470,10 +661,12 @@ export const BuyContent: FC<{ offer_type_props?: string }> = ({offer_type_props 
                         </div>
                     )}
                 </>
-            ) : (
+            ) :    (
                 // Map view
-                <div className="mx-auto w-full max-w-[1520px]">
-                    <BuyMap items={properties} baseFilters={filters}/>
+                <div className='h-[70vh]'>
+                    <div className="mx-auto w-full h-[80vh] absolute top-[-10px] sm:top-[-10px] z-1 pb-[800px]">
+                        <BuyMap items={properties} baseFilters={filters}/>
+                    </div>
                 </div>
             )}
         </div>

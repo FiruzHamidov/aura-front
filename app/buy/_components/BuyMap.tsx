@@ -368,7 +368,7 @@ export const BuyMap: FC<Props> = ({items, offset = {x: 32, y: -468}}) => {
                 <Map
                     defaultState={{center: firstCenter, zoom: DEFAULT_ZOOM}}
                     width="100%"
-                    height="70vh"
+                    height="90vh"
                     instanceRef={onMapInstance}
                     modules={[
                         'control.ZoomControl',

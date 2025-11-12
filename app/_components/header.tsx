@@ -15,7 +15,7 @@ import { useSelectedLocation } from '@/hooks/useSelectedLocation';
 
 const navItems = [
   { name: 'Главная', href: '/' },
-  { name: 'Покупка', href: '/buy' },
+  { name: 'Купить', href: '/buy' },
   { name: 'Снять', href: '/rent' },
   { name: 'Новостройки', href: '/new-buildings' },
   { name: 'Застройщики', href: '/developers' },
@@ -256,7 +256,7 @@ const Header: FC = () => {
             </Link>
             {/* Location button - hidden on mobile and small tablets */}
             <div
-              className="hidden lg:block relative z-50"
+              className="hidden lg:block relative"
               ref={locationMenuRef}
             >
               <button
@@ -393,7 +393,7 @@ const Header: FC = () => {
 
       {/* Mobile Navigation Fullscreen Overlay */}
       {isMobileMenuOpen && (
-        <nav className="md:hidden fixed inset-0 z-50 bg-gradient-to-b bg-[#0036a5] flex flex-col">
+        <nav className="md:hidden fixed inset-0 z-71 bg-gradient-to-b bg-[#0036a5] flex flex-col">
           {/* Mobile Header */}
           <div className="flex items-center justify-between px-6 py-4">
             <Logo className="w-[135px] h-[45px] brightness-0 invert" />

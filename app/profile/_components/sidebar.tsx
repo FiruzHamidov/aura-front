@@ -113,7 +113,7 @@ export const Sidebar = () => {
   return (
     <>
       {/* DESKTOP: горизонтальные "табы" + sticky */}
-      <div className="mx-auto max-w-[1520px] px-7 mt-5 hidden md:block sticky top-2 z-30 ">
+      <div className="mx-auto max-w-[1520px] px-7 mt-5 hidden md:block sticky top-2 z-3 ">
         <div className="bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 rounded-xl">
           <nav className="flex items-center gap-2 overflow-x-auto scrollbar-none py-3 px-2">
             {menuToRender.map(({ href, icon, label }) => {
