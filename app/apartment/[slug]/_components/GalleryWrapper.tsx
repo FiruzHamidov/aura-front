@@ -20,7 +20,7 @@ import {
     EyeIcon,
     FileText,
     Flame,
-    Hammer,
+    Hammer, HistoryIcon,
     Home,
     Key,
     MapPin,
@@ -344,13 +344,24 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                                 />
                                             </svg>
                                         </Link>
+
                                     )}
+
+                                    <Link href='#createBooking'
+                                          className="w-auto h-14 px-4 gap-2 text-white rounded-full sm:hidden border border-[#0036A5] bg-[#0036A5] flex items-center justify-center hover:bg-blue-800 transition-colors cursor-pointer"
+                                    >
+                                        <EyeIcon size={20} className="text-white"/>
+                                        Создать показ
+                                    </Link>
+
+
                                     {canEdit && (
-                                        <Link href='#createBooking'
-                                              className="w-auto h-14 px-4 gap-2 text-white rounded-full sm:hidden border border-[#0036A5] bg-[#0036A5] flex items-center justify-center hover:bg-blue-800 transition-colors cursor-pointer"
+                                        <Link
+                                            href={`/apartment/${apartment.id}/logs`}
+                                            className="w-14 h-14 rounded-full border border-[#0036A5] bg-[#0036A5] flex items-center justify-center hover:bg-blue-800 transition-colors"
+                                            title="Редактировать объявление"
                                         >
-                                            <EyeIcon size={20} className="text-white"/>
-                                            Создать показ
+                                            <HistoryIcon className="text-white"/>
                                         </Link>
                                     )}
 
