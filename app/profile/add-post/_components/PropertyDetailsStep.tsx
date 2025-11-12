@@ -317,9 +317,21 @@ export function PropertyDetailsStep({
                     required
                 />
 
+                <div className="flex items-center gap-3">
+                    <label htmlFor="isBusinessOwner" className="text-gray-700 text-base cursor-pointer">
+                        Владелец бизнесмен?
+                    </label>
+                    <input
+                        type="checkbox"
+                        id="isBusinessOwner"
+                        name="is_business_owner"
+                        className="w-6 h-6 accent-blue-600 rounded-md cursor-pointer"
+                    />
+
+                </div>
                 <div className="relative w-full" ref={wrapperRef}>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Ключ от объекта *
+                    Ключ от объекта *
                     </label>
                     <input
                         type="text"
