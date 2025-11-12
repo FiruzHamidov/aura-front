@@ -143,7 +143,7 @@ const SortPopup: FC<{
         >
             <div onClick={onClose} className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
 
-            <div onClick={(e) => e.stopPropagation()} className="relative z-10 w-full max-w-md mx-4 bg-white rounded-3xl shadow-lg">
+            <div onClick={(e) => e.stopPropagation()} className="relative z-77 w-full max-w-md mx-4 bg-white rounded-3xl shadow-lg">
                 <div className="p-6">
                     <div className="flex items-center justify-between mb-2">
                         <div className="text-sm font-semibold">Сортировать по</div>
