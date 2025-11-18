@@ -288,7 +288,7 @@ const Header: FC = () => {
               </button>
 
               {isLocationDropdownOpen && locations && locations.length > 0 && (
-                <div className="absolute left-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-2 max-h-60 overflow-y-auto">
+                <div className="absolute left-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-2 max-h-60 overflow-y-auto z-999">
                   {locations.map((location) => (
                     <button
                       key={location.id}

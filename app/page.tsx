@@ -47,7 +47,7 @@ export default function Home() {
                 <link rel="canonical" href="https://aura.tj/" />
             </Head>
 
-            <MainBanner title="Недвижимость в Таджикистане"/>
+            <MainBanner title="Aura Estate"/>
             <div className="lg:mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 mx-auto mb-10 md:mb-20">
                 <Services/>
             </div>

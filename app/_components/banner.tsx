@@ -95,7 +95,7 @@ export const MainBanner: FC<{ title: string, tab?: ActiveTab }> = ({ title, tab 
             {title}
           </h1>
           <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-white">
-            ваш надежный партнер в сфере недвижимости Таджикистана
+             <span className='font-bold'>ключ </span> к дому вашей мечты
           </p>
         </div>
 
