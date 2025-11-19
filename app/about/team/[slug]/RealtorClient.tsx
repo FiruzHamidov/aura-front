@@ -220,7 +220,7 @@ export default function RealtorClient({slug: slugProp}: { slug?: string }) {
                 <div className="flex flex-col md:flex-row gap-3.5">
                     {/* Левая часть */}
                     <div className="md:w-2/3">
-                        <div className="flex gap-[22px] bg-white px-4 py-8 rounded-[22px]">
+                        <div className="flex gap-[22px] bg-white px-4 py-8 rounded-[22px] flex-wrap">
                             <div className="relative h-auto overflow-hidden flex-shrink-0">
                                 {realtorData.photo ? (
                                     <Image

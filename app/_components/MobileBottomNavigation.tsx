@@ -1,23 +1,24 @@
 'use client';
 
-import { FC, useEffect, useRef, useState, TouchEventHandler, MouseEventHandler } from 'react';
+import {FC, MouseEventHandler, TouchEventHandler, useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useLogoutMutation, useProfile } from '@/services/login/hooks';
+import {usePathname} from 'next/navigation';
+import {useLogoutMutation, useProfile} from '@/services/login/hooks';
 import {
+    Building2Icon,
     Calendar,
     FileBarChart,
-    GitCompareIcon,
     Heart,
     Home,
     LayoutDashboardIcon,
     List,
+    LucideIcon,
     Plus,
     School,
+    SearchIcon,
     TvMinimalPlay,
     User,
     Users,
-    LucideIcon,
 } from 'lucide-react';
 
 const SCROLL_DELTA = 8;
@@ -32,7 +33,7 @@ type NavItem = {
 
 const MobileBottomNavigation: FC = () => {
     const pathname = usePathname();
-    const { data: user } = useProfile();
+    const {data: user} = useProfile();
     const logoutMutation = useLogoutMutation();
 
     const isAuthed = !!user;
@@ -51,7 +52,7 @@ const MobileBottomNavigation: FC = () => {
             lastYRef.current = y;
         };
         lastYRef.current = window.scrollY || 0;
-        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('scroll', onScroll, {passive: true});
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
 
@@ -60,18 +61,18 @@ const MobileBottomNavigation: FC = () => {
     }, [pathname]);
 
     // --- меню навигации снизу
-    const baseNav: NavItem[] = [{ name: 'Главная', href: '/', icon: Home }];
+    const baseNav: NavItem[] = [{name: 'Главная', href: '/', icon: Home}];
     const guestNav: NavItem[] = [
         ...baseNav,
-        { name: 'Сравнить', href: '/comparison', icon: GitCompareIcon },
-        { name: 'Избранное', href: '/favorites', icon: Heart },
-        { name: 'Ещё', href: '/more', icon: LayoutDashboardIcon, key: 'more' },
+        {name: 'Найти', href: '/buy', icon: SearchIcon},
+        {name: 'Снять', href: '/rent', icon: Building2Icon},
+        {name: 'Ещё', href: '/more', icon: LayoutDashboardIcon, key: 'more'},
     ];
     const authNav: NavItem[] = [
         ...baseNav,
-        { name: 'Мои показы', href: '/profile/my-booking', icon: TvMinimalPlay },
-        { name: 'Мои объекты', href: '/profile/my-listings', icon: School },
-        { name: 'Ещё', href: '/more', icon: LayoutDashboardIcon, key: 'more' },
+        {name: 'Мои показы', href: '/profile/my-booking', icon: TvMinimalPlay},
+        {name: 'Мои объекты', href: '/profile/my-listings', icon: School},
+        {name: 'Ещё', href: '/more', icon: LayoutDashboardIcon, key: 'more'},
     ];
     const navItems = isAuthed ? authNav : guestNav;
 
@@ -121,17 +122,22 @@ const MobileBottomNavigation: FC = () => {
 
     return (
         <>
-            {/* Bottom Nav */}
-            <div
+            {/* Bottom Nav (iOS-like frosted capsule) */}
+            <nav
+                aria-label="Primary"
                 className={`
-          md:hidden fixed left-0 right-0 z-40 border-t border-gray-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/80
-          transition-transform duration-200
-          ${hidden ? 'translate-y-full' : 'translate-y-0'}
-          pb-[max(env(safe-area-inset-bottom),0px)]
-          bottom-0
+          md:hidden fixed left-4 right-4 z-40
+          bottom-4
+          rounded-full
+          bg-white/40 supports-[backdrop-filter]:backdrop-blur-lg
+          border border-white/20
+          shadow-2xl
+          transition-transform duration-250 ease-in-out
+          ${hidden ? 'translate-y-8 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}
+          px-3 py-2
         `}
             >
-                <div className="flex items-center justify-around py-2 px-2">
+                <div className="flex items-center justify-between gap-1">
                     {navItems.map((item) => {
                         const Icon = item.icon;
                         const handleClick: MouseEventHandler<HTMLAnchorElement> = (e) => {
@@ -145,23 +151,25 @@ const MobileBottomNavigation: FC = () => {
                                 key={item.name}
                                 href={item.href}
                                 onClick={handleClick}
-                                className="flex flex-col items-center justify-center py-2 px-1 min-w-0 flex-1"
+                                className="flex-1 min-w-0 flex flex-col items-center justify-center p-1"
                             >
-                                <div className="p-1 rounded-md">
-                                    <Icon className={`w-6 h-6 ${isActive(item.href) ? 'text-[#0036A5]' : 'text-gray-400'}`} />
+                                <div className="relative flex items-center justify-center">
+                                    <Icon
+                                        className={`w-6 h-6 ${isActive(item.href) ? 'text-[#0A62FF]' : 'text-gray-400'}`}/>
+                                    {/* active indicator */}
                                 </div>
                                 <span
-                                    className={`text-xs text-center mt-1 ${
-                                        isActive(item.href) ? 'text-[#0036A5] font-medium' : 'text-gray-400'
-                                    }`}
+                                    className={`mt-1 text-[11px] leading-none text-center ${isActive(item.href) ? 'text-[#0A62FF] font-semibold' : 'text-gray-500'}`}
                                 >
-                  {item.name}
-                </span>
+                                    {item.name}
+                                </span>
+                                {/* small iOS-like active dot */}
+                                {/*<span className={`mt-1 block h-1 w-1 rounded-full ${isActive(item.href) ? 'bg-[#0A62FF]' : 'bg-transparent'}`} />*/}
                             </Link>
                         );
                     })}
                 </div>
-            </div>
+            </nav>
 
             {/* FAB (только авторизованным, но не в profile/* и admin/*, кроме my-listings и all-listings) */}
             {isAuthed &&
@@ -180,22 +188,25 @@ const MobileBottomNavigation: FC = () => {
             `}
                         aria-label="Добавить объявление"
                     >
-                        <Plus className="w-7 h-7" />
+                        <Plus className="w-7 h-7"/>
                     </Link>
                 )}
 
-            {/* Bottom Sheet: меню профиля — только когда авторизован и открыт */}
+            {/* Bottom Sheet: iOS-style rounded sheet */}
             {isAuthed && sheetOpen && (
                 <div className="md:hidden fixed inset-0 z-71">
                     {/* overlay */}
-                    <div className="absolute inset-0" onClick={closeSheet} aria-hidden />
-                    {/* FULL-SCREEN SHEET */}
+                    <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={closeSheet} aria-hidden/>
+
+                    {/* SHEET */}
                     <div
                         ref={sheetRef}
                         className={`
-              absolute inset-0 bg-white/60 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-2xl
-              flex flex-col
-              animate-[sheetIn_.24s_ease]
+              absolute left-0 right-0 bottom-0 rounded-t-3xl bg-white/95
+              supports-[backdrop-filter]:backdrop-blur-md
+              shadow-2xl
+              flex flex-col max-h-[85vh] overflow-hidden
+              animate-[sheetIn_.28s_ease]
             `}
                         role="dialog"
                         aria-modal="true"
@@ -203,49 +214,58 @@ const MobileBottomNavigation: FC = () => {
                         onTouchMove={onTouchMove}
                         onTouchEnd={onTouchEnd}
                     >
-                        {/* header */}
-                        <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                            <span className="font-medium text-base">Eще</span>
-                            <button
-                                onClick={closeSheet}
-                                aria-label="Закрыть"
-                                className="rounded-lg p-1.5 hover:bg-gray-100"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="w-5 h-5 text-gray-700"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
+                        {/* pull indicator + header */}
+                        <div className="px-5 pt-3 pb-2">
+                            <div className="flex items-center justify-center">
+                                <div className="h-1.5 w-12 rounded-full bg-gray-300"/>
+                            </div>
+                            <div className="mt-3 flex items-center justify-between">
+                                <span className="font-medium text-base"></span>
+                                <button
+                                    onClick={closeSheet}
+                                    aria-label="Закрыть"
+                                    className="rounded-lg p-1.5 hover:bg-gray-100"
                                 >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18 18 6M6 6l12 12" />
-                                </svg>
-                            </button>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="w-5 h-5 text-gray-700"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                              d="M6 18 18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
 
-                        {/* скроллимая колонка ссылок */}
-                        <div className="flex-1 overflow-y-auto px-3 py-3">
-                            <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-gray-300" />
-
+                        {/* content area */}
+                        <div className="flex-1 overflow-y-auto px-3 py-2">
                             <nav className="flex flex-col gap-2">
-                                <SheetLink href="/profile" icon={User} label="Профиль" onClick={closeSheet} />
-                                <SheetLink href="/profile/my-booking" icon={Calendar} label="Мои показы" onClick={closeSheet} />
-                                <SheetLink href="/profile/all-listings" icon={List} label="Все объявления" onClick={closeSheet} />
-                                <SheetLink href="/profile/favorites" icon={Heart} label="Избранное" onClick={closeSheet} />
-                                <SheetLink href="/profile/reports" icon={FileBarChart} label="Отчёты" onClick={closeSheet} />
+                                <SheetLink href="/profile" icon={User} label="Профиль" onClick={closeSheet}/>
+                                <SheetLink href="/profile/my-booking" icon={Calendar} label="Мои показы"
+                                           onClick={closeSheet}/>
+                                <SheetLink href="/profile/all-listings" icon={List} label="Все объявления"
+                                           onClick={closeSheet}/>
+                                <SheetLink href="/profile/favorites" icon={Heart} label="Избранное"
+                                           onClick={closeSheet}/>
+                                <SheetLink href="/profile/reports" icon={FileBarChart} label="Отчёты"
+                                           onClick={closeSheet}/>
                                 {user?.role?.slug === 'admin' && (
-                                    <SheetLink href="/admin/users" icon={Users} label="Пользователи" onClick={closeSheet} />
+                                    <SheetLink href="/admin/users" icon={Users} label="Пользователи"
+                                               onClick={closeSheet}/>
                                 )}
                             </nav>
 
-                            <div className="flex justify-center">
+                            <div className="mt-6 px-4">
                                 <button
                                     onClick={async () => {
                                         await logoutMutation.mutateAsync();
                                         closeSheet();
                                     }}
                                     disabled={logoutMutation.isPending}
-                                    className="mt-4 w-50 inline-flex items-center justify-center gap-2 absolute bottom-20 rounded-xl border px-4 py-3 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+                                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -266,14 +286,14 @@ const MobileBottomNavigation: FC = () => {
                             </div>
                         </div>
 
-                        <div className="h-[max(env(safe-area-inset-bottom),0px)]" />
+                        <div className="h-[max(env(safe-area-inset-bottom),0px)]"/>
                     </div>
 
                     <style jsx global>{`
                         @keyframes sheetIn {
                             from {
                                 transform: translateY(10%);
-                                opacity: 0.6;
+                                opacity: 0.7;
                             }
                             to {
                                 transform: translateY(0);
@@ -296,14 +316,14 @@ type SheetLinkProps = {
     onClick: () => void;
 };
 
-function SheetLink({ href, icon: Icon, label, onClick }: SheetLinkProps) {
+function SheetLink({href, icon: Icon, label, onClick}: SheetLinkProps) {
     return (
         <Link
             href={href}
             onClick={onClick}
             className="flex items-center gap-3 rounded-xl px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50"
         >
-            <Icon className="w-5 h-5" />
+            <Icon className="w-5 h-5"/>
             <span className="truncate">{label}</span>
         </Link>
     );

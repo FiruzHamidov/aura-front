@@ -18,6 +18,12 @@ const servicesData: ServiceItem[] = [
     href: '/buy-property',
   },
   {
+    title: 'Ипотека',
+    imageUrl: '/images/services/calculator.png',
+    altText: 'Illustration of a calculator next to a house model',
+    href: '/mortgage',
+  },
+  {
     title: 'Ремонт под ключ',
     imageUrl: '/images/services/renovation.png',
     altText: 'Illustration of a house being renovated',
@@ -41,20 +47,15 @@ const servicesData: ServiceItem[] = [
     altText: 'Illustration of document folders',
     href: '/document-registration',
   },
-  {
-    title: 'Ипотека',
-    imageUrl: '/images/services/calculator.png',
-    altText: 'Illustration of a calculator next to a house model',
-    href: '/mortgage',
-  },
+
 ];
 
 const Services: FC = () => {
   return (
     <div className="bg-white rounded-[22px] py-6 md:py-[55px]">
       {/* Mobile: horizontal scroll, Desktop: grid */}
-      <div className="overflow-x-auto hide-scrollbar">
-        <div className="grid grid-flow-col auto-cols-[minmax(120px,1fr)] gap-4 md:auto-cols-[minmax(250px,1fr)] md:gap-8 px-4 md:px-10">
+      <div className="overflow-x-auto">
+        <div className="grid grid-flow-col auto-cols-[minmax(120px,1fr)] gap-4 md:auto-cols-[minmax(250px,1fr)] md:gap-8 px-4 md:px-10 pb-3">
           {servicesData.map((service) => (
             <Link
               key={service.href}

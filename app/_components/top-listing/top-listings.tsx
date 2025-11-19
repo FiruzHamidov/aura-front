@@ -9,7 +9,7 @@ import {PropertiesResponse, Property} from '@/services/properties/types';
 import {STORAGE_URL} from '@/constants/base-url';
 import {useGetPropertyTypesQuery} from '@/services/properties/hooks';
 import type {Listing} from '@/app/_components/top-listing/types';
-import {PropertyType} from "@/services/add-post";
+// import {PropertyType} from "@/services/add-post";
 import {ArrowLeft, ArrowRight} from "lucide-react";
 
 type TabItem = { key: string; label: string };
@@ -32,17 +32,24 @@ const TopListings: FC<{
 }> = ({title = 'Топовые объявления', properties, isLoading}) => {
     const {data: propertyTypesData, isLoading: isTypesLoading} = useGetPropertyTypesQuery();
 
+
     const tabs: TabItem[] = useMemo(() => {
-        const raw =
-            (Array.isArray(propertyTypesData) ? propertyTypesData : []) ?? [];
-        const mapped =
-            (raw as PropertyType[])
-                .map((t) => {
-                    const key = normalize(t?.slug) || normalize(t?.name);
-                    const label = t?.name ?? t?.slug ?? '';
-                    return key ? {key, label} : null;
-                })
-                .filter((x): x is TabItem => Boolean(x)) ?? [];
+        const raw = Array.isArray(propertyTypesData) ? propertyTypesData : [];
+
+        const sorted = [...raw].sort((a, b) => {
+            if (a.slug === "new-buildings") return -1; // a — первый
+            if (b.slug === "new-buildings") return 1;  // b — первый
+            return 0;
+        });
+
+        const mapped = sorted
+            .map((t) => {
+                const key = normalize(t?.slug) || normalize(t?.name);
+                const label = t?.name ?? t?.slug ?? "";
+                return key ? { key, label } : null;
+            })
+            .filter((x): x is TabItem => Boolean(x));
+
         return mapped.length > 0 ? mapped : [...fallbackTabs];
     }, [propertyTypesData]);
 

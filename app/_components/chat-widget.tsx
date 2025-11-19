@@ -5,12 +5,16 @@ import Image from 'next/image';
 import {Home, Loader2, MapPin, MessageSquareText, Send, X} from 'lucide-react';
 import {fmtPrice, getOrCreateSessionId} from '@/services/chat/helpers';
 import {ChatHistoryResponse, ChatMessage, ChatPostResponse, PropertyCard} from '@/services/chat/types';
+import {usePathname} from "next/navigation";
 
 type Props = {
     apiBase: string;
     title?: string;
     subtitle?: string;
 };
+
+const SCROLL_DELTA = 8;
+const SHOW_TOP_OFFSET = 48;
 
 export default function ChatWidget({
                                        apiBase,
@@ -28,6 +32,29 @@ export default function ChatWidget({
     ];
     const TYPE_SPEED = 65;
     const LS_PHRASE_IDX = 'aura_chat_btn_phrase_idx';
+    const pathname = usePathname();
+
+    const [hidden, setHidden] = useState(false);
+    const lastYRef = useRef(0);
+
+
+    useEffect(() => {
+        const onScroll = () => {
+            const y = window.scrollY || 0;
+            const diff = y - lastYRef.current;
+            if (y <= SHOW_TOP_OFFSET) setHidden(false);
+            else if (diff > SCROLL_DELTA) setHidden(true);
+            else if (diff < -SCROLL_DELTA) setHidden(false);
+            lastYRef.current = y;
+        };
+        lastYRef.current = window.scrollY || 0;
+        window.addEventListener('scroll', onScroll, {passive: true});
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+
+    useEffect(() => {
+        setHidden(false);
+    }, [pathname]);
 
     // const HIDE_DELTA = 20;       // чувствительность скрытия при прокрутке вниз
     // const SHOW_DELTA = -12;      // чувствительность показа при прокрутке вверх (гистерезис)
@@ -285,6 +312,7 @@ export default function ChatWidget({
                         fixed z-[70] group h-14 rounded-full right-6
                          bottom-[calc(100px+max(env(safe-area-inset-bottom),0px))] sm:bottom-4
                         transition-transform duration-200 cursor-pointer
+                        ${hidden ? 'translate-y-8 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}
                       `}
                 aria-label="Открыть чат Aura Assistant"
             >
