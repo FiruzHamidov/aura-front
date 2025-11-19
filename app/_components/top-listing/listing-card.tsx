@@ -265,7 +265,7 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
         <div className="flex justify-between items-center mb-2">
           <span
             className={`font-bold ${
-              isLarge ? 'text-[32px] text-[#1E3A8A]' : 'text-2xl text-[#0036A5]'
+              isLarge ? 'sm:text-[32px] text-[24px] text-[#1E3A8A]' : 'text-2xl text-[#0036A5]'
             }`}
           >
             {formattedPrice} {listing.currency}
@@ -287,7 +287,7 @@ const ListingCard: FC<ListingCardProps> = ({ listing, isLarge = false }) => {
         </div>
 
         <h3
-          className={`mb-1 ${isLarge ? 'text-2xl font-normal' : 'text-base'}`}
+          className={`mb-1 ${isLarge ? 'sm:text-2xl font-normal text-base' : 'text-base'}`}
         >
           {listing.title} {listing.description.substring(0, 55)}
         </h3>

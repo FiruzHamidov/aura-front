@@ -94,8 +94,8 @@ export const MainBanner: FC<{ title: string, tab?: ActiveTab }> = ({ title, tab 
           <h1 className="text-xl md:text-[52px] font-extrabold text-white mb-1.5 tracking-tight uppercase transition-all duration-300 hover:scale-105 cursor-default">
             {title}
           </h1>
-          <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-white">
-             <span className='font-bold'>ключ </span> к дому вашей мечты
+          <p className="text-sm sm:text-base md:text-xl lg:text-2xl xl:text-3xl text-white">
+             Aura Estate - <span className='font-bold'>ключ </span> к дому вашей мечты
           </p>
         </div>
 
