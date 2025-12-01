@@ -60,7 +60,7 @@ const TopListings: FC<{
     const contentRef = useRef<HTMLDivElement | null>(null);
 
     // Auto-advance / progress state
-    const [isPaused, setIsPaused] = useState(false);
+    const [isPaused, setIsPaused] = useState(true);
     const [progress, setProgress] = useState(0); // 0..100
 
     const TICK_MS = 100;
