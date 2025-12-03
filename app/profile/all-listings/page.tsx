@@ -57,14 +57,14 @@ export default function MyListings() {
         {listing_type: '', page: 1, per_page: 1, moderation_status: 'approved'},
         true
     );
-    const {data: rejectedMeta} = useGetAllPropertiesQuery(
-        {listing_type: '', page: 1, per_page: 1, moderation_status: 'rejected'},
-        true
-    );
-    const {data: draftMeta} = useGetAllPropertiesQuery(
-        {listing_type: '', page: 1, per_page: 1, moderation_status: 'draft'},
-        true
-    );
+    // const {data: rejectedMeta} = useGetAllPropertiesQuery(
+    //     {listing_type: '', page: 1, per_page: 1, moderation_status: 'rejected'},
+    //     true
+    // );
+    // const {data: draftMeta} = useGetAllPropertiesQuery(
+    //     {listing_type: '', page: 1, per_page: 1, moderation_status: 'draft'},
+    //     true
+    // );
     const {data: deletedMeta} = useGetAllPropertiesQuery(
         {listing_type: '', page: 1, per_page: 1, moderation_status: 'deleted'},
         true
