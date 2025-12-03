@@ -151,7 +151,7 @@ export interface BuildingUnitPayload {
   rooms: number;
   area: number;
   new_building_id: number;
-  price: number;
+  price_per_sqm: number;
   currency: string;
   floor: number;
   status: "available" | "sold" | "reserved";

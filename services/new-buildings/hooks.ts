@@ -559,6 +559,7 @@ export const useBuildingBlock = (newBuildingId?: number, blockId?: number) =>
       const { data } = await axios.get<BuildingBlock>(
         `/new-buildings/${newBuildingId}/blocks/${blockId}`
       );
+      console.log('block', data)
       return data;
     },
     enabled: !!newBuildingId && !!blockId,
@@ -685,6 +686,8 @@ export const useUpdateBuildingUnit = (
         `/new-buildings/${newBuildingId}/units/${unitId}`,
         payload
       );
+
+      console.log('payload', payload)
       return data;
     },
     onSuccess: () => {

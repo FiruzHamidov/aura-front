@@ -31,7 +31,7 @@ export default function CreateBuildingUnitPage() {
     name: '',
     rooms: 1,
     area: 0,
-    price: 0,
+    price_per_sqm: 0,
     currency: 'TJS',
     floor: 1,
     status: 'available',
@@ -46,7 +46,7 @@ export default function CreateBuildingUnitPage() {
       [name]:
         name === 'rooms' ||
         name === 'area_total' ||
-        name === 'price' ||
+        name === 'price_per_sqm' ||
         name === 'floor' ||
         name === 'block_id'
           ? Number(value)
@@ -77,7 +77,7 @@ export default function CreateBuildingUnitPage() {
       return;
     }
 
-    if (form.price <= 0) {
+    if (form.price_per_sqm <= 0) {
       toast.error('Цена должна быть положительным числом');
       return;
     }
@@ -213,13 +213,13 @@ export default function CreateBuildingUnitPage() {
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols gap-4">
           <div className="col-span-2">
             <label className="block text-sm font-medium mb-2">Цена *</label>
             <input
               type="number"
               name="price"
-              value={form.price}
+              value={form.price_per_sqm}
               onChange={handleChange}
               min="0"
               className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
@@ -227,20 +227,20 @@ export default function CreateBuildingUnitPage() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">Валюта *</label>
-            <select
-              name="currency"
-              value={form.currency}
-              onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
-              required
-            >
-              <option value="TJS">TJS</option>
-              <option value="USD">USD</option>
-              <option value="EUR">EUR</option>
-            </select>
-          </div>
+          {/*<div>*/}
+          {/*  <label className="block text-sm font-medium mb-2">Валюта *</label>*/}
+          {/*  <select*/}
+          {/*    name="currency"*/}
+          {/*    value={form.currency}*/}
+          {/*    onChange={handleChange}*/}
+          {/*    className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"*/}
+          {/*    required*/}
+          {/*  >*/}
+          {/*    <option value="TJS">TJS</option>*/}
+          {/*    <option value="USD">USD</option>*/}
+          {/*    <option value="EUR">EUR</option>*/}
+          {/*  </select>*/}
+          {/*</div>*/}
         </div>
 
         <div>
