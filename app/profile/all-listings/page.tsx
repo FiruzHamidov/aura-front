@@ -11,10 +11,10 @@ import HorizontalTabs from "@/app/profile/_components/HorizontalTabs";
 const TABS = [
     {key: 'pending', label: 'На модерации'},
     {key: 'approved', label: 'Активные'},
-    {key: 'rejected', label: 'Отклонённые'},
-    {key: 'draft', label: 'Черновики'},
+    // {key: 'rejected', label: 'Отклонённые'},
+    // {key: 'draft', label: 'Черновики'},
     {key: 'deleted', label: 'Удаленные'},
-    {key: 'sold', label: 'Проданные'},
+    {key: 'sold', label: 'Проданные агентом'},
     {key: 'sold_by_owner', label: 'Проданные владельцем'},
     {key: 'rented', label: 'Арендованные'},
 
@@ -96,8 +96,8 @@ export default function MyListings() {
     const tabTotals: Record<TabKey, number | undefined> = {
         pending: pendingMeta?.total,
         approved: approvedMeta?.total,
-        rejected: rejectedMeta?.total,
-        draft: draftMeta?.total,
+        // rejected: rejectedMeta?.total,
+        // draft: draftMeta?.total,
         deleted: deletedMeta?.total,
         sold: soldMeta?.total,
         sold_by_owner: soldByOwnerMeta?.total,

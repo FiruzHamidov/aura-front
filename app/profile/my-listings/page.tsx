@@ -11,10 +11,10 @@ import HorizontalTabs from '@/app/profile/_components/HorizontalTabs';
 const TABS = [
     { key: 'pending',  label: 'На модерации' },
     { key: 'approved', label: 'Активные' },
-    { key: 'rejected', label: 'Отклонённые' },
-    { key: 'draft',    label: 'Черновики' },
-    { key: 'deleted',  label: 'Удаленные' },
-    { key: 'sold',     label: 'Проданные' },
+    // { key: 'rejected', label: 'Отклонённые' },
+    // { key: 'draft',    label: 'Черновики' },
+    // { key: 'deleted',  label: 'Удаленные' },
+    { key: 'sold',     label: 'Проданные агентом' },
     { key: 'sold_by_owner',     label: 'Проданные владельцем' },
     { key: 'rented',   label: 'Арендованные' },
 ] as const;
@@ -44,9 +44,9 @@ export default function MyListings() {
     // Лёгкие запросы для тоталов по всем вкладкам (per_page: 1)
     const { data: pendingMeta  } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'pending'  }, true);
     const { data: approvedMeta } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'approved' }, true);
-    const { data: rejectedMeta } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'rejected' }, true);
-    const { data: draftMeta    } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'draft'    }, true);
-    const { data: deletedMeta  } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'deleted'  }, true);
+    // const { data: rejectedMeta } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'rejected' }, true);
+    // const { data: draftMeta    } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'draft'    }, true);
+    // const { data: deletedMeta  } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'deleted'  }, true);
     const { data: soldMeta     } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'sold'     }, true);
     const { data: soldByOwnerMeta     } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'sold_by_owner'     }, true);
     const { data: rentedMeta   } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'rented'   }, true);
@@ -63,9 +63,9 @@ export default function MyListings() {
     const tabTotals: Record<TabKey, number | undefined> = {
         pending : pendingMeta?.total,
         approved: approvedMeta?.total,
-        rejected: rejectedMeta?.total,
-        draft   : draftMeta?.total,
-        deleted : deletedMeta?.total,
+        // rejected: rejectedMeta?.total,
+        // draft   : draftMeta?.total,
+        // deleted : deletedMeta?.total,
         sold    : soldMeta?.total,
         sold_by_owner    : soldByOwnerMeta?.total,
         rented  : rentedMeta?.total,
