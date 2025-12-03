@@ -6,7 +6,7 @@ import {
   useUpdateNewBuilding,
 } from '@/services/new-buildings/hooks';
 import { useNewBuildingForm } from '@/hooks/useNewBuildingForm';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { FormLayout } from '@/ui-components/FormLayout';
 import { ProgressIndicator } from '@/ui-components/ProgressIndicator';
 import NBSelectionStep from '../../_components/NBSelectionStep';
@@ -28,7 +28,7 @@ const STEPS = [
 export default function NewBuildingEditPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
-  const router = useRouter();
+  // const router = useRouter();
 
   const { data: initial, isLoading } = useNewBuilding(Number(id));
   const update = useUpdateNewBuilding(Number(id));
@@ -60,6 +60,7 @@ export default function NewBuildingEditPage() {
       ...prev,
       title: nb.title,
       description: nb.description ?? '',
+      district: nb.district ?? '',
       developer_id: nb.developer_id ?? null,
       construction_stage_id: nb.construction_stage_id ?? null,
       material_id: nb.material_id ?? null,
@@ -102,9 +103,10 @@ export default function NewBuildingEditPage() {
         longitude: toNumOrNull(form.longitude),
       };
 
+      console.log(payload)
       await update.mutateAsync(payload);
       toast.success('Сохранено');
-      router.push(`/new-buildings/${id}`);
+      // router.push(`/new-buildings/${id}`);
     } catch (err: unknown) {
       const apiErr = err as BuildingApiError;
       toast.error(apiErr?.response?.data?.message || 'Не удалось сохранить');
@@ -162,6 +164,7 @@ export default function NewBuildingEditPage() {
             location_id: locationId,
             floors_range: form.floors_range || '',
             completion_at: (form.completion_at || '').slice(0, 10),
+            district: (form.district || ''),
             address: form.address || '',
             latitude: form.latitude ?? '',
             longitude: form.longitude ?? '',

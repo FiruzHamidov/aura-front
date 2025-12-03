@@ -220,6 +220,7 @@ export interface NewBuilding {
   completion_at?: string | null;
 
   address?: string | null;
+  district?: string | null;
   latitude?: number | string | null;
   longitude?: number | string | null;
 
@@ -258,6 +259,7 @@ export interface NewBuildingPayload {
   completion_at?: string | null;
 
   address?: string | null;
+  district?: string | null;
   latitude?: number | null | string;
   longitude?: number | null | string;
 

@@ -7,12 +7,14 @@ import { Input } from '@/ui-components/Input';
 import { Select } from '@/ui-components/Select';
 import { Button } from '@/ui-components/Button';
 import type { LocationOption } from '@/services/new-buildings/types';
+import type {SelectOption} from "@/services/add-post";
 
 interface Props {
   values: {
     location_id: number | null;
     floors_range: string;
     completion_at: string;
+    district: string;
     address: string;
     latitude?: string | number | null | undefined;
     longitude?: string | number | null | undefined;
@@ -25,6 +27,13 @@ interface Props {
   isSubmitting: boolean;
   onBack: () => void;
 }
+
+const DISTRICTS: SelectOption[] = [
+  {id: 1, name: 'Сино'},
+  {id: 2, name: 'И Сомони'},
+  {id: 3, name: 'Шохмансур'},
+  {id: 4, name: 'Фирдавси'},
+];
 
 // Используем тип события из yandex-maps
 type YMapClickEvent = ymaps.IEvent;
@@ -92,6 +101,15 @@ export default function NBDetailsStep({
           options={locations.map((l) => ({ id: l.id, name: l.city }))}
           onChange={onChange}
         />
+        <Select
+            label="Район"
+            name="district"
+            value={values.district}
+            options={DISTRICTS}
+            onChange={onChange}
+            valueField="name"
+        />
+
         <Input
           label="Диапазон этажей (например 3-14)"
           name="floors_range"

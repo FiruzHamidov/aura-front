@@ -34,7 +34,7 @@ export default function NewBuildingShowPage() {
     nb.latitude && nb.longitude
       ? ([Number(nb.latitude), Number(nb.longitude)] as [number, number])
       : null;
-
+  // console.log(nb)
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
@@ -44,7 +44,7 @@ export default function NewBuildingShowPage() {
             Статус: {nb.moderation_status}
           </p>
         </div>
-        <Link href={`/new-buildings/${nb.id}/edit`}>
+        <Link href={`/admin/new-buildings/${nb.id}/edit`}>
           <Button>
             <Pencil className="w-4 h-4 mr-2" /> Редактировать
           </Button>
@@ -79,19 +79,25 @@ export default function NewBuildingShowPage() {
                 <span className="text-gray-500">Город:</span>{' '}
                 {withRels.location?.city ?? '—'}
               </div>
+
               <div>
                 <span className="text-gray-500">Адрес:</span>{' '}
                 {nb.address ?? '—'}
               </div>
               <div>
+                <span className="text-gray-500">Район:</span>{' '}
+                {nb.district ?? '—'}
+              </div>
+              <div>
                 <span className="text-gray-500">Этажность:</span>{' '}
                 {nb.floors_range || '—'}
               </div>
+
               <div>
                 <span className="text-gray-500">Срок сдачи:</span>{' '}
                 {nb.completion_at
-                  ? new Date(nb.completion_at).toLocaleDateString()
-                  : '—'}
+                    ? new Date(nb.completion_at).toLocaleDateString()
+                    : '—'}
               </div>
               <div>
                 <span className="text-gray-500">Рассрочка:</span>{' '}

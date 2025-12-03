@@ -479,6 +479,9 @@ export const useUpdateNewBuilding = (id: number) => {
         `/new-buildings/${id}`,
         payload
       );
+
+      console.log("response put", data)
+      console.log("payload", payload)
       return data;
     },
     // eslint-disable-next-line

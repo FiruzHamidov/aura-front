@@ -105,6 +105,7 @@ export default function NewBuildingCreatePage() {
             location_id: locationId,
             floors_range: form.floors_range || '',
             completion_at: (form.completion_at ?? '').slice(0, 10),
+            district: form.district || '',
             address: form.address || '',
             latitude: form.latitude ?? '',
             longitude: form.longitude ?? '',
