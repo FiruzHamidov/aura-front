@@ -110,7 +110,7 @@ export function PieStatus({ data, dateFrom, dateTo }: { data: { label: string; v
     );
 }
 
-export function BarOffer({ data, dateFrom, dateTo }: { data: { label: string; value: number }[], dateFrom: string, dateTo: string  }) {
+export function BarOffer({ data, dateFrom, dateTo }: { data: { label: string; value: number }[], dateFrom: string, dateTo: string }) {
     const router = useRouter();
 
     const chartRef = useRef<Chart<'bar', number[], unknown> | null>(null);
@@ -240,20 +240,59 @@ export function LineTimeSeries({ data }: { data: { x: string; total: number; clo
 //     );
 // }
 
-export function BarRooms({ data }: { data: { label: string; value: number }[] }) {
+export function BarRooms({ data, dateFrom, dateTo }: { data: { label: string; value: number }[], dateFrom: string, dateTo: string }) {
+    const router = useRouter();
+    const chartRef = useRef<Chart<'bar', number[], unknown> | null>(null);
+
+    const chartData = useMemo(() => ({
+        labels: data.map(d => d.label),
+        datasets: [{
+            label: 'Объекты',
+            data: data.map(d => d.value),
+            backgroundColor: data.map((_, i) => COLORS[i % COLORS.length]),
+        }],
+    }), [data]);
+
+    const options = useMemo(() => ({
+        responsive: true,
+        plugins: { legend: { display: false } },
+        onHover: (event: ChartEvent, elements: ActiveElement[]) => {
+            const nativeEvent = event.native as Event | undefined;
+            const target = nativeEvent ? (nativeEvent.target as HTMLElement | null) : null;
+            if (target) target.style.cursor = elements && elements.length ? 'pointer' : 'default';
+        },
+    }), []);
+
+    const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+        const chart = chartRef.current;
+        if (!chart) return;
+        const points = chart.getElementsAtEventForMode(event.nativeEvent, 'nearest', { intersect: true }, false) || [];
+        if (!points || points.length === 0) return;
+        const index = points[0].index;
+        const label = data[index]?.label;
+        if (!label) return;
+
+        const params = new URLSearchParams({
+            date_from: dateFrom,
+            date_to: dateTo,
+            interval: 'week',
+            price_metric: 'sum',
+            rooms: label,
+            page: '1',
+            per_page: '20',
+        });
+
+        router.push(`/profile/reports/objects?${params.toString()}`);
+    };
+
     return (
         <div className="p-4 bg-white rounded-2xl shadow">
             <h3 className="font-semibold mb-3">Количество комнат</h3>
             <Bar
-                data={{
-                    labels: data.map(d => d.label),
-                    datasets: [{
-                        label: 'Объекты',
-                        data: data.map(d => d.value),
-                        backgroundColor: data.map((_, i) => COLORS[i % COLORS.length]),
-                    }],
-                }}
-                options={{ responsive: true, plugins: { legend: { display: false } } }}
+                ref={(el) => { chartRef.current = el as Chart<'bar', number[], unknown> | null }}
+                data={chartData}
+                options={options}
+                onClick={handleCanvasClick}
             />
         </div>
     );

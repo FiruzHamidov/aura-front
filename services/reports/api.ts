@@ -18,10 +18,12 @@ export type SummaryResponse = {
 export type ManagerEfficiencyRow = {
     id: number | null;
     name: string;
+    agent_id: string;
     email?: string | null;
     total: number;
     approved: number;
-    closed: number;
+    sold: number;
+    rented: number;
     close_rate: number;
     avg_price?: number; // либо
     sum_price?: number; // одно из них придёт в зависимости от price_metric
@@ -30,6 +32,7 @@ export type ManagerEfficiencyRow = {
 
 export type AgentsLeaderboardRow = {
     agent_name: string;
+    agent_id: string;
     total: number;
     closed: number; // можно оставить для совместимости
     sold_count: number;

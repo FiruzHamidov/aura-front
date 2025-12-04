@@ -433,7 +433,7 @@ export default function ReportsPage() {
                 <PieStatus data={statusData} dateFrom={filters.date_from} dateTo={filters.date_to}/>
                 <BarOffer data={offerData}  dateFrom={filters.date_from} dateTo={filters.date_to}/>
                 <LineTimeSeries data={seriesData}/>
-                <BarRooms data={roomsData}/>
+                <BarRooms data={roomsData} dateFrom={filters.date_from} dateTo={filters.date_to}/>
             </div>
 
             {/* Эффективность / Топ */}
@@ -447,6 +447,7 @@ export default function ReportsPage() {
                             <th className="py-2 pr-4">Агент</th>
                             <th className="py-2 pr-4">Всего</th>
                             <th className="py-2 pr-4">Одобрено</th>
+                            <th className="py-2 pr-4">Арендовано</th>
                             <th className="py-2 pr-4">Продано</th>
                             <th className="py-2 pr-4">Продано %</th>
                             <th className="py-2 pr-4">{priceMetric === 'sum' ? 'Сумма' : 'Ср. цена'}</th>
@@ -460,10 +461,11 @@ export default function ReportsPage() {
                                     : (m as WithMetrics).avg_price;
                             return (
                                 <tr key={i} className="border-t">
-                                    <td className="py-2 pr-4">{m.name}</td>
-                                    <td className="py-2 pr-4">{m.total}</td>
-                                    <td className="py-2 pr-4">{m.approved}</td>
-                                    <td className="py-2 pr-4">{m.closed}</td>
+                                    <td className="py-2 pr-4"><Link href={`/profile/reports/objects/?agent_id=${m.agent_id}`}>{m.name}</Link></td>
+                                    <td className="py-2 pr-4"><Link href={`/profile/reports/objects/?agent_id=${m.agent_id}`}>{m.total}</Link></td>
+                                    <td className="py-2 pr-4"><Link href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=approved`}>{m.approved}</Link></td>
+                                    <td className="py-2 pr-4"><Link href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=rented`}>{m.rented}</Link></td>
+                                    <td className="py-2 pr-4"><Link href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=sold`}>{m.sold}</Link></td>
                                     <td className="py-2 pr-4">{m.close_rate}%</td>
                                     <td className="py-2 pr-4">{Number(metricValue ?? 0).toLocaleString()}</td>
                                 </tr>
@@ -495,10 +497,10 @@ export default function ReportsPage() {
                                     : (r as WithMetrics).avg_price;
                             return (
                                 <tr key={i} className="border-t">
-                                    <td className="py-2 pr-4">{r.agent_name}</td>
-                                    <td className="py-2 pr-4">{Number(r.sold_count ?? 0).toLocaleString()}</td>
-                                    <td className="py-2 pr-4">{Number(r.rented_count ?? 0).toLocaleString()}</td>
-                                    <td className="py-2 pr-4">{Number(r.sold_by_owner_count ?? 0).toLocaleString()}</td>
+                                    <td className="py-2 pr-4"><Link href={`/profile/reports/objects/?agent_id=${r.agent_id}`}>{r.agent_name}</Link></td>
+                                    <td className="py-2 pr-4"><Link href={`/profile/reports/objects/?agent_id=${r.agent_id}&offer_type=sale&moderation_status=sold`}>{Number(r.sold_count ?? 0).toLocaleString()}</Link></td>
+                                    <td className="py-2 pr-4"><Link href={`/profile/reports/objects/?agent_id=${r.agent_id}&offer_type=rent&moderation_status=rented`}>{Number(r.rented_count ?? 0).toLocaleString()}</Link></td>
+                                    <td className="py-2 pr-4"><Link href={`/profile/reports/objects/?agent_id=${r.agent_id}&moderation_status=sold_by_owner`}>{Number(r.sold_by_owner_count ?? 0).toLocaleString()}</Link></td>
                                     <td className="py-2 pr-4">{Number(r.total ?? 0).toLocaleString()}</td>
                                     <td className="py-2 pr-4">{Number(metricValue ?? 0).toLocaleString()}</td>
                                 </tr>
