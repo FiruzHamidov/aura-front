@@ -4,7 +4,6 @@ import {ChangeEvent, useEffect, useMemo, useState} from 'react';
 import {
     AgentsLeaderboardRow,
     ManagerEfficiencyRow,
-    MissingPhoneAgentRow,
     reportsApi,
     ReportsQuery,
     RoomsRow,
@@ -136,7 +135,6 @@ export default function ReportsPage() {
     const [managers, setManagers] = useState<ManagerEfficiencyRow[]>([]);
     const [leaders, setLeaders] = useState<AgentsLeaderboardRow[]>([]);
     const [error, setError] = useState<string | null>(null);
-    const [missingAgents, setMissingAgents] = useState<MissingPhoneAgentRow[]>([]);
 
     const [bookingsReport, setBookingsReport] = useState<BookingAgentRow[]>([]);
 
@@ -166,12 +164,12 @@ export default function ReportsPage() {
         setError(null);
         try {
             // main reports
-            const [s, ts, rh, me, lb, mp] = await Promise.all([
+            const [s, ts, rh, me, lb] = await Promise.all([
                 reportsApi.summary(query),
                 reportsApi.timeSeries(query),
                 reportsApi.roomsHist(query),
-                reportsApi.managerEfficiency({ ...query, group_by: 'created_by' }),
-                reportsApi.agentsLeaderboard({ ...query, limit: 10 }),
+                reportsApi.managerEfficiency({...query, group_by: 'created_by'}),
+                reportsApi.agentsLeaderboard({...query, limit: 10}),
                 reportsApi.missingPhoneAgentsByStatus(query),
             ]);
 
@@ -180,7 +178,6 @@ export default function ReportsPage() {
             setRooms(rh);
             setManagers(me);
             setLeaders(lb);
-            setMissingAgents(mp);
 
             // bookings agents
             try {
@@ -516,7 +513,8 @@ export default function ReportsPage() {
             <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
                 <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold">Показы — по агентам</h3>
-                    <div className="text-sm text-gray-500">Период: {filters.date_from || '—'} — {filters.date_to || '—'}</div>
+                    <div
+                        className="text-sm text-gray-500">Период: {filters.date_from || '—'} — {filters.date_to || '—'}</div>
                 </div>
 
                 <table className="min-w-full text-sm">
@@ -560,13 +558,15 @@ export default function ReportsPage() {
                 <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
                     <div className="flex items-center justify-between mb-3">
                         <h3 className="font-semibold">Отчёт по агенту: {agentPropertiesReport.agent_name}</h3>
-                        <div className="text-sm text-gray-500">Период: {filters.date_from || '—'} — {filters.date_to || '—'}</div>
+                        <div
+                            className="text-sm text-gray-500">Период: {filters.date_from || '—'} — {filters.date_to || '—'}</div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <div className="p-3 bg-gray-50 rounded">
                             <div className="text-sm text-gray-500">Всего объектов</div>
-                            <div className="text-lg font-semibold">{agentPropertiesReport.summary.total_properties}</div>
+                            <div
+                                className="text-lg font-semibold">{agentPropertiesReport.summary.total_properties}</div>
                         </div>
                         <div className="p-3 bg-gray-50 rounded">
                             <div className="text-sm text-gray-500">Всего показов</div>
@@ -575,7 +575,7 @@ export default function ReportsPage() {
                         <div className="p-3 bg-gray-50 rounded">
                             <div className="text-sm text-gray-500">По статусам</div>
                             <div className="text-sm">
-                                {Object.entries(agentPropertiesReport.summary.by_status).map(([k,v]) => (
+                                {Object.entries(agentPropertiesReport.summary.by_status).map(([k, v]) => (
                                     <div key={k} className="flex justify-between">
                                         <span className="text-gray-600">{statusLabel(k)}</span>
                                         <span className="font-medium">{v}</span>
@@ -620,7 +620,8 @@ export default function ReportsPage() {
                 <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
                     <div className="flex items-center justify-between mb-3">
                         <h3 className="font-semibold">Отчёты по агентам (агрегированно)</h3>
-                        <div className="text-sm text-gray-500">Период: {filters.date_from || '—'} — {filters.date_to || '—'}</div>
+                        <div
+                            className="text-sm text-gray-500">Период: {filters.date_from || '—'} — {filters.date_to || '—'}</div>
                     </div>
 
                     <table className="min-w-full text-sm">
@@ -640,7 +641,7 @@ export default function ReportsPage() {
                                 <td className="py-2 pr-4">{a.summary.total_properties}</td>
                                 <td className="py-2 pr-4">{a.summary.total_shows}</td>
                                 <td className="py-2 pr-4">
-                                    {Object.entries(a.summary.by_status).map(([k,v]) => (
+                                    {Object.entries(a.summary.by_status).map(([k, v]) => (
                                         <div key={k} className="text-xs flex gap-2">
                                             <span className="text-gray-600">{statusLabel(k)}:</span>
                                             <span className="font-medium">{v}</span>
@@ -667,74 +668,74 @@ export default function ReportsPage() {
                 </div>
             ) : null}
 
-            {/* Missing phones table (unchanged) */}
-            <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
-                <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold">Без телефона — по агентам и статусам</h3>
-                    <Link
-                        href={buildHref('/profile/reports/missing-phone', {
-                            date_from: filters.date_from || undefined,
-                            date_to: filters.date_to || undefined,
-                            offer_type: filters.offer_type,
-                            moderation_status: filters.moderation_status,
-                            type_id: filters.type_id,
-                            location_id: filters.location_id,
-                            created_by: filters.agent_id,
-                        })}
-                        className="text-[#0036A5] hover:underline"
-                    >
-                        Открыть список
-                    </Link>
-                </div>
+            {/*/!* Missing phones table (unchanged) *!/*/}
+            {/*<div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">*/}
+            {/*    <div className="flex items-center justify-between mb-3">*/}
+            {/*        <h3 className="font-semibold">Без телефона — по агентам и статусам</h3>*/}
+            {/*        <Link*/}
+            {/*            href={buildHref('/profile/reports/missing-phone', {*/}
+            {/*                date_from: filters.date_from || undefined,*/}
+            {/*                date_to: filters.date_to || undefined,*/}
+            {/*                offer_type: filters.offer_type,*/}
+            {/*                moderation_status: filters.moderation_status,*/}
+            {/*                type_id: filters.type_id,*/}
+            {/*                location_id: filters.location_id,*/}
+            {/*                created_by: filters.agent_id,*/}
+            {/*            })}*/}
+            {/*            className="text-[#0036A5] hover:underline"*/}
+            {/*        >*/}
+            {/*            Открыть список*/}
+            {/*        </Link>*/}
+            {/*    </div>*/}
 
-                <table className="min-w-full text-sm">
-                    <thead>
-                    <tr className="text-left text-gray-500">
-                        <th className="py-2 pr-4">Агент</th>
-                        <th className="py-2 pr-4">Статус</th>
-                        <th className="py-2 pr-4">Без телефона</th>
-                        <th className="py-2 pr-4">Всего (в статусе)</th>
-                        <th className="py-2 pr-4">Доля, %</th>
-                        <th className="py-2 pr-4"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {missingAgents.length === 0 ? (
-                        <tr>
-                            <td className="py-4 text-gray-500" colSpan={6}>
-                                Нет данных по текущим фильтрам
-                            </td>
-                        </tr>
-                    ) : (
-                        missingAgents.map((r, i) => (
-                            <tr key={i} className="border-t">
-                                <td className="py-2 pr-4">{r.agent_name}</td>
-                                <td className="py-2 pr-4">{statusLabel(r.moderation_status ?? '')}</td>
-                                <td className="py-2 pr-4">{r.missing_phone}</td>
-                                <td className="py-2 pr-4">{r.bucket_total}</td>
-                                <td className="py-2 pr-4">{r.missing_share_pct}</td>
-                                <td className="py-2 pr-4">
-                                    <Link
-                                        href={buildHref('/profile/reports/missing-phone', {
-                                            date_from: filters.date_from || undefined,
-                                            date_to: filters.date_to || undefined,
-                                            offer_type: filters.offer_type,
-                                            moderation_status: filters.moderation_status,
-                                            type_id: filters.type_id,
-                                            location_id: filters.location_id,
-                                            created_by: filters.agent_id,
-                                        })}
-                                        className="text-[#0036A5] hover:underline"
-                                    >
-                                        Открыть список
-                                    </Link>
-                                </td>
-                            </tr>
-                        ))
-                    )}
-                    </tbody>
-                </table>
-            </div>
+            {/*    <table className="min-w-full text-sm">*/}
+            {/*        <thead>*/}
+            {/*        <tr className="text-left text-gray-500">*/}
+            {/*            <th className="py-2 pr-4">Агент</th>*/}
+            {/*            <th className="py-2 pr-4">Статус</th>*/}
+            {/*            <th className="py-2 pr-4">Без телефона</th>*/}
+            {/*            <th className="py-2 pr-4">Всего (в статусе)</th>*/}
+            {/*            <th className="py-2 pr-4">Доля, %</th>*/}
+            {/*            <th className="py-2 pr-4"></th>*/}
+            {/*        </tr>*/}
+            {/*        </thead>*/}
+            {/*        <tbody>*/}
+            {/*        {missingAgents.length === 0 ? (*/}
+            {/*            <tr>*/}
+            {/*                <td className="py-4 text-gray-500" colSpan={6}>*/}
+            {/*                    Нет данных по текущим фильтрам*/}
+            {/*                </td>*/}
+            {/*            </tr>*/}
+            {/*        ) : (*/}
+            {/*            missingAgents.map((r, i) => (*/}
+            {/*                <tr key={i} className="border-t">*/}
+            {/*                    <td className="py-2 pr-4">{r.agent_name}</td>*/}
+            {/*                    <td className="py-2 pr-4">{statusLabel(r.moderation_status ?? '')}</td>*/}
+            {/*                    <td className="py-2 pr-4">{r.missing_phone}</td>*/}
+            {/*                    <td className="py-2 pr-4">{r.bucket_total}</td>*/}
+            {/*                    <td className="py-2 pr-4">{r.missing_share_pct}</td>*/}
+            {/*                    <td className="py-2 pr-4">*/}
+            {/*                        <Link*/}
+            {/*                            href={buildHref('/profile/reports/missing-phone', {*/}
+            {/*                                date_from: filters.date_from || undefined,*/}
+            {/*                                date_to: filters.date_to || undefined,*/}
+            {/*                                offer_type: filters.offer_type,*/}
+            {/*                                moderation_status: filters.moderation_status,*/}
+            {/*                                type_id: filters.type_id,*/}
+            {/*                                location_id: filters.location_id,*/}
+            {/*                                created_by: filters.agent_id,*/}
+            {/*                            })}*/}
+            {/*                            className="text-[#0036A5] hover:underline"*/}
+            {/*                        >*/}
+            {/*                            Открыть список*/}
+            {/*                        </Link>*/}
+            {/*                    </td>*/}
+            {/*                </tr>*/}
+            {/*            ))*/}
+            {/*        )}*/}
+            {/*        </tbody>*/}
+            {/*    </table>*/}
+            {/*</div>*/}
 
             {error && (
                 <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl">

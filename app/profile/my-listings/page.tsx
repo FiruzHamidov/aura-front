@@ -34,7 +34,7 @@ export default function MyListings() {
         isLoading,
         isFetching,
     } = useGetMyPropertiesQuery(
-        { listing_type: '', page, per_page: perPage, moderation_status: selectedTab, sort: 'none' },
+        { listing_type: '', page, per_page: perPage, moderation_status: selectedTab, sort: 'none', created_by: user?.id.toString() },
         true
     );
 
@@ -42,14 +42,14 @@ export default function MyListings() {
     useEffect(() => { setPage(1); }, [selectedTab]);
 
     // Лёгкие запросы для тоталов по всем вкладкам (per_page: 1)
-    const { data: pendingMeta  } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'pending'  }, true);
-    const { data: approvedMeta } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'approved' }, true);
+    const { data: pendingMeta  } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'pending', created_by: user?.id.toString()  }, true);
+    const { data: approvedMeta } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'approved', created_by: user?.id.toString() }, true);
     // const { data: rejectedMeta } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'rejected' }, true);
     // const { data: draftMeta    } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'draft'    }, true);
     // const { data: deletedMeta  } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'deleted'  }, true);
-    const { data: soldMeta     } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'sold'     }, true);
-    const { data: soldByOwnerMeta     } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'sold_by_owner'     }, true);
-    const { data: rentedMeta   } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'rented'   }, true);
+    const { data: soldMeta     } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'sold', created_by: user?.id.toString()     }, true);
+    const { data: soldByOwnerMeta     } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'sold_by_owner', created_by: user?.id.toString()     }, true);
+    const { data: rentedMeta   } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'rented', created_by: user?.id.toString()   }, true);
 
     // Данные активной вкладки
     const serverData: Property[] = myProperties?.data ?? [];

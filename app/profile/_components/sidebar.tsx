@@ -73,6 +73,7 @@ const roleMenus: Record<RoleSlug, Array<keyof typeof ALL_ITEMS>> = {
     'reports',
     'profile',
     'allList',
+    'myList',
     'buildings',
     'booking',
     'users',
