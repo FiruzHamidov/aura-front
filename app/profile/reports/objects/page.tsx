@@ -106,7 +106,6 @@ export default function ReportsPage() {
 
     useEffect(() => {
         loadAgents();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // keep query params synced whenever filters / paging / sorting change
@@ -235,7 +234,8 @@ export default function ReportsPage() {
             date_to: filters.date_to || undefined,
             roomsFrom: filters.roomsFrom || undefined,
             roomsTo: filters.roomsTo || undefined,
-            sort: sort || 'none',
+            // pass `sort` only when set — avoid sending a sentinel value like 'none'
+            sort: sort || undefined,
         } as PropertyFilters;
     }, [filters, page, perPage, sort]);
 
@@ -243,9 +243,10 @@ export default function ReportsPage() {
         data: propertiesResponse,
     } = useGetAllPropertiesQuery(propertyFilters, true);
 
-    // adjust these accessors according to your API shape
-    // propertiesResponse can be an array (Property[]) or a paginated object.
-    const propertiesItems: Property[] = propertiesResponse?.data ?? [];
+    // API may return either an array (Property[]) or a paginated object { data: Property[], ... }
+    const propertiesItems: Property[] = Array.isArray(propertiesResponse)
+        ? propertiesResponse
+        : propertiesResponse?.data ?? [];
 
 
 

@@ -5,52 +5,185 @@ import {
     ArcElement, Tooltip, Legend,
     CategoryScale, LinearScale, PointElement, LineElement, BarElement,
 } from 'chart.js';
+import type { ChartEvent, ActiveElement } from 'chart.js';
 import { Pie, Line, Bar } from 'react-chartjs-2';
+import type { Chart } from 'chart.js';
+import {useMemo, useRef} from "react";
+import {useRouter} from "next/navigation";
+
+import type React from 'react';
 
 ChartJS.register(
     ArcElement, Tooltip, Legend,
     CategoryScale, LinearScale, PointElement, LineElement, BarElement
 );
 
-// Палитра цветов
 const COLORS = [
     '#0036A5', '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
     '#9966FF', '#FF9F40', '#E91E63', '#8BC34A', '#00BCD4',
 ];
 
-export function PieStatus({ data }: { data: { label: string; value: number }[] }) {
+const STATUS_OPTIONS = [
+    {label: 'Черновик', value: 'draft'},
+    {label: 'Ожидание', value: 'pending'},
+    {label: 'Одобрено/Опубликовано', value: 'approved'},
+    {label: 'Отклонено', value: 'rejected'},
+    {label: 'Продано', value: 'sold'},
+    {label: 'Продано владельцем', value: 'sold_by_owner'},
+    {label: 'Арендовано', value: 'rented'},
+    {label: 'Удалено', value: 'deleted'},
+    {label: 'Отказано клиентом', value: 'denied'},
+];
+
+export function PieStatus({ data, dateFrom, dateTo }: { data: { label: string; value: number }[], dateFrom: string, dateTo: string }) {
+    const router = useRouter();
+    const chartRef = useRef<Chart<'pie', number[], unknown> | null>(null);
+
+    const chartData = useMemo(() => ({
+        labels: data.map(d => d.label),
+        datasets: [{
+            data: data.map(d => d.value),
+            backgroundColor: data.map((_, i) => COLORS[i % COLORS.length]),
+            borderColor: '#fff',
+            borderWidth: 2,
+        }],
+    }), [data]);
+
+    const options = useMemo(() => ({
+        responsive: true,
+        onHover: (event: ChartEvent, elements: ActiveElement[]) => {
+            const nativeEvent = event.native as Event | undefined;
+            const target = nativeEvent ? (nativeEvent.target as HTMLElement | null) : null;
+            if (target) target.style.cursor = elements && elements.length ? 'pointer' : 'default';
+        },
+    }), []);
+
+    // Найти соответствующее moderation_status по метке
+    const mapLabelToModerationStatus = (label: string) => {
+        const norm = String(label).trim().toLowerCase();
+        // точное совпадение по label
+        const found = STATUS_OPTIONS.find(opt => String(opt.label).toLowerCase() === norm);
+        if (found) return found.value;
+        // частичное совпадение по ключевым словам
+        const partial = STATUS_OPTIONS.find(opt => norm.includes(String(opt.label).toLowerCase().split('/')[0]));
+        return partial ? partial.value : label;
+    };
+
+    const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+        const chart = chartRef.current;
+        if (!chart) return;
+        const points = chart.getElementsAtEventForMode(event.nativeEvent, 'nearest', { intersect: true }, false) || [];
+        if (!points || points.length === 0) return;
+        const index = points[0].index;
+        const label = data[index]?.label;
+        if (!label) return;
+
+        const moderation = mapLabelToModerationStatus(label);
+
+        const params = new URLSearchParams({
+            date_from: dateFrom,
+            date_to: dateTo,
+            interval: 'week',
+            price_metric: 'sum',
+            moderation_status: moderation,
+            page: '1',
+            per_page: '20',
+        });
+
+
+
+        // если из внешнего состояния уже передан moderationStatus и он отличается — перезапишем
+        // (в большинстве случаев мы хотим перейти по тому статусу, по которому кликнули)
+        router.push(`/profile/reports/objects?${params.toString()}`);
+    };
+
     return (
         <div className="p-4 bg-white rounded-2xl shadow">
             <h3 className="font-semibold mb-3">Распределение по статусам</h3>
             <Pie
-                data={{
-                    labels: data.map(d => d.label),
-                    datasets: [{
-                        data: data.map(d => d.value),
-                        backgroundColor: data.map((_, i) => COLORS[i % COLORS.length]),
-                        borderColor: '#fff',
-                        borderWidth: 2,
-                    }],
-                }}
+                ref={(el) => { chartRef.current = el as Chart<'pie', number[], unknown> | null }}
+                data={chartData}
+                onClick={handleCanvasClick}
+                options={options}
             />
         </div>
     );
 }
 
-export function BarOffer({ data }: { data: { label: string; value: number }[] }) {
+export function BarOffer({ data, dateFrom, dateTo }: { data: { label: string; value: number }[], dateFrom: string, dateTo: string  }) {
+    const router = useRouter();
+
+    const chartRef = useRef<Chart<'bar', number[], unknown> | null>(null);
+
+    // Преобразуем данные один раз
+    const chartData = useMemo(() => ({
+        labels: data.map(d => d.label),
+        datasets: [{
+            label: 'Количество',
+            data: data.map(d => d.value),
+            backgroundColor: data.map((_, i) => COLORS[i % COLORS.length]),
+        }],
+    }), [data]);
+
+    const options = useMemo(() => ({
+        responsive: true,
+        plugins: { legend: { display: false } },
+        // делаем курсор указателем над элементами
+        onHover: (event: ChartEvent, elements: ActiveElement[]) => {
+            const nativeEvent = event.native as Event | undefined;
+            const target = nativeEvent ? (nativeEvent.target as HTMLElement | null) : null;
+            if (target) target.style.cursor = elements && elements.length ? 'pointer' : 'default';
+        },
+    }), []);
+
+    const mapLabelToOfferType = (label: string) => {
+        const norm = String(label).trim().toLowerCase();
+        // подстраховка для русских и английских меток (сравниваем в нижнем регистре)
+        if (norm === 'аренда' || norm === 'аренду' || norm === 'rent') return 'rent';
+        if (norm === 'продажа' || norm === 'продать' || norm === 'sale') return 'sale';
+        // иногда метки могут быть в форме 'аренда/снять' или 'продажа/купить' — проверим наличие ключевых слов
+        if (norm.includes('аренд') || norm.includes('снять')) return 'rent';
+        if (norm.includes('прод') || norm.includes('купить')) return 'sale';
+        // если уже ключ в нужном формате, отдадим как есть
+        return label;
+    };
+
+    // When canvas is clicked React passes MouseEvent only — use chartRef to get elements under pointer
+    const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+        const chart = chartRef.current;
+        if (!chart) return;
+        // chart.js wants native event
+        const points = chart.getElementsAtEventForMode(event.nativeEvent, 'nearest', { intersect: true }, false) || [];
+        if (!points || points.length === 0) return;
+        const index = points[0].index;
+        const label = data[index]?.label;
+        if (!label) return;
+
+        const offerType = mapLabelToOfferType(label);
+
+        console.log(offerType, label)
+
+        const params = new URLSearchParams({
+            interval: 'week',
+            price_metric: 'sum',
+            offer_type: offerType,
+            page: '1',
+            per_page: '20',
+            date_from: dateFrom,
+            date_to: dateTo
+        });
+
+        router.push(`/profile/reports/objects?${params.toString()}`);
+    };
+
     return (
         <div className="p-4 bg-white rounded-2xl shadow">
             <h3 className="font-semibold mb-3">Тип объявления</h3>
             <Bar
-                data={{
-                    labels: data.map(d => d.label),
-                    datasets: [{
-                        label: 'Количество',
-                        data: data.map(d => d.value),
-                        backgroundColor: data.map((_, i) => COLORS[i % COLORS.length]),
-                    }],
-                }}
-                options={{ responsive: true, plugins: { legend: { display: false } } }}
+                ref={(el) => { chartRef.current = el as Chart<'bar', number[], unknown> | null }}
+                data={chartData}
+                options={options}
+                onClick={handleCanvasClick}
             />
         </div>
     );

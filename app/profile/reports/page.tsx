@@ -41,7 +41,7 @@ const STATUS_OPTIONS = [
     {label: 'Продано владельцем', value: 'sold_by_owner'},
     {label: 'Арендовано', value: 'rented'},
     {label: 'Удалено', value: 'deleted'},
-    {label: 'denied', value: 'Отказано клиентом'},
+    {label: 'Отказано клиентом', value: 'denied'},
 ];
 
 const OFFER_OPTIONS = [
@@ -430,8 +430,8 @@ export default function ReportsPage() {
 
             {/* Графики */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <PieStatus data={statusData}/>
-                <BarOffer data={offerData}/>
+                <PieStatus data={statusData} dateFrom={filters.date_from} dateTo={filters.date_to}/>
+                <BarOffer data={offerData}  dateFrom={filters.date_from} dateTo={filters.date_to}/>
                 <LineTimeSeries data={seriesData}/>
                 <BarRooms data={roomsData}/>
             </div>
