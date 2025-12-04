@@ -218,7 +218,7 @@ export default function CreateBuildingUnitPage() {
             <label className="block text-sm font-medium mb-2">Цена *</label>
             <input
               type="number"
-              name="price"
+              name="price_per_sqm"
               value={form.price_per_sqm}
               onChange={handleChange}
               min="0"
