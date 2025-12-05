@@ -37,7 +37,7 @@ const STATUS_OPTIONS = [
     {label: 'Ожидание', value: 'pending'},
     {label: 'Одобрено/Опубликовано', value: 'approved'},
     {label: 'Отклонено', value: 'rejected'},
-    {label: 'Продано', value: 'sold'},
+    {label: 'Продано агентом', value: 'sold'},
     {label: 'Продано владельцем', value: 'sold_by_owner'},
     {label: 'Арендовано', value: 'rented'},
     {label: 'Удалено', value: 'deleted'},
@@ -83,6 +83,7 @@ type AgentPropertiesReport = {
         total_properties: number;
         total_shows: number;
         by_status: Record<string, number>;
+        contracts: Record<string, number>;
     };
     properties: {
         id: number;
@@ -107,24 +108,6 @@ export default function ReportsPage() {
         location_id: [],
         agent_id: [],
     });
-
-    function buildHref(basePath: string, input: {
-        date_from?: string; date_to?: string;
-        offer_type?: (string | number)[]; moderation_status?: (string | number)[];
-        type_id?: (string | number)[]; location_id?: (string | number)[];
-        created_by?: (string | number)[];
-    }) {
-        const qs = new URLSearchParams();
-        if (input.date_from) qs.set('date_from', input.date_from);
-        if (input.date_to) qs.set('date_to', input.date_to);
-        input.offer_type?.forEach(v => qs.append('offer_type', String(v)));
-        input.moderation_status?.forEach(v => qs.append('moderation_status', String(v)));
-        input.type_id?.forEach(v => qs.append('type_id', String(v)));
-        input.location_id?.forEach(v => qs.append('location_id', String(v)));
-        input.created_by?.forEach(v => qs.append('created_by', String(v)));
-        const q = qs.toString();
-        return q ? `${basePath}?${q}` : basePath;
-    }
 
     const [priceMetric, setPriceMetric] = useState<PriceMetric>('sum');
 
@@ -431,7 +414,7 @@ export default function ReportsPage() {
             {/* Графики */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <PieStatus data={statusData} dateFrom={filters.date_from} dateTo={filters.date_to}/>
-                <BarOffer data={offerData}  dateFrom={filters.date_from} dateTo={filters.date_to}/>
+                <BarOffer data={offerData} dateFrom={filters.date_from} dateTo={filters.date_to}/>
                 <LineTimeSeries data={seriesData}/>
                 <BarRooms data={roomsData} dateFrom={filters.date_from} dateTo={filters.date_to}/>
             </div>
@@ -461,11 +444,19 @@ export default function ReportsPage() {
                                     : (m as WithMetrics).avg_price;
                             return (
                                 <tr key={i} className="border-t">
-                                    <td className="py-2 pr-4"><Link href={`/profile/reports/objects/?agent_id=${m.agent_id}`}>{m.name}</Link></td>
-                                    <td className="py-2 pr-4"><Link href={`/profile/reports/objects/?agent_id=${m.agent_id}`}>{m.total}</Link></td>
-                                    <td className="py-2 pr-4"><Link href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=approved`}>{m.approved}</Link></td>
-                                    <td className="py-2 pr-4"><Link href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=rented`}>{m.rented}</Link></td>
-                                    <td className="py-2 pr-4"><Link href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=sold`}>{m.sold}</Link></td>
+                                    <td className="py-2 pr-4"><Link
+                                        href={`/profile/reports/objects/?agent_id=${m.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{m.name}</Link></td>
+                                    <td className="py-2 pr-4"><Link
+                                        href={`/profile/reports/objects/?agent_id=${m.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{m.total}</Link></td>
+                                    <td className="py-2 pr-4"><Link
+                                        href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=approved&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{m.approved}</Link>
+                                    </td>
+                                    <td className="py-2 pr-4"><Link
+                                        href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=rented&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{m.rented}</Link>
+                                    </td>
+                                    <td className="py-2 pr-4"><Link
+                                        href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=sold&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{m.sold}</Link>
+                                    </td>
                                     <td className="py-2 pr-4">{m.close_rate}%</td>
                                     <td className="py-2 pr-4">{Number(metricValue ?? 0).toLocaleString()}</td>
                                 </tr>
@@ -497,10 +488,18 @@ export default function ReportsPage() {
                                     : (r as WithMetrics).avg_price;
                             return (
                                 <tr key={i} className="border-t">
-                                    <td className="py-2 pr-4"><Link href={`/profile/reports/objects/?agent_id=${r.agent_id}`}>{r.agent_name}</Link></td>
-                                    <td className="py-2 pr-4"><Link href={`/profile/reports/objects/?agent_id=${r.agent_id}&offer_type=sale&moderation_status=sold`}>{Number(r.sold_count ?? 0).toLocaleString()}</Link></td>
-                                    <td className="py-2 pr-4"><Link href={`/profile/reports/objects/?agent_id=${r.agent_id}&offer_type=rent&moderation_status=rented`}>{Number(r.rented_count ?? 0).toLocaleString()}</Link></td>
-                                    <td className="py-2 pr-4"><Link href={`/profile/reports/objects/?agent_id=${r.agent_id}&moderation_status=sold_by_owner`}>{Number(r.sold_by_owner_count ?? 0).toLocaleString()}</Link></td>
+                                    <td className="py-2 pr-4"><Link
+                                        href={`/profile/reports/objects/?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.agent_name}</Link>
+                                    </td>
+                                    <td className="py-2 pr-4"><Link
+                                        href={`/profile/reports/objects/?agent_id=${r.agent_id}&offer_type=sale&moderation_status=sold&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{Number(r.sold_count ?? 0).toLocaleString()}</Link>
+                                    </td>
+                                    <td className="py-2 pr-4"><Link
+                                        href={`/profile/reports/objects/?agent_id=${r.agent_id}&offer_type=rent&moderation_status=rented&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{Number(r.rented_count ?? 0).toLocaleString()}</Link>
+                                    </td>
+                                    <td className="py-2 pr-4"><Link
+                                        href={`/profile/reports/objects/?agent_id=${r.agent_id}&moderation_status=sold_by_owner&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{Number(r.sold_by_owner_count ?? 0).toLocaleString()}</Link>
+                                    </td>
                                     <td className="py-2 pr-4">{Number(r.total ?? 0).toLocaleString()}</td>
                                     <td className="py-2 pr-4">{Number(metricValue ?? 0).toLocaleString()}</td>
                                 </tr>
@@ -541,13 +540,20 @@ export default function ReportsPage() {
                     ) : (
                         bookingsReport.map((r, i) => (
                             <tr key={i} className="border-t">
-                                <td className="py-2 pr-4">{r.agent_name}</td>
-                                <td className="py-2 pr-4">{r.shows_count}</td>
-                                <td className="py-2 pr-4">{r.total_minutes}</td>
-                                <td className="py-2 pr-4">{r.unique_clients}</td>
-                                <td className="py-2 pr-4">{r.unique_properties}</td>
-                                <td className="py-2 pr-4">{r.first_show ?? '—'}</td>
-                                <td className="py-2 pr-4">{r.last_show ?? '—'}</td>
+                                <td className="py-2 pr-4"><Link
+                                    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.agent_name}</Link></td>
+                                <td className="py-2 pr-4"><Link
+                                    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.shows_count}</Link></td>
+                                <td className="py-2 pr-4"><Link
+                                    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.total_minutes}</Link></td>
+                                <td className="py-2 pr-4"><Link
+                                    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.unique_clients}</Link></td>
+                                <td className="py-2 pr-4"><Link
+                                    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.unique_properties}</Link></td>
+                                <td className="py-2 pr-4"><Link
+                                    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.first_show ?? '—'}</Link></td>
+                                <td className="py-2 pr-4"><Link
+                                    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.last_show ?? '—'}</Link></td>
                             </tr>
                         ))
                     )}
@@ -639,29 +645,47 @@ export default function ReportsPage() {
                         <tbody>
                         {agentsPropertiesList.map((a) => (
                             <tr key={a.agent_id} className="border-t">
-                                <td className="py-2 pr-4">{a.agent_name}</td>
-                                <td className="py-2 pr-4">{a.summary.total_properties}</td>
-                                <td className="py-2 pr-4">{a.summary.total_shows}</td>
+                                <td className="py-2 pr-4"><Link
+                                    href={`/profile/reports/objects?agent_id=${a.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{a.agent_name}</Link>
+                                </td>
+                                <td className="py-2 pr-4"><Link
+                                    href={`/profile/reports/objects?agent_id=${a.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{a.summary.total_properties}</Link>
+                                </td>
+
+                                <td className="py-2 pr-4">
+                                    <Link
+                                        href={`/profile/reports/bookings?agent_id=${a.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{a.summary.total_shows}</Link></td>
                                 <td className="py-2 pr-4">
                                     {Object.entries(a.summary.by_status).map(([k, v]) => (
-                                        <div key={k} className="text-xs flex gap-2">
-                                            <span className="text-gray-600">{statusLabel(k)}:</span>
-                                            <span className="font-medium">{v}</span>
-                                        </div>
+                                        <Link
+                                            key={a.agent_id + k}
+                                            href={`/profile/reports/objects?moderation_status=${encodeURIComponent(k)}&agent_id=${a.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}
+                                        >
+                                            <div className="text-sm flex gap-2">
+                                                <span className="text-gray-600">{statusLabel(k)}:</span>
+                                                <span className="font-medium">{v}</span>
+                                            </div>
+                                        </Link>
                                     ))}
                                 </td>
+
+                                {/* contracts — a.summary.contracts is an array of {id, name, count} */}
                                 <td className="py-2 pr-4">
-                                    {/* Ссылка — можно перенаправить на ту же страницу с фильтром agent_id=... */}
-                                    <Link
-                                        href={buildHref('/profile/reports/agent', {
-                                            date_from: filters.date_from || undefined,
-                                            date_to: filters.date_to || undefined,
-                                            created_by: [a.agent_id],
-                                        })}
-                                        className="text-[#0036A5] hover:underline"
-                                    >
-                                        Открыть
-                                    </Link>
+                                    {Array.isArray(a.summary.contracts) && a.summary.contracts.length > 0 ? (
+                                        a.summary.contracts.map((c) => (
+                                            <Link
+                                                key={`${a.agent_id}-contract-${c.id}`}
+                                                href={`/profile/reports/objects?contract_type_id=${c.id}&agent_id=${a.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}
+                                            >
+                                                <div className="text-sm flex gap-2">
+                                                    <span className="text-gray-600">{c.name}:</span>
+                                                    <span className="font-medium">{c.count}</span>
+                                                </div>
+                                            </Link>
+                                        ))
+                                    ) : (
+                                        <div className="text-sm text-gray-500">—</div>
+                                    )}
                                 </td>
                             </tr>
                         ))}

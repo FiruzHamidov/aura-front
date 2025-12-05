@@ -20,6 +20,7 @@ type FilterState = {
     type_id: (string | number)[];
     location_id: (string | number)[];
     agent_id: (string | number)[];
+    contract_type_id: (string | number)[];
     roomsFrom?: string;
     roomsTo?: string;
 };
@@ -68,6 +69,7 @@ export default function ReportsPage() {
             moderation_status: (searchParams?.getAll('moderation_status') ?? []) as (string | number)[],
             type_id: (searchParams?.getAll('type_id') ?? []) as (string | number)[],
             location_id: (searchParams?.getAll('location_id') ?? []) as (string | number)[],
+            contract_type_id: (searchParams?.getAll('contract_type_id') ?? []) as (string | number)[],
             agent_id: (searchParams?.getAll('agent_id') ?? []) as (string | number)[],
             // support reading either `rooms` (single) or `roomsFrom`/`roomsTo` from the query
             roomsFrom: (sp.roomsFrom as string) || (sp.rooms as string) || '',
@@ -120,6 +122,7 @@ export default function ReportsPage() {
         filters.type_id.forEach((v) => params.append('type_id', String(v)));
         filters.location_id.forEach((v) => params.append('location_id', String(v)));
         filters.agent_id.forEach((v) => params.append('agent_id', String(v)));
+        filters.contract_type_id.forEach((v) => params.append('contract_type_id', String(v)));
 
         // rooms handling: if user selected a single rooms value (roomsFrom === roomsTo), write `rooms=X`.
         // otherwise expose roomsFrom/roomsTo individually if present.
@@ -151,6 +154,7 @@ export default function ReportsPage() {
             moderation_status: [],
             type_id: [],
             location_id: [],
+            contract_type_id: [],
             agent_id: [],
             roomsFrom: '',
             roomsTo: '',
@@ -234,6 +238,7 @@ export default function ReportsPage() {
             date_to: filters.date_to || undefined,
             roomsFrom: filters.roomsFrom || undefined,
             roomsTo: filters.roomsTo || undefined,
+            contract_type_id: filters.contract_type_id || undefined,
             // pass `sort` only when set — avoid sending a sentinel value like 'none'
             sort: sort || undefined,
         } as PropertyFilters;
@@ -378,7 +383,22 @@ export default function ReportsPage() {
                     </div>
 
                     {/* placeholder for additional filters */}
-                    <div></div>
+                    <div className="flex flex-col gap-2">
+                        <label className="block mb-2 text-sm text-[#666F8D]">Тип договора</label>
+                        <select
+                            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                            value={filters.contract_type_id ? String(filters.contract_type_id) : ''}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setFilters((s) => ({...s, contract_type_id: val ? [val] : []}));
+                            }}
+                        >
+                            <option value="">— Все —</option>
+                            <option value="1">Альтернативный</option>
+                            <option value="2">Эксклюзив</option>
+                            <option value="3">Без договора</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div className="flex gap-3 mt-4">
