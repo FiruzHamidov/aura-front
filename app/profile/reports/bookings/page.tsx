@@ -321,12 +321,14 @@ export default function BookingsReportPage() {
                                     {b.note ? (b.note.length > 25 ? b.note.slice(0, 25) + '…' : b.note) : '—'}
                                 </td>
                                 <td className="px-3 py-3">
-                                    <button
-                                        className="inline-flex items-center gap-2 px-2 py-1 cursor-pointer rounded text-sm bg-white hover:bg-gray-50"
-                                        onClick={() => openEdit(b)}
-                                    >
-                                        <Edit2 className='w-8'/>
-                                    </button>
+                                    {currentUser?.role?.slug === 'admin' && (
+                                        <button
+                                            className="inline-flex items-center gap-2 px-2 py-1 cursor-pointer rounded text-sm bg-white hover:bg-gray-50"
+                                            onClick={() => openEdit(b)}
+                                        >
+                                            <Edit2 className='w-8'/>
+                                        </button>
+                                    )}
                                 </td>
                             </tr>
                         ))}
