@@ -9,7 +9,16 @@ import {useGetAllPropertiesQuery} from '@/services/properties/hooks';
 import {axios} from "@/utils/axios";
 import {Property, PropertyFilters} from "@/services/properties/types";
 import Link from "next/link";
-import {EditIcon, EyeIcon, HistoryIcon} from "lucide-react";
+import {
+    EditIcon, Ellipsis,
+    EyeIcon,
+    GridIcon,
+    HistoryIcon,
+    ListIcon,
+} from "lucide-react";
+import clsx from 'clsx';
+import BuyCard from "@/app/_components/buy/buy-card";
+import {useProfile} from "@/services/login/hooks";
 
 type FilterState = {
     date_from: string;
@@ -57,6 +66,7 @@ type Agent = { id: number; name: string };
 export default function ReportsPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const {data: user} = useProfile();
 
     // read initial filters from query params so state persists on back/forward
     const initialFilters = useMemo<FilterState>(() => {
@@ -88,6 +98,7 @@ export default function ReportsPage() {
     const [openRow, setOpenRow] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [viewMode, setViewMode] = useState<'table' | 'cards'>(() => (searchParams?.get('view') as 'table' | 'cards') ?? 'table');
 
     // agents
     const [agents, setAgents] = useState<Agent[]>([]);
@@ -138,12 +149,18 @@ export default function ReportsPage() {
         if (page) params.set('page', String(page));
         if (perPage) params.set('per_page', String(perPage));
         if (sort) params.set('sort', sort);
+        if (viewMode) params.set('view', viewMode);
 
-        const url = `/profile/reports/objects?${params.toString()}`;
-        // push without reloading (client-side navigation)
-        router.replace(url);
+        const queryString = params.toString();
+        const current = searchParams?.toString() ?? '';
+
+        // avoid replacing the URL if nothing changed to prevent extra re-renders
+        if (queryString !== current) {
+            const url = `/profile/reports/objects${queryString ? `?${queryString}` : ''}`;
+            router.replace(url);
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filters, priceMetric, page, perPage, sort]);
+    }, [filters, priceMetric, page, perPage, sort, viewMode, searchParams?.toString()]);
 
     const resetFilters = () => {
         setFilters({
@@ -419,95 +436,120 @@ export default function ReportsPage() {
             <div className="bg-white rounded-2xl shadow p-4">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold">Список объектов</h2>
-                    <div className="text-sm text-gray-500">Всего: {propertiesResponse?.total ?? 0}</div>
+
+                    <div className="flex items-center gap-3">
+                        <div className="text-sm text-gray-500 mr-4">Всего: {propertiesResponse?.total ?? 0}</div>
+
+                        <div className="inline-flex rounded-md shadow-sm" role="group">
+                            <button
+                                type="button"
+                                onClick={() => setViewMode('table')}
+                                className={clsx('px-3 py-1 text-sm rounded-l-md cursor-pointer', viewMode === 'table' ? 'bg-[#0036A5] font-semibold text-white' : 'bg-[#0036A5]/70 text-gray-100')}
+                            >
+                                <ListIcon/>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setViewMode('cards')}
+                                className={clsx('px-3 py-1 text-sm rounded-r-md cursor-pointer', viewMode === 'cards' ? 'bg-[#0036A5] font-semibold text-white' : 'bg-[#0036A5]/70 text-gray-100')}
+                            >
+                                <GridIcon/>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full table-auto text-left">
-                        <thead>
-                        <tr>
-                            <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort('id')}>ID</th>
-                            <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort('title')}>Название</th>
-                            <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort('price')}>Цена</th>
-                            <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort('agent_id')}>Агент</th>
-                            <th className="px-3 py-2 cursor-pointer"
-                                onClick={() => toggleSort('moderation_status')}>Статус
-                            </th>
-                            <th className="px-3 py-2">Действия</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {propertiesItems.length === 0 && (
+                {viewMode === 'table' ? (
+                    <div className="overflow-x-auto">
+                        <table className="w-full table-auto text-left">
+                            <thead>
                             <tr>
-                                <td colSpan={6} className="px-3 py-6 text-center text-gray-500">Нет данных</td>
+                                <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort('id')}>ID</th>
+                                <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort('title')}>Название</th>
+                                <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort('price')}>Цена</th>
+                                <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort('agent_id')}>Агент</th>
+                                <th className="px-3 py-2 cursor-pointer"
+                                    onClick={() => toggleSort('moderation_status')}>Статус
+                                </th>
+                                <th className="px-3 py-2">Действия</th>
                             </tr>
+                            </thead>
+                            <tbody>
+                            {propertiesItems.length === 0 && (
+                                <tr>
+                                    <td colSpan={6} className="px-3 py-6 text-center text-gray-500">Нет данных</td>
+                                </tr>
+                            )}
+
+                            {propertiesItems.map((p: Property) => (
+                                <tr key={p.id} className="border-t">
+                                    <td className="px-3 py-3">{p.id}</td>
+                                    <td className="px-3 py-3">{buildTitle(p)}</td>
+                                    <td className="px-3 py-3">{p.price ? `${p.price} ${p.currency ?? ''}` : '—'}</td>
+                                    <td className="px-3 py-3">{p.creator?.name ?? '—'}</td>
+                                    <td className="px-3 py-3">{statusLabel(p.moderation_status)}</td>
+                                    <td className="px-3 py-3">
+                                        <div className="relative inline-block text-left">
+                                            <Button variant="circle" size="sm"
+                                                onClick={() => {
+                                                    setOpenRow(openRow === p.id ? null : p.id);
+                                                }}
+                                                    className='rounded-full'
+                                            >
+                                                <Ellipsis className=' w-5'/>
+
+                                            </Button>
+
+                                            {openRow === p.id && (
+                                                <div
+                                                    className="absolute right-0 left-0 m-auto mt-2 w-44 bg-white border rounded shadow z-20">
+                                                    <Link href={`/apartment/${p.id}`}
+                                                          className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
+                                                        <EyeIcon className="w-4 h-4"/>
+                                                        <span>Посмотреть</span>
+                                                    </Link>
+
+                                                    <Link href={`/apartment/${p.id}/logs`}
+                                                          className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
+                                                        <HistoryIcon className="w-4 h-4"/>
+                                                        <span>Посмотреть историю</span>
+                                                    </Link>
+                                                    <Link href={`/profile/edit-post/${p.id}`}
+                                                          className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
+                                                        <EditIcon className="w-4 h-4"/>
+                                                        <span>Редактировать</span>
+                                                    </Link>
+
+                                                </div>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        {propertiesItems.length === 0 && (
+                            <div className="col-span-full text-center text-gray-500 py-6">Нет данных</div>
                         )}
 
                         {propertiesItems.map((p: Property) => (
-                            <tr key={p.id} className="border-t">
-                                <td className="px-3 py-3">{p.id}</td>
-                                <td className="px-3 py-3">{buildTitle(p)}</td>
-                                <td className="px-3 py-3">{p.price ? `${p.price} ${p.currency ?? ''}` : '—'}</td>
-                                <td className="px-3 py-3">{p.creator?.name ?? '—'}</td>
-                                <td className="px-3 py-3">{statusLabel(p.moderation_status)}</td>
-                                <td className="px-3 py-3">
-                                    <div className="relative inline-block text-left">
-                                        <button
-                                            type="button"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setOpenRow(openRow === p.id ? null : p.id);
-                                            }}
-                                            className="inline-flex items-center gap-2 px-3 py-1 border rounded text-sm bg-white hover:bg-gray-50"
-                                        >
-                                            Действия
-                                            <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"
-                                                 aria-hidden="true">
-                                                <path fillRule="evenodd"
-                                                      d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.06z"
-                                                      clipRule="evenodd"/>
-                                            </svg>
-                                        </button>
-
-                                        {openRow === p.id && (
-                                            <div
-                                                className="absolute right-0 mt-2 w-44 bg-white border rounded shadow z-20">
-                                                <Link href={`/apartment/${p.id}`}
-                                                      className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
-                                                    <EyeIcon className="w-4 h-4"/>
-                                                    <span>Посмотреть</span>
-                                                </Link>
-
-                                                <Link href={`/apartment/${p.id}/logs`}
-                                                      className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
-                                                    <HistoryIcon className="w-4 h-4"/>
-                                                    <span>Посмотреть историю</span>
-                                                </Link>
-                                                <Link href={`/profile/edit-post/${p.id}`}
-                                                      className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
-                                                    <EditIcon className="w-4 h-4"/>
-                                                    <span>Редактировать</span>
-                                                </Link>
-
-                                            </div>
-                                        )}
-                                    </div>
-                                </td>
-                            </tr>
+                            <BuyCard listing={p} user={user} key={p.id}/>
                         ))}
-                        </tbody>
-                    </table>
-                </div>
+                    </div>
+                )}
 
                 {/* Pagination */}
                 <div className="flex items-center justify-between mt-4">
                     <div
                         className="text-sm text-gray-600">Страница {propertiesResponse?.current_page} из {Math.max(1, Math.ceil((propertiesResponse?.total ?? 0) / (propertiesResponse?.per_page ?? perPage)))}</div>
                     <div className="flex items-center gap-2">
-                        <Button variant="secondary" onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        <Button variant="primary" onClick={() => setPage((p) => Math.max(1, p - 1))}
                                 disabled={page <= 1}>Пред.</Button>
                         <div className="px-2">{page}</div>
-                        <Button variant="secondary" onClick={() => setPage((p) => p + 1)}
+                        <Button variant="primary" onClick={() => setPage((p) => p + 1)}
                                 disabled={page >= Math.ceil((propertiesResponse?.total ?? 0) / (propertiesResponse?.per_page ?? perPage))}>След.</Button>
                         <select value={perPage} onChange={(e) => {
                             setPerPage(Number(e.target.value));
