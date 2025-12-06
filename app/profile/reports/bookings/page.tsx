@@ -5,8 +5,11 @@ import {useRouter, useSearchParams} from 'next/navigation';
 import {Input} from '@/ui-components/Input';
 import {Button} from '@/ui-components/Button';
 import {axios} from '@/utils/axios';
-import {Edit2} from "lucide-react";
+import {Edit2, EditIcon, EllipsisVerticalIcon, EyeIcon, HistoryIcon} from "lucide-react";
 import {useProfile} from "@/services/login/hooks";
+import {buildTitle} from "@/utils/helpers";
+import {Property} from "@/services/properties/types";
+import Link from "next/link";
 
 type Agent = { id: number; name: string };
 
@@ -19,7 +22,7 @@ type Booking = {
     start_time?: string | null; // backend returns times already converted to Asia/Dushanbe
     end_time?: string | null;
     note?: string | null;
-    property?: { id: number; title?: string } | null;
+    property: Property;
     agent?: Agent | null;
 };
 
@@ -42,10 +45,14 @@ export default function BookingsReportPage() {
     const [error, setError] = useState<string | null>(null);
 
 
-    if (currentUser?.role?.slug !== 'admin') {
-        setAgentSelectDisabled(true);
-        setAgentId(currentUser?.id.toString() ?? '');
-    }
+    useEffect(() => {
+        if (!currentUser) return;
+
+        if (currentUser.role?.slug !== 'admin') {
+            setAgentSelectDisabled(true);
+            setAgentId(currentUser.id.toString());
+        }
+    }, [currentUser]);
 
     useEffect(() => {
         const loadAgents = async () => {
@@ -141,6 +148,9 @@ export default function BookingsReportPage() {
     const [editing, setEditing] = useState<Booking | null>(null);
     const openEdit = useCallback((b: Booking) => setEditing(b), []);
     const closeEdit = useCallback(() => setEditing(null), []);
+
+    // track which property's ActionMenu is open (property id) — null means none
+    const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
     const saveEdit = async (payload: Partial<Booking> & { id: number }) => {
         try {
@@ -238,6 +248,43 @@ export default function BookingsReportPage() {
         );
     }
 
+    // --- ActionMenu component (controlled by parent via open/onToggle) ---
+    function ActionMenu({ propertyId, open, onToggle }: { propertyId: number; open: boolean; onToggle: () => void; }) {
+        return (
+            <div className="relative inline-block text-left">
+                {/*<Button*/}
+                {/*    type="button"*/}
+                {/*    variant="circle"*/}
+                {/*    onClick={onToggle}*/}
+                {/*    className="rounded"*/}
+                {/*    size="sm"*/}
+                {/*    aria-expanded={open}*/}
+                {/*>*/}
+                {/*   <EllipsisVerticalIcon/>*/}
+                {/*</Button>*/}
+
+                {open && (
+                    <div
+                        className="absolute z-10 right-0 mt-2 w-40 bg-white border rounded shadow-md"
+                        onMouseLeave={onToggle}
+                    >
+                        <div className="flex flex-col">
+                            <Link href={`/apartment/${propertyId}`} className="block px-3 py-2 text-sm hover:bg-gray-50" onClick={onToggle}>
+                                <div className="flex items-center gap-2"><EyeIcon className="w-4 h-4"/>Просмотр</div>
+                            </Link>
+                            <Link href={`/apartment/${propertyId}/logs`} className="block px-3 py-2 text-sm hover:bg-gray-50" onClick={onToggle}>
+                                <div className="flex items-center gap-2"><HistoryIcon className="w-4 h-4"/>Логи</div>
+                            </Link>
+                            <Link href={`/profile/edit-post/${propertyId}`} className="block px-3 py-2 text-sm hover:bg-gray-50" onClick={onToggle}>
+                                <div className="flex items-center gap-2"><EditIcon className="w-4 h-4"/>Редактировать</div>
+                            </Link>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-6 p-4">
             <h1 className="text-2xl font-semibold">Отчёт по показам</h1>
@@ -309,7 +356,26 @@ export default function BookingsReportPage() {
                         {bookings.map((b) => (
                             <tr key={b.id} className="border-t">
                                 <td className="px-3 py-3">{b.id}</td>
-                                <td className="px-3 py-3">{b.property?.title ?? `#${b.property_id}`}</td>
+                                <td className="px-3 py-3">
+                                    <div className="flex items-center gap-3">
+                                        <p
+                                            className="truncate max-w-[220px] hover:underline cursor-pointer"
+                                            onClick={(e) => {
+                                                // open action menu for this property when title clicked
+                                                // allow normal Link navigation — don't preventDefault
+                                                setOpenMenuId(b.property.id);
+                                            }}
+                                        >
+                                            {buildTitle(b.property).slice(0, 25)}{buildTitle(b.property).length > 25 ? '…' : ''}
+                                        </p>
+
+                                        <ActionMenu
+                                            propertyId={b.property.id}
+                                            open={openMenuId === b.property.id}
+                                            onToggle={() => setOpenMenuId(openMenuId === b.property.id ? null : b.property.id)}
+                                        />
+                                    </div>
+                                </td>
                                 <td className="px-3 py-3">{b.agent?.name ?? (b.agent_id ? String(b.agent_id) : '—')}</td>
                                 <td className="px-3 py-3">{b.client_name ?? b.client_phone ?? '—'}</td>
                                 <td className="px-3 py-3">{b.start_time ?? '—'}</td>
@@ -322,12 +388,13 @@ export default function BookingsReportPage() {
                                 </td>
                                 <td className="px-3 py-3">
                                     {currentUser?.role?.slug === 'admin' && (
-                                        <button
-                                            className="inline-flex items-center gap-2 px-2 py-1 cursor-pointer rounded text-sm bg-white hover:bg-gray-50"
+                                        <Button
+                                            variant="circle"
+                                            className=" cursor-pointer rounded text-sm"
                                             onClick={() => openEdit(b)}
                                         >
-                                            <Edit2 className='w-8'/>
-                                        </button>
+                                            <Edit2 className='w-4'/>
+                                        </Button>
                                     )}
                                 </td>
                             </tr>
