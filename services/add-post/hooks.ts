@@ -19,6 +19,9 @@ export const useGetLocationsQuery = () =>
 export const useGetRepairTypesQuery = () =>
     useQuery({ queryKey: ['get-repair-types'], queryFn: addPostApi.getRepairTypes });
 
+export const useGetDevelopers = () =>
+    useQuery({ queryKey: ['get-developers'], queryFn: addPostApi.getDevelopers });
+
 export const useGetHeatingTypesQuery = () =>
     useQuery({ queryKey: ['get-heating-types'], queryFn: addPostApi.getHeatingTypes });
 

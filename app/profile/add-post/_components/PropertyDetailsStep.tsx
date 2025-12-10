@@ -1,21 +1,25 @@
 'use client';
 
 import {ChangeEvent, FormEvent, useEffect, useRef, useState} from 'react';
-import { Map, Placemark, YMaps } from '@pbe/react-yandex-maps';
-import { Input } from '@/ui-components/Input';
-import { Select } from '@/ui-components/Select';
-import { PhotoUpload } from '@/ui-components/PhotoUpload';
-import { Button } from '@/ui-components/Button';
-import type { FormState as RawFormState, PhotoItem, SelectOption } from '@/services/add-post/types';
+import {Map, Placemark, YMaps} from '@pbe/react-yandex-maps';
+import {Input} from '@/ui-components/Input';
+import {Select} from '@/ui-components/Select';
+import {PhotoUpload} from '@/ui-components/PhotoUpload';
+import {Button} from '@/ui-components/Button';
+import type {FormState as RawFormState, PhotoItem, SelectOption} from '@/services/add-post/types';
 
 type FormWithPhotos = Omit<RawFormState, 'photos'> & { photos: PhotoItem[] };
 
-interface AgentOption { id: number; name: string; }
+interface AgentOption {
+    id: number;
+    name: string;
+}
 
 interface PropertyDetailsStepProps {
     form: FormWithPhotos;
     locations: SelectOption[];
     repairTypes: SelectOption[];
+    developers: SelectOption[];
     heatingTypes: SelectOption[];
     parkingTypes: SelectOption[];
     contractTypes: SelectOption[];
@@ -57,6 +61,7 @@ export function PropertyDetailsStep({
                                         form,
                                         locations,
                                         repairTypes,
+                                        developers,
                                         heatingTypes,
                                         parkingTypes,
                                         contractTypes,
@@ -118,8 +123,8 @@ export function PropertyDetailsStep({
 
     const handleSelect = (value: string) => {
         const syntheticEvent = {
-            target: { name: 'object_key', value },
-            currentTarget: { name: 'object_key', value },
+            target: {name: 'object_key', value},
+            currentTarget: {name: 'object_key', value},
         } as unknown as ChangeEvent<HTMLInputElement>;
 
         onChange(syntheticEvent);
@@ -264,6 +269,14 @@ export function PropertyDetailsStep({
                 />
 
                 <Select
+                    label="Застройщик"
+                    name="developer_id"
+                    value={form.developer_id}
+                    options={developers}
+                    onChange={onChange}
+                />
+
+                <Select
                     label="Ремонт"
                     name="repair_type_id"
                     value={form.repair_type_id}
@@ -318,20 +331,48 @@ export function PropertyDetailsStep({
                 />
 
                 <div className="flex items-center gap-3">
-                    <label htmlFor="isBusinessOwner" className="text-gray-700 text-base cursor-pointer">
+                    <label htmlFor="is_business_owner" className="text-gray-700 text-base cursor-pointer">
                         Владелец бизнесмен?
                     </label>
                     <input
                         type="checkbox"
-                        id="isBusinessOwner"
+                        id="is_business_owner"
                         name="is_business_owner"
+                        checked={form.is_business_owner}
+                        onChange={(e) => {
+                            console.log('form.is_business_owner', typeof form.is_business_owner)
+                            const syntheticEvent = {
+                                target: { name: 'is_business_owner', value: e.target.checked ? '1' : '' },
+                                currentTarget: { name: 'is_business_owner', value: e.target.checked ? '1' : '' },
+                            } as unknown as ChangeEvent<HTMLInputElement>;
+                            onChange(syntheticEvent);
+                        }}
                         className="w-6 h-6 accent-blue-600 rounded-md cursor-pointer"
                     />
-
                 </div>
+                <div className="flex items-center gap-3">
+                    <label htmlFor="is_full_apartment" className="text-gray-700 text-base cursor-pointer">
+                        Полноценная квартира?
+                    </label>
+                    <input
+                        type="checkbox"
+                        id="is_full_apartment"
+                        name="is_full_apartment"
+                        checked={form.is_full_apartment}
+                        onChange={(e) => {
+                            const syntheticEvent = {
+                                target: { name: 'is_full_apartment', value: e.target.checked ? '1' : '' },
+                                currentTarget: { name: 'is_full_apartment', value: e.target.checked ? '1' : '' },
+                            } as unknown as ChangeEvent<HTMLInputElement>;
+                            onChange(syntheticEvent);
+                        }}
+                        className="w-6 h-6 accent-blue-600 rounded-md cursor-pointer"
+                    />
+                </div>
+
                 <div className="relative w-full" ref={wrapperRef}>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Ключ от объекта *
+                        Ключ от объекта *
                     </label>
                     <input
                         type="text"
@@ -369,6 +410,26 @@ export function PropertyDetailsStep({
                     placeholder="0"
                     required
                 />
+
+                <div className="flex items-center gap-3">
+                    <label htmlFor="is_for_aura" className="text-gray-700 text-base cursor-pointer">
+                        Только для aura?
+                    </label>
+                    <input
+                        type="checkbox"
+                        id="is_for_aura"
+                        name="is_for_aura"
+                        checked={form.is_for_aura}
+                        onChange={(e) => {
+                            const syntheticEvent = {
+                                target: { name: 'is_for_aura', value: e.target.checked ? '1' : '' },
+                                currentTarget: { name: 'is_for_aura', value: e.target.checked ? '1' : '' },
+                            } as unknown as ChangeEvent<HTMLInputElement>;
+                            onChange(syntheticEvent);
+                        }}
+                        className="w-6 h-6 accent-blue-600 rounded-md cursor-pointer"
+                    />
+                </div>
 
                 <Input
                     label="Площадь (общая)"
@@ -497,7 +558,9 @@ export function PropertyDetailsStep({
                             modules={['geocode']}
                             onLoad={(ymaps) => {
                                 // store a small typed wrapper that exposes geocode if available
-                                const maybe = (ymaps as unknown) as { geocode?: (coords: [number, number]) => Promise<GeocoderResult> };
+                                const maybe = (ymaps as unknown) as {
+                                    geocode?: (coords: [number, number]) => Promise<GeocoderResult>
+                                };
                                 if (maybe && typeof maybe.geocode === 'function') {
                                     ymapsRef.current = {
                                         geocode: (coords: [number, number]) => maybe.geocode!(coords),

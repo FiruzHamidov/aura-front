@@ -73,6 +73,7 @@ export default function EditPost() {
             status_id: propertyData.status_id,
             location_id: propertyData.location_id,
             repair_type_id: propertyData.repair_type_id,
+            developer_id: propertyData.developer_id,
             contract_type_id: propertyData.contract_type_id,
             heating_type_id: propertyData.heating_type_id,
             parking_type_id: propertyData.parking_type_id,
@@ -88,6 +89,9 @@ export default function EditPost() {
             has_parking: propertyData.has_parking,
             is_mortgage_available: propertyData.is_mortgage_available,
             is_from_developer: propertyData.is_from_developer,
+            is_full_apartment: propertyData.is_full_apartment,
+            is_for_aura: propertyData.is_for_aura,
+            is_business_owner: propertyData.is_business_owner,
             landmark: propertyData.landmark,
             latitude: propertyData.latitude,
             longitude: propertyData.longitude,
@@ -185,6 +189,7 @@ export default function EditPost() {
             {currentStep === 1 && (
                 <PropertySelectionStep
                     isAgent={(user?.role?.slug === 'agent')}
+                    isEdit={true}
                     selectedModerationStatus={formData.selectedModerationStatus}
                     setSelectedModerationStatus={formData.setSelectedModerationStatus}
                     selectedOfferType={formData.selectedOfferType}
@@ -208,6 +213,7 @@ export default function EditPost() {
                     form={formData.form}
                     locations={formData.locations}
                     repairTypes={formData.repairTypes}
+                    developers={formData.developers}
                     heatingTypes={formData.heatingTypes}
                     parkingTypes={formData.parkingTypes}
                     contractTypes={formData.contractTypes}

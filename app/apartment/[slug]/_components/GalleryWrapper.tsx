@@ -20,13 +20,15 @@ import {
     EyeIcon,
     FileText,
     Flame,
-    Hammer, HistoryIcon,
+    Grid2X2Check,
+    Hammer,
+    HistoryIcon,
     Home,
     Key,
     MapPin,
     ParkingSquare,
-    Phone,
-    Ruler,
+    Phone, Pickaxe,
+    Ruler, StickyNote,
     User,
 } from 'lucide-react';
 import {axios} from '@/utils/axios';
@@ -545,6 +547,17 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                                 </span>
                                             </div>
 
+                                            <div className="flex justify-between py-2 border-b border-gray-100">
+                                                <span className="text-[#666F8D] flex items-center gap-2">
+                                                  <Grid2X2Check size={16}/> Полноценная квартира?
+                                                </span>
+                                                <span className="font-medium">
+                                                  {apartment.is_full_apartment
+                                                      ? 'Да'
+                                                      : 'Нет'}
+                                                </span>
+                                            </div>
+
                                             {(apartment.type.slug === 'houses' || apartment.type.slug === 'land_spots') && (
                                                 <div className="flex justify-between py-2 border-b border-gray-100">
                                                 <span className="text-[#666F8D] flex items-center gap-2">
@@ -604,6 +617,15 @@ export default function GalleryWrapper({apartment, photos}: Props) {
 
                                                     <div className="flex justify-between py-2 border-b border-gray-100">
                                                         <span className="text-[#666F8D] flex items-center gap-2">
+                                                          <User size={16}/> Владелец бизнесмен?
+                                                        </span>
+                                                        <span className="font-medium">
+                                                          {apartment.is_business_owner ? 'Да' : 'Нет'}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="flex justify-between py-2 border-b border-gray-100">
+                                                        <span className="text-[#666F8D] flex items-center gap-2">
                                                           <Phone size={16}/> Телефон владельца
                                                         </span>
                                                         <span className="font-medium">
@@ -658,19 +680,29 @@ export default function GalleryWrapper({apartment, photos}: Props) {
 
                                             <div className="flex justify-between py-2 border-b border-gray-100">
                                                 <span className="text-[#666F8D] flex items-center gap-2">
-                                                  <ArrowUpDown size={16}/> Количество лифтов
+                                                  <Pickaxe size={16}/>Застройщик
                                                 </span>
                                                 <span className="font-medium">
-                                                  {apartment.elevator_count || '2'}
+                                                  {apartment.developer?.name || '-'}
                                                 </span>
                                             </div>
+
+
+                                            {/*<div className="flex justify-between py-2 border-b border-gray-100">*/}
+                                            {/*    <span className="text-[#666F8D] flex items-center gap-2">*/}
+                                            {/*      <ArrowUpDown size={16}/> Количество лифтов*/}
+                                            {/*    </span>*/}
+                                            {/*    <span className="font-medium">*/}
+                                            {/*      {apartment.elevator_count || '-'}*/}
+                                            {/*    </span>*/}
+                                            {/*</div>*/}
 
                                             <div className="flex justify-between py-2 border-b border-gray-100">
                                                 <span className="text-[#666F8D] flex items-center gap-2">
                                                   <Building2 size={16}/> Тип дома
                                                 </span>
                                                 <span className="font-medium">
-                                                  {apartment.building_type || 'Панельный'}
+                                                  {apartment.building_type?.name || '-'}
                                                 </span>
                                             </div>
 
@@ -679,7 +711,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                                   <ParkingSquare size={16}/> Парковка
                                                 </span>
                                                 <span className="font-medium">
-                                                  {apartment.has_parking ? 'Да' : 'Открытая'}
+                                                  {apartment.parking?.name || '-'}
                                                 </span>
                                             </div>
 
@@ -688,7 +720,16 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                                   <Flame size={16}/> Отопление
                                                 </span>
                                                 <span className="font-medium">
-                                                  {apartment.heating_type?.name || 'Центральное'}
+                                                  {apartment.heating?.name || '-'}
+                                                </span>
+                                            </div>
+
+                                            <div className="flex justify-between py-2 border-b border-gray-100">
+                                                <span className="text-[#666F8D] flex items-center gap-2">
+                                                  <StickyNote size={16}/> Только для сайта aura.tj
+                                                </span>
+                                                <span className="font-medium">
+                                                  {apartment.is_for_aura ? 'Да' : 'Нет'}
                                                 </span>
                                             </div>
                                         </div>

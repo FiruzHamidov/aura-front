@@ -14,6 +14,7 @@ import type {
   UpdatePropertyPayload,
 } from './types';
 import {isAxiosError} from "axios";
+import {Developer} from "@/services/new-buildings/types";
 
 /** ---------------- Endpoints ---------------- */
 const EP = {
@@ -21,6 +22,7 @@ const EP = {
   BUILDING_TYPES: '/building-types',
   LOCATIONS: '/locations',
   REPAIR_TYPES: '/repair-types',
+  DEVELOPERS: '/developers',
   HEATING_TYPES: '/heating-types',
   PARKING_TYPES: '/parking-types',
   CONTRACT_TYPES: '/contract-types',
@@ -135,6 +137,9 @@ export const addPostApi = {
       (await axios.get(EP.LOCATIONS)).data,
   getRepairTypes: async (): Promise<RepairType[]> =>
       (await axios.get(EP.REPAIR_TYPES)).data,
+
+    getDevelopers: async (): Promise<Developer[]> =>
+        (await axios.get(EP.DEVELOPERS)).data.data,
   getHeatingTypes: async (): Promise<HeatingType[]> =>
       (await axios.get(EP.HEATING_TYPES)).data,
   getParkingTypes: async (): Promise<ParkingType[]> =>

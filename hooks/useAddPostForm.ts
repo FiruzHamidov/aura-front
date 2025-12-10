@@ -12,7 +12,7 @@ import {
     useGetRepairTypesQuery,
     useUpdatePropertyMutation,
     useReorderPropertyPhotosMutation,
-    useDeletePropertyPhotoMutation, // ← опечатка исправлена
+    useDeletePropertyPhotoMutation, useGetDevelopers, // ← опечатка исправлена
 } from '@/services/add-post';
 import { showToast } from '@/ui-components/Toast';
 import { Property } from '@/services/properties/types';
@@ -52,6 +52,7 @@ const initialFormState: FormState = {
     location_id: '',
     moderation_status: 'approved',
     repair_type_id: '',
+    developer_id: '',
     heating_type_id: '',
     parking_type_id: '',
     contract_type_id: '',
@@ -69,6 +70,9 @@ const initialFormState: FormState = {
     has_garden: false,
     has_parking: false,
     is_mortgage_available: false,
+    is_business_owner: false,
+    is_full_apartment: false,
+    is_for_aura: false,
     is_from_developer: false,
     landmark: '',
     latitude: '',
@@ -94,6 +98,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
     const { data: buildingTypes = [] } = useGetBuildingTypesQuery();
     const { data: locations = [] } = useGetLocationsQuery();
     const { data: repairTypes = [] } = useGetRepairTypesQuery();
+    const { data: developers = [] } = useGetDevelopers();
     const { data: heatingTypes = [] } = useGetHeatingTypesQuery();
     const { data: parkingTypes = [] } = useGetParkingTypesQuery();
     const { data: contractTypes = [] } = useGetContractTypesQuery();
@@ -142,6 +147,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
                 description: propertyData.description || '',
                 location_id: propertyData.location_id?.toString() || '',
                 repair_type_id: propertyData.repair_type_id?.toString() || '',
+                developer_id: propertyData.developer_id?.toString() || '',
                 heating_type_id: propertyData.heating_type_id?.toString() || '',
                 parking_type_id: propertyData.parking_type_id?.toString() || '',
                 contract_type_id: propertyData.contract_type_id?.toString() || '',
@@ -161,6 +167,9 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
                 has_parking: propertyData.has_parking || false,
                 is_mortgage_available: propertyData.is_mortgage_available || false,
                 is_from_developer: propertyData.is_from_developer || false,
+                is_business_owner: propertyData.is_business_owner || false,
+                is_full_apartment: propertyData.is_full_apartment || false,
+                is_for_aura: propertyData.is_for_aura || false,
                 landmark: propertyData.landmark || '',
                 latitude: propertyData.latitude || '',
                 longitude: propertyData.longitude || '',
@@ -385,6 +394,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
             status_id: selectedBuildingType!,
             location_id: form.location_id,
             repair_type_id: form.repair_type_id,
+            developer_id: form.developer_id,
             heating_type_id: form.heating_type_id,
             contract_type_id: form.contract_type_id,
             address: form.address,
@@ -409,6 +419,9 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
             has_parking: form.has_parking,
             is_mortgage_available: form.is_mortgage_available,
             is_from_developer: form.is_from_developer,
+            is_for_aura: Boolean(form.is_for_aura),
+            is_business_owner: Boolean(form.is_business_owner),
+            is_full_apartment: Boolean(form.is_full_apartment),
             landmark: form.landmark,
             owner_phone: form.owner_phone,
             youtube_link: form.youtube_link,
@@ -523,6 +536,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
         buildingTypes,
         locations,
         repairTypes,
+        developers,
         heatingTypes,
         parkingTypes,
         contractTypes,

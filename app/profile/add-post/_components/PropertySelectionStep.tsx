@@ -1,12 +1,13 @@
 'use client';
 
-import { SelectToggle } from '@/ui-components/SelectToggle';
-import { Button } from '@/ui-components/Button';
-import { SelectOption } from '@/services/add-post/types';
-import { useEffect, useMemo } from "react";
+import {SelectToggle} from '@/ui-components/SelectToggle';
+import {Button} from '@/ui-components/Button';
+import {SelectOption} from '@/services/add-post/types';
+import {useEffect, useMemo} from "react";
 
 interface PropertySelectionStepProps {
     isAgent: boolean;
+    isEdit: boolean;
     selectedModerationStatus: string;
     setSelectedModerationStatus: (type: string) => void;
     selectedOfferType: string;
@@ -27,17 +28,20 @@ interface PropertySelectionStepProps {
 const BASE_STATUSES: { id: string; name: string }[] = [
     { id: 'pending', name: 'На модерации' },
     { id: 'approved', name: 'Одобрено' },
-    // { id: 'rejected', name: 'Отклонено' },
-    // { id: 'draft', name: 'Черновик' },
-    // { id: 'deleted', name: 'Удалено' },
-    { id: 'sold', name: 'Продано агентом' },
-    { id: 'sold_by_owner', name: 'Продано владельцем' },
-    { id: 'rented', name: 'Арендовано' },
-    { id: 'denied', name: 'Отказано клиентом' },
+];
+
+const FULL_STATUSES: { id: string; name: string }[] = [
+    {id: 'pending', name: 'На модерации'},
+    {id: 'approved', name: 'Одобрено'},
+    {id: 'sold', name: 'Продано агентом'},
+    {id: 'sold_by_owner', name: 'Продано владельцем'},
+    {id: 'rented', name: 'Арендовано'},
+    {id: 'denied', name: 'Отказано клиентом'},
 ];
 
 export function PropertySelectionStep({
                                           isAgent,
+                                          isEdit,
                                           selectedModerationStatus,
                                           setSelectedModerationStatus,
                                           selectedOfferType,
@@ -71,20 +75,28 @@ export function PropertySelectionStep({
      *   * при 'rent' удаляем 'sold' и 'sold_by_owner' и (если нужно) 'denied' — т.к. он про отказ в продаже
      */
     const moderationOptions = useMemo(() => {
-        if (isAgent && selectedListingType !== 'regular') {
-            return [{ id: 'pending', name: 'На модерации' }];
+        // Если это создание (isEdit === false) — только базовые статусы (pending / approved)
+        if (!isEdit) {
+            return BASE_STATUSES;
         }
 
-        let list = BASE_STATUSES.slice();
+        // Если агент и VIP/urgent -> принудительно pending
+        if (isAgent && selectedListingType !== 'regular') {
+            return [{id: 'pending', name: 'На модерации'}];
+        }
+
+        let list = FULL_STATUSES.slice();
 
         if (selectedOfferType === 'sale') {
+            // при продаже убираем статусы, которые относятся только к аренде
             list = list.filter(s => s.id !== 'rented');
         } else if (selectedOfferType === 'rent') {
+            // при аренде убираем статусы, которые относятся только к продаже
             list = list.filter(s => s.id !== 'sold' && s.id !== 'sold_by_owner');
         }
 
         return list;
-    }, [isAgent, selectedListingType, selectedOfferType]);
+    }, [isEdit, isAgent, selectedListingType, selectedOfferType]);
 
     // Если текущий выбранный статус больше не доступен — сбрасываем его безопасно
     useEffect(() => {
@@ -109,8 +121,8 @@ export function PropertySelectionStep({
             <SelectToggle
                 title="Сделка"
                 options={[
-                    { id: 'sale', name: 'Продажа' },
-                    { id: 'rent', name: 'Аренда' },
+                    {id: 'sale', name: 'Продажа'},
+                    {id: 'rent', name: 'Аренда'},
                 ]}
                 selected={selectedOfferType}
                 setSelected={setSelectedOfferType}
@@ -119,9 +131,9 @@ export function PropertySelectionStep({
             <SelectToggle
                 title="Тип объявления"
                 options={[
-                    { id: 'regular', name: 'Обычное' },
-                    { id: 'vip', name: 'VIP' },
-                    { id: 'urgent', name: 'Срочная продажа' },
+                    {id: 'regular', name: 'Обычное'},
+                    {id: 'vip', name: 'VIP'},
+                    {id: 'urgent', name: 'Срочная продажа'},
                 ]}
                 selected={selectedListingType}
                 setSelected={setSelectedListingType}

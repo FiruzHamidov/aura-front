@@ -12,6 +12,7 @@ import { axios } from '@/utils/axios';
 import { formatISO } from 'date-fns';
 import { PropertiesResponse, Property } from '@/services/properties/types';
 import {useProfile} from "@/services/login/hooks";
+import dynamic from 'next/dynamic';
 
 interface Booking {
   id: number;
@@ -48,6 +49,8 @@ export default function MyListings() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [activeTab, setActiveTab] = useState<'calendar' | 'report'>('calendar');
+  const BookingsReport = dynamic(() => import('@/app/profile/reports/bookings/page').then((m) => m.BookingsReport), { ssr: false });
 
   // const formatInputDate = (date: Date) => {
   //   const pad = (n: number) => String(n).padStart(2, '0');
@@ -170,161 +173,203 @@ export default function MyListings() {
   };
 
   return (
-      <>
-        <div className="p-4">
-          <FullCalendar
-              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
-              initialView={isMobile ? 'listWeek' : 'listWeek'}
-              headerToolbar={{
-                left: isMobile ? 'prev,next' : 'prev,next today',
-                center: isMobile ? '' : 'title',
-                right: isMobile ? 'listWeek,dayGridMonth' : 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
-              }}
-              footerToolbar={{ center: isMobile ? 'title' : '' }}
-              height="auto"
-              expandRows
-              dayMaxEventRows={isMobile ? 2 : 4}
-              nowIndicator
-              selectable
-              select={handleDateSelect}
-              locale={ruLocale}
-              events={bookings}
-              eventClick={handleEventClick}
-          />
+    <>
+      <div className="p-4">
+        <div className="mb-4 flex gap-2">
+          <button
+            onClick={() => setActiveTab('calendar')}
+            className={`px-4 py-2 rounded ${activeTab === 'calendar' ? 'bg-[#0036A5] text-white' : 'bg-gray-100 text-black'}`}
+          >
+            Календарь
+          </button>
+          <button
+            onClick={() => setActiveTab('report')}
+            className={`px-4 py-2 rounded ${activeTab === 'report' ? 'bg-[#0036A5] text-white' : 'bg-gray-100 text-black'}`}
+          >
+            Список
+          </button>
         </div>
 
-        {modalOpen && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setModalOpen(false)}>
-              <div className="bg-white rounded-2xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-                <h2 className="text-xl font-semibold mb-4">Создать показ</h2>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm">Объект</label>
-                    <select
+        {activeTab === 'calendar' ? (
+          <div>
+            <div className="p-4">
+              <FullCalendar
+                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+                initialView={isMobile ? 'listWeek' : 'timeGridWeek'}
+                headerToolbar={{
+                  left: isMobile ? 'prev,next' : 'prev,next today',
+                  center: isMobile ? '' : 'title',
+                  right: isMobile ? 'listWeek,dayGridMonth' : 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
+                }}
+                views={{
+                  listWeek: {
+                    visibleRange: (currentDate: Date) => {
+                      // start = today (00:00)
+                      const start = new Date(currentDate);
+                      start.setHours(0, 0, 0, 0);
+                      // end = start + 7 days (exclusive)
+                      const end = new Date(start);
+                      end.setDate(end.getDate() + 7);
+                      return { start, end };
+                    },
+                    // опционально: формат заголовка дня
+                    listDayFormat: { weekday: 'long', month: 'short', day: 'numeric' },
+                    expandRows: true,
+                  },
+                }}
+                initialDate={new Date()}
+                footerToolbar={{ center: isMobile ? 'title' : '' }}
+                height="auto"
+                expandRows
+                dayMaxEventRows={isMobile ? 2 : 4}
+                nowIndicator
+                selectable
+                select={handleDateSelect}
+                locale={ruLocale}
+                events={bookings}
+                eventClick={handleEventClick}
+              />
+            </div>
+
+            {modalOpen && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setModalOpen(false)}>
+                <div className="bg-white rounded-2xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+                  <h2 className="text-xl font-semibold mb-4">Создать показ</h2>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <label className="block text-sm">Объект</label>
+                      <select
                         className="w-full border border-gray-300 rounded p-2"
                         value={selectedProperty ?? ''}
                         onChange={(e) => setSelectedProperty(Number(e.target.value))}
                         required
-                    >
-                      <option value="" disabled>
-                        Выберите объект
-                      </option>
-                      {properties?.data.map((p) => (
+                      >
+                        <option value="" disabled>
+                          Выберите объект
+                        </option>
+                        {properties?.data.map((p) => (
                           <option key={p.id} value={p.id}>
                             {p.rooms} кв, {p.total_area} м², {p.floor} эт, {p.district} {p.address}
                           </option>
-                      ))}
-                    </select>
-                  </div>
+                        ))}
+                      </select>
+                    </div>
 
-                  <div>
-                    <label className="block text-sm">Агент</label>
-                    <select
+                    <div>
+                      <label className="block text-sm">Агент</label>
+                      <select
                         className="w-full border border-gray-300 rounded p-2"
                         value={selectedAgent ?? ''}
                         onChange={(e) => setSelectedAgent(Number(e.target.value))}
                         required
-                        disabled={user?.role?.slug === 'agent'} // ✅ агент не может менять себя
-                    >
-                      <option value="" disabled>
-                        Выберите агента
-                      </option>
-                      {agents.map((a) => (
+                        disabled={user?.role?.slug === 'agent'}
+                      >
+                        <option value="" disabled>
+                          Выберите агента
+                        </option>
+                        {agents.map((a) => (
                           <option key={a.id} value={a.id}>
                             {a.name}
                           </option>
-                      ))}
-                    </select>
-                    {user?.role?.slug === 'agent' && (
+                        ))}
+                      </select>
+                      {user?.role?.slug === 'agent' && (
                         <p className="text-xs text-gray-500 mt-1">Вы вошли как агент — используется ваш профиль.</p>
-                    )}
-                  </div>
+                      )}
+                    </div>
 
-                  <div>
-                    <label className="block text-sm">Имя клиента</label>
-                    <input
+                    <div>
+                      <label className="block text-sm">Имя клиента</label>
+                      <input
                         type="text"
                         className="w-full border border-gray-300 rounded p-2"
                         value={clientName}
                         onChange={(e) => setClientName(e.target.value)}
                         required
-                    />
-                  </div>
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block text-sm">Телефон клиента</label>
-                    <input
+                    <div>
+                      <label className="block text-sm">Телефон клиента</label>
+                      <input
                         type="tel"
                         className="w-full border border-gray-300 rounded p-2"
                         value={clientPhone}
                         onChange={(e) => setClientPhone(e.target.value)}
                         required
                         placeholder="+992..."
-                    />
-                  </div>
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block text-sm">Комментарий</label>
-                    <textarea
+                    <div>
+                      <label className="block text-sm">Комментарий</label>
+                      <textarea
                         className="w-full border border-gray-300 rounded p-2"
                         rows={3}
                         value={note}
                         onChange={(e) => setNote(e.target.value)}
                         required
-                    />
-                  </div>
+                      />
+                    </div>
 
-                  <div className="flex justify-end space-x-4">
-                    <button
+                    <div className="flex justify-end space-x-4">
+                      <button
                         type="button"
                         className="bg-gray-200 hover:bg-gray-300 text-black px-4 py-2 rounded"
                         onClick={() => setModalOpen(false)}
-                    >
-                      Отмена
-                    </button>
-                    <button type="submit" className="bg-[#0036A5] hover:bg-blue-700 text-white px-4 py-2 rounded">
-                      Создать
+                      >
+                        Отмена
+                      </button>
+                      <button type="submit" className="bg-[#0036A5] hover:bg-blue-700 text-white px-4 py-2 rounded">
+                        Создать
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {detailsOpen && selectedBooking && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setDetailsOpen(false)}>
+                <div className="bg-white rounded-xl p-6 w-full max-w-3xl" onClick={(e) => e.stopPropagation()}>
+                  <h2 className="text-xl font-semibold mb-4">Детали показа</h2>
+                  <div className="space-y-2">
+                    <p>
+                      <strong>Объект:</strong> {selectedBooking.property.rooms} кв, {selectedBooking.property.total_area} м²,{' '}
+                      {selectedBooking.property.floor} этаж, {selectedBooking.property.district}, {selectedBooking.property.address}
+                    </p>
+                    <p>
+                      <strong>Агент:</strong> {selectedBooking.agent.name}
+                    </p>
+                    <p>
+                      <strong>Клиент:</strong> {selectedBooking.client_name},{' '}
+                      <a href={`tel:${selectedBooking.client_phone}`}>📞 {selectedBooking.client_phone}</a>
+                    </p>
+                    <p>
+                      <strong>Время:</strong> {selectedBooking.start_time} — {selectedBooking.end_time}
+                    </p>
+                    <p>
+                      <strong>Комментарий:</strong> {selectedBooking.note}
+                    </p>
+                    <p>
+                      <strong>Статус:</strong> {selectedBooking.status}
+                    </p>
+                  </div>
+                  <div className="flex justify-end mt-6">
+                    <button className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded" onClick={() => setDetailsOpen(false)}>
+                      Закрыть
                     </button>
                   </div>
-                </form>
-              </div>
-            </div>
-        )}
-
-        {detailsOpen && selectedBooking && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setDetailsOpen(false)}>
-              <div className="bg-white rounded-xl p-6 w-full max-w-3xl" onClick={(e) => e.stopPropagation()}>
-                <h2 className="text-xl font-semibold mb-4">Детали показа</h2>
-                <div className="space-y-2">
-                  <p>
-                    <strong>Объект:</strong> {selectedBooking.property.rooms} кв, {selectedBooking.property.total_area} м²,{' '}
-                    {selectedBooking.property.floor} этаж, {selectedBooking.property.district}, {selectedBooking.property.address}
-                  </p>
-                  <p>
-                    <strong>Агент:</strong> {selectedBooking.agent.name}
-                  </p>
-                  <p>
-                    <strong>Клиент:</strong> {selectedBooking.client_name},{' '}
-                    <a href={`tel:${selectedBooking.client_phone}`}>📞 {selectedBooking.client_phone}</a>
-                  </p>
-                  <p>
-                    <strong>Время:</strong> {selectedBooking.start_time} — {selectedBooking.end_time}
-                  </p>
-                  <p>
-                    <strong>Комментарий:</strong> {selectedBooking.note}
-                  </p>
-                  <p>
-                    <strong>Статус:</strong> {selectedBooking.status}
-                  </p>
-                </div>
-                <div className="flex justify-end mt-6">
-                  <button className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded" onClick={() => setDetailsOpen(false)}>
-                    Закрыть
-                  </button>
                 </div>
               </div>
-            </div>
+            )}
+          </div>
+        ) : (
+          <div>
+            <BookingsReport />
+          </div>
         )}
-      </>
+      </div>
+    </>
   );
 }

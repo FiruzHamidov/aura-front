@@ -1,6 +1,7 @@
 'use client';
 
-import {ChangeEvent, useEffect, useMemo, useState} from 'react';
+import {ChangeEvent, useEffect, useMemo, useState, useCallback} from 'react';
+import {useRouter, usePathname, useSearchParams} from 'next/navigation';
 import {
     AgentsLeaderboardRow,
     ManagerEfficiencyRow,
@@ -108,6 +109,73 @@ export default function ReportsPage() {
         location_id: [],
         agent_id: [],
     });
+
+    // --- URL sync for filters (serialize <-> query params) ---
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    const serializeFilters = (f: FilterState) => {
+        const p = new URLSearchParams();
+        if (f.date_from) p.set('date_from', f.date_from);
+        if (f.date_to) p.set('date_to', f.date_to);
+        if (f.interval) p.set('interval', f.interval);
+        if (f.offer_type && f.offer_type.length) p.set('offer_type', f.offer_type.join(','));
+        if (f.moderation_status && f.moderation_status.length) p.set('moderation_status', f.moderation_status.join(','));
+        if (f.type_id && f.type_id.length) p.set('type_id', f.type_id.join(','));
+        if (f.location_id && f.location_id.length) p.set('location_id', f.location_id.join(','));
+        if (f.agent_id && f.agent_id.length) p.set('agent_id', f.agent_id.join(','));
+        return p;
+    };
+
+    const parseArray = (v: string | null | undefined) => (v ? v.split(',').map((x) => x) : []);
+    // when query params change we want to auto-run the `load()` after filters are restored
+    const [pendingLoadFromUrl, setPendingLoadFromUrl] = useState(false);
+
+    // initialize filters from query params on mount
+    useEffect(() => {
+        if (!searchParams) return;
+        const df = searchParams.get('date_from') ?? '';
+        const dt = searchParams.get('date_to') ?? '';
+        const interval = (searchParams.get('interval') as FilterState['interval']) ?? 'week';
+        const offer_type = parseArray(searchParams.get('offer_type'));
+        const moderation_status = parseArray(searchParams.get('moderation_status'));
+        const type_id = parseArray(searchParams.get('type_id'));
+        const location_id = parseArray(searchParams.get('location_id'));
+        const agent_id = parseArray(searchParams.get('agent_id'));
+
+        setFilters((s) => ({
+            ...s,
+            date_from: df,
+            date_to: dt,
+            interval,
+            offer_type,
+            moderation_status,
+            type_id,
+            location_id,
+            agent_id,
+        }));
+        setPendingLoadFromUrl(true);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // when filters were restored from URL we want to run the load() once
+    useEffect(() => {
+        if (!pendingLoadFromUrl) return;
+        // call load() after filters state has been updated
+        load();
+        setPendingLoadFromUrl(false);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filters, pendingLoadFromUrl]);
+
+    // push filters into the URL whenever they change (replace to avoid history spam)
+    useEffect(() => {
+        const p = serializeFilters(filters);
+        const qs = p.toString();
+        const url = qs ? `${pathname}?${qs}` : pathname;
+        // replace so user can go back cleanly
+        router.replace(url);
+    }, [filters, pathname, router]);
 
     const [priceMetric, setPriceMetric] = useState<PriceMetric>('sum');
 
@@ -261,6 +329,8 @@ export default function ReportsPage() {
             agent_id: [],
         });
         setPriceMetric('sum');
+        // clear query string
+        router.replace(pathname);
     };
 
     const summaryPriceValue = useMemo(() => {
@@ -639,7 +709,7 @@ export default function ReportsPage() {
                             <th className="py-2 pr-4">Всего объектов</th>
                             <th className="py-2 pr-4">Всего показов</th>
                             <th className="py-2 pr-4">По статусам (кратко)</th>
-                            <th className="py-2 pr-4">Детальнее</th>
+                            <th className="py-2 pr-4">По контрактам</th>
                         </tr>
                         </thead>
                         <tbody>

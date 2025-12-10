@@ -48,6 +48,11 @@ export interface Property {
     status_id?: number;
     location_id?: number;
     repair_type_id?: number;
+    developer_id?: number;
+    developer?: {
+        id: number;
+        name: string;
+    }
     contract_type_id?: number;
     heating_type_id?: number;
     parking_type_id?: number;
@@ -63,6 +68,9 @@ export interface Property {
     has_parking?: boolean;
     is_mortgage_available?: boolean;
     is_from_developer?: boolean;
+    is_business_owner: boolean,
+    is_full_apartment: boolean,
+    is_for_aura: boolean,
     landmark?: string;
     latitude?: string;
     longitude?: string;
@@ -79,7 +87,18 @@ export interface Property {
     photos: PropertyPhoto[];
     bathroom_count?: string | number;
     elevator_count?: string | number;
-    building_type?: string;
+    building_type?: {
+        id: number;
+        name: string
+    };
+    parking?: {
+        id: number;
+        name: string
+    };
+    heating?: {
+        id: number;
+        name: string
+    };
     repair_type?: {
         id: number;
         name: string;

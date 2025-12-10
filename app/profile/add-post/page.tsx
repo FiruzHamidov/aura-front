@@ -88,6 +88,7 @@ export default function AddPost() {
             {currentStep === 1 && (
                 <PropertySelectionStep
                     isAgent={(user?.role?.slug === 'agent')}
+                    isEdit={false}
                     selectedModerationStatus={formData.selectedModerationStatus}
                     setSelectedModerationStatus={formData.setSelectedModerationStatus}
                     selectedOfferType={formData.selectedOfferType}
@@ -111,6 +112,7 @@ export default function AddPost() {
                     form={formData.form}
                     locations={formData.locations}
                     repairTypes={formData.repairTypes}
+                    developers={formData.developers}
                     heatingTypes={formData.heatingTypes}
                     parkingTypes={formData.parkingTypes}
                     contractTypes={formData.contractTypes}

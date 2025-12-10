@@ -26,6 +26,7 @@ export interface FormState {
     description: string;
     location_id: string;
     repair_type_id: string;
+    developer_id: string;
     heating_type_id: string;
     parking_type_id: string;
     contract_type_id: string;
@@ -48,6 +49,9 @@ export interface FormState {
     has_parking: boolean;
     is_mortgage_available: boolean;
     is_from_developer: boolean;
+    is_business_owner: boolean;
+    is_full_apartment: boolean;
+    is_for_aura: boolean;
     landmark: string;
     latitude: string;
     longitude: string;
@@ -90,6 +94,9 @@ export interface CreatePropertyRequest {
     has_parking: boolean;
     is_mortgage_available: boolean;
     is_from_developer: boolean;
+    is_business_owner: boolean;
+    is_full_apartment: boolean;
+    is_for_aura: boolean;
     landmark: string;
     owner_phone?: string;
     owner_name?: string;

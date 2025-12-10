@@ -38,10 +38,10 @@ function setAuthCookies(token: string, user: any) {
     document.cookie = authCookieString;
     document.cookie = userCookieString;
 
-    console.log("✅ Cookies set:", {
-      hasToken: document.cookie.includes("auth_token"),
-      hasUserData: document.cookie.includes("user_data"),
-    });
+    // console.log("✅ Cookies set:", {
+    //   hasToken: document.cookie.includes("auth_token"),
+    //   hasUserData: document.cookie.includes("user_data"),
+    // });
   }
 }
 
@@ -96,7 +96,7 @@ export const useVerifySmsMutation = () => {
   return useMutation({
     mutationFn: authApi.verifySms,
     onSuccess: (data) => {
-      console.log("✅ SMS verified:", data);
+      // console.log("✅ SMS verified:", data);
       if (data.token && data.user) {
         setAuthCookies(data.token, data.user);
         queryClient.setQueryData(["user"], data.user);
@@ -118,7 +118,7 @@ export const useLoginMutation = () => {
   return useMutation({
     mutationFn: authApi.login,
     onSuccess: (data) => {
-      console.log("✅ Login successful:", data);
+      // console.log("✅ Login successful:", data);
       if (data.token && data.user) {
         setAuthCookies(data.token, data.user);
         queryClient.setQueryData(["user"], data.user);
@@ -143,7 +143,7 @@ export const useLogoutMutation = () => {
         // Call the logout API endpoint
         await authApi.logout();
       } catch (error) {
-        console.error("Logout API error:", error);
+        // console.error("Logout API error:", error);
         // Continue with local logout even if API fails
       }
     },

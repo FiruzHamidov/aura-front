@@ -26,7 +26,7 @@ type Booking = {
     agent?: Agent | null;
 };
 
-export default function BookingsReportPage() {
+export function BookingsReport() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -109,7 +109,15 @@ export default function BookingsReportPage() {
             const res = await axios.get(url);
             // controller returns a collection (array) — if you use pagination adjust accordingly
             setBookings(Array.isArray(res.data) ? res.data : (res.data?.data ?? []));
-            router.replace(`/profile/reports/bookings?${qs}`);
+            // update only the URL search params without navigating the app
+            // if we're running in a browser, use history.replaceState to avoid triggering a route change
+            if (typeof window !== 'undefined') {
+                const newUrl = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
+                window.history.replaceState({}, '', newUrl);
+            } else {
+                // fallback for environments without window (safe no-op)
+                try { router.replace(`/profile/reports/bookings?${qs}`); } catch (e) { /* noop */ }
+            }
         } catch (e: unknown) {
             console.error('bookings load failed', e);
             // safe extraction of message from unknown error
@@ -360,9 +368,7 @@ export default function BookingsReportPage() {
                                     <div className="flex items-center gap-3">
                                         <p
                                             className="truncate max-w-[220px] hover:underline cursor-pointer"
-                                            onClick={(e) => {
-                                                // open action menu for this property when title clicked
-                                                // allow normal Link navigation — don't preventDefault
+                                            onClick={() => {
                                                 setOpenMenuId(b.property.id);
                                             }}
                                         >
@@ -406,4 +412,8 @@ export default function BookingsReportPage() {
             <BookingEditModal/>
         </div>
     );
+}
+
+export default function BookingsReportPage() {
+    return <BookingsReport />;
 }
