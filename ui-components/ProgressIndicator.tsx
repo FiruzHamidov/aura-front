@@ -5,6 +5,7 @@ interface ProgressIndicatorProps {
   totalSteps: number;
   steps?: string[];
   className?: string;
+  onStepClick?: (step: number) => void;
 }
 
 export function ProgressIndicator({
@@ -12,6 +13,7 @@ export function ProgressIndicator({
   totalSteps,
   steps = [],
   className = '',
+  onStepClick,
 }: ProgressIndicatorProps) {
   const progress = (currentStep / totalSteps) * 100;
 
@@ -33,19 +35,32 @@ export function ProgressIndicator({
           const isCompleted = stepNumber < currentStep;
           const stepLabel = steps[index] || `Step ${stepNumber}`;
 
+          // clickable only when the step is previous or current (to allow going back)
+          const clickable = onStepClick && stepNumber <= currentStep;
+
+          const handleClick = () => {
+            if (clickable && onStepClick) {
+              onStepClick(stepNumber);
+            }
+          };
+
           return (
             <div key={stepNumber} className="flex flex-col items-center">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm  border-2 transition-all duration-200 ${
+              <button
+                type="button"
+                onClick={handleClick}
+                disabled={!clickable}
+                aria-current={isActive ? 'step' : undefined}
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm  border-2 transition-all duration-200 focus:outline-none ${
                   isCompleted
                     ? 'bg-[#0036A5] border-[#0036A5] text-white'
                     : isActive
                     ? 'bg-white border-[#0036A5] text-[#0036A5]'
                     : 'bg-gray-100 border-gray-300 text-gray-400'
-                }`}
+                } ${clickable ? 'cursor-pointer hover:scale-105' : 'cursor-default'}`}
               >
                 {isCompleted ? '✓' : stepNumber}
-              </div>
+              </button>
               <span
                 className={`text-xs mt-2 text-center ${
                   isActive
@@ -53,7 +68,8 @@ export function ProgressIndicator({
                     : isCompleted
                     ? 'text-gray-700'
                     : 'text-gray-400'
-                }`}
+                } ${clickable ? 'cursor-pointer select-none' : ''}`}
+                onClick={handleClick}
               >
                 {stepLabel}
               </span>

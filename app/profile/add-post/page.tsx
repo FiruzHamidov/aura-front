@@ -9,7 +9,9 @@ import {useMultiStepForm} from '@/hooks/useMultiStepForm';
 import {DuplicateDialog} from "@/app/profile/_components/DuplicateDialog";
 import {useProfile} from "@/services/login/hooks";
 import {useUnsavedChanges} from '@/hooks/useUnsavedChanges';
-import { useState } from 'react';
+import {useState} from 'react';
+import {Button} from "@/ui-components/Button";
+import {ArrowLeft, ArrowRight} from "lucide-react";
 
 const STEPS = ['Основная информация', 'Детали и фото'];
 
@@ -21,7 +23,7 @@ export default function AddPost() {
     });
 
     const {data: user} = useProfile();
-
+    const isValid = Boolean(formData.selectedPropertyType && formData.selectedBuildingType && formData.selectedRooms);
     // show warning card before user can proceed with adding a post
     const [showWarningCard, setShowWarningCard] = useState(true);
 
@@ -74,16 +76,21 @@ export default function AddPost() {
                     {/* Анимированная рамка/тень — отдельный элемент под контентом,
         поэтому текст и фон карточки не мигают */}
                     <div aria-hidden className="absolute inset-0 rounded-2xl pointer-events-none z-0">
-                        <div className="w-full h-full rounded-2xl ring-2 ring-red-300/70 animate-pulse" />
+                        <div className="w-full h-full rounded-2xl ring-2 ring-red-300/70 animate-pulse"/>
                     </div>
                 </div>
             )}
-            <ProgressIndicator
-                currentStep={currentStep}
-                totalSteps={2}
-                steps={STEPS}
-                className="mb-8"
-            />
+            <div className='flex items-center'>
+
+                <ProgressIndicator
+                    currentStep={currentStep}
+                    totalSteps={2}
+                    steps={STEPS}
+                    className="mb-8"
+                    onStepClick={prevStep}
+                />
+            </div>
+
 
             {currentStep === 1 && (
                 <PropertySelectionStep
@@ -134,6 +141,37 @@ export default function AddPost() {
                 items={formData.duplicates}
                 onForce={formData.forceCreate}
             />
+
+            <Button
+                className="w-10 h-10 fixed z-[999] p-4 bottom-26 sm:top-1/2 sm:-translate-y-1/2 left-4"
+                type="button"
+                variant="circle"
+                disabled={currentStep == 1}
+                onClick={() => {
+                    prevStep();
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                }}
+                size="sm"
+            >
+                <ArrowLeft className='w-4'/>
+            </Button>
+
+
+            <Button
+                className="w-10 h-10 fixed z-[999] p-4 bottom-26 sm:top-1/2 sm:-translate-y-1/2 left-15"
+                type="button"
+                variant="circle"
+                disabled={currentStep == 2 || !isValid}
+                onClick={() => {
+                    nextStep();
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                }}
+                size="sm"
+            >
+                <ArrowRight className='w-4'/>
+            </Button>
+
         </FormLayout>
+
     );
 }
