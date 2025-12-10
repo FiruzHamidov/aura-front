@@ -35,25 +35,39 @@ const ModerationModal: FC<ModerationModalProps> = ({
         }
     }, [userRole, isPromo, selectedModerationStatus]);
 
-    // набор опций модерации с учётом роли и типа объявления
     const moderationOptions = ((): { id: string; name: string }[] => {
+        const offerType = property.offer_type
+
         const base = [
             {id: 'pending', name: 'На модерации'},
             {id: 'approved', name: 'Одобрено'},
             // {id: 'rejected', name: 'Отклонено'},
             // {id: 'draft', name: 'Черновик'},
-            // {id: 'deleted', name: 'Удалено'},
             {id: 'sold', name: 'Продано агентом'},
             {id: 'sold_by_owner', name: 'Продано владельцем'},
             {id: 'rented', name: 'Арендовано'},
             {id: 'denied', name: 'Отказано клиентом'},
         ];
+
+        // Добавляем 'deleted' только для админа
+        if (userRole === 'admin') {
+            base.push({id: 'deleted', name: 'Удалено'});
+        }
+
         // агент + vip/urgent → убираем approved из списка
         if (userRole === 'agent' && isPromo) {
-            // setSelectedModerationStatus('pending')
             return base.filter(o => o.id !== 'approved');
         }
-        return base;
+
+        // Фильтрация по типу оффера: если аренда — убираем статусы про продажу; если продажа — убираем статусы про аренду
+        let list = base.slice();
+        if (offerType === 'rent') {
+            list = list.filter(s => s.id !== 'sold' && s.id !== 'sold_by_owner');
+        } else if (offerType === 'sale') {
+            list = list.filter(s => s.id !== 'rented');
+        }
+
+        return list;
     })();
 
     useEffect(() => {
