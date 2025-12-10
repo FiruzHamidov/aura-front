@@ -7,6 +7,7 @@ import {toast} from 'react-toastify';
 import {axios} from '@/utils/axios';
 import {SelectToggle} from '@/ui-components/SelectToggle';
 import {Listing} from "@/app/_components/top-listing/types";
+import SafeHtml from "@/app/profile/edit-post/[id]/_components/SafeHtml";
 
 interface ModerationModalProps {
     property: Listing | Property;
@@ -167,6 +168,10 @@ const ModerationModal: FC<ModerationModalProps> = ({
                         )}
                     </div>
                 )}
+
+                <div className='mb-4'>
+                    <SafeHtml html={property.rejection_comment} className="prose text-sm p-4 border rounded-2xl" />
+                </div>
 
                 <div className="flex justify-end space-x-2 mt-6">
                     <button

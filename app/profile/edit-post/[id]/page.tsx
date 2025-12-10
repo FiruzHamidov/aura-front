@@ -15,6 +15,7 @@ import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import {axios} from "@/utils/axios";
 import {Button} from "@/ui-components/Button";
 import {ArrowLeft, ArrowRight} from "lucide-react";
+import SafeHtml from "@/app/profile/edit-post/[id]/_components/SafeHtml";
 
 const STEPS = ['Основная информация', 'Детали и фото'];
 
@@ -128,6 +129,9 @@ export default function EditPost() {
     });
 
     const guardActive = (formData.isDirty || formData.hasNewFiles) && !formData.isSubmitting;
+    const [isCommentOpen, setIsCommentOpen] = useState(false);
+    const rejectionComment = propertyData?.rejection_comment ?? '';
+
     useUnsavedChanges(guardActive, 'Все несохранённые изменения будут потеряны. Выйти?');
 
     const {currentStep, nextStep, prevStep} = useMultiStepForm({
@@ -265,6 +269,34 @@ export default function EditPost() {
                     <ArrowRight className='w-4'/>
                 </Button>
 
+            {rejectionComment && (
+                <div className={`fixed right-4  z-[1000] w-[320px] md:w-[480px] transition-all shadow ${isCommentOpen ? 'bottom-40 translate-y-0 sm:bottom-4' : 'bottom-4 translate-y-22'} `}>
+                    <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+                        <div className="flex items-center justify-between p-3 border-b">
+                            <div className="text-sm font-medium">Комментарий модерации</div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsCommentOpen(v => !v)}
+                                    className="text-sm text-blue-600 px-3 py-1"
+                                >
+                                    {isCommentOpen ? 'Свернуть' : 'Развернуть'}
+                                </button>
+                            </div>
+                        </div>
+                        <div className='p-3'>
+                            {isCommentOpen ? (
+                                <SafeHtml html={rejectionComment} className="prose text-sm" />
+                            ) : (
+                                <div className="px-3 py-2 text-sm text-gray-700 truncate">
+                                    <SafeHtml html={rejectionComment} className="prose text-sm" />
+                                </div>
+                            )}
+                        </div>
+
+                    </div>
+                </div>
+            )}
         </FormLayout>
     );
 }

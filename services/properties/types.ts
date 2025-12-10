@@ -81,6 +81,7 @@ export interface Property {
     district?: string;
     address?: string;
     offer_type?: string;
+    rejection_comment?: string;
     type: PropertyType;
     status: PropertyStatus;
     location: PropertyLocation | null;

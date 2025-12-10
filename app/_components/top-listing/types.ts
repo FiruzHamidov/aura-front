@@ -30,4 +30,5 @@ export interface Listing {
     date?: string;
     type?: string;
     typeName?: string;
+    rejection_comment?: string;
 }
