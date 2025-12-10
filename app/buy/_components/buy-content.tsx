@@ -270,8 +270,8 @@ export const BuyContent: FC<{ offer_type_props?: string }> = ({offer_type_props 
         floorFrom: searchParams.get('floorFrom') || undefined,
         floorTo: searchParams.get('floorTo') || undefined,
         landmark: searchParams.get('landmark') || undefined,
-        sort: searchParams.get('sort') || undefined,
-        dir: searchParams.get('dir') || undefined,
+        sort: searchParams.get('sort') || 'listing_type',
+        dir: searchParams.get('dir') || 'desc',
         listing_type: '',
         offer_type: offer_type_props,
     };
