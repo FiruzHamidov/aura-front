@@ -191,7 +191,34 @@ export default function EditPost() {
                 steps={STEPS}
                 className="mb-8"
             />
+            {rejectionComment && (
+                <div className={`relative w-full sm:fixed right-4 border sm:border-none rounded-2xl overflow-hidden z-[1000] w-full sm:w-[320px] md:w-[440px] transition-all m-4 sm:mt-0 ${isCommentOpen ? 'bottom-0 translate-y-0 sm:bottom-4 sm:translate-none' : 'bottom-0 sm:bottom-4 translate-y-0 sm:translate-y-22'} `}>
+                    <div className="bg-white  sm:shadow-lg rounded-lg overflow-hidden">
+                        <div className="flex items-center justify-between p-3 border-b">
+                            <div className="text-sm font-medium">Комментарий модерации</div>
+                            <div className="sm:flex hidden items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsCommentOpen(v => !v)}
+                                    className="text-sm text-blue-600 px-3 py-1"
+                                >
+                                    {isCommentOpen ? 'Свернуть' : 'Развернуть'}
+                                </button>
+                            </div>
+                        </div>
+                        <div className='p-3'>
+                            {isCommentOpen ? (
+                                <SafeHtml html={rejectionComment} className="prose text-sm" />
+                            ) : (
+                                <div className="px-3 py-2 text-sm text-gray-700 truncate">
+                                    <SafeHtml html={rejectionComment} className="prose text-sm" />
+                                </div>
+                            )}
+                        </div>
 
+                    </div>
+                </div>
+            )}
             {currentStep === 1 && (
                 <PropertySelectionStep
                     isAgent={(user?.role?.slug === 'agent')}
@@ -269,34 +296,7 @@ export default function EditPost() {
                     <ArrowRight className='w-4'/>
                 </Button>
 
-            {rejectionComment && (
-                <div className={`fixed right-4  z-[1000] w-[320px] md:w-[480px] transition-all shadow ${isCommentOpen ? 'bottom-40 translate-y-0 sm:bottom-4' : 'bottom-4 translate-y-22'} `}>
-                    <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-                        <div className="flex items-center justify-between p-3 border-b">
-                            <div className="text-sm font-medium">Комментарий модерации</div>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsCommentOpen(v => !v)}
-                                    className="text-sm text-blue-600 px-3 py-1"
-                                >
-                                    {isCommentOpen ? 'Свернуть' : 'Развернуть'}
-                                </button>
-                            </div>
-                        </div>
-                        <div className='p-3'>
-                            {isCommentOpen ? (
-                                <SafeHtml html={rejectionComment} className="prose text-sm" />
-                            ) : (
-                                <div className="px-3 py-2 text-sm text-gray-700 truncate">
-                                    <SafeHtml html={rejectionComment} className="prose text-sm" />
-                                </div>
-                            )}
-                        </div>
 
-                    </div>
-                </div>
-            )}
         </FormLayout>
     );
 }
