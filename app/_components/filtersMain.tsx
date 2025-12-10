@@ -10,6 +10,8 @@ import {
     useGetLocationsQuery,
     useGetRepairTypesQuery,
 } from '@/services/add-post';
+import {Field, Label, Switch} from "@headlessui/react";
+import clsx from "clsx";
 
 interface Option {
     id: string | number;
@@ -44,6 +46,7 @@ interface AllFiltersProps {
         floorFrom?: string;
         floorTo?: string;
         landmark?: string;
+        is_full_apartment?: boolean;
     };
     propertyTypes: PropertyType[]
 }
@@ -106,6 +109,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
     const [priceFrom, setPriceFrom] = useState('0');
     const [priceTo, setPriceTo] = useState('0');
     const [roomsFrom, setRoomsFrom] = useState('0');
+    const [is_full_apartment, setIsFullApartment] = useState(false);
     const [roomsTo, setRoomsTo] = useState('0');
     const [areaFrom, setAreaFrom] = useState('0');
     const [areaTo, setAreaTo] = useState('0');
@@ -136,8 +140,10 @@ export const AllFilters: FC<AllFiltersProps> = ({
             setFloorFrom(initialFilters.floorFrom || '');
             setFloorTo(initialFilters.floorTo || '');
             setLandmark(initialFilters.landmark || '');
+            setIsFullApartment(Boolean(initialFilters.is_full_apartment));
         }
     }, []);
+
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -175,6 +181,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
             listing_type: listingType === 'regular' ? undefined : listingType,
             landmark: landmark,
             offer_type: 'sale',
+            is_full_apartment: is_full_apartment
         };
 
         const cleanedFilters = Object.fromEntries(
@@ -300,41 +307,41 @@ export const AllFilters: FC<AllFiltersProps> = ({
                     </div>
 
                     {/* переключатели (по желанию) */}
-                    {/*
-          <div className="mt-6 flex gap-8">
-            <Field className="flex items-center">
-              <Switch
-                checked={mortgageOption === 'mortgage'}
-                onChange={(checked) => setMortgageOption(checked ? 'mortgage' : 'developer')}
-                className="group relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition"
-              >
-                <span
-                  className={clsx(
-                    'size-5 translate-x-0.5 rounded-full shadow-lg transition group-data-checked:translate-x-5',
-                    mortgageOption === 'mortgage' ? 'bg-[#0036A5]' : 'bg-[#BAC0CC]'
-                  )}
-                />
-              </Switch>
-              <Label className="ml-3">Ипотека</Label>
-            </Field>
 
-            <Field className="flex items-center">
-              <Switch
-                checked={mortgageOption === 'developer'}
-                onChange={(checked) => setMortgageOption(checked ? 'developer' : 'mortgage')}
-                className="group relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition focus:outline-none"
-              >
+                    <div className="mt-6 flex gap-8">
+                        <Field className="flex items-center">
+                            <Switch
+                                checked={is_full_apartment}
+                                onChange={(checked) => setIsFullApartment(checked)}
+                                className="group relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition cursor-pointer"
+                            >
                 <span
-                  className={clsx(
-                    'size-5 translate-x-0.5 rounded-full shadow-lg transition group-data-checked:translate-x-5',
-                    mortgageOption === 'developer' ? 'bg-[#0036A5]' : 'bg-[#BAC0CC]'
-                  )}
+                    className={clsx(
+                        'size-5 translate-x-0.5 rounded-full shadow-lg transition group-data-checked:translate-x-5',
+                        mortgageOption === 'mortgage' ? 'bg-[#0036A5]' : 'bg-[#BAC0CC]'
+                    )}
                 />
-              </Switch>
-              <Label className="ml-3">От застройщика</Label>
-            </Field>
-          </div>
-          */}
+                            </Switch>
+                            <Label className="ml-3">Полноценная квартира</Label>
+                        </Field>
+
+                        {/*        <Field className="flex items-center">*/}
+                        {/*            <Switch*/}
+                        {/*                checked={mortgageOption === 'developer'}*/}
+                        {/*                onChange={(checked) => setMortgageOption(checked ? 'developer' : 'mortgage')}*/}
+                        {/*                className="group relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition focus:outline-none"*/}
+                        {/*            >*/}
+                        {/*<span*/}
+                        {/*    className={clsx(*/}
+                        {/*        'size-5 translate-x-0.5 rounded-full shadow-lg transition group-data-checked:translate-x-5',*/}
+                        {/*        mortgageOption === 'developer' ? 'bg-[#0036A5]' : 'bg-[#BAC0CC]'*/}
+                        {/*    )}*/}
+                        {/*/>*/}
+                        {/*            </Switch>*/}
+                        {/*            <Label className="ml-3">От застройщика</Label>*/}
+                        {/*        </Field>*/}
+                    </div>
+
 
                     <div className="flex justify-end mt-8">
                         <button

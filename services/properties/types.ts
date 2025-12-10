@@ -211,6 +211,7 @@ export interface PropertyFilters {
     sort?: string;
     date_from?: string;
     date_to?: string;
+    is_full_apartment?: string;
 }
 
 export type DuplicateCandidate = {

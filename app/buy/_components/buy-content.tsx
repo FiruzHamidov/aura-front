@@ -252,6 +252,7 @@ export const BuyContent: FC<{ offer_type_props?: string }> = ({offer_type_props 
             landmark: searchParams.get('landmark') || undefined,
             sort: searchParams.get('sort') || undefined,
             dir: searchParams.get('dir') || undefined,
+            is_full_apartment: Boolean(searchParams.get('is_full_apartment')),
         }),
         [searchParams]
     );
@@ -274,6 +275,7 @@ export const BuyContent: FC<{ offer_type_props?: string }> = ({offer_type_props 
         dir: searchParams.get('dir') || 'desc',
         listing_type: '',
         offer_type: offer_type_props,
+        is_full_apartment: searchParams.get('is_full_apartment') || '0',
     };
 
     const {

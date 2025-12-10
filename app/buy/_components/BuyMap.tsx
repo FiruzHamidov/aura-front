@@ -107,6 +107,7 @@ export const BuyMap: FC<Props> = ({items, offset = {x: 32, y: -468}}) => {
             listing_type: g('listing_type'),
             offer_type: g('offer_type'),
             landmark: g('landmark'),
+            is_full_apartment: g('is_full_apartment'),
         } as PropertyFilters;
     }, [searchParams]);
 

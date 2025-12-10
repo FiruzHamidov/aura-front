@@ -10,6 +10,8 @@ import {
     useGetLocationsQuery,
     useGetRepairTypesQuery,
 } from '@/services/add-post';
+import {Field, Label, Switch} from "@headlessui/react";
+import clsx from "clsx";
 
 interface Option {
     id: string | number;
@@ -44,6 +46,7 @@ interface AllFiltersProps {
         floorFrom?: string;
         floorTo?: string;
         landmark?: string;
+        is_full_apartment?: boolean;
     };
     propertyTypes: PropertyType[]
 }
@@ -111,6 +114,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
     const [areaTo, setAreaTo] = useState('0');
     const [floorFrom, setFloorFrom] = useState('1');
     const [floorTo, setFloorTo] = useState('3');
+    const [is_full_apartment, setIsFullApartment] = useState(false);
     const [landmark, setLandmark] = useState('');
     // eslint-disable-next-line
     const [mortgageOption] = useState<'mortgage' | 'developer'>('mortgage');
@@ -136,8 +140,11 @@ export const AllFilters: FC<AllFiltersProps> = ({
             setFloorFrom(initialFilters.floorFrom || '');
             setFloorTo(initialFilters.floorTo || '');
             setLandmark(initialFilters.landmark || '');
+            // parse boolean-like values reliably (handles true/false booleans and 'true'/'false' strings)
+            setIsFullApartment(initialFilters.is_full_apartment || false);
         }
-    }, []);
+    }, [initialFilters]);
+
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -175,6 +182,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
             listing_type: listingType === 'regular' ? undefined : listingType,
             landmark: landmark,
             offer_type: 'sale',
+            is_full_apartment: is_full_apartment
         };
 
         const cleanedFilters = Object.fromEntries(
@@ -186,7 +194,8 @@ export const AllFilters: FC<AllFiltersProps> = ({
     };
 
     return (
-        <div className={`${isOpen ? 'block ' : 'hidden pointer-events-none'} z-[9999999] w-full sm:h-auto top-[-90px] left-0 right-0 absolute mx-auto flex justify-center`}>
+        <div
+            className={`${isOpen ? 'block ' : 'hidden pointer-events-none'} z-[9999999] w-full sm:h-auto top-[-90px] left-0 right-0 absolute mx-auto flex justify-center`}>
             <div
                 className={`mx-auto bg-white rounded-3xl shadow-lg px-4 sm:px-8 md:px-12 lg:px-[70px] p-6 transition-transform duration-300 w-full ${
                     isOpen ? 'translate-y-0 opacity-100 ' : 'translate-y-5 opacity-0'
@@ -300,41 +309,39 @@ export const AllFilters: FC<AllFiltersProps> = ({
                     </div>
 
                     {/* переключатели (по желанию) */}
-                    {/*
-          <div className="mt-6 flex gap-8">
-            <Field className="flex items-center">
-              <Switch
-                checked={mortgageOption === 'mortgage'}
-                onChange={(checked) => setMortgageOption(checked ? 'mortgage' : 'developer')}
-                className="group relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition"
-              >
-                <span
-                  className={clsx(
-                    'size-5 translate-x-0.5 rounded-full shadow-lg transition group-data-checked:translate-x-5',
-                    mortgageOption === 'mortgage' ? 'bg-[#0036A5]' : 'bg-[#BAC0CC]'
-                  )}
-                />
-              </Switch>
-              <Label className="ml-3">Ипотека</Label>
-            </Field>
+                    <div className="mt-6 flex gap-8">
+                        <Field className="flex items-center">
+                            <Switch
+                                checked={is_full_apartment}
+                                onChange={(checked) => setIsFullApartment(checked)}
+                                className="group relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition cursor-pointer"
+                            >
+                            <span
+                                className={clsx(
+                                    'size-5 translate-x-0.5 rounded-full shadow-lg transition group-data-checked:translate-x-5',
+                                    mortgageOption === 'mortgage' ? 'bg-[#0036A5]' : 'bg-[#BAC0CC]'
+                                )}
+                            />
+                            </Switch>
+                            <Label className="ml-3">Полноценная квартира</Label>
+                        </Field>
 
-            <Field className="flex items-center">
-              <Switch
-                checked={mortgageOption === 'developer'}
-                onChange={(checked) => setMortgageOption(checked ? 'developer' : 'mortgage')}
-                className="group relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition focus:outline-none"
-              >
-                <span
-                  className={clsx(
-                    'size-5 translate-x-0.5 rounded-full shadow-lg transition group-data-checked:translate-x-5',
-                    mortgageOption === 'developer' ? 'bg-[#0036A5]' : 'bg-[#BAC0CC]'
-                  )}
-                />
-              </Switch>
-              <Label className="ml-3">От застройщика</Label>
-            </Field>
-          </div>
-          */}
+                        {/*        <Field className="flex items-center">*/}
+                        {/*            <Switch*/}
+                        {/*                checked={mortgageOption === 'developer'}*/}
+                        {/*                onChange={(checked) => setMortgageOption(checked ? 'developer' : 'mortgage')}*/}
+                        {/*                className="group relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition focus:outline-none"*/}
+                        {/*            >*/}
+                        {/*<span*/}
+                        {/*    className={clsx(*/}
+                        {/*        'size-5 translate-x-0.5 rounded-full shadow-lg transition group-data-checked:translate-x-5',*/}
+                        {/*        mortgageOption === 'developer' ? 'bg-[#0036A5]' : 'bg-[#BAC0CC]'*/}
+                        {/*    )}*/}
+                        {/*/>*/}
+                        {/*            </Switch>*/}
+                        {/*            <Label className="ml-3">От застройщика</Label>*/}
+                        {/*        </Field>*/}
+                    </div>
 
                     <div className="flex justify-end mt-8">
                         <button
