@@ -14,6 +14,7 @@ export interface Listing {
     imageUrl?: string;
     imageAlt?: string;
     moderation_status: string;
+    offer_type: string;
     images?: Image[];
     isTop?: boolean;
     price: number;
