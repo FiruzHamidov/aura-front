@@ -82,6 +82,7 @@ export interface Property {
     address?: string;
     offer_type?: string;
     rejection_comment?: string;
+    status_comment?: string;
     type: PropertyType;
     status: PropertyStatus;
     location: PropertyLocation | null;

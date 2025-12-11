@@ -3,7 +3,7 @@
 import {SelectToggle} from '@/ui-components/SelectToggle';
 import {Button} from '@/ui-components/Button';
 import {SelectOption} from '@/services/add-post/types';
-import {useEffect, useMemo} from "react";
+import {useEffect, useMemo, useState, ChangeEvent} from "react";
 
 interface PropertySelectionStepProps {
     isAgent: boolean;
@@ -37,7 +37,10 @@ const FULL_STATUSES: { id: string; name: string }[] = [
     {id: 'sold_by_owner', name: 'Продано владельцем'},
     {id: 'rented', name: 'Арендовано'},
     {id: 'denied', name: 'Отказано клиентом'},
+    // {id: 'deleted', name: 'Удалено'},
 ];
+
+const STATUS_REQUIRING_COMMENT = ['sold', 'sold_by_owner', 'rented', 'denied', 'deleted'];
 
 export function PropertySelectionStep({
                                           isAgent,
@@ -58,7 +61,9 @@ export function PropertySelectionStep({
                                           buildingTypes,
                                           onNext,
                                       }: PropertySelectionStepProps) {
-    const isValid = Boolean(selectedPropertyType && selectedBuildingType && selectedRooms);
+    const [statusComment, setStatusComment] = useState<string>('');
+
+    const isValidBase = Boolean(selectedPropertyType && selectedBuildingType && selectedRooms);
 
     // Если агент и VIP/urgent -> принудительно pending
     useEffect(() => {
@@ -74,6 +79,10 @@ export function PropertySelectionStep({
      *   * при 'sale' удаляем 'rented'
      *   * при 'rent' удаляем 'sold' и 'sold_by_owner' и (если нужно) 'denied' — т.к. он про отказ в продаже
      */
+
+    if (!isAgent) {
+        BASE_STATUSES.push({id: 'deleted', name: 'Удалено'});
+    }
     const moderationOptions = useMemo(() => {
         // Если это создание (isEdit === false) — только базовые статусы (pending / approved)
         if (!isEdit) {
@@ -115,6 +124,10 @@ export function PropertySelectionStep({
     }, [moderationOptions, selectedModerationStatus]);
 
     const moderationDisabled = isAgent && selectedListingType !== 'regular';
+
+    const mustProvideComment = STATUS_REQUIRING_COMMENT.includes(selectedModerationStatus);
+
+    const isValid = isValidBase && (!mustProvideComment || (statusComment && statusComment.trim() !== ''));
 
     return (
         <div className="flex flex-col gap-6">
@@ -170,6 +183,20 @@ export function PropertySelectionStep({
                 setSelected={setSelectedModerationStatus}
                 disabled={moderationDisabled}
             />
+
+            {/* Показываем поле комментария к статусу если выбран требующий статус */}
+            {mustProvideComment && (
+                <div className="mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Причина смены статуса (обязательно)</label>
+                    <textarea
+                        value={statusComment}
+                        onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setStatusComment(e.target.value)}
+                        rows={4}
+                        className="w-full p-3 border rounded-lg text-sm"
+                        placeholder="Напишите причину изменения статуса..."
+                    />
+                </div>
+            )}
 
             <div className="flex justify-end">
                 <Button onClick={onNext} disabled={!isValid} className="mt-8">

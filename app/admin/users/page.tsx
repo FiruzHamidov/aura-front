@@ -180,9 +180,9 @@ export default function UsersPage() {
                                         <Eye className="w-4 h-4"/>
                                     </Link>
                                     <Link
-                                        href={`/profile/reports/agent?created_by=${u.id}`}
-                                        title="Показать"
-                                        aria-label="Показать"
+                                        href={`/profile/reports/objects?interval=week&price_metric=sum&agent_id=${u.id}`}
+                                        title="Показать отчет"
+                                        aria-label="Показать отчет"
                                         className="p-2 rounded-md hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition cursor-pointer"
                                     >
                                         <SquareChartGantt className="w-4 h-4"/>
