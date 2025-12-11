@@ -130,7 +130,6 @@ export interface BuildingUnit {
   price: number;
   currency: string;
   floor: number;
-  status: "available" | "sold" | "reserved";
   created_at: string;
   updated_at: string;
   // Legacy fields for backward compatibility
@@ -142,19 +141,42 @@ export interface BuildingUnit {
   total_price?: string;
   description?: string | null;
   is_available?: boolean;
-  moderation_status?: "available" | "sold" | "reserved";
+
+  moderation_status: "pending" | "available" | "sold" | "reserved";
+  window_view:
+      | "courtyard"
+      | "street"
+      | "park"
+      | "mountains"
+      | "city"
+      | "panoramic";
 }
 
 export interface BuildingUnitPayload {
   block_id: number;
-  name: string;
-  rooms: number;
-  area: number;
   new_building_id: number;
+  name: string;
+
+  bedrooms: number;     // заменяет rooms
+  bathrooms: number;
+
+  area: number;
+
   price_per_sqm: number;
+  total_price: number;
+
   currency: string;
   floor: number;
-  status: "available" | "sold" | "reserved";
+
+  moderation_status: "pending" | "available" | "sold" | "reserved";
+
+  window_view:
+      | "courtyard"
+      | "street"
+      | "park"
+      | "mountains"
+      | "city"
+      | "panoramic";
 }
 
 export interface UnitPhoto {
@@ -223,6 +245,7 @@ export interface NewBuilding {
   district?: string | null;
   latitude?: number | string | null;
   longitude?: number | string | null;
+  ceiling_height?: number | string | null;
 
   moderation_status: ModerationStatus;
   created_by?: number | null;
@@ -260,8 +283,10 @@ export interface NewBuildingPayload {
 
   address?: string | null;
   district?: string | null;
-  latitude?: number | null | string;
-  longitude?: number | null | string;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
+
+  ceiling_height?: number | string | null;
 
   moderation_status?: ModerationStatus;
 

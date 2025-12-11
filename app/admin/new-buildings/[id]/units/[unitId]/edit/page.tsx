@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useState, useEffect } from 'react';
+import { FormEvent, useState, useEffect, ChangeEvent } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   useBuildingUnit,
@@ -9,6 +9,7 @@ import {
   useBuildingBlocks,
 } from '@/services/new-buildings/hooks';
 import { Button } from '@/ui-components/Button';
+import { SelectToggle } from '@/ui-components/SelectToggle';
 import { toast } from 'react-toastify';
 import Link from 'next/link';
 import type { BuildingUnitPayload } from '@/services/new-buildings/types';
@@ -31,49 +32,126 @@ export default function EditBuildingUnitPage() {
 
   const building = buildingResponse?.data;
 
+  // track which price-related field was edited last: 'price' | 'total' | 'area' | null
+  const [lastEdited, setLastEdited] = useState<'price' | 'total' | 'area' | null>(null);
+
   const [form, setForm] = useState<BuildingUnitPayload>({
     new_building_id: 0,
     block_id: 0,
     name: '',
-    rooms: 1,
+    bedrooms: 0,
+    bathrooms: 0,
     area: 0,
     price_per_sqm: 0,
+    total_price: 0,
     currency: 'TJS',
     floor: 1,
-    status: 'available',
+    moderation_status: 'pending' as any,
+    window_view: null as any,
   });
 
   useEffect(() => {
     if (unit) {
-      setForm({
+      setForm((prev) => ({
+        ...prev,
         new_building_id: newBuildingId,
-        block_id: unit.block_id,
-        name: unit.name,
-        rooms: unit.rooms,
-        area: unit.area,
-        price_per_sqm: Number(unit.price_per_sqm),
-        currency: unit.currency,
-        floor: unit.floor,
-        status: unit.status,
-      });
+        block_id: unit.block_id ?? 0,
+        name: unit.name ?? '',
+        bedrooms: unit.bedrooms ?? 0,
+        bathrooms: unit.bathrooms ?? 0,
+        area: unit.area ?? 0,
+        price_per_sqm: Number(unit.price_per_sqm) || 0,
+        total_price: Number(unit.total_price) || 0,
+        currency: unit.currency ?? 'TJS',
+        floor: unit.floor ?? 1,
+        moderation_status: (unit as any).moderation_status ?? 'pending',
+        window_view: (unit as any).window_view ?? null,
+      }));
     }
   }, [unit, newBuildingId]);
 
+  const moderationOptions = [
+    { id: 'pending', name: 'На модерации' },
+    { id: 'available', name: 'В продаже' },
+    { id: 'sold', name: 'Продано' },
+    { id: 'reserved', name: 'Бронирован' },
+  ];
+
+  const windowViewOptions = [
+    { id: 'courtyard', name: 'Во двор' },
+    { id: 'street', name: 'На улицу' },
+    { id: 'park', name: 'На парк' },
+    { id: 'mountains', name: 'На горы' },
+    { id: 'city', name: 'На город' },
+    { id: 'panoramic', name: 'Панорамный вид' },
+  ];
+
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]:
-        name === 'rooms' ||
-        name === 'area_total' ||
-        name === 'price' ||
-        name === 'floor' ||
-        name === 'block_id'
-          ? Number(value)
-          : value,
-    }));
+
+    // numeric fields
+    if (
+      name === 'bedrooms' ||
+      name === 'bathrooms' ||
+      name === 'area' ||
+      name === 'price_per_sqm' ||
+      name === 'floor' ||
+      name === 'block_id' ||
+      name === 'total_price'
+    ) {
+      const num = Number(value);
+
+      // set lastEdited immediately so area changes use correct preference
+      if (name === 'price_per_sqm') setLastEdited('price');
+      if (name === 'total_price') setLastEdited('total');
+      if (name === 'area') setLastEdited('area');
+
+      setForm((prev) => {
+        const next: BuildingUnitPayload = { ...prev };
+
+        const area = name === 'area' ? num : prev.area;
+        const price = name === 'price_per_sqm' ? num : prev.price_per_sqm;
+        const total = name === 'total_price' ? num : prev.total_price;
+
+        if (name === 'price_per_sqm') {
+          next.price_per_sqm = price;
+          next.total_price = +((price) * (area || 0)).toFixed(2);
+          return next;
+        }
+
+        if (name === 'total_price') {
+          next.total_price = total;
+          next.price_per_sqm = area > 0 ? +((total / area) || 0).toFixed(2) : prev.price_per_sqm;
+          return next;
+        }
+
+        if (name === 'area') {
+          next.area = area;
+          if (lastEdited === 'price') {
+            next.total_price = +((prev.price_per_sqm || price) * (area || 0)).toFixed(2);
+          } else if (lastEdited === 'total') {
+            next.price_per_sqm = area > 0 ? +(((prev.total_price || total) / area) || 0).toFixed(2) : prev.price_per_sqm;
+          } else {
+            next.total_price = +((prev.price_per_sqm || price) * (area || 0)).toFixed(2);
+          }
+          return next;
+        }
+
+        // other numeric fields (bedrooms, bathrooms, floor, block_id)
+        return { ...next, [name]: num } as BuildingUnitPayload;
+      });
+
+      return;
+    }
+
+    // string fields
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectToggleChange = (name: keyof BuildingUnitPayload, val: any) => {
+    setForm((prev) => ({ ...prev, [name]: val }));
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -89,8 +167,9 @@ export default function EditBuildingUnitPage() {
       return;
     }
 
-    if (form.rooms < 1) {
-      toast.error('Количество комнат должно быть положительным числом');
+    // bedrooms/bathrooms can be 0, but ensure they are not negative
+    if (form.bedrooms < 0 || form.bathrooms < 0) {
+      toast.error('Количество комнат/санузлов не может быть отрицательным');
       return;
     }
 
@@ -100,7 +179,7 @@ export default function EditBuildingUnitPage() {
     }
 
     if (form.price_per_sqm <= 0) {
-      toast.error('Цена должна быть положительным числом');
+      toast.error('Цена за м² должна быть положительным числом');
       return;
     }
 
@@ -110,7 +189,16 @@ export default function EditBuildingUnitPage() {
     }
 
     try {
-      await updateUnit.mutateAsync(form);
+      const payload = { ...form } as BuildingUnitPayload;
+      // ensure totals are consistent before sending
+      if ((!payload.total_price || payload.total_price === 0) && payload.area > 0) {
+        payload.total_price = +(payload.price_per_sqm * payload.area).toFixed(2);
+      }
+      if ((!payload.price_per_sqm || payload.price_per_sqm === 0) && payload.area > 0) {
+        payload.price_per_sqm = +(payload.total_price / payload.area).toFixed(2);
+      }
+
+      await updateUnit.mutateAsync(payload);
       toast.success('Квартира обновлена');
       router.push(`/admin/new-buildings/${newBuildingId}/units`);
     } catch (err) {
@@ -189,19 +277,30 @@ export default function EditBuildingUnitPage() {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium mb-2">
-              Количество комнат *
+              Количество спален
             </label>
             <input
               type="number"
-              name="rooms"
-              value={form.rooms}
+              name="bedrooms"
+              value={form.bedrooms}
               onChange={handleChange}
-              min="1"
+              min="0"
               className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
-              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Санузлов</label>
+            <input
+              type="number"
+              name="bathrooms"
+              value={form.bathrooms}
+              onChange={handleChange}
+              min="0"
+              className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
             />
           </div>
 
@@ -238,46 +337,48 @@ export default function EditBuildingUnitPage() {
         <div className="grid grid-cols gap-4">
           <div className="col-span-2">
             <label className="block text-sm font-medium mb-2">Цена *</label>
-            <input
-              type="number"
-              name="price_per_sqm"
-              value={form.price_per_sqm}
-              onChange={handleChange}
-              min="0"
-              className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
-              required
-            />
-          </div>
+            <div className="grid grid-cols-2 gap-4">
+              <input
+                type="number"
+                name="price_per_sqm"
+                value={form.price_per_sqm}
+                onChange={handleChange}
+                min="0"
+                step="0.01"
+                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
+                required
+              />
 
-          {/*<div>*/}
-          {/*  <label className="block text-sm font-medium mb-2">Валюта *</label>*/}
-          {/*  <select*/}
-          {/*    name="currency"*/}
-          {/*    value={form.currency}*/}
-          {/*    onChange={handleChange}*/}
-          {/*    className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"*/}
-          {/*    required*/}
-          {/*  >*/}
-          {/*    <option value="TJS">TJS</option>*/}
-          {/*    <option value="USD">USD</option>*/}
-          {/*    <option value="EUR">EUR</option>*/}
-          {/*  </select>*/}
-          {/*</div>*/}
+              <input
+                type="number"
+                name="total_price"
+                value={form.total_price}
+                onChange={handleChange}
+                min="0"
+                step="0.01"
+                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
+                required
+              />
+            </div>
+          </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Статус *</label>
-          <select
-            name="status"
-            value={form.status}
-            onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
-            required
-          >
-            <option value="available">Доступна</option>
-            <option value="reserved">Забронирована</option>
-            <option value="sold">Продана</option>
-          </select>
+          <SelectToggle
+            title="Статус модерации"
+            options={moderationOptions}
+            selected={form.moderation_status}
+            setSelected={(val) => handleSelectToggleChange('moderation_status', val)}
+          />
+        </div>
+
+        <div>
+          <SelectToggle
+            title="Вид из окна"
+            options={windowViewOptions}
+            selected={form.window_view}
+            setSelected={(val) => handleSelectToggleChange('window_view', val)}
+          />
         </div>
 
         <div className="flex gap-3 pt-4">

@@ -28,7 +28,6 @@ const STEPS = [
 export default function NewBuildingEditPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
-  // const router = useRouter();
 
   const { data: initial, isLoading } = useNewBuilding(Number(id));
   const update = useUpdateNewBuilding(Number(id));
@@ -49,8 +48,8 @@ export default function NewBuildingEditPage() {
   const [step, setStep] = useState(1);
   const nextStep = () => setStep((s) => Math.min(3, s + 1));
   const prevStep = () => setStep((s) => Math.max(1, s - 1));
-  const locationOptions: LocationOption[] = (locations ??
-    []) as LocationOption[];
+  const locationOptions: LocationOption[] = (locations ?? []) as LocationOption[];
+
   useEffect(() => {
     if (!initial) return;
 
@@ -77,6 +76,8 @@ export default function NewBuildingEditPage() {
       latitude: nb.latitude ?? '',
       longitude: nb.longitude ?? '',
 
+      ceiling_height: nb.ceiling_height ?? null,
+
       moderation_status: nb.moderation_status ?? 'pending',
 
       features: (nb.features ?? []).map((f) => f.id),
@@ -101,9 +102,10 @@ export default function NewBuildingEditPage() {
         location_id: form.location_id ? Number(form.location_id) : null,
         latitude: toNumOrNull(form.latitude),
         longitude: toNumOrNull(form.longitude),
+        ceiling_height: toNumOrNull((form as any).ceiling_height),
       };
 
-      console.log(payload)
+      console.log(payload);
       await update.mutateAsync(payload);
       toast.success('Сохранено');
       // router.push(`/new-buildings/${id}`);
@@ -168,6 +170,7 @@ export default function NewBuildingEditPage() {
             address: form.address || '',
             latitude: form.latitude ?? '',
             longitude: form.longitude ?? '',
+            ceiling_height: form.ceiling_height ?? '',
           }}
           locations={locationOptions}
           onChange={handleChange}
