@@ -46,13 +46,13 @@ const STATUS_OPTIONS = [
 ];
 
 const OFFER_OPTIONS = [
-    {label: 'Продажа', value: 'sale'},
-    {label: 'Аренда', value: 'rent'},
+    {label: 'На продажу', value: 'sale'},
+    {label: 'На Аренду', value: 'rent'},
 ];
 
 const OFFER_LABELS: Record<string, string> = {
-    sale: 'Продажа',
-    rent: 'Аренда',
+    sale: 'На продажу',
+    rent: 'На Аренду',
 };
 
 const STATUS_LABELS: Record<string, string> = Object.fromEntries(
@@ -441,11 +441,26 @@ export default function ReportsPage() {
             </div>
 
             {/* Сводные карточки */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 bg-white rounded-2xl shadow">
                     <div className="text-sm text-gray-500">Всего объектов</div>
                     <div className="text-2xl font-semibold">{summary?.total ?? '—'}</div>
+                    <hr className='my-3'/>
+                    <div>
+                        {statusData.map((s, i) => {
+                            return (
+                                <div key={i} className='flex justify-between'>
+                                    <span>{s.label}</span>
+                                    <span className='text-xl font-semibold'>{s.value}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
+
+                {/*<div className="p-4 bg-white rounded-2xl shadow">*/}
+                {/*   */}
+                {/*</div>*/}
 
                 <div className="p-4 bg-white rounded-2xl shadow">
                     <div className="text-sm text-gray-500">
@@ -456,10 +471,7 @@ export default function ReportsPage() {
                             ? Number(summaryPriceValue).toLocaleString()
                             : '—'}
                     </div>
-                </div>
-
-                <div className="p-4 bg-white rounded-2xl shadow">
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-500 mt-3">
                         {priceMetric === 'sum' ? 'Суммарная площадь' : 'Средняя площадь'}
                     </div>
                     <div className="text-2xl font-semibold">
@@ -472,7 +484,7 @@ export default function ReportsPage() {
                 </div>
 
                 <div className="p-4 bg-white rounded-2xl shadow">
-                    <div className="text-sm text-gray-500">Продажа/Аренда</div>
+                    <div className="text-sm text-gray-500">На продажу/На аренду</div>
                     <div className="text-2xl font-semibold">
                         {(summary?.by_offer_type ?? [])
                             .map((x) => `${offerLabel(x.offer_type)}: ${Number(x.cnt || 0).toLocaleString()}`)
@@ -485,7 +497,56 @@ export default function ReportsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <PieStatus data={statusData} dateFrom={filters.date_from} dateTo={filters.date_to}/>
                 <BarOffer data={offerData} dateFrom={filters.date_from} dateTo={filters.date_to}/>
-                <LineTimeSeries data={seriesData}/>
+                {/* Bookings agents report */}
+                <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-semibold">Показы — по агентам</h3>
+                        <div
+                            className="text-sm text-gray-500">Период: {filters.date_from || '—'} — {filters.date_to || '—'}</div>
+                    </div>
+
+                    <table className="min-w-full text-sm">
+                        <thead>
+                        <tr className="text-left text-gray-500">
+                            <th className="py-2 pr-4">Агент</th>
+                            <th className="py-2 pr-4">Показов</th>
+                            {/*<th className="py-2 pr-4">Мин. всего</th>*/}
+                            {/*<th className="py-2 pr-4">Уник. клиенты</th>*/}
+                            {/*<th className="py-2 pr-4">Уник. объекты</th>*/}
+                            {/*<th className="py-2 pr-4">Первый показ</th>*/}
+                            {/*<th className="py-2 pr-4">Последний показ</th>*/}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {bookingsReport.length === 0 ? (
+                            <tr>
+                                <td className="py-4 text-gray-500" colSpan={7}>
+                                    Нет данных по текущим фильтрам
+                                </td>
+                            </tr>
+                        ) : (
+                            bookingsReport.map((r, i) => (
+                                <tr key={i} className="border-t">
+                                    <td className="py-2 pr-4"><Link
+                                        href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.agent_name}</Link></td>
+                                    <td className="py-2 pr-4"><Link
+                                        href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.shows_count}</Link></td>
+                                    {/*<td className="py-2 pr-4"><Link*/}
+                                    {/*    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.total_minutes}</Link></td>*/}
+                                    {/*<td className="py-2 pr-4"><Link*/}
+                                    {/*    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.unique_clients}</Link></td>*/}
+                                    {/*<td className="py-2 pr-4"><Link*/}
+                                    {/*    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.unique_properties}</Link></td>*/}
+                                    {/*<td className="py-2 pr-4"><Link*/}
+                                    {/*    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.first_show ?? '—'}</Link></td>*/}
+                                    {/*<td className="py-2 pr-4"><Link*/}
+                                    {/*    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.last_show ?? '—'}</Link></td>*/}
+                                </tr>
+                            ))
+                        )}
+                        </tbody>
+                    </table>
+                </div>
                 <BarRooms data={roomsData} dateFrom={filters.date_from} dateTo={filters.date_to}/>
             </div>
 
@@ -578,57 +639,6 @@ export default function ReportsPage() {
                         </tbody>
                     </table>
                 </div>
-            </div>
-
-            {/* Bookings agents report */}
-            <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
-                <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold">Показы — по агентам</h3>
-                    <div
-                        className="text-sm text-gray-500">Период: {filters.date_from || '—'} — {filters.date_to || '—'}</div>
-                </div>
-
-                <table className="min-w-full text-sm">
-                    <thead>
-                    <tr className="text-left text-gray-500">
-                        <th className="py-2 pr-4">Агент</th>
-                        <th className="py-2 pr-4">Показов</th>
-                        <th className="py-2 pr-4">Мин. всего</th>
-                        <th className="py-2 pr-4">Уник. клиенты</th>
-                        <th className="py-2 pr-4">Уник. объекты</th>
-                        <th className="py-2 pr-4">Первый показ</th>
-                        <th className="py-2 pr-4">Последний показ</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {bookingsReport.length === 0 ? (
-                        <tr>
-                            <td className="py-4 text-gray-500" colSpan={7}>
-                                Нет данных по текущим фильтрам
-                            </td>
-                        </tr>
-                    ) : (
-                        bookingsReport.map((r, i) => (
-                            <tr key={i} className="border-t">
-                                <td className="py-2 pr-4"><Link
-                                    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.agent_name}</Link></td>
-                                <td className="py-2 pr-4"><Link
-                                    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.shows_count}</Link></td>
-                                <td className="py-2 pr-4"><Link
-                                    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.total_minutes}</Link></td>
-                                <td className="py-2 pr-4"><Link
-                                    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.unique_clients}</Link></td>
-                                <td className="py-2 pr-4"><Link
-                                    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.unique_properties}</Link></td>
-                                <td className="py-2 pr-4"><Link
-                                    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.first_show ?? '—'}</Link></td>
-                                <td className="py-2 pr-4"><Link
-                                    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.last_show ?? '—'}</Link></td>
-                            </tr>
-                        ))
-                    )}
-                    </tbody>
-                </table>
             </div>
 
             {/* Agent properties report: single-agent or list */}
