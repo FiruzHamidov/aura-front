@@ -35,7 +35,7 @@ const STATUS_OPTIONS = [
     {label: 'Отказано клиентом', value: 'denied'},
 ];
 
-export function PieStatus({ data, dateFrom, dateTo }: { data: { label: string; value: number }[], dateFrom: string, dateTo: string }) {
+export function PieStatus({ data, dateFrom, dateTo, agentId }: { data: { label: string; value: number }[], dateFrom: string, dateTo: string, agentId: string }) {
     const router = useRouter();
     const chartRef = useRef<Chart<'pie', number[], unknown> | null>(null);
 
@@ -88,6 +88,7 @@ export function PieStatus({ data, dateFrom, dateTo }: { data: { label: string; v
             moderation_status: moderation,
             page: '1',
             per_page: '20',
+            agent_id: agentId
         });
 
 
@@ -110,7 +111,7 @@ export function PieStatus({ data, dateFrom, dateTo }: { data: { label: string; v
     );
 }
 
-export function BarOffer({ data, dateFrom, dateTo }: { data: { label: string; value: number }[], dateFrom: string, dateTo: string }) {
+export function BarOffer({ data, dateFrom, dateTo, agentId }: { data: { label: string; value: number }[], dateFrom: string, dateTo: string, agentId: string }) {
     const router = useRouter();
 
     const chartRef = useRef<Chart<'bar', number[], unknown> | null>(null);
@@ -170,7 +171,8 @@ export function BarOffer({ data, dateFrom, dateTo }: { data: { label: string; va
             page: '1',
             per_page: '20',
             date_from: dateFrom,
-            date_to: dateTo
+            date_to: dateTo,
+            agent_id: agentId
         });
 
         router.push(`/profile/reports/objects?${params.toString()}`);

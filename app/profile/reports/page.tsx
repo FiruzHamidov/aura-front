@@ -28,6 +28,7 @@ type FilterState = {
     type_id: (string | number)[];
     location_id: (string | number)[];
     agent_id: string;
+    created_by: string;
 };
 
 type PriceMetric = 'sum' | 'avg';
@@ -111,6 +112,7 @@ export default function ReportsPage() {
         type_id: [],
         location_id: [],
         agent_id: '',
+        created_by: '',
     });
 
     const {data: agents} = useGetAgentsQuery();
@@ -168,6 +170,7 @@ export default function ReportsPage() {
             type_id,
             location_id,
             agent_id,
+            created_by: agent_id
         }));
         setPendingLoadFromUrl(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -341,6 +344,7 @@ export default function ReportsPage() {
             type_id: [],
             location_id: [],
             agent_id: '',
+            created_by: '',
         });
         setPriceMetric('sum');
         // clear query string
@@ -528,8 +532,8 @@ export default function ReportsPage() {
             {/* Графики */
             }
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <PieStatus data={statusData} dateFrom={filters.date_from} dateTo={filters.date_to}/>
-                <BarOffer data={offerData} dateFrom={filters.date_from} dateTo={filters.date_to}/>
+                <PieStatus data={statusData} dateFrom={filters.date_from} dateTo={filters.date_to} agentId={filters.agent_id}/>
+                <BarOffer data={offerData} dateFrom={filters.date_from} dateTo={filters.date_to} agentId={filters.agent_id}/>
                 {/* Bookings agents report */}
                 <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
                     <div className="flex items-center justify-between mb-3">
