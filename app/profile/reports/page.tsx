@@ -1,7 +1,7 @@
 'use client';
 
-import {ChangeEvent, useEffect, useMemo, useState, useCallback} from 'react';
-import {useRouter, usePathname, useSearchParams} from 'next/navigation';
+import {ChangeEvent, useEffect, useMemo, useState} from 'react';
+import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {
     AgentsLeaderboardRow,
     ManagerEfficiencyRow,
@@ -11,11 +11,13 @@ import {
     SummaryResponse,
     TimeSeriesRow,
 } from '@/services/reports/api';
-import {BarOffer, BarRooms, LineTimeSeries, PieStatus} from './_charts';
+import {BarOffer, BarRooms, PieStatus} from './_charts';
 import {MultiSelect} from '@/ui-components/MultiSelect';
 import {Button} from '@/ui-components/Button';
 import {Input} from '@/ui-components/Input';
 import Link from "next/link";
+import {useGetAgentsQuery} from "@/services/users/hooks";
+import {Select} from "@/ui-components/Select";
 
 type FilterState = {
     date_from: string;
@@ -25,7 +27,7 @@ type FilterState = {
     moderation_status: (string | number)[];
     type_id: (string | number)[];
     location_id: (string | number)[];
-    agent_id: (string | number)[];
+    agent_id: string;
 };
 
 type PriceMetric = 'sum' | 'avg';
@@ -49,6 +51,7 @@ const OFFER_OPTIONS = [
     {label: 'На продажу', value: 'sale'},
     {label: 'На Аренду', value: 'rent'},
 ];
+
 
 const OFFER_LABELS: Record<string, string> = {
     sale: 'На продажу',
@@ -107,8 +110,19 @@ export default function ReportsPage() {
         moderation_status: [],
         type_id: [],
         location_id: [],
-        agent_id: [],
+        agent_id: '',
     });
+
+    const {data: agents} = useGetAgentsQuery();
+
+    const AGENT_OPTIONS = useMemo(
+        () =>
+            (agents ?? []).map((a) => ({
+                id: a.id,
+                name: a.name || `ID ${a.id}`,
+            })),
+        [agents]
+    );
 
     // --- URL sync for filters (serialize <-> query params) ---
     const router = useRouter();
@@ -124,7 +138,7 @@ export default function ReportsPage() {
         if (f.moderation_status && f.moderation_status.length) p.set('moderation_status', f.moderation_status.join(','));
         if (f.type_id && f.type_id.length) p.set('type_id', f.type_id.join(','));
         if (f.location_id && f.location_id.length) p.set('location_id', f.location_id.join(','));
-        if (f.agent_id && f.agent_id.length) p.set('agent_id', f.agent_id.join(','));
+        if (f.agent_id) p.set('agent_id', f.agent_id);
         return p;
     };
 
@@ -142,7 +156,7 @@ export default function ReportsPage() {
         const moderation_status = parseArray(searchParams.get('moderation_status'));
         const type_id = parseArray(searchParams.get('type_id'));
         const location_id = parseArray(searchParams.get('location_id'));
-        const agent_id = parseArray(searchParams.get('agent_id'));
+        const agent_id = searchParams.get('agent_id') ?? '';
 
         setFilters((s) => ({
             ...s,
@@ -181,11 +195,11 @@ export default function ReportsPage() {
 
     const [loading, setLoading] = useState(false);
     const [summary, setSummary] = useState<SummaryResponse | null>(null);
-    const [series, setSeries] = useState<TimeSeriesRow[]>([]);
+    const [, setSeries] = useState<TimeSeriesRow[]>([]);
     const [rooms, setRooms] = useState<RoomsRow[]>([]);
     const [managers, setManagers] = useState<ManagerEfficiencyRow[]>([]);
     const [leaders, setLeaders] = useState<AgentsLeaderboardRow[]>([]);
-    const [error, setError] = useState<string | null>(null);
+    const [, setError] = useState<string | null>(null);
 
     const [bookingsReport, setBookingsReport] = useState<BookingAgentRow[]>([]);
 
@@ -206,7 +220,7 @@ export default function ReportsPage() {
         if (filters.moderation_status.length) q.moderation_status = filters.moderation_status;
         if (filters.type_id.length) q.type_id = filters.type_id;
         if (filters.location_id.length) q.location_id = filters.location_id;
-        if (filters.agent_id.length) q.agent_id = filters.agent_id;
+        if (filters.agent_id) q.agent_id = filters.agent_id;
         return q;
     }, [filters, priceMetric]);
 
@@ -239,10 +253,10 @@ export default function ReportsPage() {
                 setBookingsReport([]);
             }
 
-            // agent properties: if exactly one agent selected -> single report, otherwise fetch list for all agents
-            if (filters.agent_id.length === 1) {
+            // agent properties: if agent selected -> single report, otherwise fetch list for all agents
+            if (filters.agent_id) {
                 try {
-                    const agentId = filters.agent_id[0];
+                    const agentId = filters.agent_id;
                     const apr = await reportsApi.agentPropertiesReport({
                         agent: String(agentId),
                         date_from: filters.date_from || undefined,
@@ -307,10 +321,10 @@ export default function ReportsPage() {
         [summary]
     );
 
-    const seriesData = useMemo(
-        () => series.map((r) => ({x: r.bucket, total: r.total, closed: r.closed})),
-        [series]
-    );
+    // const seriesData = useMemo(
+    //     () => series.map((r) => ({x: r.bucket, total: r.total, closed: r.closed})),
+    //     [series]
+    // );
 
     const roomsData = useMemo(
         () => rooms.map((r) => ({label: String(r.rooms), value: r.cnt})),
@@ -326,7 +340,7 @@ export default function ReportsPage() {
             moderation_status: [],
             type_id: [],
             location_id: [],
-            agent_id: [],
+            agent_id: '',
         });
         setPriceMetric('sum');
         // clear query string
@@ -402,7 +416,11 @@ export default function ReportsPage() {
                     />
                 </div>
 
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div className="mt-4">
+
+                </div>
+
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="flex flex-col gap-2">
                         <span className="block mb-2 text-sm text-[#666F8D]">Метрика цены</span>
                         <div className="flex items-center gap-4">
@@ -428,6 +446,18 @@ export default function ReportsPage() {
                             </label>
                         </div>
                     </div>
+                    <Select
+                        label="Агент"
+                        name="agent_id"
+                        value={filters.agent_id}
+                        options={AGENT_OPTIONS}
+                        onChange={(e) =>
+                            setFilters((s) => ({
+                                ...s,
+                                agent_id: e.target.value,
+                            }))
+                        }
+                    />
                 </div>
 
                 <div className="flex gap-3 mt-4">
@@ -440,7 +470,9 @@ export default function ReportsPage() {
                 </div>
             </div>
 
-            {/* Сводные карточки */}
+
+            {/* Сводные карточки */
+            }
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 bg-white rounded-2xl shadow">
                     <div className="text-sm text-gray-500">Всего объектов</div>
@@ -493,7 +525,8 @@ export default function ReportsPage() {
                 </div>
             </div>
 
-            {/* Графики */}
+            {/* Графики */
+            }
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <PieStatus data={statusData} dateFrom={filters.date_from} dateTo={filters.date_to}/>
                 <BarOffer data={offerData} dateFrom={filters.date_from} dateTo={filters.date_to}/>
@@ -528,9 +561,11 @@ export default function ReportsPage() {
                             bookingsReport.map((r, i) => (
                                 <tr key={i} className="border-t">
                                     <td className="py-2 pr-4"><Link
-                                        href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.agent_name}</Link></td>
+                                        href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.agent_name}</Link>
+                                    </td>
                                     <td className="py-2 pr-4"><Link
-                                        href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.shows_count}</Link></td>
+                                        href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.shows_count}</Link>
+                                    </td>
                                     {/*<td className="py-2 pr-4"><Link*/}
                                     {/*    href={`/profile/reports/bookings?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.total_minutes}</Link></td>*/}
                                     {/*<td className="py-2 pr-4"><Link*/}
@@ -550,7 +585,8 @@ export default function ReportsPage() {
                 <BarRooms data={roomsData} dateFrom={filters.date_from} dateTo={filters.date_to}/>
             </div>
 
-            {/* Эффективность / Топ */}
+            {/* Эффективность / Топ */
+            }
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* managers table */}
                 <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
@@ -576,9 +612,11 @@ export default function ReportsPage() {
                             return (
                                 <tr key={i} className="border-t">
                                     <td className="py-2 pr-4"><Link
-                                        href={`/profile/reports/objects/?agent_id=${m.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{m.name}</Link></td>
+                                        href={`/profile/reports/objects/?agent_id=${m.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{m.name}</Link>
+                                    </td>
                                     <td className="py-2 pr-4"><Link
-                                        href={`/profile/reports/objects/?agent_id=${m.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{m.total}</Link></td>
+                                        href={`/profile/reports/objects/?agent_id=${m.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{m.total}</Link>
+                                    </td>
                                     <td className="py-2 pr-4"><Link
                                         href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=approved&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{m.approved}</Link>
                                     </td>
@@ -641,213 +679,237 @@ export default function ReportsPage() {
                 </div>
             </div>
 
-            {/* Agent properties report: single-agent or list */}
-            {agentPropertiesReport ? (
-                <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
-                    <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-semibold">Отчёт по агенту: {agentPropertiesReport.agent_name}</h3>
-                        <div
-                            className="text-sm text-gray-500">Период: {filters.date_from || '—'} — {filters.date_to || '—'}</div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <div className="p-3 bg-gray-50 rounded">
-                            <div className="text-sm text-gray-500">Всего объектов</div>
+            {/* Agent properties report: single-agent or list */
+            }
+            {
+                agentPropertiesReport ? (
+                    <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="font-semibold">Отчёт по агенту: {agentPropertiesReport.agent_name}</h3>
                             <div
-                                className="text-lg font-semibold">{agentPropertiesReport.summary.total_properties}</div>
+                                className="text-sm text-gray-500">Период: {filters.date_from || '—'} — {filters.date_to || '—'}</div>
                         </div>
-                        <div className="p-3 bg-gray-50 rounded">
-                            <div className="text-sm text-gray-500">Всего показов</div>
-                            <div className="text-lg font-semibold">{agentPropertiesReport.summary.total_shows}</div>
-                        </div>
-                        <div className="p-3 bg-gray-50 rounded">
-                            <div className="text-sm text-gray-500">По статусам</div>
-                            <div className="text-sm">
-                                {Object.entries(agentPropertiesReport.summary.by_status).map(([k, v]) => (
-                                    <div key={k} className="flex justify-between">
-                                        <span className="text-gray-600">{statusLabel(k)}</span>
-                                        <span className="font-medium">{v}</span>
-                                    </div>
-                                ))}
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div className="p-3 bg-gray-50 rounded">
+                                <div className="text-sm text-gray-500">Всего объектов</div>
+                                <div
+                                    className="text-lg font-semibold">{agentPropertiesReport.summary.total_properties}</div>
+                            </div>
+                            <div className="p-3 bg-gray-50 rounded">
+                                <div className="text-sm text-gray-500">Всего показов</div>
+                                <div className="text-lg font-semibold">{agentPropertiesReport.summary.total_shows}</div>
+                            </div>
+                            <div className="p-3 bg-gray-50 rounded">
+                                <div className="text-sm text-gray-500">По статусам</div>
+                                <div className="text-sm">
+                                    {Object.entries(agentPropertiesReport.summary.by_status).map(([k, v]) => (
+                                        <div key={k} className="flex justify-between">
+                                            <span className="text-gray-600">{statusLabel(k)}</span>
+                                            <span className="font-medium">{v}</span>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <table className="min-w-full text-sm">
-                        <thead>
-                        <tr className="text-left text-gray-500">
-                            <th className="py-2 pr-4">Объект</th>
-                            <th className="py-2 pr-4">Цена</th>
-                            <th className="py-2 pr-4">Статус</th>
-                            <th className="py-2 pr-4">Показов</th>
-                            <th className="py-2 pr-4">Первый показ</th>
-                            <th className="py-2 pr-4">Последний показ</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {agentPropertiesReport.properties.length === 0 ? (
-                            <tr>
-                                <td className="py-4 text-gray-500" colSpan={6}>Нет объектов</td>
+                        <table className="min-w-full text-sm">
+                            <thead>
+                            <tr className="text-left text-gray-500">
+                                <th className="py-2 pr-4">Объект</th>
+                                <th className="py-2 pr-4">Цена</th>
+                                <th className="py-2 pr-4">Статус</th>
+                                <th className="py-2 pr-4">Показов</th>
+                                <th className="py-2 pr-4">Первый показ</th>
+                                <th className="py-2 pr-4">Последний показ</th>
                             </tr>
-                        ) : (
-                            agentPropertiesReport.properties.map((p) => (
-                                <tr key={p.id} className="border-t">
-                                    <td className="py-2 pr-4">{p.title}</td>
-                                    <td className="py-2 pr-4">{p.price ? `${p.price} ${p.currency ?? ''}` : '—'}</td>
-                                    <td className="py-2 pr-4">{statusLabel(p.moderation_status ?? '')}</td>
-                                    <td className="py-2 pr-4">{p.shows_count}</td>
-                                    <td className="py-2 pr-4">{p.first_show ?? '—'}</td>
-                                    <td className="py-2 pr-4">{p.last_show ?? '—'}</td>
+                            </thead>
+                            <tbody>
+                            {agentPropertiesReport.properties.length === 0 ? (
+                                <tr>
+                                    <td className="py-4 text-gray-500" colSpan={6}>Нет объектов</td>
                                 </tr>
-                            ))
-                        )}
-                        </tbody>
-                    </table>
-                </div>
-            ) : agentsPropertiesList && agentsPropertiesList.length > 0 ? (
-                <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
-                    <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-semibold">Отчёты по агентам (агрегированно)</h3>
-                        <div
-                            className="text-sm text-gray-500">Период: {filters.date_from || '—'} — {filters.date_to || '—'}</div>
+                            ) : (
+                                agentPropertiesReport.properties.map((p) => (
+                                    <tr key={p.id} className="border-t">
+                                        <td className="py-2 pr-4">{p.title}</td>
+                                        <td className="py-2 pr-4">{p.price ? `${p.price} ${p.currency ?? ''}` : '—'}</td>
+                                        <td className="py-2 pr-4">{statusLabel(p.moderation_status ?? '')}</td>
+                                        <td className="py-2 pr-4">{p.shows_count}</td>
+                                        <td className="py-2 pr-4">{p.first_show ?? '—'}</td>
+                                        <td className="py-2 pr-4">{p.last_show ?? '—'}</td>
+                                    </tr>
+                                ))
+                            )}
+                            </tbody>
+                        </table>
                     </div>
+                ) : agentsPropertiesList && agentsPropertiesList.length > 0 ? (
+                    <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="font-semibold">Отчёты по агентам (агрегированно)</h3>
+                            <div
+                                className="text-sm text-gray-500">Период: {filters.date_from || '—'} — {filters.date_to || '—'}</div>
+                        </div>
 
-                    <table className="min-w-full text-sm">
-                        <thead>
-                        <tr className="text-left text-gray-500">
-                            <th className="py-2 pr-4">Агент</th>
-                            <th className="py-2 pr-4">Всего объектов</th>
-                            <th className="py-2 pr-4">Всего показов</th>
-                            <th className="py-2 pr-4">По статусам (кратко)</th>
-                            <th className="py-2 pr-4">По контрактам</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {agentsPropertiesList.map((a) => (
-                            <tr key={a.agent_id} className="border-t">
-                                <td className="py-2 pr-4"><Link
-                                    href={`/profile/reports/objects?agent_id=${a.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{a.agent_name}</Link>
-                                </td>
-                                <td className="py-2 pr-4"><Link
-                                    href={`/profile/reports/objects?agent_id=${a.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{a.summary.total_properties}</Link>
-                                </td>
+                        <table className="min-w-full text-sm">
+                            <thead>
+                            <tr className="text-left text-gray-500">
+                                <th className="py-2 pr-4">Агент</th>
+                                <th className="py-2 pr-4">Всего объектов</th>
+                                <th className="py-2 pr-4">Всего показов</th>
+                                <th className="py-2 pr-4">По статусам (кратко)</th>
+                                <th className="py-2 pr-4">По контрактам</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {agentsPropertiesList.map((a) => (
+                                <tr key={a.agent_id} className="border-t">
+                                    <td className="py-2 pr-4"><Link
+                                        href={`/profile/reports/objects?agent_id=${a.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{a.agent_name}</Link>
+                                    </td>
+                                    <td className="py-2 pr-4"><Link
+                                        href={`/profile/reports/objects?agent_id=${a.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{a.summary.total_properties}</Link>
+                                    </td>
 
-                                <td className="py-2 pr-4">
-                                    <Link
-                                        href={`/profile/reports/bookings?agent_id=${a.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{a.summary.total_shows}</Link></td>
-                                <td className="py-2 pr-4">
-                                    {Object.entries(a.summary.by_status).map(([k, v]) => (
+                                    <td className="py-2 pr-4">
                                         <Link
-                                            key={a.agent_id + k}
-                                            href={`/profile/reports/objects?moderation_status=${encodeURIComponent(k)}&agent_id=${a.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}
-                                        >
-                                            <div className="text-sm flex gap-2">
-                                                <span className="text-gray-600">{statusLabel(k)}:</span>
-                                                <span className="font-medium">{v}</span>
-                                            </div>
-                                        </Link>
-                                    ))}
-                                </td>
-
-                                {/* contracts — a.summary.contracts is an array of {id, name, count} */}
-                                <td className="py-2 pr-4">
-                                    {Array.isArray(a.summary.contracts) && a.summary.contracts.length > 0 ? (
-                                        a.summary.contracts.map((c) => (
+                                            href={`/profile/reports/bookings?agent_id=${a.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{a.summary.total_shows}</Link>
+                                    </td>
+                                    <td className="py-2 pr-4">
+                                        {Object.entries(a.summary.by_status).map(([k, v]) => (
                                             <Link
-                                                key={`${a.agent_id}-contract-${c.id}`}
-                                                href={`/profile/reports/objects?contract_type_id=${c.id}&agent_id=${a.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}
+                                                key={a.agent_id + k}
+                                                href={`/profile/reports/objects?moderation_status=${encodeURIComponent(k)}&agent_id=${a.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}
                                             >
                                                 <div className="text-sm flex gap-2">
-                                                    <span className="text-gray-600">{c.name}:</span>
-                                                    <span className="font-medium">{c.count}</span>
+                                                    <span className="text-gray-600">{statusLabel(k)}:</span>
+                                                    <span className="font-medium">{v}</span>
                                                 </div>
                                             </Link>
-                                        ))
-                                    ) : (
-                                        <div className="text-sm text-gray-500">—</div>
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
-            ) : null}
+                                        ))}
+                                    </td>
 
-            {/*/!* Missing phones table (unchanged) *!/*/}
-            {/*<div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">*/}
-            {/*    <div className="flex items-center justify-between mb-3">*/}
-            {/*        <h3 className="font-semibold">Без телефона — по агентам и статусам</h3>*/}
-            {/*        <Link*/}
-            {/*            href={buildHref('/profile/reports/missing-phone', {*/}
-            {/*                date_from: filters.date_from || undefined,*/}
-            {/*                date_to: filters.date_to || undefined,*/}
-            {/*                offer_type: filters.offer_type,*/}
-            {/*                moderation_status: filters.moderation_status,*/}
-            {/*                type_id: filters.type_id,*/}
-            {/*                location_id: filters.location_id,*/}
-            {/*                created_by: filters.agent_id,*/}
-            {/*            })}*/}
-            {/*            className="text-[#0036A5] hover:underline"*/}
-            {/*        >*/}
-            {/*            Открыть список*/}
-            {/*        </Link>*/}
-            {/*    </div>*/}
+                                    {/* contracts — a.summary.contracts is an array of {id, name, count} */}
+                                    <td className="py-2 pr-4">
+                                        {Array.isArray(a.summary.contracts) && a.summary.contracts.length > 0 ? (
+                                            a.summary.contracts.map((c) => (
+                                                <Link
+                                                    key={`${a.agent_id}-contract-${c.id}`}
+                                                    href={`/profile/reports/objects?contract_type_id=${c.id}&agent_id=${a.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}
+                                                >
+                                                    <div className="text-sm flex gap-2">
+                                                        <span className="text-gray-600">{c.name}:</span>
+                                                        <span className="font-medium">{c.count}</span>
+                                                    </div>
+                                                </Link>
+                                            ))
+                                        ) : (
+                                            <div className="text-sm text-gray-500">—</div>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : null
+            }
 
-            {/*    <table className="min-w-full text-sm">*/}
-            {/*        <thead>*/}
-            {/*        <tr className="text-left text-gray-500">*/}
-            {/*            <th className="py-2 pr-4">Агент</th>*/}
-            {/*            <th className="py-2 pr-4">Статус</th>*/}
-            {/*            <th className="py-2 pr-4">Без телефона</th>*/}
-            {/*            <th className="py-2 pr-4">Всего (в статусе)</th>*/}
-            {/*            <th className="py-2 pr-4">Доля, %</th>*/}
-            {/*            <th className="py-2 pr-4"></th>*/}
-            {/*        </tr>*/}
-            {/*        </thead>*/}
-            {/*        <tbody>*/}
-            {/*        {missingAgents.length === 0 ? (*/}
-            {/*            <tr>*/}
-            {/*                <td className="py-4 text-gray-500" colSpan={6}>*/}
-            {/*                    Нет данных по текущим фильтрам*/}
-            {/*                </td>*/}
-            {/*            </tr>*/}
-            {/*        ) : (*/}
-            {/*            missingAgents.map((r, i) => (*/}
-            {/*                <tr key={i} className="border-t">*/}
-            {/*                    <td className="py-2 pr-4">{r.agent_name}</td>*/}
-            {/*                    <td className="py-2 pr-4">{statusLabel(r.moderation_status ?? '')}</td>*/}
-            {/*                    <td className="py-2 pr-4">{r.missing_phone}</td>*/}
-            {/*                    <td className="py-2 pr-4">{r.bucket_total}</td>*/}
-            {/*                    <td className="py-2 pr-4">{r.missing_share_pct}</td>*/}
-            {/*                    <td className="py-2 pr-4">*/}
-            {/*                        <Link*/}
-            {/*                            href={buildHref('/profile/reports/missing-phone', {*/}
-            {/*                                date_from: filters.date_from || undefined,*/}
-            {/*                                date_to: filters.date_to || undefined,*/}
-            {/*                                offer_type: filters.offer_type,*/}
-            {/*                                moderation_status: filters.moderation_status,*/}
-            {/*                                type_id: filters.type_id,*/}
-            {/*                                location_id: filters.location_id,*/}
-            {/*                                created_by: filters.agent_id,*/}
-            {/*                            })}*/}
-            {/*                            className="text-[#0036A5] hover:underline"*/}
-            {/*                        >*/}
-            {/*                            Открыть список*/}
-            {/*                        </Link>*/}
-            {/*                    </td>*/}
-            {/*                </tr>*/}
-            {/*            ))*/}
-            {/*        )}*/}
-            {/*        </tbody>*/}
-            {/*    </table>*/}
-            {/*</div>*/}
+            {/*/!* Missing phones table (unchanged) *!/*/
+            }
+            {/*<div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">*/
+            }
+            {/*    <div className="flex items-center justify-between mb-3">*/
+            }
+            {/*        <h3 className="font-semibold">Без телефона — по агентам и статусам</h3>*/
+            }
+            {/*        <Link*/
+            }
+            {/*            href={buildHref('/profile/reports/missing-phone', {*/
+            }
+            {/*                date_from: filters.date_from || undefined,*/
+            }
+            {/*                date_to: filters.date_to || undefined,*/
+            }
+            {/*                offer_type: filters.offer_type,*/
+            }
+            {/*                moderation_status: filters.moderation_status,*/
+            }
+            {/*                type_id: filters.type_id,*/
+            }
+            {/*                location_id: filters.location_id,*/
+            }
+            {/*                created_by: filters.agent_id,*/
+            }
+            {/*            })}*/
+            }
+            {/*            className="text-[#0036A5] hover:underline"*/
+            }
+            {/*        >*/
+            }
+            {/*            Открыть список*/
+            }
+            {/*        </Link>*/
+            }
+            {/*    </div>*/
+            }
 
-            {error && (
-                <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl">
-                    {error}
-                </div>
-            )}
+            {/*    <table className="min-w-full text-sm">*/
+            }
+            {/*        <thead>*/
+            }
+            {/*        <tr className="text-left text-gray-500">*/
+            }
+            {/*            <th className="py-2 pr-4">Агент</th>*/
+            }
+            {/*            <th className="py-2 pr-4">Статус</th>*/
+            }
+            {/*            <th className="py-2 pr-4">Без телефона</th>*/
+            }
+            {/*            <th className="py-2 pr-4">Всего (в статусе)</th>*/
+            }
+            {/*            <th className="py-2 pr-4">Доля, %</th>*/
+            }
+            {/*            <th className="py-2 pr-4"></th>*/
+            }
+            {/*        </tr>*/
+            }
+            {/*        </thead>*/
+            }
+            {/*        <tbody>*/
+            }
+            {/*        {missingAgents.length === 0 ? (*/
+            }
+            {/*            <tr>*/
+            }
+            {/*                <td className="py-4 text-gray-500" colSpan={6}>*/
+            }
+            {/*                    Нет данных по текущим фильтрам*/
+            }
+            {/*                </td>*/
+            }
+            {/*            </tr>*/
+            }
+            {/*        ) : (*/
+            }
+            {/*            missingAgents.map((r, i) => (*/
+            }
+            {/*                <tr key={i} className="border-t">*/
+            }
+            {/*                    <td className="py-2 pr-4">{r.agent_name}</td>*/
+            }
+            {/*                    <td className="py-2 pr-4">{statusLabel(r.moderation_status ?? '')}</td>*/
+            }
+            {/*                    <td className="py-2 pr-4">{r.missing_phone}</td>*/
+            }
+            {/*                    <td className="py-2 pr-4">{r.bucket_total}</td>*/
+            }
+            {/*                    <td className="py-2 pr-4">{r.missing_share_pct}</td>*/
+            }
+            {/*                    <td className="py-2 pr-4">*/
+            }
+
         </div>
-    );
+    )
 }
