@@ -501,12 +501,12 @@ export function PropertyDetailsStep({
                     <Input
                         label="Фактическая дата продажи"
                         name="sold_at"
-                        type="number"
+                        type="datetime-local"
                         value={form.sold_at}
                         onChange={onChange}
-                        placeholder="0"
-                        required
                     />
+
+
                 )}
 
                 <Input

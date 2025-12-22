@@ -46,6 +46,7 @@ export interface FormState {
     sold_at: string;
     condition: string;
     apartment_type: string;
+    status_comment: string;
     has_garden: boolean;
     has_parking: boolean;
     is_mortgage_available: boolean;
@@ -81,6 +82,7 @@ export interface CreatePropertyRequest {
     price: string;
     currency: string;
     offer_type: string;
+    status_comment?: string;
     listing_type: string;
     rooms: number;
     total_area: string;

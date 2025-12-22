@@ -2,8 +2,10 @@
 
 import {SelectToggle} from '@/ui-components/SelectToggle';
 import {Button} from '@/ui-components/Button';
-import {SelectOption} from '@/services/add-post/types';
-import {useEffect, useMemo, useState, ChangeEvent} from "react";
+import {type FormState as RawFormState, type PhotoItem, SelectOption} from '@/services/add-post/types';
+import {ChangeEvent, useEffect, useMemo, useState} from "react";
+
+type FormWithPhotos = Omit<RawFormState, 'photos'> & { photos: PhotoItem[] };
 
 interface PropertySelectionStepProps {
     isAgent: boolean;
@@ -23,11 +25,12 @@ interface PropertySelectionStepProps {
     propertyTypes: SelectOption[];
     buildingTypes: SelectOption[];
     onNext: () => void;
+    form: FormWithPhotos;
 }
 
 const BASE_STATUSES: { id: string; name: string }[] = [
-    { id: 'pending', name: 'На модерации' },
-    { id: 'approved', name: 'Одобрено' },
+    {id: 'pending', name: 'На модерации'},
+    {id: 'approved', name: 'Одобрено'},
 ];
 
 const FULL_STATUSES: { id: string; name: string }[] = [
@@ -60,8 +63,12 @@ export function PropertySelectionStep({
                                           propertyTypes,
                                           buildingTypes,
                                           onNext,
+                                          form
                                       }: PropertySelectionStepProps) {
+
     const [statusComment, setStatusComment] = useState<string>('');
+
+
 
     const isValidBase = Boolean(selectedPropertyType && selectedBuildingType && selectedRooms);
 
@@ -70,6 +77,7 @@ export function PropertySelectionStep({
         if (isAgent && selectedListingType !== 'regular' && selectedModerationStatus !== 'pending') {
             setSelectedModerationStatus('pending');
         }
+        setStatusComment(form.status_comment)
     }, [isAgent, selectedListingType, selectedModerationStatus, setSelectedModerationStatus]);
 
     /**
@@ -86,7 +94,7 @@ export function PropertySelectionStep({
 
         // админ может видеть "deleted"
         if (!isAgent) {
-            base.push({ id: 'deleted', name: 'Удалено' });
+            base.push({id: 'deleted', name: 'Удалено'});
         }
 
         // если это создание — только базовые статусы
@@ -96,7 +104,7 @@ export function PropertySelectionStep({
 
         // агент + VIP / urgent → только pending
         if (isAgent && selectedListingType !== 'regular') {
-            return [{ id: 'pending', name: 'На модерации' }];
+            return [{id: 'pending', name: 'На модерации'}];
         }
 
         let list = [...FULL_STATUSES];
@@ -112,7 +120,7 @@ export function PropertySelectionStep({
 
         // админ может удалять (гарантируем, что deleted только один)
         if (!isAgent && !list.some(s => s.id === 'deleted')) {
-            list.push({ id: 'deleted', name: 'Удалено' });
+            list.push({id: 'deleted', name: 'Удалено'});
         }
 
         return list;
@@ -139,6 +147,8 @@ export function PropertySelectionStep({
     const mustProvideComment = STATUS_REQUIRING_COMMENT.includes(selectedModerationStatus);
 
     const isValid = isValidBase && (!mustProvideComment || (statusComment && statusComment.trim() !== ''));
+
+
 
     return (
         <div className="flex flex-col gap-6">
@@ -198,10 +208,14 @@ export function PropertySelectionStep({
             {/* Показываем поле комментария к статусу если выбран требующий статус */}
             {mustProvideComment && (
                 <div className="mb-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Причина смены статуса (обязательно)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Причина смены статуса
+                        (обязательно)</label>
                     <textarea
                         value={statusComment}
-                        onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setStatusComment(e.target.value)}
+                        onChange={(e: ChangeEvent<HTMLTextAreaElement>) => {
+                            form.status_comment = e.target.value
+                            setStatusComment(form.status_comment)
+                        }}
                         rows={4}
                         className="w-full p-3 border rounded-lg text-sm"
                         placeholder="Напишите причину изменения статуса..."

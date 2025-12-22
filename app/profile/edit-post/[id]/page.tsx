@@ -102,6 +102,7 @@ export default function EditPost() {
             object_key: propertyData.object_key,
             offer_type: propertyData.offer_type,
             sold_at: propertyData.sold_at,
+            status_comment: propertyData.status_comment,
             photos: propertyData.photos,
             moderation_status: propertyData.moderation_status,
             created_by: propertyData.created_by ?? propertyData.creator?.id ?? null,
@@ -238,6 +239,7 @@ export default function EditPost() {
                     propertyTypes={formData.propertyTypes}
                     buildingTypes={formData.buildingTypes}
                     onNext={nextStep}
+                    form={formData.form}
                 />
             )}
 

@@ -86,6 +86,7 @@ const initialFormState: FormState = {
     created_by: '',
     address: '',
     sold_at: '',
+    status_comment: '',
 };
 
 interface UseAddPostFormProps {
@@ -183,6 +184,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
                 created_by: propertyData.created_by?.toString() || '',
                 address: propertyData.address || '',
                 sold_at: propertyData.sold_at || '',
+                status_comment: propertyData.status_comment || '',
             });
 
             setSelectedOfferType(propertyData.offer_type || 'sale');
@@ -434,6 +436,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
             sold_at: form.sold_at,
             object_key: form.object_key,
             owner_name: form.owner_name,
+            status_comment: form.status_comment,
         };
 
         // 2) Текущий порядок существующих фото (по id из БД)
