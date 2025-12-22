@@ -111,6 +111,7 @@ export default function AddPost() {
                     propertyTypes={formData.propertyTypes}
                     buildingTypes={formData.buildingTypes}
                     onNext={nextStep}
+                    form={formData.form}
                 />
             )}
 
