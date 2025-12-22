@@ -342,8 +342,8 @@ export function PropertyDetailsStep({
                         onChange={(e) => {
                             console.log('form.is_business_owner', typeof form.is_business_owner)
                             const syntheticEvent = {
-                                target: { name: 'is_business_owner', value: e.target.checked ? '1' : '' },
-                                currentTarget: { name: 'is_business_owner', value: e.target.checked ? '1' : '' },
+                                target: {name: 'is_business_owner', value: e.target.checked ? '1' : ''},
+                                currentTarget: {name: 'is_business_owner', value: e.target.checked ? '1' : ''},
                             } as unknown as ChangeEvent<HTMLInputElement>;
                             onChange(syntheticEvent);
                         }}
@@ -361,8 +361,8 @@ export function PropertyDetailsStep({
                         checked={form.is_full_apartment}
                         onChange={(e) => {
                             const syntheticEvent = {
-                                target: { name: 'is_full_apartment', value: e.target.checked ? '1' : '' },
-                                currentTarget: { name: 'is_full_apartment', value: e.target.checked ? '1' : '' },
+                                target: {name: 'is_full_apartment', value: e.target.checked ? '1' : ''},
+                                currentTarget: {name: 'is_full_apartment', value: e.target.checked ? '1' : ''},
                             } as unknown as ChangeEvent<HTMLInputElement>;
                             onChange(syntheticEvent);
                         }}
@@ -422,8 +422,8 @@ export function PropertyDetailsStep({
                         checked={form.is_for_aura}
                         onChange={(e) => {
                             const syntheticEvent = {
-                                target: { name: 'is_for_aura', value: e.target.checked ? '1' : '' },
-                                currentTarget: { name: 'is_for_aura', value: e.target.checked ? '1' : '' },
+                                target: {name: 'is_for_aura', value: e.target.checked ? '1' : ''},
+                                currentTarget: {name: 'is_for_aura', value: e.target.checked ? '1' : ''},
                             } as unknown as ChangeEvent<HTMLInputElement>;
                             onChange(syntheticEvent);
                         }}
@@ -496,6 +496,18 @@ export function PropertyDetailsStep({
                     onChange={onChange}
                     placeholder="https://youtube.com/..."
                 />
+
+                {isAdmin && (
+                    <Input
+                        label="Фактическая дата продажи"
+                        name="sold_at"
+                        type="number"
+                        value={form.sold_at}
+                        onChange={onChange}
+                        placeholder="0"
+                        required
+                    />
+                )}
 
                 <Input
                     label="Широта"

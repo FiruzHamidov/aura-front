@@ -80,28 +80,39 @@ export function PropertySelectionStep({
      *   * при 'rent' удаляем 'sold' и 'sold_by_owner' и (если нужно) 'denied' — т.к. он про отказ в продаже
      */
 
-    if (!isAgent) {
-        BASE_STATUSES.push({id: 'deleted', name: 'Удалено'});
-    }
     const moderationOptions = useMemo(() => {
-        // Если это создание (isEdit === false) — только базовые статусы (pending / approved)
+        // базовые статусы (делаем копию, не мутируем константу)
+        let base = [...BASE_STATUSES];
+
+        // админ может видеть "deleted"
+        if (!isAgent) {
+            base.push({ id: 'deleted', name: 'Удалено' });
+        }
+
+        // если это создание — только базовые статусы
         if (!isEdit) {
-            return BASE_STATUSES;
+            return base;
         }
 
-        // Если агент и VIP/urgent -> принудительно pending
+        // агент + VIP / urgent → только pending
         if (isAgent && selectedListingType !== 'regular') {
-            return [{id: 'pending', name: 'На модерации'}];
+            return [{ id: 'pending', name: 'На модерации' }];
         }
 
-        let list = FULL_STATUSES.slice();
+        let list = [...FULL_STATUSES];
 
+        // фильтрация по типу сделки
         if (selectedOfferType === 'sale') {
-            // при продаже убираем статусы, которые относятся только к аренде
             list = list.filter(s => s.id !== 'rented');
         } else if (selectedOfferType === 'rent') {
-            // при аренде убираем статусы, которые относятся только к продаже
-            list = list.filter(s => s.id !== 'sold' && s.id !== 'sold_by_owner');
+            list = list.filter(s =>
+                !['sold', 'sold_by_owner'].includes(s.id)
+            );
+        }
+
+        // админ может удалять (гарантируем, что deleted только один)
+        if (!isAgent && !list.some(s => s.id === 'deleted')) {
+            list.push({ id: 'deleted', name: 'Удалено' });
         }
 
         return list;

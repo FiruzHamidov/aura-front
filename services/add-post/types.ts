@@ -43,6 +43,7 @@ export interface FormState {
     total_floors: string;
     year_built: string;
     youtube_link: string;
+    sold_at: string;
     condition: string;
     apartment_type: string;
     has_garden: boolean;
@@ -102,6 +103,7 @@ export interface CreatePropertyRequest {
     owner_name?: string;
     object_key?: string;
     youtube_link?: string;
+    sold_at?: string;
     latitude?: string;
     longitude?: string;
     agent_id?: string;

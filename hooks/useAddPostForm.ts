@@ -85,6 +85,7 @@ const initialFormState: FormState = {
     district: '',
     created_by: '',
     address: '',
+    sold_at: '',
 };
 
 interface UseAddPostFormProps {
@@ -181,6 +182,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
                 district: propertyData.district || '',
                 created_by: propertyData.created_by?.toString() || '',
                 address: propertyData.address || '',
+                sold_at: propertyData.sold_at || '',
             });
 
             setSelectedOfferType(propertyData.offer_type || 'sale');
@@ -429,6 +431,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
             longitude: form.longitude,
             agent_id: form.agent_id,
             title: form.title,
+            sold_at: form.sold_at,
             object_key: form.object_key,
             owner_name: form.owner_name,
         };

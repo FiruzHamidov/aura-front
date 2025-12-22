@@ -28,7 +28,6 @@ export default function EditPost() {
     const [agentsLoading, setAgentsLoading] = useState(false);
 
     // загрузка списка агентов (для админа)
-    // загрузка списка агентов (для админа)
     useEffect(() => {
         if (!user) return;
         if (user.role?.slug !== 'admin') return;
@@ -102,6 +101,7 @@ export default function EditPost() {
             owner_name: propertyData.owner_name,
             object_key: propertyData.object_key,
             offer_type: propertyData.offer_type,
+            sold_at: propertyData.sold_at,
             photos: propertyData.photos,
             moderation_status: propertyData.moderation_status,
             created_by: propertyData.created_by ?? propertyData.creator?.id ?? null,
