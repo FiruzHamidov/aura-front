@@ -504,7 +504,7 @@ export default function ReportsPage() {
             <h1 className="text-2xl font-semibold">Отчёты по объектам</h1>
 
             {/* Фильтры */}
-            <div className="bg-white rounded-2xl shadow  sticky top-20 z-20">
+            <div className="bg-white rounded-2xl shadow">
                 <div className="flex items-center justify-between p-4 cursor-pointer"
                      onClick={() => setFiltersOpen(v => !v)}>
                     <h2 className="text-lg font-semibold">Фильтры</h2>
