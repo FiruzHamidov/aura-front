@@ -395,7 +395,7 @@ export default function ReportsPage() {
 
     const [periodOpen, setPeriodOpen] = useState(true);
     const [periodPreset, setPeriodPreset] = useState<PeriodPreset>('all');
-    const [soldPeriodOpen, setSoldPeriodOpen] = useState(false);
+    const [soldPeriodOpen, setSoldPeriodOpen] = useState(true);
     const [soldPeriodPreset, setSoldPeriodPreset] = useState<PeriodPreset>('all');
 
     const applyPeriodPreset = (preset: PeriodPreset) => {
@@ -591,9 +591,9 @@ export default function ReportsPage() {
                                                 name="date_to"
                                                 type="date"
                                                 label="Продано по"
-                                                value={filters.date_from}
+                                                value={filters.date_to}
                                                 onChange={(e) =>
-                                                    setFilters(s => ({ ...s, date_from: e.target.value }))
+                                                    setFilters(s => ({ ...s, date_to: e.target.value }))
                                                 }
                                             />
                                         </div>
