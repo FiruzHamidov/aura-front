@@ -1,6 +1,7 @@
 'use client';
 
 import {ChangeEvent, useEffect, useMemo, useState} from 'react';
+import dayjs from 'dayjs';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {
     AgentsLeaderboardRow,
@@ -37,6 +38,14 @@ type PriceMetric = 'sum' | 'avg';
 
 type WithMetrics = { sum_price?: number; avg_price?: number };
 type SummaryUnion = SummaryResponse & { sum_price?: number; sum_total_area?: number };
+
+type PeriodPreset =
+    | 'all'
+    | 'today'
+    | 'week'
+    | 'month'
+    | 'prev_month'
+    | 'range';
 
 const STATUS_OPTIONS = [
     {label: 'Черновик', value: 'draft'},
@@ -384,118 +393,351 @@ export default function ReportsPage() {
 
     const [filtersOpen, setFiltersOpen] = useState(true);
 
+    const [periodOpen, setPeriodOpen] = useState(true);
+    const [periodPreset, setPeriodPreset] = useState<PeriodPreset>('all');
+    const [soldPeriodOpen, setSoldPeriodOpen] = useState(false);
+    const [soldPeriodPreset, setSoldPeriodPreset] = useState<PeriodPreset>('all');
+
+    const applyPeriodPreset = (preset: PeriodPreset) => {
+        const today = dayjs();
+
+        setPeriodPreset(preset);
+
+        switch (preset) {
+            case 'today':
+                setFilters(s => ({
+                    ...s,
+                    date_from: today.format('YYYY-MM-DD'),
+                    date_to: today.format('YYYY-MM-DD'),
+                }));
+                break;
+
+            case 'week':
+                setFilters(s => ({
+                    ...s,
+                    date_from: today.startOf('week').format('YYYY-MM-DD'),
+                    date_to: today.endOf('week').format('YYYY-MM-DD'),
+                }));
+                break;
+
+            case 'month':
+                setFilters(s => ({
+                    ...s,
+                    date_from: today.startOf('month').format('YYYY-MM-DD'),
+                    date_to: today.endOf('month').format('YYYY-MM-DD'),
+                }));
+                break;
+
+            case 'prev_month':
+                setFilters(s => ({
+                    ...s,
+                    date_from: today.subtract(1, 'month').startOf('month').format('YYYY-MM-DD'),
+                    date_to: today.subtract(1, 'month').endOf('month').format('YYYY-MM-DD'),
+                }));
+                break;
+
+            case 'range':
+                // пользователь вводит вручную
+                break;
+            case 'all':
+                setFilters(s => ({
+                    ...s,
+                    date_from: '',
+                    date_to: '',
+                }));
+                break;
+        }
+    };
+
+    const applySoldPeriodPreset = (preset: PeriodPreset) => {
+        const today = dayjs();
+
+        setSoldPeriodPreset(preset);
+
+        switch (preset) {
+            case 'today':
+                setFilters(s => ({
+                    ...s,
+                    sold_at_from: today.format('YYYY-MM-DD'),
+                    sold_at_to: today.format('YYYY-MM-DD'),
+                }));
+                break;
+
+            case 'week':
+                setFilters(s => ({
+                    ...s,
+                    sold_at_from: today.startOf('week').format('YYYY-MM-DD'),
+                    sold_at_to: today.endOf('week').format('YYYY-MM-DD'),
+                }));
+                break;
+
+            case 'month':
+                setFilters(s => ({
+                    ...s,
+                    sold_at_from: today.startOf('month').format('YYYY-MM-DD'),
+                    sold_at_to: today.endOf('month').format('YYYY-MM-DD'),
+                }));
+                break;
+
+            case 'prev_month':
+                setFilters(s => ({
+                    ...s,
+                    sold_at_from: today.subtract(1, 'month').startOf('month').format('YYYY-MM-DD'),
+                    sold_at_to: today.subtract(1, 'month').endOf('month').format('YYYY-MM-DD'),
+                }));
+                break;
+
+            case 'range':
+                break;
+            case 'all':
+                setFilters(s => ({
+                    ...s,
+                    sold_at_from: '',
+                    sold_at_to: '',
+                }));
+                break;
+        }
+    };
+
     return (
         <div className=" space-y-6">
             <h1 className="text-2xl font-semibold">Отчёты по объектам</h1>
 
             {/* Фильтры */}
-            <div className="bg-white rounded-2xl shadow p-4 sticky top-20 z-20">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Фильтры</h2>
-                  <button
-                    type="button"
-                    onClick={() => setFiltersOpen(v => !v)}
-                    className="text-sm text-[#0036A5]"
-                  >
-                    {filtersOpen ? 'Свернуть' : 'Развернуть'}
-                  </button>
+            <div className="bg-white rounded-2xl shadow  sticky top-20 z-20">
+                <div className="flex items-center justify-between p-4 cursor-pointer"
+                     onClick={() => setFiltersOpen(v => !v)}>
+                    <h2 className="text-lg font-semibold">Фильтры</h2>
+                    <button
+                        type="button"
+                        className="text-sm text-[#0036A5] cursor-pointer"
+                    >
+                    <span
+                        className={`inline-block transition-transform duration-300 ${
+                            filtersOpen ? 'rotate-180' : 'rotate-0'
+                        }`}
+                    >
+                      ⌃
+                    </span>
+                    </button>
                 </div>
-                {filtersOpen && (
-                  <>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <Input
-                            type="date"
-                            label="Дата с"
-                            name="date_from"
-                            value={filters.date_from}
-                            onChange={(e) => setFilters((s) => ({...s, date_from: e.target.value}))}
-                        />
-                        <Input
-                            type="date"
-                            label="Дата по"
-                            name="date_to"
-                            value={filters.date_to}
-                            onChange={(e) => setFilters((s) => ({...s, date_to: e.target.value}))}
-                        />
-                        <Input
-                            type="date"
-                            label="Продано с"
-                            name="sold_at_from"
-                            value={filters.sold_at_from}
-                            onChange={(e) => setFilters(s => ({ ...s, sold_at_from: e.target.value }))}
-                        />
-                        <Input
-                            type="date"
-                            label="Продано по"
-                            name="sold_at_to"
-                            value={filters.sold_at_to}
-                            onChange={(e) => setFilters(s => ({ ...s, sold_at_to: e.target.value }))}
-                        />
-                    </div>
+                <div
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                        filtersOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+                    }`}
+                >
+                    <div className="p-4">
+                        <div className="flex gap-5">
+                            {/* Период */}
+                            <div className="mb-4 border border-black/30 rounded-2xl p-3">
+                                <div
+                                    className="flex items-center justify-between cursor-pointer"
+                                    onClick={() => setPeriodOpen(v => !v)}
+                                >
+                                    <span className="font-medium">Период</span>
+                                    <span
+                                        className={`transition-transform duration-300 ${
+                                            periodOpen ? 'rotate-180' : 'rotate-0'
+                                        }`}
+                                    >
+                                          ⌃
+                                        </span>
+                                </div>
 
-                    <div className="mt-4">
-                        <MultiSelect
-                            label="Статусы"
-                            value={filters.moderation_status}
-                            options={STATUS_OPTIONS}
-                            onChange={(arr) => setFilters((s) => ({...s, moderation_status: arr}))}
-                        />
-                    </div>
+                                <div
+                                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                                        periodOpen ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'
+                                    }`}
+                                >
+                                    <div className="flex flex-wrap gap-2 mt-3">
+                                        {[
+                                            ['all', 'За весь период'],
+                                            ['today', 'Сегодня'],
+                                            ['week', 'Неделя'],
+                                            ['month', 'Месяц'],
+                                            ['prev_month', 'Прошлый месяц'],
+                                            ['range', 'Диапазон'],
+                                        ].map(([key, label]) => (
+                                            <button
+                                                key={key}
+                                                type="button"
+                                                onClick={() => applyPeriodPreset(key as PeriodPreset)}
+                                                className={`px-3 py-1.5 rounded-full border text-sm transition
+                                ${
+                                                    periodPreset === key
+                                                        ? 'bg-[#0036A5] text-white border-[#0036A5]'
+                                                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+                                                }
+                              `}
+                                            >
+                                                {label}
+                                            </button>
+                                        ))}
+                                    </div>
 
-                    <div className="mt-4">
+                                    {periodPreset === 'range' && (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                            <Input
+                                                name="sold_at_from"
+                                                type="date"
+                                                label="Продано с"
+                                                value={filters.sold_at_from}
+                                                onChange={(e) =>
+                                                    setFilters(s => ({ ...s, sold_at_from: e.target.value }))
+                                                }
+                                            />
 
-                    </div>
+                                            <Input
+                                                name="sold_at_to"
+                                                type="date"
+                                                label="Продано по"
+                                                value={filters.sold_at_to}
+                                                onChange={(e) =>
+                                                    setFilters(s => ({ ...s, sold_at_to: e.target.value }))
+                                                }
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            {/* Период продажи */}
+                            <div className="mb-4 border border-black/30 rounded-2xl p-3">
+                                <div
+                                    className="flex items-center justify-between cursor-pointer"
+                                    onClick={() => setSoldPeriodOpen(v => !v)}
+                                >
+                                    <span className="font-medium">Период продажи</span>
+                                    <span
+                                        className={`transition-transform duration-300 ${
+                                            soldPeriodOpen ? 'rotate-180' : 'rotate-0'
+                                        }`}
+                                    >
+                                    ⌃
+                                </span>
+                                </div>
 
-                    <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="flex flex-col gap-2">
-                            <span className="block mb-2 text-sm text-[#666F8D]">Метрика цены</span>
-                            <div className="flex items-center gap-4">
-                                <label className="inline-flex items-center gap-2">
-                                    <input
-                                        type="radio"
-                                        name="price_metric"
-                                        value="sum"
-                                        checked={priceMetric === 'sum'}
-                                        onChange={() => setPriceMetric('sum')}
-                                    />
-                                    <span>Сумма</span>
-                                </label>
-                                <label className="inline-flex items-center gap-2">
-                                    <input
-                                        type="radio"
-                                        name="price_metric"
-                                        value="avg"
-                                        checked={priceMetric === 'avg'}
-                                        onChange={() => setPriceMetric('avg')}
-                                    />
-                                    <span>Средняя</span>
-                                </label>
+                                <div
+                                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                                        soldPeriodOpen ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'
+                                    }`}
+                                >
+                                    <div className="flex flex-wrap gap-2 mt-3">
+                                        {[
+                                            ['all', 'За весь период'],
+                                            ['today', 'Сегодня'],
+                                            ['week', 'Неделя'],
+                                            ['month', 'Месяц'],
+                                            ['prev_month', 'Прошлый месяц'],
+                                            ['range', 'Диапазон'],
+                                        ].map(([key, label]) => (
+                                            <button
+                                                key={key}
+                                                type="button"
+                                                onClick={() => applySoldPeriodPreset(key as PeriodPreset)}
+                                                className={`px-3 py-1.5 rounded-full border text-sm transition
+                                ${
+                                                    soldPeriodPreset === key
+                                                        ? 'bg-[#0036A5] text-white border-[#0036A5]'
+                                                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+                                                }
+                              `}
+                                            >
+                                                {label}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {soldPeriodPreset === 'range' && (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                            <Input
+                                                name="sold_at_from"
+                                                type="date"
+                                                label="Продано с"
+                                                value={filters.sold_at_from}
+                                                onChange={(e) =>
+                                                    setFilters(s => ({ ...s, sold_at_from: e.target.value }))
+                                                }
+                                            />
+
+                                            <Input
+                                                name="sold_at_to"
+                                                type="date"
+                                                label="Продано по"
+                                                value={filters.sold_at_to}
+                                                onChange={(e) =>
+                                                    setFilters(s => ({ ...s, sold_at_to: e.target.value }))
+                                                }
+                                            />
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                        <Select
-                            label="Агент"
-                            name="agent_id"
-                            value={filters.agent_id}
-                            options={AGENT_OPTIONS}
-                            onChange={(e) =>
-                                setFilters((s) => ({
-                                    ...s,
-                                    agent_id: e.target.value,
-                                }))
-                            }
-                        />
-                    </div>
 
-                    <div className="flex gap-3 mt-4">
-                        <Button onClick={load} loading={loading}>
-                            Применить
-                        </Button>
-                        <Button variant="secondary" onClick={resetFilters}>
-                            Сбросить
-                        </Button>
+
+                        <div className="mt-4 border border-black/30 rounded-2xl p-3">
+                            <MultiSelect
+                                label="Статусы"
+                                value={filters.moderation_status}
+                                options={STATUS_OPTIONS}
+                                onChange={(arr) => setFilters((s) => ({...s, moderation_status: arr}))}
+                            />
+                        </div>
+
+                        <div className="mt-4">
+
+                        </div>
+
+                        <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4 border border-black/30 rounded-2xl p-3">
+                            <div className="flex flex-col gap-2">
+                                <span className="block mb-2 text-sm text-[#666F8D]">Метрика цены</span>
+                                <div className="flex items-center gap-4">
+                                    <label className="inline-flex items-center gap-2">
+                                        <input
+                                            type="radio"
+                                            name="price_metric"
+                                            value="sum"
+                                            checked={priceMetric === 'sum'}
+                                            onChange={() => setPriceMetric('sum')}
+                                        />
+                                        <span>Сумма</span>
+                                    </label>
+                                    <label className="inline-flex items-center gap-2">
+                                        <input
+                                            type="radio"
+                                            name="price_metric"
+                                            value="avg"
+                                            checked={priceMetric === 'avg'}
+                                            onChange={() => setPriceMetric('avg')}
+                                        />
+                                        <span>Средняя</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <Select
+                                label="Агент"
+                                name="agent_id"
+                                value={filters.agent_id}
+                                options={AGENT_OPTIONS}
+                                onChange={(e) =>
+                                    setFilters((s) => ({
+                                        ...s,
+                                        agent_id: e.target.value,
+                                    }))
+                                }
+                            />
+                        </div>
+
+                        <div className="flex gap-3 mt-4">
+                            <Button onClick={load} loading={loading}>
+                                Применить
+                            </Button>
+                            <Button variant="secondary" onClick={resetFilters}>
+                                Сбросить
+                            </Button>
+                        </div>
                     </div>
-                  </>
-                )}
+                </div>
             </div>
 
 
@@ -556,8 +798,12 @@ export default function ReportsPage() {
             {/* Графики */
             }
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <PieStatus data={statusData} dateFrom={filters.date_from} dateTo={filters.date_to} soldDateFrom={filters.sold_at_from} soldDateTo={filters.sold_at_to} agentId={filters.agent_id}/>
-                <BarOffer data={offerData} dateFrom={filters.date_from} dateTo={filters.date_to} soldDateFrom={filters.sold_at_from} soldDateTo={filters.sold_at_to} agentId={filters.agent_id}/>
+                <PieStatus data={statusData} dateFrom={filters.date_from} dateTo={filters.date_to}
+                           soldDateFrom={filters.sold_at_from} soldDateTo={filters.sold_at_to}
+                           agentId={filters.agent_id}/>
+                <BarOffer data={offerData} dateFrom={filters.date_from} dateTo={filters.date_to}
+                          soldDateFrom={filters.sold_at_from} soldDateTo={filters.sold_at_to}
+                          agentId={filters.agent_id}/>
                 {/* Bookings agents report */}
                 <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
                     <div className="flex items-center justify-between mb-3">

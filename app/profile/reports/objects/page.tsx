@@ -263,20 +263,26 @@ export default function ReportsPage() {
             <h1 className="text-2xl font-semibold">Отчёты по объектам</h1>
 
             {/* Фильтры */}
-            <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg font-semibold">Фильтры</h2>
-                <button
-                    type="button"
-                    onClick={() => setFiltersOpen(v => !v)}
-                    className="text-sm text-[#0036A5]"
-                >
-                    {filtersOpen ? 'Свернуть' : 'Развернуть'}
-                </button>
+            <div
+              className="flex items-center justify-between mb-3 cursor-pointer"
+              onClick={() => setFiltersOpen(v => !v)}
+            >
+              <h2 className="text-lg font-semibold">Фильтры</h2>
+              <span
+                className={`inline-block transition-transform duration-300 ${
+                  filtersOpen ? 'rotate-180' : 'rotate-0'
+                }`}
+              >
+                ⌃
+              </span>
             </div>
 
-            {filtersOpen && (
-                <>
-                    <div className="bg-white rounded-2xl shadow p-4">
+            <div
+              className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                filtersOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+              }`}
+            >
+              <div className="bg-white rounded-2xl shadow p-4">
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <Input
                                 type="date"
@@ -417,9 +423,8 @@ export default function ReportsPage() {
                                 Сбросить
                             </Button>
                         </div>
-                    </div>
-                </>
-            )}
+              </div>
+            </div>
 
 
             {error && (
