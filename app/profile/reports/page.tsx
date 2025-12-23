@@ -578,22 +578,22 @@ export default function ReportsPage() {
                                     {periodPreset === 'range' && (
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                                             <Input
-                                                name="sold_at_from"
+                                                name="date_from"
                                                 type="date"
                                                 label="Продано с"
-                                                value={filters.sold_at_from}
+                                                value={filters.date_from}
                                                 onChange={(e) =>
-                                                    setFilters(s => ({ ...s, sold_at_from: e.target.value }))
+                                                    setFilters(s => ({ ...s, date_from: e.target.value }))
                                                 }
                                             />
 
                                             <Input
-                                                name="sold_at_to"
+                                                name="date_to"
                                                 type="date"
                                                 label="Продано по"
-                                                value={filters.sold_at_to}
+                                                value={filters.date_from}
                                                 onChange={(e) =>
-                                                    setFilters(s => ({ ...s, sold_at_to: e.target.value }))
+                                                    setFilters(s => ({ ...s, date_from: e.target.value }))
                                                 }
                                             />
                                         </div>
