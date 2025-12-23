@@ -33,6 +33,8 @@ type FilterState = {
     contract_type_id: (string | number)[];
     roomsFrom?: string;
     roomsTo?: string;
+    sold_at_from?: string;
+    sold_at_to?: string;
 };
 
 type PriceMetric = 'sum' | 'avg';
@@ -85,6 +87,8 @@ export default function ReportsPage() {
             // support reading either `rooms` (single) or `roomsFrom`/`roomsTo` from the query
             roomsFrom: (sp.roomsFrom as string) || (sp.rooms as string) || '',
             roomsTo: (sp.roomsTo as string) || (sp.rooms as string) || '',
+            sold_at_from: (sp.sold_at_from as string) || '',
+            sold_at_to: (sp.sold_at_to as string) || '',
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams?.toString()]);
@@ -100,7 +104,7 @@ export default function ReportsPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [viewMode, setViewMode] = useState<'table' | 'cards'>(() => (searchParams?.get('view') as 'table' | 'cards') ?? 'table');
-
+    const [filtersOpen, setFiltersOpen] = useState(true);
     // agents
     const [agents, setAgents] = useState<Agent[]>([]);
     const [, setAgentsLoading] = useState(false);
@@ -129,12 +133,15 @@ export default function ReportsPage() {
         if (filters.date_to) params.set('date_to', filters.date_to);
         if (filters.interval) params.set('interval', filters.interval);
         if (priceMetric) params.set('price_metric', priceMetric);
+        if (filters.sold_at_from) params.set('sold_at_from', filters.sold_at_from);
+        if (filters.sold_at_to) params.set('sold_at_to', filters.sold_at_to);
         filters.offer_type.forEach((v) => params.append('offer_type', String(v)));
         filters.moderation_status.forEach((v) => params.append('moderation_status', String(v)));
         filters.type_id.forEach((v) => params.append('type_id', String(v)));
         filters.location_id.forEach((v) => params.append('location_id', String(v)));
         filters.agent_id.forEach((v) => params.append('agent_id', String(v)));
         filters.contract_type_id.forEach((v) => params.append('contract_type_id', String(v)));
+
 
         // rooms handling: if user selected a single rooms value (roomsFrom === roomsTo), write `rooms=X`.
         // otherwise expose roomsFrom/roomsTo individually if present.
@@ -176,6 +183,8 @@ export default function ReportsPage() {
             agent_id: [],
             roomsFrom: '',
             roomsTo: '',
+            sold_at_from: '',
+            sold_at_to: '',
         });
         setPriceMetric('sum');
         setPage(1);
@@ -205,6 +214,8 @@ export default function ReportsPage() {
             contract_type_id: filters.contract_type_id || undefined,
             // pass `sort` only when set — avoid sending a sentinel value like 'none'
             sort: sort || undefined,
+            sold_at_from: filters.sold_at_from || undefined,
+            sold_at_to: filters.sold_at_to || undefined,
         } as PropertyFilters;
     }, [filters, page, perPage, sort]);
 
@@ -252,128 +263,164 @@ export default function ReportsPage() {
             <h1 className="text-2xl font-semibold">Отчёты по объектам</h1>
 
             {/* Фильтры */}
-            <div className="bg-white rounded-2xl shadow p-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <Input
-                        type="date"
-                        label="Дата с"
-                        name="date_from"
-                        value={filters.date_from}
-                        onChange={(e) => setFilters((s) => ({...s, date_from: e.target.value}))}
-                    />
-                    <Input
-                        type="date"
-                        label="Дата по"
-                        name="date_to"
-                        value={filters.date_to}
-                        onChange={(e) => setFilters((s) => ({...s, date_to: e.target.value}))}
-                    />
-
-                    <div>
-                        <label className="block mb-2 text-sm text-[#666F8D]">Интервал</label>
-                        <select
-                            value={filters.interval}
-                            onChange={handleIntervalChange}
-                            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
-                        >
-                            <option value="day">День</option>
-                            <option value="week">Неделя</option>
-                            <option value="month">Месяц</option>
-                        </select>
-                    </div>
-
-                    <MultiSelect
-                        label="Тип объявления"
-                        value={filters.offer_type}
-                        options={OFFER_OPTIONS}
-                        onChange={(arr) => setFilters((s) => ({...s, offer_type: arr}))}
-                    />
-                </div>
-
-                <div className="mt-4">
-                    <MultiSelect
-                        label="Статусы"
-                        value={filters.moderation_status}
-                        options={STATUS_OPTIONS}
-                        onChange={(arr) => setFilters((s) => ({...s, moderation_status: arr}))}
-                    />
-                </div>
-
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="flex flex-col gap-2">
-                        <label className="block mb-2 text-sm text-[#666F8D]">Агенты</label>
-                        <select
-                            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
-                            value={filters.agent_id ? String(filters.agent_id) : ''}
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                setFilters((s) => ({...s, agent_id: val ? [val] : []}));
-                            }}
-                        >
-                            <option value="">— Все —</option>
-                            {agents.map((a) => (
-                                <option key={a.id} value={String(a.id)}>
-                                    {a.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <label className="block mb-2 text-sm text-[#666F8D]">Комнат</label>
-                        <select
-                            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
-                            value={filters.roomsFrom ?? ''}
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                if (!val) {
-                                    // cleared -> remove range
-                                    setFilters((s) => ({...s, roomsFrom: '', roomsTo: ''}));
-                                } else {
-                                    // single specific rooms selected -> set both from/to to the same value
-                                    setFilters((s) => ({...s, roomsFrom: val, roomsTo: val}));
-                                }
-                            }}
-                        >
-                            <option value="">— Все —</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6+</option>
-                        </select>
-                        {/*<p className="text-xs text-gray-500 mt-1">Выберите количество комнат. При выборе, например, «2», в фильтре будут установлены roomsFrom=2 и roomsTo=2.</p>*/}
-                    </div>
-
-                    {/* placeholder for additional filters */}
-                    <div className="flex flex-col gap-2">
-                        <label className="block mb-2 text-sm text-[#666F8D]">Тип договора</label>
-                        <select
-                            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
-                            value={filters.contract_type_id ? String(filters.contract_type_id) : ''}
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                setFilters((s) => ({...s, contract_type_id: val ? [val] : []}));
-                            }}
-                        >
-                            <option value="">— Все —</option>
-                            <option value="1">Альтернативный</option>
-                            <option value="2">Эксклюзив</option>
-                            <option value="3">Без договора</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div className="flex gap-3 mt-4">
-                    <Button onClick={load} loading={loading}>
-                        Применить
-                    </Button>
-                    <Button variant="secondary" onClick={resetFilters}>
-                        Сбросить
-                    </Button>
-                </div>
+            <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold">Фильтры</h2>
+                <button
+                    type="button"
+                    onClick={() => setFiltersOpen(v => !v)}
+                    className="text-sm text-[#0036A5]"
+                >
+                    {filtersOpen ? 'Свернуть' : 'Развернуть'}
+                </button>
             </div>
+
+            {filtersOpen && (
+                <>
+                    <div className="bg-white rounded-2xl shadow p-4">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <Input
+                                type="date"
+                                label="Дата с"
+                                name="date_from"
+                                value={filters.date_from}
+                                onChange={(e) => setFilters((s) => ({...s, date_from: e.target.value}))}
+                            />
+                            <Input
+                                type="date"
+                                label="Дата по"
+                                name="date_to"
+                                value={filters.date_to}
+                                onChange={(e) => setFilters((s) => ({...s, date_to: e.target.value}))}
+                            />
+
+                            <Input
+                                type="date"
+                                label="Продано с"
+                                name="sold_at_from"
+                                value={filters.sold_at_from || ''}
+                                onChange={(e) =>
+                                    setFilters((s) => ({ ...s, sold_at_from: e.target.value }))
+                                }
+                            />
+
+                            <Input
+                                type="date"
+                                label="Продано по"
+                                name="sold_at_to"
+                                value={filters.sold_at_to || ''}
+                                onChange={(e) =>
+                                    setFilters((s) => ({ ...s, sold_at_to: e.target.value }))
+                                }
+                            />
+
+                            <div>
+                                <label className="block mb-2 text-sm text-[#666F8D]">Интервал</label>
+                                <select
+                                    value={filters.interval}
+                                    onChange={handleIntervalChange}
+                                    className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                                >
+                                    <option value="day">День</option>
+                                    <option value="week">Неделя</option>
+                                    <option value="month">Месяц</option>
+                                </select>
+                            </div>
+
+                            <MultiSelect
+                                label="Тип объявления"
+                                value={filters.offer_type}
+                                options={OFFER_OPTIONS}
+                                onChange={(arr) => setFilters((s) => ({...s, offer_type: arr}))}
+                            />
+                        </div>
+
+                        <div className="mt-4">
+                            <MultiSelect
+                                label="Статусы"
+                                value={filters.moderation_status}
+                                options={STATUS_OPTIONS}
+                                onChange={(arr) => setFilters((s) => ({...s, moderation_status: arr}))}
+                            />
+                        </div>
+
+                        <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div className="flex flex-col gap-2">
+                                <label className="block mb-2 text-sm text-[#666F8D]">Агенты</label>
+                                <select
+                                    className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                                    value={filters.agent_id ? String(filters.agent_id) : ''}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setFilters((s) => ({...s, agent_id: val ? [val] : []}));
+                                    }}
+                                >
+                                    <option value="">— Все —</option>
+                                    {agents.map((a) => (
+                                        <option key={a.id} value={String(a.id)}>
+                                            {a.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <label className="block mb-2 text-sm text-[#666F8D]">Комнат</label>
+                                <select
+                                    className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                                    value={filters.roomsFrom ?? ''}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        if (!val) {
+                                            // cleared -> remove range
+                                            setFilters((s) => ({...s, roomsFrom: '', roomsTo: ''}));
+                                        } else {
+                                            // single specific rooms selected -> set both from/to to the same value
+                                            setFilters((s) => ({...s, roomsFrom: val, roomsTo: val}));
+                                        }
+                                    }}
+                                >
+                                    <option value="">— Все —</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6+</option>
+                                </select>
+                                {/*<p className="text-xs text-gray-500 mt-1">Выберите количество комнат. При выборе, например, «2», в фильтре будут установлены roomsFrom=2 и roomsTo=2.</p>*/}
+                            </div>
+
+                            {/* placeholder for additional filters */}
+                            <div className="flex flex-col gap-2">
+                                <label className="block mb-2 text-sm text-[#666F8D]">Тип договора</label>
+                                <select
+                                    className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                                    value={filters.contract_type_id ? String(filters.contract_type_id) : ''}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setFilters((s) => ({...s, contract_type_id: val ? [val] : []}));
+                                    }}
+                                >
+                                    <option value="">— Все —</option>
+                                    <option value="1">Альтернативный</option>
+                                    <option value="2">Эксклюзив</option>
+                                    <option value="3">Без договора</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3 mt-4">
+                            <Button onClick={load} loading={loading}>
+                                Применить
+                            </Button>
+                            <Button variant="secondary" onClick={resetFilters}>
+                                Сбросить
+                            </Button>
+                        </div>
+                    </div>
+                </>
+            )}
+
 
             {error && (
                 <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl">{error}</div>
@@ -412,9 +459,11 @@ export default function ReportsPage() {
                             <thead>
                             <tr>
                                 <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort('id')}>ID</th>
-                                <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort('title')}>Название</th>
+                                <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort('title')}>Название
+                                </th>
                                 <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort('price')}>Цена</th>
-                                <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort('agent_id')}>Агент</th>
+                                <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort('agent_id')}>Агент
+                                </th>
                                 <th className="px-3 py-2 cursor-pointer"
                                     onClick={() => toggleSort('moderation_status')}>Статус
                                 </th>
@@ -438,9 +487,9 @@ export default function ReportsPage() {
                                     <td className="px-3 py-3">
                                         <div className="relative inline-block text-left">
                                             <Button variant="circle" size="sm"
-                                                onClick={() => {
-                                                    setOpenRow(openRow === p.id ? null : p.id);
-                                                }}
+                                                    onClick={() => {
+                                                        setOpenRow(openRow === p.id ? null : p.id);
+                                                    }}
                                                     className='rounded-full'
                                             >
                                                 <Ellipsis className=' w-5'/>

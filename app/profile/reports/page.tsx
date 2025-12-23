@@ -29,6 +29,8 @@ type FilterState = {
     location_id: (string | number)[];
     agent_id: string;
     created_by: string;
+    sold_at_from: string;
+    sold_at_to: string;
 };
 
 type PriceMetric = 'sum' | 'avg';
@@ -113,6 +115,8 @@ export default function ReportsPage() {
         location_id: [],
         agent_id: '',
         created_by: '',
+        sold_at_from: '',
+        sold_at_to: '',
     });
 
     const {data: agents} = useGetAgentsQuery();
@@ -141,6 +145,8 @@ export default function ReportsPage() {
         if (f.type_id && f.type_id.length) p.set('type_id', f.type_id.join(','));
         if (f.location_id && f.location_id.length) p.set('location_id', f.location_id.join(','));
         if (f.agent_id) p.set('agent_id', f.agent_id);
+        if (f.sold_at_from) p.set('sold_at_from', f.sold_at_from);
+        if (f.sold_at_to) p.set('sold_at_to', f.sold_at_to);
         return p;
     };
 
@@ -159,6 +165,8 @@ export default function ReportsPage() {
         const type_id = parseArray(searchParams.get('type_id'));
         const location_id = parseArray(searchParams.get('location_id'));
         const agent_id = searchParams.get('agent_id') ?? '';
+        const saf = searchParams.get('sold_at_from') ?? '';
+        const sat = searchParams.get('sold_at_to') ?? '';
 
         setFilters((s) => ({
             ...s,
@@ -170,7 +178,9 @@ export default function ReportsPage() {
             type_id,
             location_id,
             agent_id,
-            created_by: agent_id
+            created_by: agent_id,
+            sold_at_from: saf,
+            sold_at_to: sat,
         }));
         setPendingLoadFromUrl(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -224,6 +234,8 @@ export default function ReportsPage() {
         if (filters.type_id.length) q.type_id = filters.type_id;
         if (filters.location_id.length) q.location_id = filters.location_id;
         if (filters.agent_id) q.agent_id = filters.agent_id;
+        if (filters.sold_at_from) q.sold_at_from = filters.sold_at_from;
+        if (filters.sold_at_to) q.sold_at_to = filters.sold_at_to;
         return q;
     }, [filters, priceMetric]);
 
@@ -345,6 +357,8 @@ export default function ReportsPage() {
             location_id: [],
             agent_id: '',
             created_by: '',
+            sold_at_from: '',
+            sold_at_to: '',
         });
         setPriceMetric('sum');
         // clear query string
@@ -368,110 +382,120 @@ export default function ReportsPage() {
         setFilters((s) => ({...s, interval: value}));
     };
 
+    const [filtersOpen, setFiltersOpen] = useState(true);
+
     return (
         <div className=" space-y-6">
             <h1 className="text-2xl font-semibold">Отчёты по объектам</h1>
 
             {/* Фильтры */}
-            <div className="bg-white rounded-2xl shadow p-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <Input
-                        type="date"
-                        label="Дата с"
-                        name="date_from"
-                        value={filters.date_from}
-                        onChange={(e) => setFilters((s) => ({...s, date_from: e.target.value}))}
-                    />
-                    <Input
-                        type="date"
-                        label="Дата по"
-                        name="date_to"
-                        value={filters.date_to}
-                        onChange={(e) => setFilters((s) => ({...s, date_to: e.target.value}))}
-                    />
-
-                    <div>
-                        <label className="block mb-2 text-sm text-[#666F8D]">Интервал</label>
-                        <select
-                            value={filters.interval}
-                            onChange={handleIntervalChange}
-                            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
-                        >
-                            <option value="day">День</option>
-                            <option value="week">Неделя</option>
-                            <option value="month">Месяц</option>
-                        </select>
+            <div className="bg-white rounded-2xl shadow p-4 sticky top-20 z-20">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Фильтры</h2>
+                  <button
+                    type="button"
+                    onClick={() => setFiltersOpen(v => !v)}
+                    className="text-sm text-[#0036A5]"
+                  >
+                    {filtersOpen ? 'Свернуть' : 'Развернуть'}
+                  </button>
+                </div>
+                {filtersOpen && (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <Input
+                            type="date"
+                            label="Дата с"
+                            name="date_from"
+                            value={filters.date_from}
+                            onChange={(e) => setFilters((s) => ({...s, date_from: e.target.value}))}
+                        />
+                        <Input
+                            type="date"
+                            label="Дата по"
+                            name="date_to"
+                            value={filters.date_to}
+                            onChange={(e) => setFilters((s) => ({...s, date_to: e.target.value}))}
+                        />
+                        <Input
+                            type="date"
+                            label="Продано с"
+                            name="sold_at_from"
+                            value={filters.sold_at_from}
+                            onChange={(e) => setFilters(s => ({ ...s, sold_at_from: e.target.value }))}
+                        />
+                        <Input
+                            type="date"
+                            label="Продано по"
+                            name="sold_at_to"
+                            value={filters.sold_at_to}
+                            onChange={(e) => setFilters(s => ({ ...s, sold_at_to: e.target.value }))}
+                        />
                     </div>
 
-                    <MultiSelect
-                        label="Тип объявления"
-                        value={filters.offer_type}
-                        options={OFFER_OPTIONS}
-                        onChange={(arr) => setFilters((s) => ({...s, offer_type: arr}))}
-                    />
-                </div>
+                    <div className="mt-4">
+                        <MultiSelect
+                            label="Статусы"
+                            value={filters.moderation_status}
+                            options={STATUS_OPTIONS}
+                            onChange={(arr) => setFilters((s) => ({...s, moderation_status: arr}))}
+                        />
+                    </div>
 
-                <div className="mt-4">
-                    <MultiSelect
-                        label="Статусы"
-                        value={filters.moderation_status}
-                        options={STATUS_OPTIONS}
-                        onChange={(arr) => setFilters((s) => ({...s, moderation_status: arr}))}
-                    />
-                </div>
+                    <div className="mt-4">
 
-                <div className="mt-4">
+                    </div>
 
-                </div>
-
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="flex flex-col gap-2">
-                        <span className="block mb-2 text-sm text-[#666F8D]">Метрика цены</span>
-                        <div className="flex items-center gap-4">
-                            <label className="inline-flex items-center gap-2">
-                                <input
-                                    type="radio"
-                                    name="price_metric"
-                                    value="sum"
-                                    checked={priceMetric === 'sum'}
-                                    onChange={() => setPriceMetric('sum')}
-                                />
-                                <span>Сумма</span>
-                            </label>
-                            <label className="inline-flex items-center gap-2">
-                                <input
-                                    type="radio"
-                                    name="price_metric"
-                                    value="avg"
-                                    checked={priceMetric === 'avg'}
-                                    onChange={() => setPriceMetric('avg')}
-                                />
-                                <span>Средняя</span>
-                            </label>
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="flex flex-col gap-2">
+                            <span className="block mb-2 text-sm text-[#666F8D]">Метрика цены</span>
+                            <div className="flex items-center gap-4">
+                                <label className="inline-flex items-center gap-2">
+                                    <input
+                                        type="radio"
+                                        name="price_metric"
+                                        value="sum"
+                                        checked={priceMetric === 'sum'}
+                                        onChange={() => setPriceMetric('sum')}
+                                    />
+                                    <span>Сумма</span>
+                                </label>
+                                <label className="inline-flex items-center gap-2">
+                                    <input
+                                        type="radio"
+                                        name="price_metric"
+                                        value="avg"
+                                        checked={priceMetric === 'avg'}
+                                        onChange={() => setPriceMetric('avg')}
+                                    />
+                                    <span>Средняя</span>
+                                </label>
+                            </div>
                         </div>
+                        <Select
+                            label="Агент"
+                            name="agent_id"
+                            value={filters.agent_id}
+                            options={AGENT_OPTIONS}
+                            onChange={(e) =>
+                                setFilters((s) => ({
+                                    ...s,
+                                    agent_id: e.target.value,
+                                }))
+                            }
+                        />
                     </div>
-                    <Select
-                        label="Агент"
-                        name="agent_id"
-                        value={filters.agent_id}
-                        options={AGENT_OPTIONS}
-                        onChange={(e) =>
-                            setFilters((s) => ({
-                                ...s,
-                                agent_id: e.target.value,
-                            }))
-                        }
-                    />
-                </div>
 
-                <div className="flex gap-3 mt-4">
-                    <Button onClick={load} loading={loading}>
-                        Применить
-                    </Button>
-                    <Button variant="secondary" onClick={resetFilters}>
-                        Сбросить
-                    </Button>
-                </div>
+                    <div className="flex gap-3 mt-4">
+                        <Button onClick={load} loading={loading}>
+                            Применить
+                        </Button>
+                        <Button variant="secondary" onClick={resetFilters}>
+                            Сбросить
+                        </Button>
+                    </div>
+                  </>
+                )}
             </div>
 
 
@@ -532,8 +556,8 @@ export default function ReportsPage() {
             {/* Графики */
             }
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <PieStatus data={statusData} dateFrom={filters.date_from} dateTo={filters.date_to} agentId={filters.agent_id}/>
-                <BarOffer data={offerData} dateFrom={filters.date_from} dateTo={filters.date_to} agentId={filters.agent_id}/>
+                <PieStatus data={statusData} dateFrom={filters.date_from} dateTo={filters.date_to} soldDateFrom={filters.sold_at_from} soldDateTo={filters.sold_at_to} agentId={filters.agent_id}/>
+                <BarOffer data={offerData} dateFrom={filters.date_from} dateTo={filters.date_to} soldDateFrom={filters.sold_at_from} soldDateTo={filters.sold_at_to} agentId={filters.agent_id}/>
                 {/* Bookings agents report */}
                 <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
                     <div className="flex items-center justify-between mb-3">

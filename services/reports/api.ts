@@ -91,6 +91,8 @@ export type ReportsQuery = {
     // даты
     date_from?: string; // 'YYYY-MM-DD'
     date_to?: string;   // 'YYYY-MM-DD'
+    sold_at_to?: string;   // 'YYYY-MM-DD'
+    sold_at_from?: string;   // 'YYYY-MM-DD'
     price_metric?: string;   // 'sum' | 'avg'
     date_field?: "created_at" | "updated_at";
     interval?: "day" | "week" | "month";

@@ -53,6 +53,8 @@ export default function AgentReportPage() {
     const createdBy = search.get('created_by') ?? search.get('agent') ?? '';
     const dateFromParam = search.get('date_from') ?? '';
     const dateToParam = search.get('date_to') ?? '';
+    const soldFromParam = search.get('sold_at_from') ?? '';
+    const soldToParam = search.get('sold_at_to') ?? '';
 
     const [loading, setLoading] = useState(false);
     const [report, setReport] = useState<AgentPropertiesReport | null>(null);
@@ -61,6 +63,8 @@ export default function AgentReportPage() {
 
     const [dateFrom, setDateFrom] = useState<string>(dateFromParam);
     const [dateTo, setDateTo] = useState<string>(dateToParam);
+    const [soldFrom, setSoldFrom] = useState<string>(soldFromParam);
+    const [soldTo, setSoldTo] = useState<string>(soldToParam);
 
     // загрузчик — типизируем и логируем ответ
     const load = async (agentId: string) => {
@@ -77,6 +81,8 @@ export default function AgentReportPage() {
                 agent: agentId,
                 date_from: dateFrom || undefined,
                 date_to: dateTo || undefined,
+                sold_at_from: soldFrom || undefined,
+                sold_at_to: soldTo || undefined,
             });
 
             // логируем приходящие данные для отладки
@@ -103,17 +109,19 @@ export default function AgentReportPage() {
     };
 
     // Перезапускаем загрузку при изменении агента или фильтров даты.
-    // Включаем dateFrom/dateTo — чтобы при applyFilters данные тоже загрузились.
+    // Включаем dateFrom/dateTo/soldFrom/soldTo — чтобы при applyFilters данные тоже загрузились.
     useEffect(() => {
         load(createdBy);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [createdBy, dateFrom, dateTo]);
+    }, [createdBy, dateFrom, dateTo, soldFrom, soldTo]);
 
     const applyFilters = async () => {
         const params = new URLSearchParams();
         if (createdBy) params.set('created_by', createdBy);
         if (dateFrom) params.set('date_from', dateFrom);
         if (dateTo) params.set('date_to', dateTo);
+        if (soldFrom) params.set('sold_at_from', soldFrom);
+        if (soldTo) params.set('sold_at_to', soldTo);
 
         // обновляем URL
         router.push(`/profile/reports/agent?${params.toString()}`);
@@ -125,6 +133,8 @@ export default function AgentReportPage() {
     const clearFilters = async () => {
         setDateFrom('');
         setDateTo('');
+        setSoldFrom('');
+        setSoldTo('');
         const params = new URLSearchParams();
         if (createdBy) params.set('created_by', createdBy);
         router.push(`/profile/reports/agent?${params.toString()}`);
@@ -133,6 +143,7 @@ export default function AgentReportPage() {
         await load(createdBy);
     };
 
+    const [filtersOpen, setFiltersOpen] = useState(true);
 
     const getKindName = (l: Property) => {
         const slug = l.type?.slug;
@@ -255,48 +266,78 @@ export default function AgentReportPage() {
                 </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow p-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <label className="block text-sm text-[#666F8D] mb-2">Агент (created_by)</label>
-                        <input
-                            value={createdBy}
-                            readOnly
-                            className="w-full px-3 py-2 rounded border border-[#BAC0CC] bg-gray-50"
-                        />
-                    </div>
-
-                    <div>
-                        <Input
-                            type="date"
-                            label="Дата с"
-                            name="date_from"
-                            value={dateFrom}
-                            onChange={(e) => setDateFrom(e.target.value)}
-                        />
-                    </div>
-
-                    <div>
-                        <Input
-                            type="date"
-                            label="Дата по"
-                            name="date_to"
-                            value={dateTo}
-                            onChange={(e) => setDateTo(e.target.value)}
-                        />
-                    </div>
-
-                    <div className="flex items-end gap-2">
-                        <Button onClick={() => applyFilters()} loading={loading}>
-                            Применить
-                        </Button>
-                        <Button variant="secondary" onClick={clearFilters}>
-                            Сбросить
-                        </Button>
-
-                    </div>
+            <div className="bg-white rounded-2xl shadow p-4 sticky top-0 z-20">
+                <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-lg font-semibold">Фильтры</h2>
+                    <button
+                        type="button"
+                        onClick={() => setFiltersOpen(v => !v)}
+                        className="text-sm text-[#0036A5]"
+                    >
+                        {filtersOpen ? 'Свернуть' : 'Развернуть'}
+                    </button>
                 </div>
+                {filtersOpen && (
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label className="block text-sm text-[#666F8D] mb-2">Агент (created_by)</label>
+                            <input
+                                value={createdBy}
+                                readOnly
+                                className="w-full px-3 py-2 rounded border border-[#BAC0CC] bg-gray-50"
+                            />
+                        </div>
 
+                        <div>
+                            <Input
+                                type="date"
+                                label="Дата с"
+                                name="date_from"
+                                value={dateFrom}
+                                onChange={(e) => setDateFrom(e.target.value)}
+                            />
+                        </div>
+
+                        <div>
+                            <Input
+                                type="date"
+                                label="Дата по"
+                                name="date_to"
+                                value={dateTo}
+                                onChange={(e) => setDateTo(e.target.value)}
+                            />
+                        </div>
+
+                        <div>
+                            <Input
+                                type="date"
+                                label="Продано с"
+                                name="sold_at_from"
+                                value={soldFrom}
+                                onChange={(e) => setSoldFrom(e.target.value)}
+                            />
+                        </div>
+
+                        <div>
+                            <Input
+                                type="date"
+                                label="Продано по"
+                                name="sold_at_to"
+                                value={soldTo}
+                                onChange={(e) => setSoldTo(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="flex items-end gap-2">
+                            <Button onClick={() => applyFilters()} loading={loading}>
+                                Применить
+                            </Button>
+                            <Button variant="secondary" onClick={clearFilters}>
+                                Сбросить
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {loading && (

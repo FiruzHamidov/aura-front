@@ -1,17 +1,21 @@
 'use client';
 
+import type {ActiveElement, Chart, ChartEvent} from 'chart.js';
 import {
+    ArcElement,
+    BarElement,
+    CategoryScale,
     Chart as ChartJS,
-    ArcElement, Tooltip, Legend,
-    CategoryScale, LinearScale, PointElement, LineElement, BarElement,
+    Legend,
+    LinearScale,
+    LineElement,
+    PointElement,
+    Tooltip,
 } from 'chart.js';
-import type { ChartEvent, ActiveElement } from 'chart.js';
-import { Pie, Line, Bar } from 'react-chartjs-2';
-import type { Chart } from 'chart.js';
+import {Bar, Line, Pie} from 'react-chartjs-2';
+import type React from 'react';
 import {useMemo, useRef} from "react";
 import {useRouter} from "next/navigation";
-
-import type React from 'react';
 
 ChartJS.register(
     ArcElement, Tooltip, Legend,
@@ -35,7 +39,14 @@ const STATUS_OPTIONS = [
     {label: 'Отказано клиентом', value: 'denied'},
 ];
 
-export function PieStatus({ data, dateFrom, dateTo, agentId }: { data: { label: string; value: number }[], dateFrom: string, dateTo: string, agentId: string }) {
+export function PieStatus({data, dateFrom, dateTo, soldDateFrom, soldDateTo, agentId}: {
+    data: { label: string; value: number }[],
+    dateFrom: string,
+    dateTo: string,
+    soldDateFrom: string,
+    soldDateTo: string,
+    agentId: string
+}) {
     const router = useRouter();
     const chartRef = useRef<Chart<'pie', number[], unknown> | null>(null);
 
@@ -72,7 +83,7 @@ export function PieStatus({ data, dateFrom, dateTo, agentId }: { data: { label: 
     const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
         const chart = chartRef.current;
         if (!chart) return;
-        const points = chart.getElementsAtEventForMode(event.nativeEvent, 'nearest', { intersect: true }, false) || [];
+        const points = chart.getElementsAtEventForMode(event.nativeEvent, 'nearest', {intersect: true}, false) || [];
         if (!points || points.length === 0) return;
         const index = points[0].index;
         const label = data[index]?.label;
@@ -82,7 +93,9 @@ export function PieStatus({ data, dateFrom, dateTo, agentId }: { data: { label: 
 
         const params = new URLSearchParams({
             date_from: dateFrom,
+            sold_at_from: soldDateFrom,
             date_to: dateTo,
+            sold_at_to: soldDateTo,
             interval: 'week',
             price_metric: 'sum',
             moderation_status: moderation,
@@ -90,7 +103,6 @@ export function PieStatus({ data, dateFrom, dateTo, agentId }: { data: { label: 
             per_page: '20',
             agent_id: agentId
         });
-
 
 
         // если из внешнего состояния уже передан moderationStatus и он отличается — перезапишем
@@ -102,7 +114,9 @@ export function PieStatus({ data, dateFrom, dateTo, agentId }: { data: { label: 
         <div className="p-4 bg-white rounded-2xl shadow">
             <h3 className="font-semibold mb-3">Распределение по статусам</h3>
             <Pie
-                ref={(el) => { chartRef.current = el as Chart<'pie', number[], unknown> | null }}
+                ref={(el) => {
+                    chartRef.current = el as Chart<'pie', number[], unknown> | null
+                }}
                 data={chartData}
                 onClick={handleCanvasClick}
                 options={options}
@@ -111,7 +125,14 @@ export function PieStatus({ data, dateFrom, dateTo, agentId }: { data: { label: 
     );
 }
 
-export function BarOffer({ data, dateFrom, dateTo, agentId }: { data: { label: string; value: number }[], dateFrom: string, dateTo: string, agentId: string }) {
+export function BarOffer({data, dateFrom, dateTo, soldDateFrom, soldDateTo, agentId}: {
+    data: { label: string; value: number }[],
+    dateFrom: string,
+    dateTo: string,
+    soldDateFrom: string,
+    soldDateTo: string,
+    agentId: string
+}) {
     const router = useRouter();
 
     const chartRef = useRef<Chart<'bar', number[], unknown> | null>(null);
@@ -128,7 +149,7 @@ export function BarOffer({ data, dateFrom, dateTo, agentId }: { data: { label: s
 
     const options = useMemo(() => ({
         responsive: true,
-        plugins: { legend: { display: false } },
+        plugins: {legend: {display: false}},
         // делаем курсор указателем над элементами
         onHover: (event: ChartEvent, elements: ActiveElement[]) => {
             const nativeEvent = event.native as Event | undefined;
@@ -154,7 +175,7 @@ export function BarOffer({ data, dateFrom, dateTo, agentId }: { data: { label: s
         const chart = chartRef.current;
         if (!chart) return;
         // chart.js wants native event
-        const points = chart.getElementsAtEventForMode(event.nativeEvent, 'nearest', { intersect: true }, false) || [];
+        const points = chart.getElementsAtEventForMode(event.nativeEvent, 'nearest', {intersect: true}, false) || [];
         if (!points || points.length === 0) return;
         const index = points[0].index;
         const label = data[index]?.label;
@@ -171,7 +192,9 @@ export function BarOffer({ data, dateFrom, dateTo, agentId }: { data: { label: s
             page: '1',
             per_page: '20',
             date_from: dateFrom,
+            sold_at_from: soldDateFrom,
             date_to: dateTo,
+            sold_at_to: soldDateTo,
             agent_id: agentId
         });
 
@@ -182,7 +205,9 @@ export function BarOffer({ data, dateFrom, dateTo, agentId }: { data: { label: s
         <div className="p-4 bg-white rounded-2xl shadow">
             <h3 className="font-semibold mb-3">Тип объявления</h3>
             <Bar
-                ref={(el) => { chartRef.current = el as Chart<'bar', number[], unknown> | null }}
+                ref={(el) => {
+                    chartRef.current = el as Chart<'bar', number[], unknown> | null
+                }}
                 data={chartData}
                 options={options}
                 onClick={handleCanvasClick}
@@ -191,7 +216,7 @@ export function BarOffer({ data, dateFrom, dateTo, agentId }: { data: { label: s
     );
 }
 
-export function LineTimeSeries({ data }: { data: { x: string; total: number; closed: number }[] }) {
+export function LineTimeSeries({data}: { data: { x: string; total: number; closed: number }[] }) {
     return (
         <div className="p-4 bg-white rounded-2xl shadow">
             <h3 className="font-semibold mb-3">Динамика (всего/продано)</h3>
@@ -217,7 +242,7 @@ export function LineTimeSeries({ data }: { data: { x: string; total: number; clo
                         },
                     ],
                 }}
-                options={{ responsive: true }}
+                options={{responsive: true}}
             />
         </div>
     );
@@ -242,7 +267,11 @@ export function LineTimeSeries({ data }: { data: { x: string; total: number; clo
 //     );
 // }
 
-export function BarRooms({ data, dateFrom, dateTo }: { data: { label: string; value: number }[], dateFrom: string, dateTo: string }) {
+export function BarRooms({data, dateFrom, dateTo}: {
+    data: { label: string; value: number }[],
+    dateFrom: string,
+    dateTo: string
+}) {
     const router = useRouter();
     const chartRef = useRef<Chart<'bar', number[], unknown> | null>(null);
 
@@ -257,7 +286,7 @@ export function BarRooms({ data, dateFrom, dateTo }: { data: { label: string; va
 
     const options = useMemo(() => ({
         responsive: true,
-        plugins: { legend: { display: false } },
+        plugins: {legend: {display: false}},
         onHover: (event: ChartEvent, elements: ActiveElement[]) => {
             const nativeEvent = event.native as Event | undefined;
             const target = nativeEvent ? (nativeEvent.target as HTMLElement | null) : null;
@@ -268,7 +297,7 @@ export function BarRooms({ data, dateFrom, dateTo }: { data: { label: string; va
     const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
         const chart = chartRef.current;
         if (!chart) return;
-        const points = chart.getElementsAtEventForMode(event.nativeEvent, 'nearest', { intersect: true }, false) || [];
+        const points = chart.getElementsAtEventForMode(event.nativeEvent, 'nearest', {intersect: true}, false) || [];
         if (!points || points.length === 0) return;
         const index = points[0].index;
         const label = data[index]?.label;
@@ -291,7 +320,9 @@ export function BarRooms({ data, dateFrom, dateTo }: { data: { label: string; va
         <div className="p-4 bg-white rounded-2xl shadow">
             <h3 className="font-semibold mb-3">Количество комнат</h3>
             <Bar
-                ref={(el) => { chartRef.current = el as Chart<'bar', number[], unknown> | null }}
+                ref={(el) => {
+                    chartRef.current = el as Chart<'bar', number[], unknown> | null
+                }}
                 data={chartData}
                 options={options}
                 onClick={handleCanvasClick}
