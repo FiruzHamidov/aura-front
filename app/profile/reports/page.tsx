@@ -1,6 +1,6 @@
 'use client'
 
-import {ChangeEvent, useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import dayjs from 'dayjs';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {
@@ -82,7 +82,7 @@ type FilterState = {
 type PriceMetric = 'sum' | 'avg';
 
 type WithMetrics = { sum_price?: number; avg_price?: number };
-type SummaryUnion = SummaryResponse & { sum_price?: number; sum_total_area?: number };
+// type SummaryUnion = SummaryResponse & { sum_price?: number; sum_total_area?: number };
 
 type PeriodPreset =
     | 'all'
@@ -104,10 +104,10 @@ const STATUS_OPTIONS = [
     {label: 'Отказано клиентом', value: 'denied'},
 ];
 
-const OFFER_OPTIONS = [
-    {label: 'На продажу', value: 'sale'},
-    {label: 'На Аренду', value: 'rent'},
-];
+// const OFFER_OPTIONS = [
+//     {label: 'На продажу', value: 'sale'},
+//     {label: 'На Аренду', value: 'rent'},
+// ];
 
 
 const OFFER_LABELS: Record<string, string> = {
@@ -268,7 +268,7 @@ export default function ReportsPage() {
     const [, setSeries] = useState<TimeSeriesRow[]>([]);
     const [rooms, setRooms] = useState<RoomsRow[]>([]);
     const [managers, setManagers] = useState<ManagerEfficiencyRow[]>([]);
-    const [leaders, setLeaders] = useState<AgentsLeaderboardRow[]>([]);
+    const [, setLeaders] = useState<AgentsLeaderboardRow[]>([]);
     const [, setError] = useState<string | null>(null);
 
     const [bookingsReport, setBookingsReport] = useState<BookingAgentRow[]>([]);
@@ -445,22 +445,22 @@ export default function ReportsPage() {
         router.replace(pathname);
     };
 
-    const summaryPriceValue = useMemo(() => {
-        if (!summary) return null;
-        const s = summary as SummaryUnion;
-        return priceMetric === 'sum' ? s.sum_price ?? null : s.avg_price ?? null;
-    }, [summary, priceMetric]);
-
-    const summaryAreaValue = useMemo(() => {
-        if (!summary) return null;
-        const s = summary as SummaryUnion;
-        return priceMetric === 'sum' ? s.sum_total_area ?? null : s.avg_total_area ?? null;
-    }, [summary, priceMetric]);
-
-    const handleIntervalChange = (e: ChangeEvent<HTMLSelectElement>) => {
-        const value = e.target.value as FilterState['interval'];
-        setFilters((s) => ({...s, interval: value}));
-    };
+    // const summaryPriceValue = useMemo(() => {
+    //     if (!summary) return null;
+    //     const s = summary as SummaryUnion;
+    //     return priceMetric === 'sum' ? s.sum_price ?? null : s.avg_price ?? null;
+    // }, [summary, priceMetric]);
+    //
+    // const summaryAreaValue = useMemo(() => {
+    //     if (!summary) return null;
+    //     const s = summary as SummaryUnion;
+    //     return priceMetric === 'sum' ? s.sum_total_area ?? null : s.avg_total_area ?? null;
+    // }, [summary, priceMetric]);
+    //
+    // const handleIntervalChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    //     const value = e.target.value as FilterState['interval'];
+    //     setFilters((s) => ({...s, interval: value}));
+    // };
 
     const [filtersOpen, setFiltersOpen] = useState(true);
 
@@ -874,6 +874,9 @@ export default function ReportsPage() {
                 {/*            .join('  ') || '—'}*/}
                 {/*    </div>*/}
                 {/*</div>*/}
+                <BarOffer data={offerData} dateFrom={filters.date_from} dateTo={filters.date_to}
+                          soldDateFrom={filters.sold_at_from} soldDateTo={filters.sold_at_to}
+                          agentId={filters.agent_id}/>
             </div>
 
             {/* Графики */
@@ -882,9 +885,7 @@ export default function ReportsPage() {
                 <PieStatus data={combinedStatusData} dateFrom={filters.date_from} dateTo={filters.date_to}
                            soldDateFrom={filters.sold_at_from} soldDateTo={filters.sold_at_to}
                            agentId={filters.agent_id}/>
-                <BarOffer data={offerData} dateFrom={filters.date_from} dateTo={filters.date_to}
-                          soldDateFrom={filters.sold_at_from} soldDateTo={filters.sold_at_to}
-                          agentId={filters.agent_id}/>
+                <BarRooms data={roomsData} dateFrom={filters.date_from} dateTo={filters.date_to}/>
                 {/* Bookings agents report */}
                 <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
                     <div className="flex items-center justify-between mb-3">
@@ -937,13 +938,7 @@ export default function ReportsPage() {
                         </tbody>
                     </table>
                 </div>
-                <BarRooms data={roomsData} dateFrom={filters.date_from} dateTo={filters.date_to}/>
-            </div>
 
-            {/* Эффективность / Топ */
-            }
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* managers table */}
                 <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
                     <h3 className="font-semibold mb-3">Эффективность агентов</h3>
                     <table className="min-w-full text-sm">
@@ -993,48 +988,56 @@ export default function ReportsPage() {
                     </table>
                 </div>
 
+            </div>
+
+            {/* Эффективность / Топ */
+            }
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* managers table */}
+
+
                 {/* leaders table */}
-                <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
-                <h3 className="font-semibold mb-3">Топ агентов</h3>
-                    <table className="min-w-full text-sm">
-                        <thead>
-                        <tr className="text-left text-gray-500">
-                            <th className="py-2 pr-4">Агент</th>
-                            <th className="py-2 pr-4">Продано</th>
-                            <th className="py-2 pr-4">Арендовано</th>
-                            <th className="py-2 pr-4">Продано владельцем</th>
-                            <th className="py-2 pr-4">Всего</th>
-                            <th className="py-2 pr-4">{priceMetric === 'sum' ? 'Сумма' : 'Ср. цена'}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {leaders.map((r, i) => {
-                            const metricValue =
-                                priceMetric === 'sum'
-                                    ? (r as WithMetrics).sum_price
-                                    : (r as WithMetrics).avg_price;
-                            return (
-                                <tr key={i} className="border-t">
-                                    <td className="py-2 pr-4"><Link
-                                        href={`/profile/reports/objects/?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.agent_name}</Link>
-                                    </td>
-                                    <td className="py-2 pr-4"><Link
-                                        href={`/profile/reports/objects/?agent_id=${r.agent_id}&offer_type=sale&moderation_status=sold&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{Number(r.sold_count ?? 0).toLocaleString()}</Link>
-                                    </td>
-                                    <td className="py-2 pr-4"><Link
-                                        href={`/profile/reports/objects/?agent_id=${r.agent_id}&offer_type=rent&moderation_status=rented&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{Number(r.rented_count ?? 0).toLocaleString()}</Link>
-                                    </td>
-                                    <td className="py-2 pr-4"><Link
-                                        href={`/profile/reports/objects/?agent_id=${r.agent_id}&moderation_status=sold_by_owner&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{Number(r.sold_by_owner_count ?? 0).toLocaleString()}</Link>
-                                    </td>
-                                    <td className="py-2 pr-4">{Number(r.total ?? 0).toLocaleString()}</td>
-                                    <td className="py-2 pr-4">{Number(metricValue ?? 0).toLocaleString()}</td>
-                                </tr>
-                            );
-                        })}
-                        </tbody>
-                    </table>
-                </div>
+                {/*<div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">*/}
+                {/*<h3 className="font-semibold mb-3">Топ агентов</h3>*/}
+                {/*    <table className="min-w-full text-sm">*/}
+                {/*        <thead>*/}
+                {/*        <tr className="text-left text-gray-500">*/}
+                {/*            <th className="py-2 pr-4">Агент</th>*/}
+                {/*            <th className="py-2 pr-4">Продано</th>*/}
+                {/*            <th className="py-2 pr-4">Арендовано</th>*/}
+                {/*            <th className="py-2 pr-4">Продано владельцем</th>*/}
+                {/*            <th className="py-2 pr-4">Всего</th>*/}
+                {/*            <th className="py-2 pr-4">{priceMetric === 'sum' ? 'Сумма' : 'Ср. цена'}</th>*/}
+                {/*        </tr>*/}
+                {/*        </thead>*/}
+                {/*        <tbody>*/}
+                {/*        {leaders.map((r, i) => {*/}
+                {/*            const metricValue =*/}
+                {/*                priceMetric === 'sum'*/}
+                {/*                    ? (r as WithMetrics).sum_price*/}
+                {/*                    : (r as WithMetrics).avg_price;*/}
+                {/*            return (*/}
+                {/*                <tr key={i} className="border-t">*/}
+                {/*                    <td className="py-2 pr-4"><Link*/}
+                {/*                        href={`/profile/reports/objects/?agent_id=${r.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{r.agent_name}</Link>*/}
+                {/*                    </td>*/}
+                {/*                    <td className="py-2 pr-4"><Link*/}
+                {/*                        href={`/profile/reports/objects/?agent_id=${r.agent_id}&offer_type=sale&moderation_status=sold&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{Number(r.sold_count ?? 0).toLocaleString()}</Link>*/}
+                {/*                    </td>*/}
+                {/*                    <td className="py-2 pr-4"><Link*/}
+                {/*                        href={`/profile/reports/objects/?agent_id=${r.agent_id}&offer_type=rent&moderation_status=rented&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{Number(r.rented_count ?? 0).toLocaleString()}</Link>*/}
+                {/*                    </td>*/}
+                {/*                    <td className="py-2 pr-4"><Link*/}
+                {/*                        href={`/profile/reports/objects/?agent_id=${r.agent_id}&moderation_status=sold_by_owner&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{Number(r.sold_by_owner_count ?? 0).toLocaleString()}</Link>*/}
+                {/*                    </td>*/}
+                {/*                    <td className="py-2 pr-4">{Number(r.total ?? 0).toLocaleString()}</td>*/}
+                {/*                    <td className="py-2 pr-4">{Number(metricValue ?? 0).toLocaleString()}</td>*/}
+                {/*                </tr>*/}
+                {/*            );*/}
+                {/*        })}*/}
+                {/*        </tbody>*/}
+                {/*    </table>*/}
+                {/*</div>*/}
             </div>
 
             {/* Agent properties report: single-agent or list */
