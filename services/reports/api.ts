@@ -24,6 +24,7 @@ export type ManagerEfficiencyRow = {
     total: number;
     approved: number;
     sold: number;
+    sold_by_owner: number;
     rented: number;
     close_rate: number;
     avg_price?: number; // либо

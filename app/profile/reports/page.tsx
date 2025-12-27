@@ -954,7 +954,7 @@ export default function ReportsPage() {
                             <th className="py-2 pr-4">Одобрено</th>
                             <th className="py-2 pr-4">Арендовано</th>
                             <th className="py-2 pr-4">Продано</th>
-                            {/*<th className="py-2 pr-4">Продано %</th>*/}
+                            <th className="py-2 pr-4">Продано владельцем</th>
                             <th className="py-2 pr-4">{priceMetric === 'sum' ? 'Сумма' : 'Ср. цена'}</th>
                         </tr>
                         </thead>
@@ -981,6 +981,9 @@ export default function ReportsPage() {
                                     <td className="py-2 pr-4"><Link
                                         href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=sold&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{m.sold}</Link>
                                     </td>
+                                    <td className="py-2 pr-4"><Link
+                                        href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=sold_by_owner&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{m.sold_by_owner}</Link>
+                                    </td>
                                     {/*<td className="py-2 pr-4">{m.close_rate}%</td>*/}
                                     <td className="py-2 pr-4">{Number(metricValue ?? 0).toLocaleString()}</td>
                                 </tr>
@@ -992,7 +995,7 @@ export default function ReportsPage() {
 
                 {/* leaders table */}
                 <div className="p-4 bg-white rounded-2xl shadow overflow-x-auto">
-                    <h3 className="font-semibold mb-3">Топ агентов</h3>
+                <h3 className="font-semibold mb-3">Топ агентов</h3>
                     <table className="min-w-full text-sm">
                         <thead>
                         <tr className="text-left text-gray-500">
