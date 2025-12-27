@@ -743,7 +743,7 @@ export default function ReportsPage() {
 
             {/* Сводные карточки */
             }
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 bg-white rounded-2xl shadow">
                     <div className="text-sm text-gray-500">Всего объектов</div>
                     <div className="text-2xl font-semibold">{summary?.total ?? '—'}</div>
@@ -785,14 +785,14 @@ export default function ReportsPage() {
                     </div>
                 </div>
 
-                <div className="p-4 bg-white rounded-2xl shadow">
-                    <div className="text-sm text-gray-500">На продажу/На аренду</div>
-                    <div className="text-2xl font-semibold">
-                        {(summary?.by_offer_type ?? [])
-                            .map((x) => `${offerLabel(x.offer_type)}: ${Number(x.cnt || 0).toLocaleString()}`)
-                            .join('  ') || '—'}
-                    </div>
-                </div>
+                {/*<div className="p-4 bg-white rounded-2xl shadow">*/}
+                {/*    <div className="text-sm text-gray-500">На продажу/На аренду</div>*/}
+                {/*    <div className="text-2xl font-semibold">*/}
+                {/*        {(summary?.by_offer_type ?? [])*/}
+                {/*            .map((x) => `${offerLabel(x.offer_type)}: ${Number(x.cnt || 0).toLocaleString()}`)*/}
+                {/*            .join('  ') || '—'}*/}
+                {/*    </div>*/}
+                {/*</div>*/}
             </div>
 
             {/* Графики */
