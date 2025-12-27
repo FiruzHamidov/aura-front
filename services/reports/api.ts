@@ -8,6 +8,7 @@ export type RoomsRow = { rooms: number; cnt: number };
 export type SummaryResponse = {
     total: number;
     by_status: { moderation_status: string; cnt: number }[];
+    sold_status: { moderation_status: string; cnt: number }[];
     by_offer_type: { offer_type: string; cnt: number }[];
     avg_price: number;
     avg_total_area: number;

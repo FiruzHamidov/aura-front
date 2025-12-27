@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import {ChangeEvent, useEffect, useMemo, useState} from 'react';
 import dayjs from 'dayjs';
@@ -19,6 +19,51 @@ import {Input} from '@/ui-components/Input';
 import Link from "next/link";
 import {useGetAgentsQuery} from "@/services/users/hooks";
 import {Select} from "@/ui-components/Select";
+
+const detectPeriodPreset = (from?: string, to?: string): PeriodPreset => {
+    if (!from && !to) return 'all';
+
+    const f = dayjs(from);
+    const t = dayjs(to);
+    const today = dayjs();
+
+    if (!f.isValid() || !t.isValid()) return 'all';
+
+    if (f.isSame(today, 'day') && t.isSame(today, 'day')) {
+        return 'today';
+    }
+
+    if (
+        f.isSame(today.startOf('week'), 'day') &&
+        t.isSame(today.endOf('week'), 'day')
+    ) {
+        return 'week';
+    }
+
+    if (
+        f.isSame(today.startOf('month'), 'day') &&
+        t.isSame(today.endOf('month'), 'day')
+    ) {
+        return 'month';
+    }
+
+    return 'range';
+};
+
+// Маппинг UI-пресетов периода к API-интервалу
+const presetToInterval = (preset: PeriodPreset): FilterState['interval'] => {
+    switch (preset) {
+        case 'today':
+            return 'day';
+        case 'week':
+            return 'week';
+        case 'month':
+        case 'prev_month':
+            return 'month';
+        default:
+            return 'week'; // all / range
+    }
+};
 
 type FilterState = {
     date_from: string;
@@ -168,7 +213,7 @@ export default function ReportsPage() {
         if (!searchParams) return;
         const df = searchParams.get('date_from') ?? '';
         const dt = searchParams.get('date_to') ?? '';
-        const interval = (searchParams.get('interval') as FilterState['interval']) ?? 'week';
+        // interval is no longer read from URL
         const offer_type = parseArray(searchParams.get('offer_type'));
         const moderation_status = parseArray(searchParams.get('moderation_status'));
         const type_id = parseArray(searchParams.get('type_id'));
@@ -177,11 +222,14 @@ export default function ReportsPage() {
         const saf = searchParams.get('sold_at_from') ?? '';
         const sat = searchParams.get('sold_at_to') ?? '';
 
+        const preset = detectPeriodPreset(df, dt);
+        setPeriodPreset(preset);
+
         setFilters((s) => ({
             ...s,
             date_from: df,
             date_to: dt,
-            interval,
+            interval: presetToInterval(preset),
             offer_type,
             moderation_status,
             type_id,
@@ -331,10 +379,33 @@ export default function ReportsPage() {
         () =>
             (summary?.by_status ?? []).map((r) => ({
                 label: statusLabel(r.moderation_status ?? ''),
+                origLabel: r.moderation_status ?? '',
                 value: Number(r.cnt || 0),
             })),
         [summary]
     );
+
+    const soldStatusData = useMemo(
+        () =>
+            (summary?.sold_status ?? []).map((r) => ({
+                label: statusLabel(r.moderation_status ?? ''),
+                origLabel: r.moderation_status ?? '',
+                value: Number(r.cnt || 0),
+            })),
+        [summary]
+    );
+
+    const combinedStatusData = useMemo(() => {
+        const base = summary?.by_status ?? [];
+        const sold = summary?.sold_status ?? [];
+
+        return [...base, ...sold].map((r) => ({
+            label: statusLabel(r.moderation_status ?? ''),
+            origLabel: r.moderation_status ?? '',
+            value: Number(r.cnt || 0),
+            status: r.moderation_status, // полезно для кликов / фильтров
+        }));
+    }, [summary]);
 
     const offerData = useMemo(
         () =>
@@ -751,10 +822,20 @@ export default function ReportsPage() {
                     <div>
                         {statusData.map((s, i) => {
                             return (
-                                <div key={i} className='flex justify-between'>
+                                <Link href={`/profile/reports/objects/?agent_id=${filters.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}&moderation_status=${s.origLabel}`} key={i} className='flex justify-between'>
+
                                     <span>{s.label}</span>
                                     <span className='text-xl font-semibold'>{s.value}</span>
-                                </div>
+                                </Link>
+                            );
+                        })}
+                        {soldStatusData.map((s, i) => {
+                            return (
+                                <Link href={`/profile/reports/objects/?agent_id=${filters.agent_id}&sold_at_from=${filters.date_from}&sold_at_to=${filters.date_to}&moderation_status=${s.origLabel}`} key={i} className='flex justify-between'>
+
+                                <span>{s.label}</span>
+                                    <span className='text-xl font-semibold'>{s.value}</span>
+                                </Link>
                             );
                         })}
                     </div>
@@ -764,26 +845,26 @@ export default function ReportsPage() {
                 {/*   */}
                 {/*</div>*/}
 
-                <div className="p-4 bg-white rounded-2xl shadow">
-                    <div className="text-sm text-gray-500">
-                        {priceMetric === 'sum' ? 'Сумма цен' : 'Средняя цена'}
-                    </div>
-                    <div className="text-2xl font-semibold">
-                        {summaryPriceValue !== null && summaryPriceValue !== undefined
-                            ? Number(summaryPriceValue).toLocaleString()
-                            : '—'}
-                    </div>
-                    <div className="text-sm text-gray-500 mt-3">
-                        {priceMetric === 'sum' ? 'Суммарная площадь' : 'Средняя площадь'}
-                    </div>
-                    <div className="text-2xl font-semibold">
-                        {summaryAreaValue !== null && summaryAreaValue !== undefined
-                            ? priceMetric === 'sum'
-                                ? Number(summaryAreaValue).toLocaleString()
-                                : Number(summaryAreaValue).toFixed(2)
-                            : '—'}
-                    </div>
-                </div>
+                {/*<div className="p-4 bg-white rounded-2xl shadow">*/}
+                {/*    <div className="text-sm text-gray-500">*/}
+                {/*        {priceMetric === 'sum' ? 'Сумма цен' : 'Средняя цена'}*/}
+                {/*    </div>*/}
+                {/*    <div className="text-2xl font-semibold">*/}
+                {/*        {summaryPriceValue !== null && summaryPriceValue !== undefined*/}
+                {/*            ? Number(summaryPriceValue).toLocaleString()*/}
+                {/*            : '—'}*/}
+                {/*    </div>*/}
+                {/*    <div className="text-sm text-gray-500 mt-3">*/}
+                {/*        {priceMetric === 'sum' ? 'Суммарная площадь' : 'Средняя площадь'}*/}
+                {/*    </div>*/}
+                {/*    <div className="text-2xl font-semibold">*/}
+                {/*        {summaryAreaValue !== null && summaryAreaValue !== undefined*/}
+                {/*            ? priceMetric === 'sum'*/}
+                {/*                ? Number(summaryAreaValue).toLocaleString()*/}
+                {/*                : Number(summaryAreaValue).toFixed(2)*/}
+                {/*            : '—'}*/}
+                {/*    </div>*/}
+                {/*</div>*/}
 
                 {/*<div className="p-4 bg-white rounded-2xl shadow">*/}
                 {/*    <div className="text-sm text-gray-500">На продажу/На аренду</div>*/}
@@ -798,7 +879,7 @@ export default function ReportsPage() {
             {/* Графики */
             }
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <PieStatus data={statusData} dateFrom={filters.date_from} dateTo={filters.date_to}
+                <PieStatus data={combinedStatusData} dateFrom={filters.date_from} dateTo={filters.date_to}
                            soldDateFrom={filters.sold_at_from} soldDateTo={filters.sold_at_to}
                            agentId={filters.agent_id}/>
                 <BarOffer data={offerData} dateFrom={filters.date_from} dateTo={filters.date_to}
