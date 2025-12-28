@@ -29,14 +29,16 @@ export const PriceAndBuilder: FC<PriceAndBuilderProps> = ({
 
   // Format price display
   const priceDisplay = stats?.total_price?.formatted || 'По запросу';
+  const pricePerSqm = stats?.price_per_sqm?.formatted;
 
   return (
     <div className="lg:w-1/3">
       <div className="bg-white rounded-[22px] py-[15px] px-[22px] mb-5">
-        <div className="text-[#666F8D] text-lg mb-1.5">Стоимость</div>
+        <div className="text-[#666F8D] text-lg mb-1.5">Цена</div>
         <div className="text-[32px] font-bold text-[#0036A5] mb-1.5">
           {priceDisplay}
         </div>
+        <div className="text-lg text-[#666F8D]">{pricePerSqm}</div>
         {building.installment_available && (
           <div className="text-[#666F8D] text-sm">Доступна рассрочка</div>
         )}
