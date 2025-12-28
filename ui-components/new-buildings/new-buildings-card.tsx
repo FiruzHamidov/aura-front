@@ -79,7 +79,7 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
             {displayImages.map((img, index) => (
               <div className="min-w-full relative" key={index}>
                 <Link href={href}>
-                  <div className="relative aspect-[4/3] w-full overflow-hidden">
+                  <div className="relative aspect-4/3 w-full overflow-hidden">
                     <Image
                       src={img.url}
                       alt={img.alt}
@@ -121,7 +121,7 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
         <Link href={href}>
           <h3 className="text-2xl font-bold mb-0.5">{title}</h3>
         </Link>
-        <div className="text-[#666F8D] text-sm mb-3">{subtitle}</div>
+        {/* <div className="text-[#666F8D] text-sm mb-3">{subtitle}</div> */}
 
         <div className="space-y-4 mb-5">
           {apartmentOptions.map((option, index) => (

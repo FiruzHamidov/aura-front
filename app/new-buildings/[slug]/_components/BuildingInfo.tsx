@@ -186,7 +186,7 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({ building, photos }) => {
           {displayImages.map((image, index) => (
             <button
               key={index}
-              className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-colors md:h-[120px] w-[120px] cursor-pointer hover:opacity-80 flex-shrink-0 ${
+              className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-colors md:h-[120px] w-[120px] cursor-pointer hover:opacity-80 shrink-0 ${
                 selectedIndex === index
                   ? 'border-[#0036A5] border-4'
                   : 'border-transparent hover:border-[#0036A5]/50'
@@ -272,6 +272,12 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({ building, photos }) => {
                   {Number(building.latitude).toFixed(4)},{' '}
                   {Number(building.longitude).toFixed(4)}
                 </span>
+              </div>
+            )}
+            {building.ceiling_height && (
+              <div className="flex justify-between border-b border-[#E3E6EA] pb-2">
+                <span className="text-[#666F8D]">Высота потолков</span>
+                <span>{building.ceiling_height} м</span>
               </div>
             )}
           </div>
