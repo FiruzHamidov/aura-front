@@ -1,3 +1,5 @@
+'use client';
+
 import { FC } from 'react';
 import BusIcon from '@/icons/BusIcon';
 import ChildZoneIcon from '@/icons/ChildZoneIcon';
@@ -9,6 +11,7 @@ import MosqueIcon from '@/icons/MosqueIcon';
 import ParkIcon from '@/icons/ParkIcon';
 import SchoolIcon from '@/icons/SchoolIcon';
 import { NewBuilding, NearbyPlace } from '@/services/new-buildings/types';
+import { YMaps, Map, Placemark } from '@pbe/react-yandex-maps';
 
 interface ComfortNearbyProps {
   building: NewBuilding;
@@ -84,18 +87,29 @@ export const ComfortNearby: FC<ComfortNearbyProps> = ({ building }) => {
       </h2>
 
       {building.latitude && building.longitude ? (
-        <div className="relative h-[400px] w-full rounded-xl overflow-hidden">
-          <iframe
-            src={`https://www.google.com/maps?q=${building.latitude},${building.longitude}&hl=ru&z=15&output=embed`}
-            width="100%"
-            height="100%"
-            style={{ border: 0 }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title="Расположение на карте"
-          />
-        </div>
+        <YMaps>
+          <div className="relative h-[400px] w-full rounded-xl overflow-hidden">
+            <Map
+              defaultState={{
+                center: [
+                  parseFloat(building.latitude.toString()),
+                  parseFloat(building.longitude.toString()),
+                ],
+                zoom: 15,
+              }}
+              width="100%"
+              height="100%"
+              modules={['placemark']}
+            >
+              <Placemark
+                geometry={[
+                  parseFloat(building.latitude.toString()),
+                  parseFloat(building.longitude.toString()),
+                ]}
+              />
+            </Map>
+          </div>
+        </YMaps>
       ) : (
         <div className="relative h-[400px] w-full rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
           <p className="text-[#667085]">Координаты местоположения не указаны</p>
