@@ -6,6 +6,7 @@ import { STORAGE_URL } from '@/constants/base-url';
 import InstagramIcon from '@/icons/InstagramIcon';
 import WhatsAppIcon from '@/icons/Whatsapp';
 import FacebookBlueIcon from '@/icons/FacebookBlueIcon';
+import { HammerIcon } from 'lucide-react';
 
 interface DeveloperCardProps {
   developer: Developer;
@@ -32,13 +33,17 @@ const DeveloperCard: FC<DeveloperCardProps> = ({ developer }) => {
       className="bg-white rounded-[22px] p-6 transition-shadow block hover:shadow-lg"
     >
       <div className="flex items-center gap-4 mb-4">
-        <div className="relative w-[80px] h-[80px] rounded-full overflow-hidden flex-shrink-0">
-          <Image
-            src={logoUrl}
-            alt={developer.name}
-            fill
-            className="object-cover"
-          />
+        <div className="relative w-20 h-20 rounded-full overflow-hidden shrink-0">
+          {developer.logo_path ? (
+            <Image
+              src={logoUrl}
+              alt={developer.name}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <HammerIcon className="w-full h-full rounded-full" />
+          )}
         </div>
         <div className="flex-1">
           <h3 className="text-xl font-bold mb-1">{developer.name}</h3>

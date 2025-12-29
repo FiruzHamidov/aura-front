@@ -8,6 +8,7 @@ import { NewBuildingCardProps } from './types';
 import BedIcon from '@/icons/BedIcon';
 import PlanIcon from '@/icons/PlanIcon';
 import { STORAGE_URL } from '@/constants/base-url';
+import { HammerIcon } from 'lucide-react';
 
 const NewBuildingCard: FC<NewBuildingCardProps> = ({
   id,
@@ -152,12 +153,16 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
           <Link href={`/developers/${developer.id}`}>
             <div className="flex items-center">
               <div className="w-[60px] h-[60px] relative mr-3 overflow-hidden rounded-full">
-                <Image
-                  src={`${STORAGE_URL}/${developer.logo_path}`}
-                  alt={`${developer.name} logo`}
-                  fill
-                  className="object-cover"
-                />
+                {developer.logo_path ? (
+                  <Image
+                    src={`${STORAGE_URL}/${developer.logo_path}`}
+                    alt={`${developer.name} logo`}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <HammerIcon className="w-full h-full rounded-full" />
+                )}
               </div>
               <span className="text-lg">{developer.name}</span>
             </div>

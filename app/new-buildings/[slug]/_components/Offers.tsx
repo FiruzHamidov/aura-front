@@ -1,5 +1,7 @@
-import { FC, useState } from 'react';
+import { FC, useState, useRef, ChangeEvent, FormEvent, useEffect } from 'react';
 import Image from 'next/image';
+import useEmblaCarousel from 'embla-carousel-react';
+import { STORAGE_URL } from '@/constants/base-url';
 import { X } from 'lucide-react';
 import type { NewBuilding } from '@/services/new-buildings/types';
 import BedIcon from '@/icons/BedIcon';
@@ -23,7 +25,7 @@ const formatCompletionQuarter = (dateStr?: string | null) => {
   }
 };
 
-const BlockTabs: React.FC<{
+const BlockTabs: FC<{
   blocks: any[];
   selected: number | null;
   onSelect: (id: number | null) => void;
@@ -60,11 +62,183 @@ const BlockTabs: React.FC<{
   );
 };
 
+const UnitCarousel: FC<{
+  photos: { id?: number; path: string }[];
+  onOpenGallery: (
+    photos: { id?: number; path: string }[],
+    index: number
+  ) => void;
+}> = ({ photos, onOpenGallery }) => {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
+  const imgUrls =
+    photos && photos.length
+      ? photos.map((p) => `${STORAGE_URL}/${p.path}`)
+      : ['/images/no-image.jpg'];
+
+  return (
+    <div className="embla">
+      <div className="embla__viewport overflow-hidden" ref={emblaRef}>
+        <div className="embla__container flex">
+          {imgUrls.map((src, i) => (
+            <div key={i} className="embla__slide min-w-full relative">
+              <button
+                type="button"
+                onClick={() => onOpenGallery(photos, i)}
+                className="block w-full h-full"
+              >
+                <div className="relative w-full h-20 md:h-20 bg-[#F0F7FF] rounded">
+                  <Image
+                    src={src}
+                    alt={`Фото ${i + 1}`}
+                    fill
+                    className="object-contain p-2 cursor-pointer"
+                  />
+                </div>
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ModalCarousel: FC<{ images: string[]; startIndex?: number }> = ({
+  images,
+  startIndex = 0,
+}) => {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
+
+  useEffect(() => {
+    if (emblaApi) {
+      emblaApi.scrollTo(startIndex);
+    }
+  }, [emblaApi, startIndex]);
+
+  return (
+    <div className="embla h-full">
+      <div className="embla__viewport overflow-hidden h-full" ref={emblaRef}>
+        <div className="embla__container flex h-full">
+          {images.map((src, i) => (
+            <div
+              key={i}
+              className="embla__slide min-w-full relative h-full flex items-center justify-center"
+            >
+              <div className="relative w-full h-full">
+                <Image
+                  src={src}
+                  alt={`Фото ${i + 1}`}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const Offers: FC<OffersProps> = ({ building }) => {
   const units = building.units || [];
   const [selectedBlockId, setSelectedBlockId] = useState<number | null>(null);
   const [expandedRooms, setExpandedRooms] = useState<Set<number>>(new Set());
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [modalPhotos, setModalPhotos] = useState<string[]>([]);
+  const [modalIndex, setModalIndex] = useState<number>(0);
+
+  const [formData, setFormData] = useState({ name: '', phone: '' });
+  const [errors, setErrors] = useState<{ name?: string; phone?: string }>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const nameRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+
+  type FormState = {
+    name: string;
+    phone: string;
+  };
+
+  type FormErrors = Partial<Record<keyof FormState, string>>;
+  type FieldName = keyof FormState;
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const field = name as FieldName;
+
+    setFormData((prev) => ({ ...prev, [field]: value }));
+
+    setErrors((prev) => {
+      const next: FormErrors = { ...prev };
+      if (field in next) delete next[field];
+      return next;
+    });
+  };
+
+  const validate = () => {
+    const t = (s: string) => s.trim();
+    const next: { name?: string; phone?: string } = {};
+
+    if (!t(formData.name)) next.name = 'Укажите имя';
+    else if (!/^[\p{L}\s'-]{2,}$/u.test(t(formData.name)))
+      next.name = 'Имя должно содержать минимум 2 буквы';
+
+    const digits = formData.phone.replace(/[^\d+]/g, '');
+    if (!t(formData.phone)) next.phone = 'Укажите телефон';
+    else if (!/^\+?\d{7,15}$/.test(digits))
+      next.phone = 'Неверный формат телефона';
+
+    return next;
+  };
+
+  const focusFirstError = (errs: typeof errors) => {
+    if (errs.name) nameRef.current?.focus();
+    else if (errs.phone) phoneRef.current?.focus();
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+
+    const next = validate();
+    if (Object.keys(next).length) {
+      setErrors(next);
+      focusFirstError(next);
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const payload = {
+      ...formData,
+      title: 'Оставьте заявку',
+      pageUrl: typeof window !== 'undefined' ? window.location.href : '',
+    };
+
+    try {
+      const res = await fetch('/api/telegram/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!json.ok) {
+        console.error(json.error);
+        alert('Не удалось отправить заявку. Попробуйте ещё раз.');
+        return;
+      }
+
+      setFormData({ name: '', phone: '' });
+      setErrors({});
+      alert('Заявка отправлена! Мы скоро свяжемся с вами.');
+    } catch (err) {
+      console.error(err);
+      alert('Ошибка сети. Попробуйте позже.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const toggleRoom = (rooms: number) => {
     const newExpanded = new Set(expandedRooms);
@@ -251,17 +425,17 @@ export const Offers: FC<OffersProps> = ({ building }) => {
                             className="bg-white rounded-lg overflow-hidden border border-[#E3E6EA]"
                           >
                             <div className="flex gap-3 p-3 border-b border-[#E3E6EA]">
-                              <div className="relative w-20 h-20 shrink-0 bg-[#F0F7FF] rounded">
-                                <Image
-                                  fill
-                                  onClick={() =>
-                                    setSelectedImage(
-                                      '/images/buildings/plans/1.png'
-                                    )
-                                  }
-                                  src="/images/buildings/plans/1.png"
-                                  alt={unit.name ?? `Plan ${unit.id}`}
-                                  className="object-contain p-2 cursor-pointer"
+                              <div className="relative w-20 h-20 shrink-0">
+                                <UnitCarousel
+                                  photos={unit.photos || []}
+                                  onOpenGallery={(photos, i) => {
+                                    const urls = (photos || []).map(
+                                      (p) => `${STORAGE_URL}/${p.path}`
+                                    );
+                                    setModalPhotos(urls);
+                                    setModalIndex(i);
+                                    setSelectedImage(urls[i] ?? null);
+                                  }}
                                 />
                               </div>
                               <div className="flex-1">
@@ -412,26 +586,146 @@ export const Offers: FC<OffersProps> = ({ building }) => {
         ))}
       </div> */}
 
-      {selectedImage && (
+      {(selectedImage || (modalPhotos && modalPhotos.length > 0)) && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
-          onClick={() => setSelectedImage(null)}
+          className="fixed inset-0 bg-black/30  z-50 flex items-center justify-center p-4"
+          onClick={() => {
+            setSelectedImage(null);
+            setModalPhotos([]);
+            setModalIndex(0);
+          }}
         >
-          <div className="relative max-w-7xl max-h-[90vh] w-full h-full">
+          <div
+            className="relative bg-white rounded-2xl w-full max-w-7xl max-h-[90vh] overflow-hidden grid grid-cols-1 md:grid-cols-2 md:divide-x md:divide-dashed md:divide-gray-200"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
-              onClick={() => setSelectedImage(null)}
-              className="absolute top-4 right-4 z-10 bg-white rounded-full p-2 hover:bg-gray-100 transition-colors"
+              onClick={() => {
+                setSelectedImage(null);
+                setModalPhotos([]);
+                setModalIndex(0);
+              }}
+              className="absolute top-4 right-4 z-10 bg-white rounded-full p-2 hover:bg-gray-100 transition-colors cursor-pointer"
             >
               <X className="w-6 h-6 text-gray-700" />
             </button>
-            <div className="relative w-full h-full">
-              <Image
-                src={selectedImage}
-                alt="Plan preview"
-                fill
-                className="object-contain"
-                onClick={(e) => e.stopPropagation()}
-              />
+
+            <div className="p-6 md:p-10 flex items-center justify-center">
+              <div className="relative w-full h-[420px] md:h-[520px] bg-[#F7FAFD] rounded-lg overflow-hidden">
+                {/* Modal carousel using embla */}
+                {modalPhotos && modalPhotos.length > 0 && (
+                  <ModalCarousel images={modalPhotos} startIndex={modalIndex} />
+                )}
+                {/* Fallback single image */}
+                {(!modalPhotos || modalPhotos.length === 0) &&
+                  selectedImage && (
+                    <Image
+                      src={selectedImage}
+                      alt="Plan preview"
+                      fill
+                      className="object-contain"
+                    />
+                  )}
+              </div>
+            </div>
+
+            <div className="flex flex-col lg:flex-row lg:justify-center lg:gap-52 max-w-[450px] mx-auto">
+              <div className="bg-white rounded-t-2xl lg:rounded-2xl pt-6 pb-8 px-6 lg:pt-[30px] lg:pb-[46px] lg:px-10 lg:my-[35px]">
+                <div className="mb-4 lg:mb-4">
+                  <h3 className="text-xl lg:text-2xl font-bold mb-1">
+                    Оставьте заявку
+                  </h3>
+                  <p className="text-[#666F8D] text-sm">
+                    Наши менеджеры свяжутся с вами через 20 мин
+                  </p>
+                </div>
+
+                <form
+                  onSubmit={handleSubmit}
+                  className="space-y-3 lg:space-y-5"
+                  noValidate
+                >
+                  <div>
+                    <label className="block text-sm text-[#666F8D] mb-1">
+                      ФИО
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg
+                          className="h-5 w-5 text-[#0036A5]"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <input
+                        ref={nameRef}
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        placeholder="Введите ФИО"
+                        className={`w-full pl-10 pr-3 py-3 bg-gray-100 rounded-lg outline-none border transition-all focus:ring-2 focus:ring-blue-500 focus:bg-white ${
+                          errors.name ? 'border-red-500' : 'border-transparent'
+                        }`}
+                      />
+                    </div>
+                    {errors.name && (
+                      <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-[#666F8D] mb-1">
+                      Телефон
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg
+                          className="h-5 w-5 text-[#0036A5]"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                        </svg>
+                      </div>
+                      <input
+                        ref={phoneRef}
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        placeholder="+992 9XX XXX XXX"
+                        className={`w-full pl-10 pr-3 py-3 bg-gray-100 rounded-lg outline-none border transition-all focus:ring-2 focus:ring-blue-500 focus:bg-white ${
+                          errors.phone ? 'border-red-500' : 'border-transparent'
+                        }`}
+                      />
+                    </div>
+                    {errors.phone && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.phone}
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full bg-[#0036A5] text-white py-[13px] rounded-lg hover:bg-blue-800 transition-colors duration-200 disabled:opacity-50 cursor-pointer"
+                  >
+                    {isSubmitting ? 'Отправка...' : 'Отправить запрос'}
+                  </button>
+                  <div className="text-[#666F8D]">
+                    Нажимая кнопку «Отправить», я соглашаюсь обработкой моих
+                    данных
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>

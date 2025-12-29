@@ -144,12 +144,12 @@ export interface BuildingUnit {
 
   moderation_status: "pending" | "available" | "sold" | "reserved";
   window_view:
-      | "courtyard"
-      | "street"
-      | "park"
-      | "mountains"
-      | "city"
-      | "panoramic";
+    | "courtyard"
+    | "street"
+    | "park"
+    | "mountains"
+    | "city"
+    | "panoramic";
 }
 
 export interface BuildingUnitPayload {
@@ -157,7 +157,7 @@ export interface BuildingUnitPayload {
   new_building_id: number;
   name: string;
 
-  bedrooms: number;     // заменяет rooms
+  bedrooms: number; // заменяет rooms
   bathrooms: number;
 
   area: number;
@@ -171,12 +171,12 @@ export interface BuildingUnitPayload {
   moderation_status: "pending" | "available" | "sold" | "reserved";
 
   window_view:
-      | "courtyard"
-      | "street"
-      | "park"
-      | "mountains"
-      | "city"
-      | "panoramic";
+    | "courtyard"
+    | "street"
+    | "park"
+    | "mountains"
+    | "city"
+    | "panoramic";
 }
 
 export interface UnitPhoto {
@@ -246,7 +246,7 @@ export interface NewBuilding {
   latitude?: number | string | null;
   longitude?: number | string | null;
   ceiling_height?: number | string | null;
-
+  window_view?: string | null;
   moderation_status: ModerationStatus;
   created_by?: number | null;
   created_at: string;
