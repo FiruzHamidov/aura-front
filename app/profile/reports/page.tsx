@@ -968,16 +968,16 @@ export default function ReportsPage() {
                                         href={`/profile/reports/objects/?agent_id=${m.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{m.total}</Link>
                                     </td>
                                     <td className="py-2 pr-4"><Link
-                                        href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=approved&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{m.approved}</Link>
+                                        href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=approved&date_from=${filters.date_from}&sold_at_to=${filters.date_to}`}>{m.approved}</Link>
                                     </td>
                                     <td className="py-2 pr-4"><Link
-                                        href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=rented&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{m.rented}</Link>
+                                        href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=rented&sold_at_from=${filters.date_from}&sold_at_to=${filters.date_to}`}>{m.rented}</Link>
                                     </td>
                                     <td className="py-2 pr-4"><Link
-                                        href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=sold&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{m.sold}</Link>
+                                        href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=sold&sold_at_from=${filters.date_from}&sold_at_to=${filters.date_to}`}>{m.sold}</Link>
                                     </td>
                                     <td className="py-2 pr-4"><Link
-                                        href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=sold_by_owner&date_from=${filters.date_from}&date_to=${filters.date_to}`}>{m.sold_by_owner}</Link>
+                                        href={`/profile/reports/objects/?agent_id=${m.agent_id}&moderation_status=sold_by_owner&sold_at_from=${filters.date_from}&sold_at_to=${filters.date_to}`}>{m.sold_by_owner}</Link>
                                     </td>
                                     {/*<td className="py-2 pr-4">{m.close_rate}%</td>*/}
                                     <td className="py-2 pr-4">{Number(metricValue ?? 0).toLocaleString()}</td>
