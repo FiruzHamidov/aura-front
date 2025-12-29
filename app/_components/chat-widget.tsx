@@ -309,7 +309,7 @@ export default function ChatWidget({
                     touchAction: 'manipulation'
                 }}
                 className={`
-                        fixed z-[70] group h-14 rounded-full right-6
+                        fixed z-[70] group w-14 h-14 rounded-full right-6
                          bottom-[calc(100px+max(env(safe-area-inset-bottom),0px))] sm:bottom-4
                         transition-transform duration-200 cursor-pointer
                         ${hidden ? 'translate-y-8 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}
@@ -317,20 +317,20 @@ export default function ChatWidget({
                 aria-label="Открыть чат Aura Assistant"
             >
                 {/* волны */}
-                {/*<span className="absolute inset-0 -z-10 rounded-full w-14 h-14 bg-blue-500/70 blur-md animate-ping"/>*/}
-                {/*<span className="absolute inset-0 -z-10 rounded-full w-14 h-14 bg-blue-500/60 blur-md animate-pulse"/>*/}
-                {/*<span className="absolute inset-0 -z-10 rounded-full w-14 h-14 bg-blue-500/30"/>*/}
+                <span className="absolute inset-0 -z-10 rounded-full w-14 h-14 bg-blue-500/70 blur-md animate-ping"/>
+                <span className="absolute inset-0 -z-10 rounded-full w-14 h-14 bg-blue-500/60 blur-md animate-pulse"/>
+                <span className="absolute inset-0 -z-10 rounded-full w-14 h-14 bg-blue-500/30"/>
                 {/* ядро кнопки */}
                 <span
-                    className="inline-flex items-center gap-2 rounded-full px-5 py-3 shadow-lg text-white hover:bg-blue-900 transition bg-[#0036A5] w-full h-full">
+                    className="flex items-center justify-center gap-2 rounded-full  shadow-lg text-white hover:bg-blue-900 transition bg-[#0036A5] w-full h-full">
                         <MessageSquareText className="w-5 h-5"/>
-                        <span className="relative">
-                          <span>{typed}</span>
-                            {!open && typed.length < phrase.length && (
-                                <span
-                                    className="ml-0.5 inline-block w-[1px] h-[1em] bg-white align-[-0.18em] animate-pulse"/>
-                            )}
-                        </span>
+                        {/*<span className="relative">*/}
+                          {/*<span>{typed}</span>*/}
+                          {/*  {!open && typed.length < phrase.length && (*/}
+                          {/*      <span*/}
+                          {/*          className="ml-0.5 inline-block w-[1px] h-[1em] bg-white align-[-0.18em] animate-pulse"/>*/}
+                          {/*  )}*/}
+                        {/*</span>*/}
                       </span>
             </button>
 

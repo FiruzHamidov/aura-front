@@ -161,25 +161,65 @@ export const Offers: FC<OffersProps> = ({ building }) => {
 
                 return (
                   <div key={rooms}>
-                    <div className="flex items-center justify-between py-5 px-2 border-b border-[#E3E6EA]">
-                      <div className="text-lg font-medium">
+                    <div className="py-5 px-2 border-b border-[#E3E6EA]">
+                      {/* Заголовок */}
+                      <div className="text-lg font-medium mb-2">
                         {rooms}-комнатные
                       </div>
 
-                      <div className="flex items-center gap-6">
+                      {/* MOBILE */}
+                      <div className="flex flex-col gap-2 text-sm md:hidden">
+                        <div className="text-[#667085]">
+                          {minArea ? `Площадь от ${minArea} м²` : '—'}
+                        </div>
+
+                        <div className="font-medium">
+                          {minPrice !== null && maxPrice !== null
+                            ? `${formatPrice(minPrice)} – ${formatPrice(maxPrice)}`
+                            : '—'}
+                        </div>
+
+                        <button
+                            onClick={() => toggleRoom(rooms)}
+                            className="flex items-center gap-2 text-[#0B66FF] underline w-fit"
+                        >
+                          <span>
+                            {items.length} {plural(items.length)}
+                          </span>
+
+                          <svg
+                              className={`w-4 h-4 transition-transform ${
+                                  isExpanded ? 'rotate-180' : ''
+                              }`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                          >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+
+                      {/* DESKTOP */}
+                      <div className="hidden md:flex items-center justify-between">
                         <div className="text-[#667085]">
                           {minArea ? `От ${minArea} м²` : '—'}
                         </div>
+
                         <div className="font-medium">
                           {minPrice !== null && maxPrice !== null
-                            ? `${formatPrice(minPrice)} – ${formatPrice(
-                                maxPrice
-                              )}`
-                            : '—'}
+                              ? `${formatPrice(minPrice)} – ${formatPrice(maxPrice)}`
+                              : '—'}
                         </div>
+
                         <button
-                          onClick={() => toggleRoom(rooms)}
-                          className="flex items-center gap-2 text-[#0B66FF] underline cursor-pointer hover:text-[#0A5FD7] transition-colors"
+                            onClick={() => toggleRoom(rooms)}
+                          className="flex items-center gap-2 text-[#0B66FF] underline"
                         >
                           <span>
                             {items.length} {plural(items.length)}
