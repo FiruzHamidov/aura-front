@@ -117,6 +117,35 @@ export interface Property {
         name: string;
     };
     views_count?: number;
+
+// === Deal / Sale fields ===
+    actual_sale_price?: string | number;
+    actual_sale_currency?: 'TJS' | 'USD';
+
+    company_commission_amount?: string | number;
+    company_commission_currency?: 'TJS' | 'USD';
+
+    money_holder?: 'company' | 'agent' | 'owner' | 'developer' | 'client';
+
+    money_received_at?: string;
+    contract_signed_at?: string;
+
+    // Deposit
+    deposit_amount?: string | number;
+    deposit_currency?: 'TJS' | 'USD';
+    deposit_received_at?: string;
+    deposit_taken_at?: string;
+
+    // Agents involved in deal
+    sale_agents?: Array<{
+        id: number;
+        name?: string;
+        phone?: string;
+        role: 'main' | 'assistant' | 'partner';
+        agent_commission_amount?: string | number;
+        agent_commission_currency?: 'TJS' | 'USD';
+        agent_paid_at?: string;
+    }>;
 }
 
 export interface PropertyLocation {

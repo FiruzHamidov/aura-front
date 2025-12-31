@@ -17,6 +17,7 @@ interface ModerationModalProps {
 }
 
 const STATUS_REQUIRING_COMMENT = ['sold', 'sold_by_owner', 'rented', 'denied', 'deleted'];
+const STATUS_REQUIRING_DEAL = ['sold', 'sold_by_owner', 'rented'];
 
 const ModerationModal: FC<ModerationModalProps> = ({
                                                        property,
@@ -27,6 +28,9 @@ const ModerationModal: FC<ModerationModalProps> = ({
     const [selectedListingType, setSelectedListingType] = useState(property.listing_type);
     const [selectedModerationStatus, setSelectedModerationStatus] = useState(property.moderation_status);
     const [statusComment, setStatusComment] = useState<string>((property as any).status_comment ?? '');
+    const [actualSalePrice, setActualSalePrice] = useState('');
+    const [companyCommission, setCompanyCommission] = useState('');
+    const [moneyHolder, setMoneyHolder] = useState<string | ''>('');
     const [loading, setLoading] = useState(false);
 
     // признак “vip/urgent”
@@ -81,12 +85,38 @@ const ModerationModal: FC<ModerationModalProps> = ({
     }, [userRole, isPromo, selectedModerationStatus]);
 
     const mustProvideComment = STATUS_REQUIRING_COMMENT.includes(selectedModerationStatus);
+    const mustProvideDeal = STATUS_REQUIRING_DEAL.includes(selectedModerationStatus);
+
+    useEffect(() => {
+        if (!mustProvideDeal) {
+            setActualSalePrice('');
+            setCompanyCommission('');
+            setMoneyHolder('');
+        }
+    }, [mustProvideDeal]);
 
     const handleSave = async () => {
         // клиентская валидация: если выбран статус, требующий комментарий — проверяем
         if (mustProvideComment && (!statusComment || statusComment.trim() === '')) {
             toast.error('Требуется комментарий при смене статуса.');
             return;
+        }
+
+        if (mustProvideDeal) {
+            if (!actualSalePrice || Number(actualSalePrice) <= 0) {
+                toast.error('Укажите фактическую сумму сделки');
+                return;
+            }
+
+            if (!companyCommission || Number(companyCommission) < 0) {
+                toast.error('Укажите комиссию компании (0 если без комиссии)');
+                return;
+            }
+
+            if (!moneyHolder) {
+                toast.error('Укажите, у кого находятся деньги');
+                return;
+            }
         }
 
         setLoading(true);
@@ -122,7 +152,28 @@ const ModerationModal: FC<ModerationModalProps> = ({
                 payload.status_comment = '';
             }
 
-            const response = await axios.patch(`/properties/${property.id}/moderation-listing`, payload);
+            if (mustProvideDeal) {
+                payload.actual_sale_price = Number(actualSalePrice);
+                payload.actual_sale_currency = property.actual_sale_currency ?? 'TJS';
+
+                payload.company_commission_amount = Number(companyCommission);
+                payload.company_commission_currency = property.company_commission_currency ?? 'TJS';
+
+                payload.money_holder = moneyHolder as any;
+
+                payload.money_received_at = property.money_received_at ?? '';
+                payload.contract_signed_at = property.contract_signed_at ?? '';
+
+                payload.deposit_amount = property.deposit_amount ?? '';
+                payload.deposit_currency = property.deposit_currency ?? 'TJS';
+                payload.deposit_received_at = property.deposit_received_at ?? '';
+                payload.deposit_taken_at = property.deposit_taken_at ?? '';
+            }
+
+            const response = await axios.patch(
+                `/properties/${property.id}/moderation-and-listing-type`,
+                payload
+            );
             toast.success('Обновлено успешно!');
             onUpdated(response.data?.data ?? payload);
             onClose();
@@ -203,6 +254,56 @@ const ModerationModal: FC<ModerationModalProps> = ({
                             className="w-full p-3 border rounded-lg text-sm"
                             placeholder="Напишите причину изменения статуса..."
                         />
+                    </div>
+                )}
+
+                {mustProvideDeal && (
+                    <div className="mb-4 border rounded-xl p-4 bg-gray-50">
+                        <h3 className="font-semibold mb-3">Данные сделки (обязательно)</h3>
+
+                        <div className="mb-3">
+                            <label className="block text-sm mb-1 font-medium">
+                                Фактическая сумма сделки <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="number"
+                                value={actualSalePrice}
+                                onChange={(e) => setActualSalePrice(e.target.value)}
+                                className="w-full border rounded-lg p-2"
+                                placeholder="Например: 85000"
+                            />
+                        </div>
+
+                        <div className="mb-3">
+                            <label className="block text-sm mb-1 font-medium">
+                                Комиссия компании <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="number"
+                                value={companyCommission}
+                                onChange={(e) => setCompanyCommission(e.target.value)}
+                                className="w-full border rounded-lg p-2"
+                                placeholder="Например: 3000"
+                            />
+                        </div>
+
+                        <div className="mb-2">
+                            <label className="block text-sm mb-1 font-medium">
+                                У кого находятся деньги <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                                value={moneyHolder}
+                                onChange={(e) => setMoneyHolder(e.target.value)}
+                                className="w-full border rounded-lg p-2"
+                            >
+                                <option value="">— выберите —</option>
+                                <option value="company">Компания</option>
+                                <option value="agent">Агент</option>
+                                <option value="owner">Владелец</option>
+                                <option value="developer">Застройщик</option>
+                                <option value="client">Клиент</option>
+                            </select>
+                        </div>
                     </div>
                 )}
 
