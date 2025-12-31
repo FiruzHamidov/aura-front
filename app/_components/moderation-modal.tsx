@@ -1,5 +1,7 @@
 'use client';
 
+import { useGetAgentsQuery } from '@/services/users/hooks';
+
 import {FC, useEffect, useState, ChangeEvent} from 'react';
 import ReactDOM from 'react-dom';
 import {Property} from '@/services/properties/types';
@@ -8,6 +10,7 @@ import {axios} from '@/utils/axios';
 import {SelectToggle} from '@/ui-components/SelectToggle';
 import {Listing} from "@/app/_components/top-listing/types";
 import SafeHtml from "@/app/profile/edit-post/[id]/_components/SafeHtml";
+import {UpdateModerationAndDealPayload} from "@/services/properties/deal";
 
 interface ModerationModalProps {
     property: Listing | Property;
@@ -32,6 +35,16 @@ const ModerationModal: FC<ModerationModalProps> = ({
     const [companyCommission, setCompanyCommission] = useState('');
     const [moneyHolder, setMoneyHolder] = useState<string | ''>('');
     const [loading, setLoading] = useState(false);
+
+    const { data: agents = [], isLoading: agentsLoading } = useGetAgentsQuery();
+
+    const [selectedAgents, setSelectedAgents] = useState<
+        Array<{
+            agent_id: number;
+            role: 'main' | 'assistant' | 'partner';
+            commission_amount?: string;
+        }>
+    >([]);
 
     // признак “vip/urgent”
     const isPromo = selectedListingType === 'vip' || selectedListingType === 'urgent';
@@ -117,11 +130,18 @@ const ModerationModal: FC<ModerationModalProps> = ({
                 toast.error('Укажите, у кого находятся деньги');
                 return;
             }
+
+            if (selectedModerationStatus === 'sold' && selectedAgents.length === 0) {
+                toast.error('Укажите хотя бы одного агента, участвующего в продаже');
+                return;
+            }
         }
 
         setLoading(true);
         try {
-            const payload: Partial<Property> = {};
+            const payload: UpdateModerationAndDealPayload = {
+                moderation_status: selectedModerationStatus,
+            };
 
             // админ может менять listing_type
             if (userRole === 'admin') {
@@ -164,10 +184,20 @@ const ModerationModal: FC<ModerationModalProps> = ({
                 payload.money_received_at = property.money_received_at ?? '';
                 payload.contract_signed_at = property.contract_signed_at ?? '';
 
-                payload.deposit_amount = property.deposit_amount ?? '';
+                payload.deposit_amount = property.deposit_amount ?? 0;
                 payload.deposit_currency = property.deposit_currency ?? 'TJS';
                 payload.deposit_received_at = property.deposit_received_at ?? '';
                 payload.deposit_taken_at = property.deposit_taken_at ?? '';
+
+                if (selectedModerationStatus === 'sold') {
+                    payload.agents = selectedAgents.map(a => ({
+                        agent_id: a.agent_id,
+                        role: a.role,
+                        commission_amount: a.commission_amount
+                            ? Number(a.commission_amount)
+                            : null,
+                    }));
+                }
             }
 
             const response = await axios.patch(
@@ -199,7 +229,7 @@ const ModerationModal: FC<ModerationModalProps> = ({
             onPointerDown={(e) => e.stopPropagation()}
         >
             <div
-                className="bg-white p-6 rounded-xl w-full max-w-md shadow-xl"
+                className="bg-white p-6 rounded-xl w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
                 onPointerDown={(e) => e.stopPropagation()}
@@ -304,6 +334,87 @@ const ModerationModal: FC<ModerationModalProps> = ({
                                 <option value="client">Клиент</option>
                             </select>
                         </div>
+
+                        {selectedModerationStatus === 'sold' && (
+                            <div className="mt-4">
+                                <label className="block text-sm font-medium mb-2">
+                                    Агенты, участвующие в продаже <span className="text-red-500">*</span>
+                                </label>
+
+                                {agentsLoading ? (
+                                    <p className="text-sm text-gray-500">Загрузка агентов...</p>
+                                ) : (
+                                    <div className="space-y-2 max-h-40 overflow-y-auto border rounded-lg p-2 bg-white">
+                                        {agents.map((agent: any) => {
+                                            const selected = selectedAgents.find(a => a.agent_id === agent.id);
+
+                                            return (
+                                                <div key={agent.id} className="flex items-center gap-2 text-sm">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={!!selected}
+                                                        onChange={(e) => {
+                                                            if (e.target.checked) {
+                                                                setSelectedAgents(prev => [
+                                                                    ...prev,
+                                                                    { agent_id: agent.id, role: 'assistant' },
+                                                                ]);
+                                                            } else {
+                                                                setSelectedAgents(prev =>
+                                                                    prev.filter(a => a.agent_id !== agent.id)
+                                                                );
+                                                            }
+                                                        }}
+                                                    />
+
+                                                    <span className="flex-1">
+                                                        {agent.name ?? agent.email}
+                                                    </span>
+
+                                                    {selected && (
+                                                        <>
+                                                            <select
+                                                                value={selected.role}
+                                                                onChange={(e) =>
+                                                                    setSelectedAgents(prev =>
+                                                                        prev.map(a =>
+                                                                            a.agent_id === agent.id
+                                                                                ? { ...a, role: e.target.value as any }
+                                                                                : a
+                                                                        )
+                                                                    )
+                                                                }
+                                                                className="border rounded px-1 py-0.5"
+                                                            >
+                                                                <option value="main">Главный</option>
+                                                                <option value="assistant">Помощник</option>
+                                                                <option value="partner">Партнёр</option>
+                                                            </select>
+
+                                                            <input
+                                                                type="number"
+                                                                placeholder="Комиссия"
+                                                                value={selected.commission_amount ?? ''}
+                                                                onChange={(e) =>
+                                                                    setSelectedAgents(prev =>
+                                                                        prev.map(a =>
+                                                                            a.agent_id === agent.id
+                                                                                ? { ...a, commission_amount: e.target.value }
+                                                                                : a
+                                                                        )
+                                                                    )
+                                                                }
+                                                                className="w-24 border rounded px-2 py-0.5"
+                                                            />
+                                                        </>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
 

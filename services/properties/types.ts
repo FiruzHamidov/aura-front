@@ -131,7 +131,7 @@ export interface Property {
     contract_signed_at?: string;
 
     // Deposit
-    deposit_amount?: string | number;
+    deposit_amount?: number;
     deposit_currency?: 'TJS' | 'USD';
     deposit_received_at?: string;
     deposit_taken_at?: string;
