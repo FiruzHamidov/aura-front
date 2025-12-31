@@ -15,6 +15,15 @@ interface BuildingInfoProps {
   photos: NewBuildingPhoto[];
 }
 
+const windowViewOptions = [
+  { id: 'courtyard', name: 'Во двор' },
+  { id: 'street', name: 'На улицу' },
+  { id: 'park', name: 'На парк' },
+  { id: 'mountains', name: 'На горы' },
+  { id: 'city', name: 'На город' },
+  { id: 'panoramic', name: 'Панорамный вид' },
+];
+
 export const BuildingInfo: FC<BuildingInfoProps> = ({ building, photos }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -278,6 +287,18 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({ building, photos }) => {
               <div className="flex justify-between border-b border-[#E3E6EA] pb-2">
                 <span className="text-[#666F8D]">Высота потолков</span>
                 <span>{building.ceiling_height} м</span>
+              </div>
+            )}
+            {building.window_view && (
+              <div className="flex justify-between border-b border-[#E3E6EA] pb-2">
+                <span className="text-[#666F8D]">Вид из окна</span>
+                <span>
+                  {
+                    windowViewOptions.find(
+                      (option) => option.id === building.window_view
+                    )?.name
+                  }
+                </span>
               </div>
             )}
           </div>

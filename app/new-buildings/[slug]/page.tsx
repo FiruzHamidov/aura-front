@@ -1,55 +1,93 @@
-'use client';
+import type { Metadata } from 'next';
+import NewBuildingWrapper from './NewBuildingWrapper';
+import { axios } from '@/utils/axios';
 
-import { useParams } from 'next/navigation';
-import { PriceAndBuilder } from './_components/PriceAndBuilder';
-import { Offers } from './_components/Offers';
-import { ComfortNearby } from './_components/ComfortNearby';
-import { BuildingInfo } from './_components/BuildingInfo';
-import {
-  useNewBuilding,
-  useNewBuildingPhotos,
-} from '@/services/new-buildings/hooks';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://aura.tj';
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? 'https://backend.aura.tj/api';
+const STORAGE_URL =
+  process.env.NEXT_PUBLIC_STORAGE_URL ?? 'https://storage.aura.tj';
 
-export default function NewBuilding() {
-  const params = useParams<{ slug: string }>();
-  const id = Number(params.slug);
+async function fetchBuilding(id: number) {
+  try {
+    const { data } = await axios.get(`/new-buildings/${id}`);
+    return data;
+  } catch (err) {
+    // Try a direct fetch fallback with full URL (helps diagnose baseURL/env issues)
+    try {
+      const res = await fetch(`${API_URL}/new-buildings/${id}`, {
+        next: { revalidate: 300 },
+      });
+      if (!res.ok) {
+        // eslint-disable-next-line no-console
+        console.error(
+          'fetchBuilding: fetch fallback failed',
+          res.status,
+          res.statusText
+        );
+        return null;
+      }
+      const json = await res.json();
+      return json;
+    } catch (err2) {
+      // eslint-disable-next-line no-console
+      console.error('fetchBuilding: axios and fetch both failed', err, err2);
+      return null;
+    }
+  }
+}
 
-  const { data: buildingResponse, isLoading } = useNewBuilding(id);
-  const { data: photos } = useNewBuildingPhotos(id);
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
+  const param = await params;
+  const resp = await fetchBuilding(Number(param.slug));
 
-  if (isLoading) {
-    return (
-      <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 pt-8 pb-12">
-        <div className="animate-pulse">
-          <div className="h-96 bg-gray-200 rounded-[22px] mb-5" />
-          <div className="h-64 bg-gray-200 rounded-[22px]" />
-        </div>
-      </div>
-    );
+  if (!resp) {
+    return {
+      title: 'Новостройка не найдена — Aura',
+      robots: { index: false, follow: false },
+    };
   }
 
-  if (!buildingResponse) {
-    return (
-      <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 pt-8 pb-12">
-        <div className="text-center">Новостройка не найдена</div>
-      </div>
-    );
-  }
+  const raw = resp.data ?? resp;
+  const title =
+    (raw?.title && String(raw.title).trim()) || 'Новостройка — Aura';
+  const description = raw?.description
+    ? String(raw.description).slice(0, 160)
+    : `Информация о новостройке ${title}`;
+  const url = `${SITE_URL}/new-buildings/${param.slug}`;
+  const photoPath =
+    raw?.photos && raw.photos.length
+      ? raw.photos[0].path ?? raw.photos[0].file_path
+      : undefined;
+  const image = photoPath ? `${STORAGE_URL}/${photoPath}` : undefined;
 
-  const building = buildingResponse.data;
-  const stats = buildingResponse.stats;
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: 'article',
+      url,
+      title,
+      description,
+      siteName: 'Aura',
+      images: image ? [{ url: image }] : undefined,
+      locale: 'ru_RU',
+    },
+    twitter: {
+      card: image ? 'summary_large_image' : 'summary',
+      title,
+      description,
+      images: image ? [image] : undefined,
+    },
+    robots: { index: true, follow: true },
+  };
+}
 
-  return (
-    <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 pt-8 pb-12">
-      <div className="flex flex-col lg:flex-row gap-5">
-        <div className="lg:w-2/3">
-          <BuildingInfo building={building} photos={photos || []} />
-          <Offers building={building} />
-          <ComfortNearby building={building} />
-        </div>
-
-        <PriceAndBuilder building={building} stats={stats} />
-      </div>
-    </div>
-  );
+export default function Page({ params }: { params: { slug: string } }) {
+  return <NewBuildingWrapper />;
 }
