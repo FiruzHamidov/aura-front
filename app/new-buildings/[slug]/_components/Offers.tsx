@@ -31,13 +31,13 @@ const BlockTabs: FC<{
   onSelect: (id: number | null) => void;
 }> = ({ blocks, selected, onSelect }) => {
   return (
-    <div className="flex gap-3 mb-6 overflow-x-auto">
+    <div className="flex gap-3 mb-6 overflow-x-auto pb-2 scrollbar-hide">
       <button
         onClick={() => onSelect(null)}
-        className={`px-4 py-3 rounded-lg border cursor-pointer ${
+        className={`px-5 py-3 rounded-xl border-2 cursor-pointer transition-all duration-200 whitespace-nowrap font-medium ${
           selected === null
-            ? 'border-[#0036A5] bg-white text-[#0036A5]'
-            : 'border-gray-200 bg-white'
+            ? 'border-[#0036A5] bg-[#0036A5] text-white shadow-md'
+            : 'border-gray-200 bg-white text-[#667085] hover:border-[#0036A5]/30 hover:bg-[#F7FAFD]'
         }`}
       >
         Все корпуса
@@ -46,14 +46,18 @@ const BlockTabs: FC<{
         <button
           key={b.id}
           onClick={() => onSelect(b.id)}
-          className={`flex flex-col items-start px-4 py-3 rounded-lg border text-left cursor-pointer ${
+          className={`flex flex-col items-start px-5 py-3 rounded-xl border-2 text-left cursor-pointer transition-all duration-200 whitespace-nowrap min-w-[140px] ${
             selected === b.id
-              ? 'border-[#0036A5] text-[#0036A5]'
-              : 'border-gray-200 text-[#667085]'
+              ? 'border-[#0036A5] bg-[#0036A5] text-white shadow-md'
+              : 'border-gray-200 bg-white text-[#667085] hover:border-[#0036A5]/30 hover:bg-[#F7FAFD]'
           }`}
         >
-          <span className="font-medium">{b.name}</span>
-          <span className="text-xs mt-1">
+          <span className="font-semibold text-sm">{b.name}</span>
+          <span
+            className={`text-xs mt-1 ${
+              selected === b.id ? 'text-white/80' : 'text-[#667085]'
+            }`}
+          >
             {formatCompletionQuarter(b.completion_at)}
           </span>
         </button>
@@ -70,10 +74,10 @@ const UnitCarousel: FC<{
   ) => void;
 }> = ({ photos, onOpenGallery }) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
-  const imgUrls =
-    photos && photos.length
-      ? photos.map((p) => `${STORAGE_URL}/${p.path}`)
-      : ['/images/no-image.jpg'];
+  const hasPhotos = photos && photos.length > 0;
+  const imgUrls = hasPhotos
+    ? photos.map((p) => `${STORAGE_URL}/${p.path}`)
+    : ['/images/no-image.jpg'];
 
   return (
     <div className="embla">
@@ -83,7 +87,9 @@ const UnitCarousel: FC<{
             <div key={i} className="embla__slide min-w-full relative">
               <button
                 type="button"
-                onClick={() => onOpenGallery(photos, i)}
+                onClick={() => {
+                  onOpenGallery(photos, i);
+                }}
                 className="block w-full h-full"
               >
                 <div className="relative w-full h-20 md:h-20 bg-[#F0F7FF] rounded">
@@ -126,7 +132,7 @@ const ModalCarousel: FC<{ images: string[]; startIndex?: number }> = ({
             >
               <div className="relative w-full h-full">
                 <Image
-                  src={src}
+                  src={src ?? '/images/no-image.jpg'}
                   alt={`Фото ${i + 1}`}
                   fill
                   className="object-contain"
@@ -147,6 +153,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [modalPhotos, setModalPhotos] = useState<string[]>([]);
   const [modalIndex, setModalIndex] = useState<number>(0);
+  console.log({ selectedImage });
 
   const [formData, setFormData] = useState({ name: '', phone: '' });
   const [errors, setErrors] = useState<{ name?: string; phone?: string }>({});
@@ -349,31 +356,33 @@ export const Offers: FC<OffersProps> = ({ building }) => {
 
                         <div className="font-medium">
                           {minPrice !== null && maxPrice !== null
-                            ? `${formatPrice(minPrice)} – ${formatPrice(maxPrice)}`
+                            ? `${formatPrice(minPrice)} – ${formatPrice(
+                                maxPrice
+                              )}`
                             : '—'}
                         </div>
 
                         <button
-                            onClick={() => toggleRoom(rooms)}
-                            className="flex items-center gap-2 text-[#0B66FF] underline w-fit"
+                          onClick={() => toggleRoom(rooms)}
+                          className="flex items-center gap-2 text-[#0B66FF] underline w-fit"
                         >
                           <span>
                             {items.length} {plural(items.length)}
                           </span>
 
                           <svg
-                              className={`w-4 h-4 transition-transform ${
-                                  isExpanded ? 'rotate-180' : ''
-                              }`}
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
+                            className={`w-4 h-4 transition-transform ${
+                              isExpanded ? 'rotate-180' : ''
+                            }`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
                           >
                             <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 14l-7 7m0 0l-7-7m7 7V3"
                             />
                           </svg>
                         </button>
@@ -387,12 +396,14 @@ export const Offers: FC<OffersProps> = ({ building }) => {
 
                         <div className="font-medium">
                           {minPrice !== null && maxPrice !== null
-                              ? `${formatPrice(minPrice)} – ${formatPrice(maxPrice)}`
-                              : '—'}
+                            ? `${formatPrice(minPrice)} – ${formatPrice(
+                                maxPrice
+                              )}`
+                            : '—'}
                         </div>
 
                         <button
-                            onClick={() => toggleRoom(rooms)}
+                          onClick={() => toggleRoom(rooms)}
                           className="flex items-center gap-2 text-[#0B66FF] underline"
                         >
                           <span>
@@ -429,9 +440,13 @@ export const Offers: FC<OffersProps> = ({ building }) => {
                                 <UnitCarousel
                                   photos={unit.photos || []}
                                   onOpenGallery={(photos, i) => {
-                                    const urls = (photos || []).map(
-                                      (p) => `${STORAGE_URL}/${p.path}`
-                                    );
+                                    const hasPhotos =
+                                      photos && photos.length > 0;
+                                    const urls = hasPhotos
+                                      ? photos.map(
+                                          (p) => `${STORAGE_URL}/${p.path}`
+                                        )
+                                      : ['/images/no-image.jpg'];
                                     setModalPhotos(urls);
                                     setModalIndex(i);
                                     setSelectedImage(urls[i] ?? null);
@@ -588,7 +603,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
 
       {(selectedImage || (modalPhotos && modalPhotos.length > 0)) && (
         <div
-          className="fixed inset-0 bg-black/30  z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4"
           onClick={() => {
             setSelectedImage(null);
             setModalPhotos([]);
@@ -596,7 +611,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
           }}
         >
           <div
-            className="relative bg-white rounded-2xl w-full max-w-7xl max-h-[90vh] overflow-hidden grid grid-cols-1 md:grid-cols-2 md:divide-x md:divide-dashed md:divide-gray-200"
+            className="relative bg-white rounded-2xl w-full max-w-7xl max-h-[90vh] overflow-y-auto md:overflow-hidden grid grid-cols-1 md:grid-cols-2 md:divide-x md:divide-dashed md:divide-gray-200"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -613,19 +628,16 @@ export const Offers: FC<OffersProps> = ({ building }) => {
             <div className="p-6 md:p-10 flex items-center justify-center">
               <div className="relative w-full h-[420px] md:h-[520px] bg-[#F7FAFD] rounded-lg overflow-hidden">
                 {/* Modal carousel using embla */}
-                {modalPhotos && modalPhotos.length > 0 && (
+                {modalPhotos && modalPhotos.length > 0 ? (
                   <ModalCarousel images={modalPhotos} startIndex={modalIndex} />
+                ) : (
+                  <Image
+                    src={selectedImage || '/images/no-image.jpg'}
+                    alt="Plan preview"
+                    fill
+                    className="object-contain"
+                  />
                 )}
-                {/* Fallback single image */}
-                {(!modalPhotos || modalPhotos.length === 0) &&
-                  selectedImage && (
-                    <Image
-                      src={selectedImage}
-                      alt="Plan preview"
-                      fill
-                      className="object-contain"
-                    />
-                  )}
               </div>
             </div>
 
