@@ -201,7 +201,7 @@ const ModerationModal: FC<ModerationModalProps> = ({
             }
 
             const response = await axios.patch(
-                `/properties/${property.id}/moderation-and-listing-type`,
+                `/properties/${property.id}/moderation-listing`,
                 payload
             );
             toast.success('Обновлено успешно!');
