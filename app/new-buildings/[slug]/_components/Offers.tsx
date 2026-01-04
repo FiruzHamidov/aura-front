@@ -626,7 +626,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
             </button>
 
             <div className="p-6 md:p-10 flex items-center justify-center">
-              <div className="relative w-full h-[420px] md:h-[520px] bg-[#F7FAFD] rounded-lg overflow-hidden">
+              <div className="relative w-full h-60 md:h-[520px] bg-[#F7FAFD] rounded-lg overflow-hidden">
                 {/* Modal carousel using embla */}
                 {modalPhotos && modalPhotos.length > 0 ? (
                   <ModalCarousel images={modalPhotos} startIndex={modalIndex} />
