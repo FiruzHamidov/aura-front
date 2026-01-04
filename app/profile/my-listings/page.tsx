@@ -14,6 +14,7 @@ const TABS = [
     // { key: 'rejected', label: 'Отклонённые' },
     // { key: 'draft',    label: 'Черновики' },
     // { key: 'deleted',  label: 'Удаленные' },
+    {key: 'deposit', label: 'Залог'},
     { key: 'sold',     label: 'Проданные агентом' },
     { key: 'sold_by_owner',     label: 'Проданные владельцем' },
     { key: 'rented',   label: 'Арендованные' },
@@ -48,6 +49,7 @@ export default function MyListings() {
     // const { data: draftMeta    } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'draft'    }, true);
     // const { data: deletedMeta  } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'deleted'  }, true);
     const { data: soldMeta     } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'sold', created_by: user?.id.toString()     }, true);
+    const { data: depositMeta     } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'deposit', created_by: user?.id.toString()     }, true);
     const { data: soldByOwnerMeta     } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'sold_by_owner', created_by: user?.id.toString()     }, true);
     const { data: rentedMeta   } = useGetMyPropertiesQuery({ listing_type: '', page: 1, per_page: 1, moderation_status: 'rented', created_by: user?.id.toString()   }, true);
 
@@ -67,6 +69,7 @@ export default function MyListings() {
         // draft   : draftMeta?.total,
         // deleted : deletedMeta?.total,
         sold    : soldMeta?.total,
+        deposit   : depositMeta?.total,
         sold_by_owner    : soldByOwnerMeta?.total,
         rented  : rentedMeta?.total,
     };
