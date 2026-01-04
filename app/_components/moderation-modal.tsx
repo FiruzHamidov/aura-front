@@ -1,13 +1,14 @@
 'use client';
 
-import { useGetAgentsQuery } from '@/services/users/hooks';
+import {useGetAgentsQuery} from '@/services/users/hooks';
 
-import {FC, useEffect, useState, ChangeEvent} from 'react';
+import {FC, useEffect, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {Property} from '@/services/properties/types';
 import {toast} from 'react-toastify';
 import {axios} from '@/utils/axios';
 import {SelectToggle} from '@/ui-components/SelectToggle';
+import {Input} from '@/ui-components/Input';
 import {Listing} from "@/app/_components/top-listing/types";
 import SafeHtml from "@/app/profile/edit-post/[id]/_components/SafeHtml";
 import {UpdateModerationAndDealPayload} from "@/services/properties/deal";
@@ -20,7 +21,8 @@ interface ModerationModalProps {
 }
 
 const STATUS_REQUIRING_COMMENT = ['sold', 'sold_by_owner', 'rented', 'denied', 'deleted'];
-const STATUS_REQUIRING_DEAL = ['sold', 'sold_by_owner', 'rented'];
+const STATUS_REQUIRING_DEAL = ['sold', 'rented'];
+const STATUS_REQUIRING_DEPOSIT = ['deposit'];
 
 const ModerationModal: FC<ModerationModalProps> = ({
                                                        property,
@@ -34,9 +36,51 @@ const ModerationModal: FC<ModerationModalProps> = ({
     const [actualSalePrice, setActualSalePrice] = useState('');
     const [companyCommission, setCompanyCommission] = useState('');
     const [moneyHolder, setMoneyHolder] = useState<string | ''>('');
-    const [loading, setLoading] = useState(false);
 
-    const { data: agents = [], isLoading: agentsLoading } = useGetAgentsQuery();
+    const [buyerFullName, setBuyerFullName] = useState('');
+    const [buyerPhone, setBuyerPhone] = useState('');
+
+    const [depositAmount, setDepositAmount] = useState('');
+    const [depositCurrency, setDepositCurrency] = useState<'TJS' | 'USD'>('TJS');
+    const [depositReceivedAt, setDepositReceivedAt] = useState('');
+    const [depositTakenAt, setDepositTakenAt] = useState('');
+
+    const [companyExpectedIncome, setCompanyExpectedIncome] = useState('');
+    const [companyExpectedIncomeCurrency, setCompanyExpectedIncomeCurrency] =
+        useState<'TJS' | 'USD'>('TJS');
+
+    const [plannedContractSignedAt, setPlannedContractSignedAt] = useState('');
+    const [loading, setLoading] = useState(false);
+    const toDateInput = (value?: string | null) => {
+        if (!value) return '';
+        return value.split(' ')[0]; // YYYY-MM-DD
+    };
+    useEffect(() => {
+        // ===== hydrate from backend =====
+        setActualSalePrice(property.actual_sale_price?.toString() ?? '');
+        setCompanyCommission(property.company_commission_amount?.toString() ?? '');
+        setMoneyHolder(property.money_holder ?? '');
+
+        setBuyerFullName(property.buyer_full_name ?? '');
+        setBuyerPhone(property.buyer_phone ?? '');
+
+        setDepositAmount(property.deposit_amount?.toString() ?? '');
+        setDepositCurrency(property.deposit_currency ?? 'TJS');
+        setDepositReceivedAt(toDateInput(property.deposit_received_at));
+        setDepositTakenAt(toDateInput(property.deposit_taken_at));
+        setPlannedContractSignedAt( toDateInput(property.planned_contract_signed_at));
+
+        setCompanyExpectedIncome(
+            property.company_expected_income?.toString() ?? ''
+        );
+        setCompanyExpectedIncomeCurrency(
+            property.company_expected_income_currency ?? 'TJS'
+        );
+
+
+    }, [property]);
+
+    const {data: agents = [], isLoading: agentsLoading} = useGetAgentsQuery();
 
     const [selectedAgents, setSelectedAgents] = useState<
         Array<{
@@ -62,6 +106,7 @@ const ModerationModal: FC<ModerationModalProps> = ({
         const base = [
             {id: 'pending', name: 'На модерации'},
             {id: 'approved', name: 'Одобрено'},
+            {id: 'deposit', name: 'Залог'},
             // {id: 'rejected', name: 'Отклонено'},
             // {id: 'draft', name: 'Черновик'},
             {id: 'sold', name: 'Продано агентом'},
@@ -99,20 +144,64 @@ const ModerationModal: FC<ModerationModalProps> = ({
 
     const mustProvideComment = STATUS_REQUIRING_COMMENT.includes(selectedModerationStatus);
     const mustProvideDeal = STATUS_REQUIRING_DEAL.includes(selectedModerationStatus);
+    const mustProvideDeposit =
+        STATUS_REQUIRING_DEPOSIT.includes(selectedModerationStatus) ||
+        selectedModerationStatus === 'sold';
 
-    useEffect(() => {
-        if (!mustProvideDeal) {
-            setActualSalePrice('');
-            setCompanyCommission('');
-            setMoneyHolder('');
-        }
-    }, [mustProvideDeal]);
+    // useEffect(() => {
+    //     if (!mustProvideDeal) {
+    //         setActualSalePrice('');
+    //         setCompanyCommission('');
+    //         setMoneyHolder('');
+    //     }
+    //
+    //     if (!mustProvideDeposit) {
+    //         setBuyerFullName('');
+    //         setBuyerPhone('');
+    //         setDepositAmount('');
+    //         setDepositReceivedAt('');
+    //         setDepositTakenAt('');
+    //         setCompanyExpectedIncome('');
+    //         setPlannedContractSignedAt('');
+    //     }
+    // }, [mustProvideDeal, mustProvideDeposit]);
 
     const handleSave = async () => {
         // клиентская валидация: если выбран статус, требующий комментарий — проверяем
         if (mustProvideComment && (!statusComment || statusComment.trim() === '')) {
             toast.error('Требуется комментарий при смене статуса.');
             return;
+        }
+
+        if (mustProvideDeposit) {
+            if (!buyerFullName.trim()) {
+                toast.error('Укажите ФИО покупателя');
+                return;
+            }
+            if (!buyerPhone.trim()) {
+                toast.error('Укажите номер телефона покупателя');
+                return;
+            }
+            if (!depositAmount || Number(depositAmount) <= 0) {
+                toast.error('Укажите сумму залога');
+                return;
+            }
+            if (!depositReceivedAt) {
+                toast.error('Укажите дату получения залога');
+                return;
+            }
+            if (!moneyHolder) {
+                toast.error('Укажите, у кого находятся деньги');
+                return;
+            }
+            if (!companyExpectedIncome || Number(companyExpectedIncome) < 0) {
+                toast.error('Укажите ожидаемый доход компании');
+                return;
+            }
+            if (!plannedContractSignedAt) {
+                toast.error('Укажите планируемую дату договора');
+                return;
+            }
         }
 
         if (mustProvideDeal) {
@@ -172,6 +261,23 @@ const ModerationModal: FC<ModerationModalProps> = ({
                 payload.status_comment = '';
             }
 
+            if (mustProvideDeposit) {
+                payload.buyer_full_name = buyerFullName;
+                payload.buyer_phone = buyerPhone;
+
+                payload.deposit_amount = Number(depositAmount);
+                payload.deposit_currency = depositCurrency;
+                payload.deposit_received_at = depositReceivedAt;
+                payload.deposit_taken_at = depositTakenAt || null;
+
+                payload.money_holder = moneyHolder as any;
+
+                payload.company_expected_income = Number(companyExpectedIncome);
+                payload.company_expected_income_currency = companyExpectedIncomeCurrency;
+
+                payload.planned_contract_signed_at = plannedContractSignedAt;
+            }
+
             if (mustProvideDeal) {
                 payload.actual_sale_price = Number(actualSalePrice);
                 payload.actual_sale_currency = property.actual_sale_currency ?? 'TJS';
@@ -229,7 +335,9 @@ const ModerationModal: FC<ModerationModalProps> = ({
             onPointerDown={(e) => e.stopPropagation()}
         >
             <div
-                className="bg-white p-6 rounded-xl w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto"
+                className={`bg-white p-6 rounded-xl w-full shadow-xl max-h-[90vh] overflow-y-auto ${
+                    selectedModerationStatus === 'sold' ? 'max-w-3xl' : 'max-w-md'
+                }`}
                 onClick={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
                 onPointerDown={(e) => e.stopPropagation()}
@@ -270,69 +378,107 @@ const ModerationModal: FC<ModerationModalProps> = ({
                 )}
 
                 <div className='mb-4'>
-                    <SafeHtml html={property.rejection_comment} className="prose text-sm p-4 border rounded-2xl" />
+                    <SafeHtml html={property.rejection_comment} className="prose text-sm p-4 border rounded-2xl"/>
                 </div>
 
                 {/* Новое поле комментария статуса — показывается когда выбран статус, требующий комментарий */}
                 {mustProvideComment && (
                     <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Причина смены статуса (обязательно)</label>
-                        <textarea
+                        <Input
+                            label="Причина смены статуса"
+                            name="status_comment"
                             value={statusComment}
-                            onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setStatusComment(e.target.value)}
-                            rows={4}
-                            className="w-full p-3 border rounded-lg text-sm"
+                            textarea
+                            required
                             placeholder="Напишите причину изменения статуса..."
+                            onChange={(e) => setStatusComment(e.target.value)}
                         />
+                    </div>
+                )}
+
+                {mustProvideDeposit && (
+                    <div className="mb-4 border rounded-xl p-4 bg-amber-50">
+                        <h3 className="font-semibold mb-3">Данные залога (обязательно)</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Input
+                                label="ФИО покупателя"
+                                name="buyer_full_name"
+                                value={buyerFullName}
+                                required
+                                onChange={e => setBuyerFullName(e.target.value)}
+                            />
+
+                            <Input
+                                label="Телефон покупателя"
+                                name="buyer_phone"
+                                value={buyerPhone}
+                                required
+                                onChange={e => setBuyerPhone(e.target.value)}
+                            />
+
+                            <Input
+                                label="Сумма залога"
+                                name="deposit_amount"
+                                type="number"
+                                value={depositAmount}
+                                required
+                                onChange={e => setDepositAmount(e.target.value)}
+                            />
+
+                            <Input
+                                label="Дата получения залога"
+                                name="deposit_received_at"
+                                type="date"
+                                value={depositReceivedAt}
+                                required
+                                onChange={e => setDepositReceivedAt(e.target.value)}
+                            />
+                            <Input
+                                label="Планируемая дата договора"
+                                name="planned_contract_signed_at"
+                                type="date"
+                                value={plannedContractSignedAt}
+                                required
+                                onChange={e => setPlannedContractSignedAt(e.target.value)}
+                            />
+
+                            <Input
+                                label="Ожидаемый доход компании"
+                                name="company_expected_income"
+                                type="number"
+                                value={companyExpectedIncome}
+                                required
+                                onChange={e => setCompanyExpectedIncome(e.target.value)}
+                            />
+                        </div>
                     </div>
                 )}
 
                 {mustProvideDeal && (
                     <div className="mb-4 border rounded-xl p-4 bg-gray-50">
                         <h3 className="font-semibold mb-3">Данные сделки (обязательно)</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="mb-3">
+                                <Input
+                                    label="Фактическая сумма сделки"
+                                    name="actual_sale_price"
+                                    type="number"
+                                    value={actualSalePrice}
+                                    required
+                                    onChange={e => setActualSalePrice(e.target.value)}
+                                />
+                            </div>
 
-                        <div className="mb-3">
-                            <label className="block text-sm mb-1 font-medium">
-                                Фактическая сумма сделки <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="number"
-                                value={actualSalePrice}
-                                onChange={(e) => setActualSalePrice(e.target.value)}
-                                className="w-full border rounded-lg p-2"
-                                placeholder="Например: 85000"
-                            />
-                        </div>
-
-                        <div className="mb-3">
-                            <label className="block text-sm mb-1 font-medium">
-                                Комиссия компании <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="number"
-                                value={companyCommission}
-                                onChange={(e) => setCompanyCommission(e.target.value)}
-                                className="w-full border rounded-lg p-2"
-                                placeholder="Например: 3000"
-                            />
-                        </div>
-
-                        <div className="mb-2">
-                            <label className="block text-sm mb-1 font-medium">
-                                У кого находятся деньги <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                value={moneyHolder}
-                                onChange={(e) => setMoneyHolder(e.target.value)}
-                                className="w-full border rounded-lg p-2"
-                            >
-                                <option value="">— выберите —</option>
-                                <option value="company">Компания</option>
-                                <option value="agent">Агент</option>
-                                <option value="owner">Владелец</option>
-                                <option value="developer">Застройщик</option>
-                                <option value="client">Клиент</option>
-                            </select>
+                            <div className="mb-3">
+                                <Input
+                                    label="Комиссия компании"
+                                    name="company_commission_amount"
+                                    type="number"
+                                    value={companyCommission}
+                                    required
+                                    onChange={e => setCompanyCommission(e.target.value)}
+                                />
+                            </div>
                         </div>
 
                         {selectedModerationStatus === 'sold' && (
@@ -357,7 +503,7 @@ const ModerationModal: FC<ModerationModalProps> = ({
                                                             if (e.target.checked) {
                                                                 setSelectedAgents(prev => [
                                                                     ...prev,
-                                                                    { agent_id: agent.id, role: 'assistant' },
+                                                                    {agent_id: agent.id, role: 'assistant'},
                                                                 ]);
                                                             } else {
                                                                 setSelectedAgents(prev =>
@@ -379,7 +525,7 @@ const ModerationModal: FC<ModerationModalProps> = ({
                                                                     setSelectedAgents(prev =>
                                                                         prev.map(a =>
                                                                             a.agent_id === agent.id
-                                                                                ? { ...a, role: e.target.value as any }
+                                                                                ? {...a, role: e.target.value as any}
                                                                                 : a
                                                                         )
                                                                     )
@@ -399,7 +545,10 @@ const ModerationModal: FC<ModerationModalProps> = ({
                                                                     setSelectedAgents(prev =>
                                                                         prev.map(a =>
                                                                             a.agent_id === agent.id
-                                                                                ? { ...a, commission_amount: e.target.value }
+                                                                                ? {
+                                                                                    ...a,
+                                                                                    commission_amount: e.target.value
+                                                                                }
                                                                                 : a
                                                                         )
                                                                     )
@@ -415,6 +564,28 @@ const ModerationModal: FC<ModerationModalProps> = ({
                                 )}
                             </div>
                         )}
+                    </div>
+                )}
+
+                {mustProvideDeposit && (
+                    <div className="mt-4">
+                        <label className="block text-sm mb-1 font-medium">
+                            У кого находятся деньги <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                            value={moneyHolder}
+                            onChange={(e) => setMoneyHolder(e.target.value)}
+                            className="w-full border rounded-lg p-2"
+                            name="money_holder"
+                            required
+                        >
+                            <option value="">— выберите —</option>
+                            <option value="company">Компания</option>
+                            <option value="agent">Агент</option>
+                            <option value="owner">Владелец</option>
+                            <option value="developer">Застройщик</option>
+                            <option value="client">Клиент</option>
+                        </select>
                     </div>
                 )}
 

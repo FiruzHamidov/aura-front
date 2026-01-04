@@ -58,8 +58,8 @@ export default function EditPost() {
     } = useGetPropertyByIdQuery(id as string);
 
     // Convert property data to match add-post Property type
-    const convertedPropertyData: Partial<Property> | undefined = propertyData
-        ? {
+const convertedPropertyData: Partial<Property> | undefined = propertyData
+    ? {
             id: propertyData.id,
             description: propertyData.description,
             price: propertyData.price,
@@ -106,8 +106,35 @@ export default function EditPost() {
             photos: propertyData.photos,
             moderation_status: propertyData.moderation_status,
             created_by: propertyData.created_by ?? propertyData.creator?.id ?? null,
+            // ===== Сделка / залог =====
+
+            buyer_full_name: propertyData.buyer_full_name ?? '',
+            buyer_phone: propertyData.buyer_phone ?? '',
+
+            deposit_amount: propertyData.deposit_amount ?? 0,
+            deposit_currency: propertyData.deposit_currency ?? 'TJS',
+            deposit_received_at: propertyData.deposit_received_at ?? '',
+            deposit_taken_at: propertyData.deposit_taken_at ?? '',
+
+            planned_contract_signed_at: propertyData.planned_contract_signed_at ?? '',
+
+            company_expected_income: propertyData.company_expected_income ?? '',
+            company_expected_income_currency:
+                propertyData.company_expected_income_currency ?? 'TJS',
+
+            company_commission_amount: propertyData.company_commission_amount ?? '',
+            company_commission_currency:
+                propertyData.company_commission_currency ?? 'TJS',
+
+            actual_sale_price: propertyData.actual_sale_price ?? '',
+            actual_sale_currency:
+                propertyData.actual_sale_currency ?? 'TJS',
+
+            money_holder: propertyData.money_holder ?? undefined,
         }
         : undefined;
+
+
 
     // Check if user has permission to edit
     useEffect(() => {
@@ -240,6 +267,7 @@ export default function EditPost() {
                     buildingTypes={formData.buildingTypes}
                     onNext={nextStep}
                     form={formData.form}
+                    onChange={formData.handleChange}
                 />
             )}
 

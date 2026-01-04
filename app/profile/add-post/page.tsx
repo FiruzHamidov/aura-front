@@ -112,6 +112,7 @@ export default function AddPost() {
                     buildingTypes={formData.buildingTypes}
                     onNext={nextStep}
                     form={formData.form}
+                    onChange={formData.handleChange}
                 />
             )}
 

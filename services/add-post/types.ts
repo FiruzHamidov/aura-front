@@ -62,6 +62,35 @@ export interface FormState {
     created_by: string;
     address: string;
 
+    // ===== Сделка / залог (опционально, заполняется по статусу) =====
+
+    // Покупатель
+    buyer_full_name?: string;
+    buyer_phone?: string;
+
+    // Залог
+    deposit_amount?: number | string;
+    deposit_currency?: 'TJS' | 'USD';
+    deposit_received_at?: string;
+    deposit_taken_at?: string;
+
+    // Планируемый договор
+    planned_contract_signed_at?: string;
+
+    // Доход / комиссия компании
+    company_expected_income?: number | string;
+    company_expected_income_currency?: 'TJS' | 'USD';
+
+    company_commission_amount?: number | string;
+    company_commission_currency?: 'TJS' | 'USD';
+
+    // Фактическая сделка
+    actual_sale_price?: number | string;
+    actual_sale_currency?: 'TJS' | 'USD';
+
+    // У кого деньги
+    money_holder?: 'company' | 'agent' | 'owner' | 'developer' | 'client';
+
     // Текущая форма проекта (новые File + серверные объекты)
     photos: (File | { id: number; file_path: string; type: string })[];
 }

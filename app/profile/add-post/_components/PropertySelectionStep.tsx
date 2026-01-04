@@ -2,6 +2,7 @@
 
 import {SelectToggle} from '@/ui-components/SelectToggle';
 import {Button} from '@/ui-components/Button';
+import { Input } from '@/ui-components/Input';
 import {type FormState as RawFormState, type PhotoItem, SelectOption} from '@/services/add-post/types';
 import {ChangeEvent, useEffect, useMemo, useState} from "react";
 
@@ -26,6 +27,9 @@ interface PropertySelectionStepProps {
     buildingTypes: SelectOption[];
     onNext: () => void;
     form: FormWithPhotos;
+    onChange: (
+        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    ) => void;
 }
 
 const BASE_STATUSES: { id: string; name: string }[] = [
@@ -36,6 +40,7 @@ const BASE_STATUSES: { id: string; name: string }[] = [
 const FULL_STATUSES: { id: string; name: string }[] = [
     {id: 'pending', name: 'На модерации'},
     {id: 'approved', name: 'Одобрено'},
+    {id: 'deposit', name: 'Залог'},
     {id: 'sold', name: 'Продано агентом'},
     {id: 'sold_by_owner', name: 'Продано владельцем'},
     {id: 'rented', name: 'Арендовано'},
@@ -44,6 +49,8 @@ const FULL_STATUSES: { id: string; name: string }[] = [
 ];
 
 const STATUS_REQUIRING_COMMENT = ['sold', 'sold_by_owner', 'rented', 'denied', 'deleted'];
+const STATUS_REQUIRING_DEPOSIT = ['deposit', 'sold'];
+const STATUS_REQUIRING_DEAL = ['sold', 'rented'];
 
 export function PropertySelectionStep({
                                           isAgent,
@@ -63,7 +70,8 @@ export function PropertySelectionStep({
                                           propertyTypes,
                                           buildingTypes,
                                           onNext,
-                                          form
+                                          form,
+                                          onChange
                                       }: PropertySelectionStepProps) {
 
     const [statusComment, setStatusComment] = useState<string>('');
@@ -145,8 +153,18 @@ export function PropertySelectionStep({
     const moderationDisabled = isAgent && selectedListingType !== 'regular';
 
     const mustProvideComment = STATUS_REQUIRING_COMMENT.includes(selectedModerationStatus);
+    const mustProvideDeposit = STATUS_REQUIRING_DEPOSIT.includes(selectedModerationStatus);
+    const mustProvideDeal = STATUS_REQUIRING_DEAL.includes(selectedModerationStatus);
 
-    const isValid = isValidBase && (!mustProvideComment || (statusComment && statusComment.trim() !== ''));
+    const isValid =
+        isValidBase &&
+        (!mustProvideComment || statusComment.trim() !== '') &&
+        (!mustProvideDeposit ||
+            (!!form.deposit_amount &&
+             !!form.planned_contract_signed_at &&
+             !!form.company_expected_income &&
+             !!form.money_holder)) &&
+        (!mustProvideDeal || form.actual_sale_price);
 
 
 
@@ -204,6 +222,115 @@ export function PropertySelectionStep({
                 setSelected={setSelectedModerationStatus}
                 disabled={moderationDisabled}
             />
+
+            {mustProvideDeposit && (
+                <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
+                    Для статуса <b>«{selectedModerationStatus === 'sold' ? 'Продано агентом' : 'Залог'}» </b>
+                     потребуется заполнить данные залога
+                    {selectedModerationStatus === 'sold' && ' и сделки'}.
+                </div>
+            )}
+
+            {mustProvideDeposit && (
+                <div className="rounded-xl border p-4 bg-amber-50">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Input
+                            label="ФИО покупателя"
+                            name="buyer_full_name"
+                            value={form.buyer_full_name ?? ''}
+                            required
+                            onChange={onChange}
+                        />
+
+                        <Input
+                            label="Телефон покупателя"
+                            name="buyer_phone"
+                            value={form.buyer_phone ?? ''}
+                            required
+                            onChange={onChange}
+                        />
+
+                        <Input
+                            label="Сумма залога"
+                            name="deposit_amount"
+                            type="number"
+                            value={form.deposit_amount ?? ''}
+                            required
+                            onChange={onChange}
+                        />
+
+                        <Input
+                            label="Дата получения залога"
+                            name="deposit_received_at"
+                            type="datetime-local"
+                            value={form.deposit_received_at ?? ''}
+                            required
+                            onChange={onChange}
+                        />
+
+                        <Input
+                            label="Планируемая дата договора"
+                            name="planned_contract_signed_at"
+                            type="datetime-local"
+                            value={form.planned_contract_signed_at ?? ''}
+                            required
+                            onChange={onChange}
+                        />
+
+                        <Input
+                            label="Ожидаемый доход компании"
+                            name="company_expected_income"
+                            type="number"
+                            value={form.company_expected_income ?? ''}
+                            required
+                            onChange={onChange}
+                        />
+                    </div>
+                    <div className="mt-4">
+                        <label className="block text-sm mb-1 font-medium">
+                            У кого находятся деньги <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                            value={form.money_holder ?? ''}
+                            onChange={onChange}
+                            className="w-full border rounded-lg p-2"
+                            name="money_holder"
+                            required
+                        >
+                            <option value="">— выберите —</option>
+                            <option value="company">Компания</option>
+                            <option value="agent">Агент</option>
+                            <option value="owner">Владелец</option>
+                            <option value="developer">Застройщик</option>
+                            <option value="client">Клиент</option>
+                        </select>
+                    </div>
+                </div>
+            )}
+
+            {selectedModerationStatus === 'sold' && (
+                <div className="rounded-xl border p-4 bg-gray-50">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Input
+                            label="Фактическая сумма сделки"
+                            name="actual_sale_price"
+                            type="number"
+                            value={form.actual_sale_price ?? ''}
+                            required
+                            onChange={onChange}
+                        />
+
+                        <Input
+                            label="Комиссия компании"
+                            name="company_commission_amount"
+                            type="number"
+                            value={form.company_commission_amount ?? ''}
+                            required
+                            onChange={onChange}
+                        />
+                    </div>
+                </div>
+            )}
 
             {/* Показываем поле комментария к статусу если выбран требующий статус */}
             {mustProvideComment && (

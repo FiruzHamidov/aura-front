@@ -118,12 +118,24 @@ export interface Property {
     };
     views_count?: number;
 
+    // Покупатель
+    buyer_full_name?: string;
+    buyer_phone?: string;
+
+    // Планируемый договор
+    planned_contract_signed_at?: string;
+
+    // Доход / комиссия компании
+    company_expected_income?: number | string;
+    company_expected_income_currency?: 'TJS' | 'USD';
+
+    company_commission_amount?: string | number;
+    company_commission_currency?: 'TJS' | 'USD';
+
 // === Deal / Sale fields ===
     actual_sale_price?: string | number;
     actual_sale_currency?: 'TJS' | 'USD';
 
-    company_commission_amount?: string | number;
-    company_commission_currency?: 'TJS' | 'USD';
 
     money_holder?: 'company' | 'agent' | 'owner' | 'developer' | 'client';
 

@@ -185,6 +185,35 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
                 address: propertyData.address || '',
                 sold_at: propertyData.sold_at || '',
                 status_comment: propertyData.status_comment || '',
+
+                // ===== Залог / сделка (восстановление при редактировании) =====
+                buyer_full_name: propertyData.buyer_full_name || '',
+                buyer_phone: propertyData.buyer_phone || '',
+
+                deposit_amount: propertyData.deposit_amount ?? '',
+                deposit_currency: propertyData.deposit_currency ?? 'TJS',
+                deposit_received_at: propertyData.deposit_received_at ?? '',
+                deposit_taken_at: propertyData.deposit_taken_at ?? '',
+
+                planned_contract_signed_at:
+                    propertyData.planned_contract_signed_at ?? '',
+
+                company_expected_income:
+                    propertyData.company_expected_income ?? '',
+                company_expected_income_currency:
+                    propertyData.company_expected_income_currency ?? 'TJS',
+
+                company_commission_amount:
+                    propertyData.company_commission_amount ?? '',
+                company_commission_currency:
+                    propertyData.company_commission_currency ?? 'TJS',
+
+                actual_sale_price:
+                    propertyData.actual_sale_price ?? '',
+                actual_sale_currency:
+                    propertyData.actual_sale_currency ?? 'TJS',
+
+                money_holder: propertyData.money_holder,
             });
 
             setSelectedOfferType(propertyData.offer_type || 'sale');
@@ -437,6 +466,28 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
             object_key: form.object_key,
             owner_name: form.owner_name,
             status_comment: form.status_comment,
+
+            // ===== Залог / сделка =====
+            buyer_full_name: form.buyer_full_name,
+            buyer_phone: form.buyer_phone,
+
+            deposit_amount: form.deposit_amount,
+            deposit_currency: form.deposit_currency,
+            deposit_received_at: form.deposit_received_at,
+            deposit_taken_at: form.deposit_taken_at,
+
+            planned_contract_signed_at: form.planned_contract_signed_at,
+
+            company_expected_income: form.company_expected_income,
+            company_expected_income_currency: form.company_expected_income_currency,
+
+            company_commission_amount: form.company_commission_amount,
+            company_commission_currency: form.company_commission_currency,
+
+            actual_sale_price: form.actual_sale_price,
+            actual_sale_currency: form.actual_sale_currency,
+
+            money_holder: form.money_holder,
         };
 
         // 2) Текущий порядок существующих фото (по id из БД)
