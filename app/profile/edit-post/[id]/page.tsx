@@ -24,13 +24,22 @@ export default function EditPost() {
     const router = useRouter();
     const {data: user} = useProfile();
 
+    type UserRole = 'admin' | 'agent' | 'superadmin' | 'client';
+
+    const userRole = user?.role?.slug as UserRole | undefined;
+
+    const ADMIN_ROLES: readonly UserRole[] = ['admin', 'superadmin'];
+
+    const isAdminUser = ADMIN_ROLES.includes(userRole ?? 'client');
+    const isAgentUser = userRole === 'agent';
+
     const [agents, setAgents] = useState<{ id: number; name: string }[]>([]);
     const [agentsLoading, setAgentsLoading] = useState(false);
 
     // загрузка списка агентов (для админа)
     useEffect(() => {
         if (!user) return;
-        if (user.role?.slug !== 'admin') return;
+        if (!isAdminUser) return;
 
         (async () => {
             try {
@@ -49,7 +58,7 @@ export default function EditPost() {
                 setAgentsLoading(false);
             }
         })();
-    }, [user]);
+    }, [user, isAdminUser]);
 
     const {
         data: propertyData,
@@ -140,7 +149,7 @@ const convertedPropertyData: Partial<Property> | undefined = propertyData
     useEffect(() => {
         if (propertyData && user) {
             const canEdit =
-                (user && user.role?.slug === 'admin') ||
+                isAdminUser ||
                 (propertyData.creator &&
                     (user?.id === propertyData.creator.id ||
                         (propertyData.agent_id && user?.id === propertyData.agent_id)));
@@ -149,7 +158,7 @@ const convertedPropertyData: Partial<Property> | undefined = propertyData
                 router.push('/profile');
             }
         }
-    }, [propertyData, user, router]);
+    }, [propertyData, user, router, isAdminUser]);
 
     const formData = useAddPostForm({
         editMode: true,
@@ -249,7 +258,7 @@ const convertedPropertyData: Partial<Property> | undefined = propertyData
             )}
             {currentStep === 1 && (
                 <PropertySelectionStep
-                    isAgent={(user?.role?.slug === 'agent')}
+                    isAgent={isAgentUser}
                     isEdit={true}
                     selectedModerationStatus={formData.selectedModerationStatus}
                     setSelectedModerationStatus={formData.setSelectedModerationStatus}
@@ -289,7 +298,7 @@ const convertedPropertyData: Partial<Property> | undefined = propertyData
                     onBack={prevStep}
                     selectedPropertyType={formData.selectedPropertyType}
                     propertyTypes={formData.propertyTypes}
-                    isAdmin={(user?.role?.slug === 'admin')}
+                    isAdmin={isAdminUser}
                     agents={agents}
                     agentsLoading={agentsLoading}
                 />
