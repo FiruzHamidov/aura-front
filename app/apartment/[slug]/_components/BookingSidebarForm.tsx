@@ -7,7 +7,7 @@ import {toast} from 'react-toastify';
 
 interface BookingSidebarFormProps {
     propertyId: number;
-    defaultAgentId: number;
+    defaultAgentId?: number;
 }
 
 export default function BookingSidebarForm({

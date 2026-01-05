@@ -12,7 +12,6 @@ import BookingSidebarForm from '@/app/apartment/[slug]/_components/BookingSideba
 import FooterPhoneIcon from '@/icons/FooterPhoneIcon';
 import WhatsappInlineIcon from '@/icons/WhatsappInlineIcon';
 import {
-    ArrowUpDown,
     Bath,
     Building2,
     Calendar1Icon,
@@ -50,6 +49,15 @@ interface Props {
 
 export default function GalleryWrapper({apartment, photos}: Props) {
     const {data: user} = useProfile();
+
+    type UserRole = 'admin' | 'agent' | 'superadmin';
+
+    const userRole = user?.role?.slug as UserRole | undefined;
+
+    const ADMIN_ROLES: readonly UserRole[] = ['admin', 'superadmin'];
+
+    const isAdminUser = ADMIN_ROLES.includes(userRole ?? 'agent');
+    const isAgentUser = userRole === 'agent';
     const [isFavorite, setIsFavorite] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -189,7 +197,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
     const ymapsRef = useRef(null);
 
     const canEdit =
-        (user && user.role?.slug === 'admin') ||
+        isAdminUser ||
         (apartment.creator &&
             (user?.id === apartment.creator.id ||
                 (apartment.agent_id && user?.id === apartment.agent_id)));
@@ -604,7 +612,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                             </div>
 
                                             {/* --- ADMIN: дополнительные поля владелец / телефон владельца / у кого ключи --- */}
-                                            {user && user.role?.slug === 'admin' && (
+                                            {isAdminUser && (
                                                 <>
                                                     <div className="flex justify-between py-2 border-b border-gray-100">
                                                         <span className="text-[#666F8D] flex items-center gap-2">
@@ -843,15 +851,14 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                             />
                         </div>
 
-                        {user &&
-                            (user.role?.slug === 'agent' || user.role?.slug === 'admin') && (
-                                <div id="createBooking">
-                                    <BookingSidebarForm
-                                        propertyId={apartment.id}
-                                        defaultAgentId={user.id}
-                                    />
-                                </div>
-                            )}
+                        {(isAdminUser || isAgentUser) && (
+                            <div id="createBooking">
+                                <BookingSidebarForm
+                                    propertyId={apartment.id}
+                                    defaultAgentId={user?.id}
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
 

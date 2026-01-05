@@ -17,7 +17,7 @@ interface ModerationModalProps {
     property: Listing | Property;
     onClose: () => void;
     onUpdated: (updated: Partial<Property>) => void;
-    userRole: 'admin' | 'agent';
+    userRole: 'admin' | 'agent' | 'superadmin';
 }
 
 const STATUS_REQUIRING_COMMENT = ['sold', 'sold_by_owner', 'rented', 'denied', 'deleted'];
@@ -55,6 +55,17 @@ const ModerationModal: FC<ModerationModalProps> = ({
         if (!value) return '';
         return value.split(' ')[0]; // YYYY-MM-DD
     };
+
+    type UserRole = 'admin' | 'agent' | 'superadmin';
+
+    const ADMIN_ROLES: readonly UserRole[] = ['admin', 'superadmin'];
+
+    const isAdmin = (role: UserRole) => ADMIN_ROLES.includes(role);
+
+    const isAgent = (role: UserRole) => role === 'agent';
+
+    const isAdminUser = isAdmin(userRole);
+    const isAgentUser = isAgent(userRole);
     useEffect(() => {
         // ===== hydrate from backend =====
         setActualSalePrice(property.actual_sale_price?.toString() ?? '');
@@ -95,10 +106,10 @@ const ModerationModal: FC<ModerationModalProps> = ({
 
     // если агент и объявление vip/urgent → запрет approved (и автосброс в pending)
     useEffect(() => {
-        if (userRole === 'agent' && isPromo && selectedModerationStatus === 'approved') {
+        if (isAgentUser && isPromo && selectedModerationStatus === 'approved') {
             setSelectedModerationStatus('pending');
         }
-    }, [userRole, isPromo, selectedModerationStatus]);
+    }, [isAgentUser, isPromo, selectedModerationStatus]);
 
     const moderationOptions = ((): { id: string; name: string }[] => {
         const offerType = property.offer_type
@@ -116,12 +127,12 @@ const ModerationModal: FC<ModerationModalProps> = ({
         ];
 
         // Добавляем 'deleted' только для админа
-        if (userRole === 'admin') {
+        if (isAdminUser) {
             base.push({id: 'deleted', name: 'Удалено'});
         }
 
         // агент + vip/urgent → убираем approved из списка
-        if (userRole === 'agent' && isPromo) {
+        if (isAgentUser && isPromo) {
             return base.filter(o => o.id !== 'approved');
         }
 
@@ -137,10 +148,10 @@ const ModerationModal: FC<ModerationModalProps> = ({
     })();
 
     useEffect(() => {
-        if (userRole === 'agent' && isPromo && selectedModerationStatus === 'approved') {
+        if (isAgentUser && isPromo && selectedModerationStatus === 'approved') {
             setSelectedModerationStatus('pending');
         }
-    }, [userRole, isPromo, selectedModerationStatus]);
+    }, [isAgentUser, isPromo, selectedModerationStatus]);
 
     const mustProvideComment = STATUS_REQUIRING_COMMENT.includes(selectedModerationStatus);
     const mustProvideDeal = STATUS_REQUIRING_DEAL.includes(selectedModerationStatus);
@@ -233,19 +244,20 @@ const ModerationModal: FC<ModerationModalProps> = ({
             };
 
             // админ может менять listing_type
-            if (userRole === 'admin') {
+            if (isAdminUser) {
                 payload.listing_type = selectedListingType;
             }
 
             // оба (agent/admin) могут менять модерацию, но для агента с promo принудительно ставим pending
-            if (userRole === 'agent' || userRole === 'admin') {
+            if (isAdminUser || isAgentUser) {
                 let nextStatus = selectedModerationStatus;
 
                 // ВАЖНО: если агент и (vip/urgent), то серверу отправляем только pending
-                const effectiveListingType =
-                    userRole === 'admin' ? selectedListingType : property.listing_type; // агент не меняет listing_type в UI
+                const effectiveListingType = isAdminUser
+                    ? selectedListingType
+                    : property.listing_type; // агент не меняет listing_type в UI
                 const promoForAgent =
-                    userRole === 'agent' && (effectiveListingType === 'vip' || effectiveListingType === 'urgent');
+                    isAgentUser && (effectiveListingType === 'vip' || effectiveListingType === 'urgent');
 
                 if (promoForAgent) {
                     nextStatus = 'pending';
@@ -344,7 +356,7 @@ const ModerationModal: FC<ModerationModalProps> = ({
             >
                 <h2 className="text-xl font-bold mb-4">Управление объявлением</h2>
 
-                {(userRole === 'agent' || userRole === 'admin') && (
+                {(isAdminUser || isAgentUser) && (
                     <div className="mb-4">
                         <SelectToggle
                             title="Тип объявления"
@@ -359,17 +371,17 @@ const ModerationModal: FC<ModerationModalProps> = ({
                     </div>
                 )}
 
-                {(userRole === 'agent' || userRole === 'admin') && (
+                {(isAdminUser || isAgentUser) && (
                     <div className="mb-4">
                         <SelectToggle
                             title="Статус модерации"
                             options={moderationOptions}
                             selected={selectedModerationStatus}
                             setSelected={setSelectedModerationStatus}
-                            disabled={userRole === 'agent' && isPromo}
+                            disabled={isAgentUser && isPromo}
                         />
                         {/* Подсказка для агента при vip/urgent */}
-                        {userRole === 'agent' && isPromo && (
+                        {isAgentUser && isPromo && (
                             <p className="text-xs text-amber-600 mt-2">
                                 Для VIP/Срочной продажи у агентов статус публикации всегда «На модерации».
                             </p>

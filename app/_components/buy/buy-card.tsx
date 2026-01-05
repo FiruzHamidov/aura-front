@@ -1,6 +1,6 @@
 'use client';
 
-import {FC, MouseEvent, useCallback, useEffect, useState, useRef} from 'react';
+import {FC, MouseEvent, useCallback, useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {useRouter} from 'next/navigation';
@@ -112,18 +112,23 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const userRole =
-        user?.role?.slug === 'admin'
-            ? 'admin'
-            : user?.role?.slug === 'agent'
-                ? 'agent'
-                : null;
+    type UserRoleSlug = 'admin' | 'agent' | 'superadmin';
+
+    const role: UserRoleSlug | null =
+        user?.role?.slug === 'admin' ||
+        user?.role?.slug === 'agent' ||
+        user?.role?.slug === 'superadmin'
+            ? user.role.slug
+            : null;
 
     const canModerate =
-        userRole === 'admin' ||
-        (userRole === 'agent' &&
+        role === 'superadmin' ||
+        role === 'admin' ||
+        (
+            role === 'agent' &&
             user?.id != null &&
-            Number(user?.id) === Number(listing.creator?.id));
+            Number(user.id) === Number(listing.creator?.id)
+        );
 
     const handleCompareClick = (e: MouseEvent) => {
         e.preventDefault();
@@ -277,7 +282,8 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
         <div
             className="bg-white rounded-xl overflow-hidden flex flex-col h-full hover:shadow-sm transition-shadow duration-200 p-4 min-w-[312px]">
             <div className="relative mb-3">
-                <div className="overflow-hidden rounded-lg" ref={emblaRef} onMouseMove={handleHoverMove} onMouseLeave={handleHoverLeave}>
+                <div className="overflow-hidden rounded-lg" ref={emblaRef} onMouseMove={handleHoverMove}
+                     onMouseLeave={handleHoverLeave}>
                     <div className="flex">
                         {displayImages.map((image, index) => (
                             <div className="min-w-full relative" key={index}>
@@ -293,13 +299,15 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                                         className="w-full object-cover aspect-[4/3] bg-gray-100"
                                     />
 
-                                {(index === 5 && extraImages > 0) && (
-                                    <div className="absolute right-0 top-0 flex w-full h-full bg-black/50 justify-center items-center">
-                                        {extraImages > 0 && (
-                                            <span className="text-[32px] font-semibold items-center justify-center flex text-xs font-bold px-[18px] py-1 rounded-full text-white/90">Еще {extraImages} фото</span>
-                                        )}
-                                    </div>
-                                )}
+                                    {(index === 5 && extraImages > 0) && (
+                                        <div
+                                            className="absolute right-0 top-0 flex w-full h-full bg-black/50 justify-center items-center">
+                                            {extraImages > 0 && (
+                                                <span
+                                                    className="text-[32px] font-semibold items-center justify-center flex text-xs font-bold px-[18px] py-1 rounded-full text-white/90">Еще {extraImages} фото</span>
+                                            )}
+                                        </div>
+                                    )}
                                 </Link>
                             </div>
                         ))}
@@ -482,14 +490,14 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                 )}
             </div>
 
-            {isModalOpen && userRole && (
+            {isModalOpen && role && (
                 <ModerationModal
                     property={listing}
                     onClose={() => setIsModalOpen(false)}
                     onUpdated={(updated) => {
                         Object.assign(listing, updated);
                     }}
-                    userRole={userRole}
+                    userRole={role}
                 />
             )}
         </div>

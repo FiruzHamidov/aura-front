@@ -5,7 +5,7 @@ import {useRouter, useSearchParams} from 'next/navigation';
 import {Input} from '@/ui-components/Input';
 import {Button} from '@/ui-components/Button';
 import {axios} from '@/utils/axios';
-import {Edit2, EditIcon, EllipsisVerticalIcon, EyeIcon, HistoryIcon} from "lucide-react";
+import {Edit2, EditIcon, EyeIcon, HistoryIcon} from "lucide-react";
 import {useProfile} from "@/services/login/hooks";
 import {buildTitle} from "@/utils/helpers";
 import {Property} from "@/services/properties/types";
@@ -34,6 +34,10 @@ export function BookingsReport() {
     const [, setLoadingAgents] = useState(false);
 
     const {data: currentUser} = useProfile();
+    type UserRole = 'admin' | 'agent' | 'superadmin' | 'client';
+    const userRole = currentUser?.role?.slug as UserRole | undefined;
+    const ADMIN_ROLES: readonly UserRole[] = ['admin', 'superadmin'];
+    const isAdminUser = ADMIN_ROLES.includes(userRole ?? 'client');
     const [agentSelectDisabled, setAgentSelectDisabled] = useState(false);
 
     const [dateFrom, setDateFrom] = useState<string>(() => String(searchParams?.get('date_from') ?? ''));
@@ -48,11 +52,11 @@ export function BookingsReport() {
     useEffect(() => {
         if (!currentUser) return;
 
-        if (currentUser.role?.slug !== 'admin') {
+        if (!isAdminUser) {
             setAgentSelectDisabled(true);
-            setAgentId(currentUser.id.toString());
+            setAgentId(String(currentUser.id));
         }
-    }, [currentUser]);
+    }, [currentUser, isAdminUser]);
 
     useEffect(() => {
         const loadAgents = async () => {
@@ -94,7 +98,9 @@ export function BookingsReport() {
         if (dateFrom) params.set('date_from', dateFrom);
         if (dateTo) params.set('date_to', dateTo);
         // if currentUser exists and is not admin, enforce their id (ignore agentId param)
-        const effectiveAgentId = currentUser && (currentUser.role?.slug ?? null) !== 'admin' ? String(currentUser.id) : agentId;
+        const effectiveAgentId = currentUser && !isAdminUser
+            ? String(currentUser.id)
+            : agentId;
         if (effectiveAgentId) params.set('agent_id', effectiveAgentId);
         return params.toString();
     };
@@ -116,7 +122,10 @@ export function BookingsReport() {
                 window.history.replaceState({}, '', newUrl);
             } else {
                 // fallback for environments without window (safe no-op)
-                try { router.replace(`/profile/reports/bookings?${qs}`); } catch (e) { /* noop */ }
+                try {
+                    router.replace(`/profile/reports/bookings?${qs}`);
+                } catch (e) { /* noop */
+                }
             }
         } catch (e: unknown) {
             console.error('bookings load failed', e);
@@ -126,8 +135,7 @@ export function BookingsReport() {
             if (typeof e === 'object' && e !== null && 'message' in e) {
                 const em = (e as Record<string, unknown>)['message'];
                 errMsg = String(em ?? errMsg);
-            }
-            else errMsg = String(e ?? errMsg);
+            } else errMsg = String(e ?? errMsg);
 
             setError(errMsg || 'Ошибка загрузки показов');
             setBookings([]);
@@ -226,7 +234,7 @@ export function BookingsReport() {
                     />
 
                     {/* allow changing agent only for admins */}
-                    {(currentUser?.role?.slug ?? null) === 'admin' && (
+                    {isAdminUser && (
                         <>
                             <label className="block text-sm mb-1">Агент</label>
                             <select
@@ -249,7 +257,8 @@ export function BookingsReport() {
 
                     <div className="flex justify-end gap-2 mt-4">
                         <Button variant="secondary" onClick={closeEdit}>Отмена</Button>
-                        <Button onClick={async () => await saveEdit({id: editing.id, ...(local as Partial<Booking>)})}>Сохранить</Button>
+                        <Button
+                            onClick={async () => await saveEdit({id: editing.id, ...(local as Partial<Booking>)})}>Сохранить</Button>
                     </div>
                 </div>
             </div>
@@ -257,7 +266,7 @@ export function BookingsReport() {
     }
 
     // --- ActionMenu component (controlled by parent via open/onToggle) ---
-    function ActionMenu({ propertyId, open, onToggle }: { propertyId: number; open: boolean; onToggle: () => void; }) {
+    function ActionMenu({propertyId, open, onToggle}: { propertyId: number; open: boolean; onToggle: () => void; }) {
         return (
             <div className="relative inline-block text-left">
                 {/*<Button*/}
@@ -277,14 +286,18 @@ export function BookingsReport() {
                         onMouseLeave={onToggle}
                     >
                         <div className="flex flex-col">
-                            <Link href={`/apartment/${propertyId}`} className="block px-3 py-2 text-sm hover:bg-gray-50" onClick={onToggle}>
+                            <Link href={`/apartment/${propertyId}`} className="block px-3 py-2 text-sm hover:bg-gray-50"
+                                  onClick={onToggle}>
                                 <div className="flex items-center gap-2"><EyeIcon className="w-4 h-4"/>Просмотр</div>
                             </Link>
-                            <Link href={`/apartment/${propertyId}/logs`} className="block px-3 py-2 text-sm hover:bg-gray-50" onClick={onToggle}>
+                            <Link href={`/apartment/${propertyId}/logs`}
+                                  className="block px-3 py-2 text-sm hover:bg-gray-50" onClick={onToggle}>
                                 <div className="flex items-center gap-2"><HistoryIcon className="w-4 h-4"/>Логи</div>
                             </Link>
-                            <Link href={`/profile/edit-post/${propertyId}`} className="block px-3 py-2 text-sm hover:bg-gray-50" onClick={onToggle}>
-                                <div className="flex items-center gap-2"><EditIcon className="w-4 h-4"/>Редактировать</div>
+                            <Link href={`/profile/edit-post/${propertyId}`}
+                                  className="block px-3 py-2 text-sm hover:bg-gray-50" onClick={onToggle}>
+                                <div className="flex items-center gap-2"><EditIcon className="w-4 h-4"/>Редактировать
+                                </div>
                             </Link>
                         </div>
                     </div>
@@ -393,7 +406,7 @@ export function BookingsReport() {
                                     {b.note ? (b.note.length > 25 ? b.note.slice(0, 25) + '…' : b.note) : '—'}
                                 </td>
                                 <td className="px-3 py-3">
-                                    {currentUser?.role?.slug === 'admin' && (
+                                    {isAdminUser && (
                                         <Button
                                             variant="circle"
                                             className=" cursor-pointer rounded text-sm"
@@ -415,5 +428,5 @@ export function BookingsReport() {
 }
 
 export default function BookingsReportPage() {
-    return <BookingsReport />;
+    return <BookingsReport/>;
 }

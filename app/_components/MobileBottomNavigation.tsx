@@ -252,7 +252,7 @@ const MobileBottomNavigation: FC = () => {
                                            onClick={closeSheet}/>
                                 <SheetLink href="/profile/reports" icon={FileBarChart} label="Отчёты"
                                            onClick={closeSheet}/>
-                                {user?.role?.slug === 'admin' && (
+                                {(user?.role?.slug === 'admin' || user?.role?.slug === 'superadmin') && (
                                     <SheetLink href="/admin/users" icon={Users} label="Пользователи"
                                                onClick={closeSheet}/>
                                 )}
