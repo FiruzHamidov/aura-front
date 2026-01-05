@@ -26,9 +26,10 @@ interface BuyCardProps {
     user?: User;
     isLarge?: boolean;
     isEditRoute?: boolean;
+    isForClient?: boolean;
 }
 
-const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute = false}) => {
+const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute = false, isForClient = false}) => {
     const router = useRouter();
 
     const formattedPrice = Number(listing.price).toLocaleString('ru-RU');
@@ -164,13 +165,25 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
         };
     }, [emblaApi, onSelect]);
 
-    const getLabel = (l: Property) => {
-        // --- приоритет: moderation_status ---
-        if (l?.moderation_status === 'sold') return 'Продан';
-        if (l?.moderation_status === 'sold_by_owner') return 'Продан';
-        if (l?.moderation_status === 'rented') return 'Сдано';
+    const MODERATION_LABELS: Record<string, string> = {
+        pending: 'На модерации',
+        approved: 'Опубликовано',
+        rejected: 'Отклонено',
+        denied: 'Отказано клиентом',
+        deposit: 'Залог',
+        sold: 'Продан',
+        sold_by_owner: 'Продан',
+        rented: 'Сдано',
+        deleted: 'Удалено',
+    };
 
-        // --- обычные типы ---
+    const getLabel = (l: Property, user?: any) => {
+        // --- если есть пользователь → показываем статус модерации ---
+        if (!isForClient) {
+            return MODERATION_LABELS[l.moderation_status] ?? '';
+        }
+
+        // --- обычные типы для гостей ---
         if (l.listing_type === 'regular') {
             return l.offer_type === 'sale'
                 ? LISTING_TYPE_META.regular?.label // «Продаётся»
@@ -324,7 +337,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                         )}
                         title={LISTING_TYPE_META[listing.listing_type]?.label}
                     >
-           {getLabel(listing)}
+           {getLabel(listing, user)}
           </span>
                 )}
                 <div className="absolute top-2 md:top-[22px] right-2 md:right-[22px] flex flex-col space-y-2">

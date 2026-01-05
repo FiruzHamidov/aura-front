@@ -874,7 +874,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                         <div className="flex gap-3 overflow-x-auto pb-2">
                             {similarProperties.map((p) => (
                                 <div className='w-[420px]' key={p.id}>
-                                    <BuyCard listing={p} user={user}/>
+                                    <BuyCard listing={p} user={user} isForClient={true}/>
                                 </div>
                             ))}
                         </div>
