@@ -102,6 +102,7 @@ const STATUS_OPTIONS = [
     {label: 'Арендовано', value: 'rented'},
     {label: 'Удалено', value: 'deleted'},
     {label: 'Отказано клиентом', value: 'denied'},
+    {label: 'Залог', value: 'deposit'},
 ];
 
 // const OFFER_OPTIONS = [
