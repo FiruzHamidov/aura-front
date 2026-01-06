@@ -9,13 +9,7 @@ import {useGetAllPropertiesQuery} from '@/services/properties/hooks';
 import {axios} from "@/utils/axios";
 import {Property, PropertyFilters} from "@/services/properties/types";
 import Link from "next/link";
-import {
-    EditIcon, Ellipsis,
-    EyeIcon,
-    GridIcon,
-    HistoryIcon,
-    ListIcon,
-} from "lucide-react";
+import {EditIcon, Ellipsis, EyeIcon, GridIcon, HistoryIcon, ListIcon,} from "lucide-react";
 import clsx from 'clsx';
 import BuyCard from "@/app/_components/buy/buy-card";
 import {useProfile} from "@/services/login/hooks";
@@ -49,6 +43,7 @@ const STATUS_OPTIONS = [
     {label: 'Арендовано', value: 'rented'},
     {label: 'Удалено', value: 'deleted'},
     {label: 'Отказано клиентом', value: 'denied'},
+    {label: 'Залог', value: 'deposit'},
 ];
 
 const OFFER_OPTIONS = [
@@ -70,6 +65,8 @@ export default function ReportsPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const {data: user} = useProfile();
+
+    const isSuperAdmin = user?.role?.slug === 'superadmin';
 
     // read initial filters from query params so state persists on back/forward
     const initialFilters = useMemo<FilterState>(() => {
@@ -229,7 +226,6 @@ export default function ReportsPage() {
         : propertiesResponse?.data ?? [];
 
 
-
     console.log('propertiesItems', propertiesItems);
     // sorting helper
     const toggleSort = (field: string) => {
@@ -264,166 +260,166 @@ export default function ReportsPage() {
 
             {/* Фильтры */}
             <div
-              className="flex items-center justify-between mb-3 cursor-pointer"
-              onClick={() => setFiltersOpen(v => !v)}
+                className="flex items-center justify-between mb-3 cursor-pointer"
+                onClick={() => setFiltersOpen(v => !v)}
             >
-              <h2 className="text-lg font-semibold">Фильтры</h2>
-              <span
-                className={`inline-block transition-transform duration-300 ${
-                  filtersOpen ? 'rotate-180' : 'rotate-0'
-                }`}
-              >
+                <h2 className="text-lg font-semibold">Фильтры</h2>
+                <span
+                    className={`inline-block transition-transform duration-300 ${
+                        filtersOpen ? 'rotate-180' : 'rotate-0'
+                    }`}
+                >
                 ⌃
               </span>
             </div>
 
             <div
-              className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                filtersOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
-              }`}
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                    filtersOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+                }`}
             >
-              <div className="bg-white rounded-2xl shadow p-4">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <Input
-                                type="date"
-                                label="Дата с"
-                                name="date_from"
-                                value={filters.date_from}
-                                onChange={(e) => setFilters((s) => ({...s, date_from: e.target.value}))}
-                            />
-                            <Input
-                                type="date"
-                                label="Дата по"
-                                name="date_to"
-                                value={filters.date_to}
-                                onChange={(e) => setFilters((s) => ({...s, date_to: e.target.value}))}
-                            />
+                <div className="bg-white rounded-2xl shadow p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <Input
+                            type="date"
+                            label="Дата с"
+                            name="date_from"
+                            value={filters.date_from}
+                            onChange={(e) => setFilters((s) => ({...s, date_from: e.target.value}))}
+                        />
+                        <Input
+                            type="date"
+                            label="Дата по"
+                            name="date_to"
+                            value={filters.date_to}
+                            onChange={(e) => setFilters((s) => ({...s, date_to: e.target.value}))}
+                        />
 
-                            <Input
-                                type="date"
-                                label="Продано с"
-                                name="sold_at_from"
-                                value={filters.sold_at_from || ''}
-                                onChange={(e) =>
-                                    setFilters((s) => ({ ...s, sold_at_from: e.target.value }))
-                                }
-                            />
+                        <Input
+                            type="date"
+                            label="Продано с"
+                            name="sold_at_from"
+                            value={filters.sold_at_from || ''}
+                            onChange={(e) =>
+                                setFilters((s) => ({...s, sold_at_from: e.target.value}))
+                            }
+                        />
 
-                            <Input
-                                type="date"
-                                label="Продано по"
-                                name="sold_at_to"
-                                value={filters.sold_at_to || ''}
-                                onChange={(e) =>
-                                    setFilters((s) => ({ ...s, sold_at_to: e.target.value }))
-                                }
-                            />
+                        <Input
+                            type="date"
+                            label="Продано по"
+                            name="sold_at_to"
+                            value={filters.sold_at_to || ''}
+                            onChange={(e) =>
+                                setFilters((s) => ({...s, sold_at_to: e.target.value}))
+                            }
+                        />
 
-                            <div>
-                                <label className="block mb-2 text-sm text-[#666F8D]">Интервал</label>
-                                <select
-                                    value={filters.interval}
-                                    onChange={handleIntervalChange}
-                                    className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
-                                >
-                                    <option value="day">День</option>
-                                    <option value="week">Неделя</option>
-                                    <option value="month">Месяц</option>
-                                </select>
-                            </div>
-
-                            <MultiSelect
-                                label="Тип объявления"
-                                value={filters.offer_type}
-                                options={OFFER_OPTIONS}
-                                onChange={(arr) => setFilters((s) => ({...s, offer_type: arr}))}
-                            />
+                        <div>
+                            <label className="block mb-2 text-sm text-[#666F8D]">Интервал</label>
+                            <select
+                                value={filters.interval}
+                                onChange={handleIntervalChange}
+                                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                            >
+                                <option value="day">День</option>
+                                <option value="week">Неделя</option>
+                                <option value="month">Месяц</option>
+                            </select>
                         </div>
 
-                        <div className="mt-4">
-                            <MultiSelect
-                                label="Статусы"
-                                value={filters.moderation_status}
-                                options={STATUS_OPTIONS}
-                                onChange={(arr) => setFilters((s) => ({...s, moderation_status: arr}))}
-                            />
+                        <MultiSelect
+                            label="Тип объявления"
+                            value={filters.offer_type}
+                            options={OFFER_OPTIONS}
+                            onChange={(arr) => setFilters((s) => ({...s, offer_type: arr}))}
+                        />
+                    </div>
+
+                    <div className="mt-4">
+                        <MultiSelect
+                            label="Статусы"
+                            value={filters.moderation_status}
+                            options={STATUS_OPTIONS}
+                            onChange={(arr) => setFilters((s) => ({...s, moderation_status: arr}))}
+                        />
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="flex flex-col gap-2">
+                            <label className="block mb-2 text-sm text-[#666F8D]">Агенты</label>
+                            <select
+                                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                                value={filters.agent_id ? String(filters.agent_id) : ''}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    setFilters((s) => ({...s, agent_id: val ? [val] : []}));
+                                }}
+                            >
+                                <option value="">— Все —</option>
+                                {agents.map((a) => (
+                                    <option key={a.id} value={String(a.id)}>
+                                        {a.name}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
 
-                        <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div className="flex flex-col gap-2">
-                                <label className="block mb-2 text-sm text-[#666F8D]">Агенты</label>
-                                <select
-                                    className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
-                                    value={filters.agent_id ? String(filters.agent_id) : ''}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        setFilters((s) => ({...s, agent_id: val ? [val] : []}));
-                                    }}
-                                >
-                                    <option value="">— Все —</option>
-                                    {agents.map((a) => (
-                                        <option key={a.id} value={String(a.id)}>
-                                            {a.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="flex flex-col gap-2">
-                                <label className="block mb-2 text-sm text-[#666F8D]">Комнат</label>
-                                <select
-                                    className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
-                                    value={filters.roomsFrom ?? ''}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        if (!val) {
-                                            // cleared -> remove range
-                                            setFilters((s) => ({...s, roomsFrom: '', roomsTo: ''}));
-                                        } else {
-                                            // single specific rooms selected -> set both from/to to the same value
-                                            setFilters((s) => ({...s, roomsFrom: val, roomsTo: val}));
-                                        }
-                                    }}
-                                >
-                                    <option value="">— Все —</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                    <option value="6">6+</option>
-                                </select>
-                                {/*<p className="text-xs text-gray-500 mt-1">Выберите количество комнат. При выборе, например, «2», в фильтре будут установлены roomsFrom=2 и roomsTo=2.</p>*/}
-                            </div>
-
-                            {/* placeholder for additional filters */}
-                            <div className="flex flex-col gap-2">
-                                <label className="block mb-2 text-sm text-[#666F8D]">Тип договора</label>
-                                <select
-                                    className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
-                                    value={filters.contract_type_id ? String(filters.contract_type_id) : ''}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        setFilters((s) => ({...s, contract_type_id: val ? [val] : []}));
-                                    }}
-                                >
-                                    <option value="">— Все —</option>
-                                    <option value="1">Альтернативный</option>
-                                    <option value="2">Эксклюзив</option>
-                                    <option value="3">Без договора</option>
-                                </select>
-                            </div>
+                        <div className="flex flex-col gap-2">
+                            <label className="block mb-2 text-sm text-[#666F8D]">Комнат</label>
+                            <select
+                                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                                value={filters.roomsFrom ?? ''}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    if (!val) {
+                                        // cleared -> remove range
+                                        setFilters((s) => ({...s, roomsFrom: '', roomsTo: ''}));
+                                    } else {
+                                        // single specific rooms selected -> set both from/to to the same value
+                                        setFilters((s) => ({...s, roomsFrom: val, roomsTo: val}));
+                                    }
+                                }}
+                            >
+                                <option value="">— Все —</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6+</option>
+                            </select>
+                            {/*<p className="text-xs text-gray-500 mt-1">Выберите количество комнат. При выборе, например, «2», в фильтре будут установлены roomsFrom=2 и roomsTo=2.</p>*/}
                         </div>
 
-                        <div className="flex gap-3 mt-4">
-                            <Button onClick={load} loading={loading}>
-                                Применить
-                            </Button>
-                            <Button variant="secondary" onClick={resetFilters}>
-                                Сбросить
-                            </Button>
+                        {/* placeholder for additional filters */}
+                        <div className="flex flex-col gap-2">
+                            <label className="block mb-2 text-sm text-[#666F8D]">Тип договора</label>
+                            <select
+                                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                                value={filters.contract_type_id ? String(filters.contract_type_id) : ''}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    setFilters((s) => ({...s, contract_type_id: val ? [val] : []}));
+                                }}
+                            >
+                                <option value="">— Все —</option>
+                                <option value="1">Альтернативный</option>
+                                <option value="2">Эксклюзив</option>
+                                <option value="3">Без договора</option>
+                            </select>
                         </div>
-              </div>
+                    </div>
+
+                    <div className="flex gap-3 mt-4">
+                        <Button onClick={load} loading={loading}>
+                            Применить
+                        </Button>
+                        <Button variant="secondary" onClick={resetFilters}>
+                            Сбросить
+                        </Button>
+                    </div>
+                </div>
             </div>
 
 
@@ -459,20 +455,33 @@ export default function ReportsPage() {
                 </div>
 
                 {viewMode === 'table' ? (
-                    <div className="overflow-x-auto">
-                        <table className="w-full table-auto text-left">
+                    <div className="overflow-x-auto max-w-full">
+                        <table className="min-w-[2000px] w-full table-auto text-left">
                             <thead>
                             <tr>
-                                <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort('id')}>ID</th>
-                                <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort('title')}>Название
-                                </th>
-                                <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort('price')}>Цена</th>
-                                <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort('agent_id')}>Агент
-                                </th>
-                                <th className="px-3 py-2 cursor-pointer"
-                                    onClick={() => toggleSort('moderation_status')}>Статус
-                                </th>
-                                <th className="px-3 py-2">Действия</th>
+                              <th className="px-3 py-2">ID</th>
+                              <th className="px-3 py-2">Агент</th>
+                              <th className="px-3 py-2">Название</th>
+                              <th className="px-3 py-2">Район</th>
+                              <th className="px-3 py-2">Ориентир</th>
+                              <th className="px-3 py-2">Тип застройки</th>
+                              <th className="px-3 py-2">Цена</th>
+                              <th className="px-3 py-2">Статус</th>
+
+                              {isSuperAdmin && (
+                                <>
+                                  <th className="px-3 py-2">Фактическая цена продажи</th>
+                                  <th className="px-3 py-2">Залог</th>
+                                  <th className="px-3 py-2">Дата залога</th>
+                                  <th className="px-3 py-2">Деньги где</th>
+                                  <th className="px-3 py-2">Дата оформления</th>
+                                  <th className="px-3 py-2">Клиент</th>
+                                  <th className="px-3 py-2">Доход компании</th>
+                                  <th className="px-3 py-2">Агенты / выплаты</th>
+                                </>
+                              )}
+
+                              <th className="px-3 py-2">Действия</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -483,49 +492,132 @@ export default function ReportsPage() {
                             )}
 
                             {propertiesItems.map((p: Property) => (
-                                <tr key={p.id} className="border-t">
-                                    <td className="px-3 py-3">{p.id}</td>
-                                    <td className="px-3 py-3">{buildTitle(p)}</td>
-                                    <td className="px-3 py-3">{p.price ? `${p.price} ${p.currency ?? ''}` : '—'}</td>
-                                    <td className="px-3 py-3">{p.creator?.name ?? '—'}</td>
-                                    <td className="px-3 py-3">{statusLabel(p.moderation_status)}</td>
-                                    <td className="px-3 py-3">
-                                        <div className="relative inline-block text-left">
-                                            <Button variant="circle" size="sm"
-                                                    onClick={() => {
-                                                        setOpenRow(openRow === p.id ? null : p.id);
-                                                    }}
-                                                    className='rounded-full'
-                                            >
-                                                <Ellipsis className=' w-5'/>
+                              <tr key={p.id} className="border-t">
+                                <td className="px-3 py-3 text-sm whitespace-nowrap">{p.id}</td>
 
-                                            </Button>
+                                <td className="px-3 py-3 text-sm whitespace-nowrap">
+                                  {p.creator?.name || '—'}
+                                </td>
 
-                                            {openRow === p.id && (
-                                                <div
-                                                    className="absolute right-0 left-0 m-auto mt-2 w-44 bg-white border rounded shadow z-20">
-                                                    <Link href={`/apartment/${p.id}`}
-                                                          className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
-                                                        <EyeIcon className="w-4 h-4"/>
-                                                        <span>Посмотреть</span>
-                                                    </Link>
+                                <td className="px-3 py-3 text-sm whitespace-nowrap">
+                                  {buildTitle(p)}
+                                </td>
 
-                                                    <Link href={`/apartment/${p.id}/logs`}
-                                                          className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
-                                                        <HistoryIcon className="w-4 h-4"/>
-                                                        <span>Посмотреть историю</span>
-                                                    </Link>
-                                                    <Link href={`/profile/edit-post/${p.id}`}
-                                                          className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
-                                                        <EditIcon className="w-4 h-4"/>
-                                                        <span>Редактировать</span>
-                                                    </Link>
+                                <td className="px-3 py-3 text-sm whitespace-nowrap">
+                                  {p.district || '—'}
+                                </td>
 
-                                                </div>
-                                            )}
-                                        </div>
+                                <td className="px-3 py-3 text-sm whitespace-nowrap">
+                                  {p.landmark || '—'}
+                                </td>
+
+                                <td className="px-3 py-3 text-sm whitespace-nowrap">
+                                  {p.type?.name || '—'}
+                                </td>
+
+                                <td className="px-3 py-3 text-sm whitespace-nowrap">
+                                  {p.price ? `${p.price} ${p.currency}` : '—'}
+                                </td>
+
+                                <td className="px-3 py-3 text-sm whitespace-nowrap">
+                                  {statusLabel(p.moderation_status)}
+                                </td>
+
+                                {isSuperAdmin && p.moderation_status === 'sold' && (
+                                  <>
+                                    <td className="px-3 py-3 text-sm whitespace-nowrap font-medium text-emerald-700">
+                                      {p.actual_sale_price
+                                        ? `${p.actual_sale_price} ${p.actual_sale_currency}`
+                                        : '—'}
                                     </td>
-                                </tr>
+
+                                    <td className="px-3 py-3 text-sm whitespace-nowrap">
+                                      {p.deposit_amount
+                                        ? `${p.deposit_amount} ${p.deposit_currency}`
+                                        : '—'}
+                                    </td>
+
+                                    <td className="px-3 py-3 text-sm whitespace-nowrap">
+                                      {p.deposit_received_at
+                                        ? new Date(p.deposit_received_at).toLocaleDateString()
+                                        : '—'}
+                                    </td>
+
+                                    <td className="px-3 py-3 text-sm whitespace-nowrap">
+                                      {p.money_holder === 'company'
+                                        ? 'В офисе'
+                                        : p.money_holder === 'owner'
+                                          ? 'У владельца'
+                                          : '—'}
+                                    </td>
+
+                                    <td className="px-3 py-3 text-sm whitespace-nowrap">
+                                      {p.planned_contract_signed_at
+                                        ? new Date(p.planned_contract_signed_at).toLocaleDateString()
+                                        : '—'}
+                                    </td>
+
+                                    <td className="px-3 py-3 text-sm whitespace-nowrap">
+                                      {p.buyer_full_name
+                                        ? `${p.buyer_full_name} (${p.buyer_phone || '—'})`
+                                        : '—'}
+                                    </td>
+
+                                    <td className="px-3 py-3 text-sm whitespace-nowrap font-semibold">
+                                      {p.company_expected_income
+                                        ? `${p.company_expected_income} ${p.company_expected_income_currency}`
+                                        : '—'}
+                                    </td>
+
+                                    <td className="px-3 py-3 text-sm whitespace-nowrap">
+                                      {Array.isArray(p.sale_agents) && p.sale_agents.length > 0
+                                        ? p.sale_agents.map((a: any) => {
+                                            const amount = a.pivot?.agent_commission_amount;
+                                            const currency = a.pivot?.agent_commission_currency || 'TJS';
+                                            const role = a.pivot?.role === 'main' ? 'Основной' : 'Помощник';
+
+                                            return `${a.name} (${role}): ${amount ? amount : 0} ${currency}`;
+                                          }).join(', ')
+                                        : '—'}
+                                    </td>
+                                  </>
+                                )}
+
+                                <td className="px-3 py-3 text-sm whitespace-nowrap">
+                                  <div className="relative inline-block text-left">
+                                    <Button variant="circle" size="sm"
+                                            onClick={() => {
+                                              setOpenRow(openRow === p.id ? null : p.id);
+                                            }}
+                                            className='rounded-full'
+                                    >
+                                      <Ellipsis className=' w-5'/>
+                                    </Button>
+
+                                    {openRow === p.id && (
+                                      <div
+                                        className="absolute right-0 left-0 m-auto mt-2 w-44 bg-white border rounded shadow z-20">
+                                        <Link href={`/apartment/${p.id}`}
+                                              className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
+                                          <EyeIcon className="w-4 h-4"/>
+                                          <span>Посмотреть</span>
+                                        </Link>
+
+                                        <Link href={`/apartment/${p.id}/logs`}
+                                              className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
+                                          <HistoryIcon className="w-4 h-4"/>
+                                          <span>Посмотреть историю</span>
+                                        </Link>
+                                        <Link href={`/profile/edit-post/${p.id}`}
+                                              className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50">
+                                          <EditIcon className="w-4 h-4"/>
+                                          <span>Редактировать</span>
+                                        </Link>
+                                      </div>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
                             ))}
                             </tbody>
                         </table>

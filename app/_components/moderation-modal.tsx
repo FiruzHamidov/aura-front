@@ -185,6 +185,11 @@ const ModerationModal: FC<ModerationModalProps> = ({
         }
 
         if (mustProvideDeposit) {
+            if (Number(depositAmount) <= 0) {
+                toast.error('Сумма залога должна быть больше 0');
+                setLoading(false);
+                return;
+            }
             if (!buyerFullName.trim()) {
                 toast.error('Укажите ФИО покупателя');
                 return;
@@ -193,7 +198,7 @@ const ModerationModal: FC<ModerationModalProps> = ({
                 toast.error('Укажите номер телефона покупателя');
                 return;
             }
-            if (!depositAmount || Number(depositAmount) <= 0) {
+            if (!depositAmount) {
                 toast.error('Укажите сумму залога');
                 return;
             }
@@ -301,11 +306,6 @@ const ModerationModal: FC<ModerationModalProps> = ({
 
                 payload.money_received_at = property.money_received_at ?? '';
                 payload.contract_signed_at = property.contract_signed_at ?? '';
-
-                payload.deposit_amount = property.deposit_amount ?? 0;
-                payload.deposit_currency = property.deposit_currency ?? 'TJS';
-                payload.deposit_received_at = property.deposit_received_at ?? '';
-                payload.deposit_taken_at = property.deposit_taken_at ?? '';
 
                 if (selectedModerationStatus === 'sold') {
                     payload.agents = selectedAgents.map(a => ({

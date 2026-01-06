@@ -6,9 +6,14 @@ export type ChatMessage = {
     created_at?: string;
 };
 
+export type PropertyImage = {
+    path: string;
+    is_main?: boolean;
+};
+
 export type PropertyCard = {
     id: number;
-    title: string;
+    title: string | null;
     price: number;
     currency: string;
     city?: string | null;
@@ -16,7 +21,13 @@ export type PropertyCard = {
     rooms?: number | null;
     area?: number | null;
     url: string;
+
+    // 👇 новый основной контракт
+    photos: PropertyImage[];
+
+    // 👇 fallback для старого кода (можно удалить позже)
     image?: string | null;
+
     badge?: string | null;
     type?: { id: number; name?: string | null; slug?: string | null } | number;
     created_at?: string;

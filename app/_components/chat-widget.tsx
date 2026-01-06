@@ -238,6 +238,7 @@ export default function ChatWidget({
                 created_at: new Date().toISOString(),
             };
             setMessages((prev) => [...prev, assistantMsg]);
+            console.log('assistantMsg', assistantMsg)
         } catch (e) {
             console.error(e);
             const err: ChatMessage = {
@@ -257,8 +258,18 @@ export default function ChatWidget({
             <div className="flex gap-3 items-start">
                 <div
                     className="relative w-16 h-16 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
-                    {it.image ? (
-                        <Image alt={it.title} src={it.image} fill className="object-cover" sizes="64px"/>
+
+                    {it.photos?.length > 0 ? (
+                        <Image
+                            alt={it.title ?? 'Фото объекта'}
+                            src={
+                                'https://backend.aura.tj/storage/' +
+                                (it.photos.find(i => i.is_main)?.path ?? it.photos[0]?.path)
+                            }
+                            fill
+                            className="object-cover"
+                            sizes="64px"
+                        />
                     ) : (
                         <Home className="w-5 h-5 text-gray-400"/>
                     )}
@@ -381,9 +392,13 @@ export default function ChatWidget({
                         </div>
                     )}
 
-                    {messages.map((m, idx) => (
-                        <Bubble key={(m as { id?: string | number }).id ?? idx} m={m}/>
-                    ))}
+                    {messages.map((m, idx) => {
+                        const key =
+                            (m.id != null ? `msg-${m.id}` : null) ??
+                            `${m.role}-${m.created_at ?? 'no-time'}-${idx}`;
+
+                        return <Bubble key={key} m={m} />;
+                    })}
 
                     {loading && (
                         <div className="w-full flex justify-start">
