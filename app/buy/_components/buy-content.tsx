@@ -275,7 +275,7 @@ export const BuyContent: FC<{ offer_type_props?: string }> = ({offer_type_props 
         dir: searchParams.get('dir') || 'desc',
         listing_type: '',
         offer_type: offer_type_props,
-        is_full_apartment: searchParams.get('is_full_apartment') || '0',
+        is_full_apartment: searchParams.get('is_full_apartment') || '',
     };
 
     const {
