@@ -12,6 +12,8 @@ export type SummaryResponse = {
     by_offer_type: { offer_type: string; cnt: number }[];
     avg_price: number;
     avg_total_area: number;
+    published_rent: number;
+    published_sale: number;
     sum_price: number;        // NEW
     sum_total_area: number;   // NEW
 };

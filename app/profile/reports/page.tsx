@@ -830,6 +830,17 @@ export default function ReportsPage() {
                                 </Link>
                             );
                         })}
+                        {/*'published_sale' => $publishedSale,*/}
+                        {/*'published_rent' => $publishedRent,*/}
+
+                        <Link href={`/profile/reports/objects/?agent_id=${filters.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}&moderation_status=approved`} className='flex justify-between'>
+                            <span>Опубликовано/В продаже</span>
+                            <span className='text-xl font-semibold'>{summary?.published_sale}</span>
+                        </Link>
+                        <Link href={`/profile/reports/objects/?agent_id=${filters.agent_id}&date_from=${filters.date_from}&date_to=${filters.date_to}&moderation_status=approved`} className='flex justify-between'>
+                            <span>Опубликовано/В аренде</span>
+                            <span className='text-xl font-semibold'>{summary?.published_rent}</span>
+                        </Link>
                         {soldStatusData.map((s, i) => {
                             return (
                                 <Link href={`/profile/reports/objects/?agent_id=${filters.agent_id}&sold_at_from=${filters.date_from}&sold_at_to=${filters.date_to}&moderation_status=${s.origLabel}`} key={i} className='flex justify-between'>
