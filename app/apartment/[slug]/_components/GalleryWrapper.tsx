@@ -15,7 +15,7 @@ import {
     Bath,
     Building2,
     Calendar1Icon,
-    CopyIcon,
+    CopyIcon, Download,
     EyeIcon,
     FileText,
     Flame,
@@ -225,7 +225,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
     const areaLabel = (p: Property) => (p.total_area ? `${p.total_area} м²` : '');
     const floorLabel = (p: Property) => (p.floor ? `${p.floor} этаж` : '');
     const roomsLabel = (p: Property) => (p.rooms ? `${p.rooms} комн.` : '');
-
+    const imageRef = useRef<HTMLImageElement | null>(null);
     // === Итоговый TITLE без адреса (адрес добавим в JSX) ===
     const buildPageTitle = (p: Property) => {
         const kind = getKindName(p);
@@ -277,6 +277,29 @@ export default function GalleryWrapper({apartment, photos}: Props) {
         const days = Math.floor(hours / 24);
         return `${days} дней назад`;
     }
+
+    const handleDownloadPhoto = async (url: string, index: number) => {
+        try {
+            const response = await fetch(url, { mode: 'cors' });
+            const blob = await response.blob();
+
+            const blobUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+
+            link.href = blobUrl;
+            link.download = `photo_${index + 1}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (e) {
+            console.error('Ошибка скачивания', e);
+        }
+    };
+
+    const isAuthorizedForDownload =
+        isAdminUser || isAgentUser;
 
     return (
         <>
@@ -397,6 +420,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                                 title="Нажмите для увеличения"
                                             >
                                                 <Image
+                                                    ref={imageRef}
                                                     src={photos[selectedIndex]}
                                                     alt={`Фото ${selectedIndex + 1}`}
                                                     fill
@@ -404,6 +428,30 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                                     sizes="(max-width: 768px) 100vw, 303px"
                                                     priority
                                                 />
+
+                                                {isAuthorizedForDownload && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDownloadPhoto(photos[selectedIndex], selectedIndex);
+                                                        }}
+                                                        className="
+                                                            absolute top-3 right-3 z-10
+                                                            w-10 h-10
+                                                            bg-white/90
+                                                            rounded-full
+                                                            flex items-center justify-center
+                                                            shadow
+                                                            hover:bg-white
+                                                            transition cursor-pointer
+                                                        "
+                                                        aria-label="Скачать фото"
+                                                        title="Скачать фото"
+                                                    >
+                                                        <Download size={20} className="text-[#0036A5]" />
+                                                    </button>
+                                                )}
 
                                                 {/* Стрелки навигации */}
                                                 {photos.length > 1 && (
